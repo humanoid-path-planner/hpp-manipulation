@@ -1,0 +1,3 @@
+TAGFILES	= @HPP_MODEL_DOXYGENDOCDIR@/hpp-model.doxytag = @HPP_MODEL_DOXYGENDOCDIR@/hpp-model.doxytag \
+		@HPP_CORE_DOXYGENDOCDIR@/hpp-core.doxytag = @HPP_CORE_DOXYGENDOCDIR@/hpp-core.doxytag \
+		@HPP_CONSTRAINTS_DOXYGENDOCDIR@/hpp-constraints.doxytag = @HPP_CONSTRAINTS_DOXYGENDOCDIR@/hpp-constraints.doxytag

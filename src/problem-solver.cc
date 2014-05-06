@@ -15,6 +15,7 @@
 // hpp-manipulation-corba.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/util/pointer.hh>
 #include <hpp/manipulation/object.hh>
 #include <hpp/manipulation/problem-solver.hh>
 #include <hpp/manipulation/robot.hh>
@@ -39,6 +40,29 @@ namespace hpp {
       }
       RobotPtr_t composite (Robot::create (robotName, robots, objects));
       robot (composite);
+    }
+
+    DevicePtr_t ProblemSolver::robot (const std::string& name) const
+    {
+      RobotsandObjects_t::const_iterator it =
+	robotsAndObjects_.find (name);
+      if (it == robotsAndObjects_.end ()) {
+	throw std::runtime_error ("No robot nor object with this name");
+      }
+      return it->second;
+    }
+
+    ObjectPtr_t ProblemSolver::object (const std::string& name) const
+    {
+      RobotsandObjects_t::const_iterator it = robotsAndObjects_.find (name);
+      if (it == robotsAndObjects_.end ()) {
+	throw std::runtime_error ("No robot nor object with this name");
+      }
+      ObjectPtr_t object = HPP_DYNAMIC_PTR_CAST (Object, it->second);
+      if (!object) {
+	throw std::runtime_error (name + std::string (" is not an object"));
+      }
+      return object;
     }
 
   } // namespace manipulation

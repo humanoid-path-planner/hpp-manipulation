@@ -63,6 +63,16 @@ namespace hpp {
 	robotsAndObjects_ [name] = object;
       }
 
+      /// Get robot with given name
+      ///
+      /// throw if no robot is registered with this name.
+      DevicePtr_t robot (const std::string& name) const;
+      
+      /// Get object with given name
+      ///
+      /// throw if no object is registered with this name.
+      ObjectPtr_t object (const std::string& name) const;
+      
       /// Build a composite robot from several robots and objects
       /// \param robotName Name of the composite robot,
       /// \param robotNames Names of the robots stored internally that have been
@@ -72,9 +82,10 @@ namespace hpp {
       void buildCompositeRobot (const std::string& robotName,
 				const Names_t& robotNames);
     private:
+      typedef std::map <const std::string, DevicePtr_t> RobotsandObjects_t;
       RobotPtr_t robot_;
       /// Map of single robots to store before building a composite robot.
-      std::map <const std::string, DevicePtr_t> robotsAndObjects_;
+      RobotsandObjects_t robotsAndObjects_;
     }; // class ProblemSolver
   } // namespace manipulation
 } // namespace hpp

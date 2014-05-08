@@ -63,6 +63,11 @@ namespace hpp {
     typedef std::vector <GraspPtr_t> Grasps_t;
     typedef std::vector <ObjectPtr_t> Objects_t;
     typedef std::map <JointConstPtr_t, JointPtr_t> JointMap_t;
+    typedef core::ConstraintPtr_t ConstraintPtr_t;
+    typedef core::DifferentiableFunction NumericalConstraint;
+    typedef core::DifferentiableFunctionPtr_t NumericalConstraintPtr_t;
+    typedef std::map <std::string, NumericalConstraintPtr_t>
+    NumericalConstraintMap_t;
   } // namespace manipulation
 } // namespace hpp
 

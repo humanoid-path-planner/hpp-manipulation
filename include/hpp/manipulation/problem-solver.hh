@@ -35,7 +35,8 @@ namespace hpp {
       virtual ~ProblemSolver ()
       {
       }
-      ProblemSolver () : core::ProblemSolver (), robot_ (), robotsAndObjects_ ()
+      ProblemSolver () : core::ProblemSolver (), robot_ (),
+	robotsAndObjects_ (), NumericalConstraintMap_ ()
 	{
 	}
       /// Set robot
@@ -46,6 +47,9 @@ namespace hpp {
 	assert (robot_);
 	parent_t::robot (robot);
       }
+
+      /// \name Robots and objects access
+      /// \{
 
       /// Add a single robot before building a composite robot
       /// \param name key of the robot as stored in an internal map.
@@ -63,6 +67,12 @@ namespace hpp {
 	robotsAndObjects_ [name] = object;
       }
 
+      /// Get robot
+      const RobotPtr_t& robot () const
+      {
+	return robot_;
+      }
+
       /// Get robot with given name
       ///
       /// throw if no robot is registered with this name.
@@ -72,7 +82,25 @@ namespace hpp {
       ///
       /// throw if no object is registered with this name.
       ObjectPtr_t object (const std::string& name) const;
-      
+      /// }
+
+      /// \name Constraints
+      /// \{
+
+      /// Add a a numerical constraint in the map.
+      void addNumericalConstraint (const std::string& name,
+				   const NumericalConstraintPtr_t& constraint)
+      {
+	NumericalConstraintMap_ [name] = constraint;
+      }
+
+      /// Get constraint with given name
+      NumericalConstraintPtr_t constraint (const std::string& name)
+      {
+	return NumericalConstraintMap_ [name];
+      }
+      /// \}
+
       /// Build a composite robot from several robots and objects
       /// \param robotName Name of the composite robot,
       /// \param robotNames Names of the robots stored internally that have been
@@ -86,6 +114,8 @@ namespace hpp {
       RobotPtr_t robot_;
       /// Map of single robots to store before building a composite robot.
       RobotsandObjects_t robotsAndObjects_;
+      /// Map of constraints
+      NumericalConstraintMap_t NumericalConstraintMap_;
     }; // class ProblemSolver
   } // namespace manipulation
 } // namespace hpp

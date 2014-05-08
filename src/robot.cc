@@ -55,7 +55,7 @@ namespace hpp {
 	handle.name = object->name () + "/" + itHandle->name;
 	handle.joint = jointMap_ [itHandle->joint];
 	handle.localPosition = itHandle->localPosition;
-	addHandle (handle);
+	addHandle (handle.name, handle);
       }
     }
 
@@ -134,11 +134,12 @@ namespace hpp {
       parent_t::print (os);
       // print handles
       os << "Handles:" << std::endl;
-      for (Object::Handles_t::const_iterator itHandle = handles_.begin ();
+      for (Handles_t::const_iterator itHandle = handles_.begin ();
 	   itHandle != handles_.end (); ++itHandle) {
-	os << "  name: " << itHandle->name << std::endl;
-	os << "  localPosition: " << itHandle->localPosition << std::endl;
-	os << "  joint: " << itHandle->joint->name () << std::endl;
+	os << "  name: " << itHandle->second.name << std::endl;
+	os << "  localPosition: " << itHandle->second.localPosition
+	   << std::endl;
+	os << "  joint: " << itHandle->second.joint->name () << std::endl;
       }
     }
 

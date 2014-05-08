@@ -58,6 +58,10 @@ namespace hpp {
 	ptr->init (shPtr);
 	return shPtr;
       }
+
+      /// \name Object handles
+      /// \{
+
       /// Add a handle
       void addHandle (const Handle& handle)
       {
@@ -73,6 +77,7 @@ namespace hpp {
       {
 	return handles_;
       }
+      /// \}
     protected:
       Object (const std::string& name) : parent_t (name), handles_ ()
 	{

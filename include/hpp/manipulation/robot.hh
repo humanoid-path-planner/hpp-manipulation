@@ -72,21 +72,23 @@ namespace hpp {
 	return jointMap_ [original];
       }
 
+      /// \name Composite robot handles
+      /// \{
+
       /// Add a handle
-      void addHandle (const Object::Handle& handle)
+      void addHandle (const std::string& name, const Object::Handle& handle)
       {
-	handles_.push_back (handle);
+	handles_ [name] = handle;
       }
       /// Return list of handles of the object
-      Object::Handles_t& handles ()
+      const Object::Handle& handle (const std::string& name) const
       {
-	return handles_;
+	Handles_t::const_iterator it = handles_.find (name);
+	if (it == handles_.end ())
+	  throw std::runtime_error ("no handle with name " + name);
+	return it->second;
       }
-      /// Return list of handles of the object
-      const Object::Handles_t& handles () const
-      {
-	return handles_;
-      }
+      /// \}
 
       /// Print object in a stream
       virtual std::ostream& print (std::ostream& os) const;
@@ -105,6 +107,7 @@ namespace hpp {
       void init (const RobotWkPtr_t& self);
     private:
       typedef std::map <DevicePtr_t, size_type> RankMap_t;
+      typedef std::map <std::string, Object::Handle> Handles_t;
       /// Build the kinematic chain composed of the robot and of the manipulated
       /// objects
       void buildKinematicChain ();
@@ -121,8 +124,8 @@ namespace hpp {
       Devices_t robots_;
       /// Set of objects
       Objects_t objects_;
-      /// Set of handles
-      Object::Handles_t handles_;
+      /// Map of handles
+      Handles_t handles_;
       /// Map from original joints to copies
       JointMap_t jointMap_;
       /// Weak pointer to itself

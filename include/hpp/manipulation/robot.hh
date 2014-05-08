@@ -98,7 +98,10 @@ namespace hpp {
       /// \param objects Set of objects manipulated by the robot.
       Robot (const std::string& name, const Devices_t& robots,
 	     const Objects_t& objects);
-      /// Call parent implementation and store weak pointer to itself
+      /// Initialize robot
+      ///
+      /// Call parent implementation, store weak pointer to itself and copy
+      /// the kinematic chain of robots and objects.
       void init (const RobotWkPtr& self);
     private:
       typedef std::map <DevicePtr_t, size_type> RankMap_t;
@@ -106,9 +109,8 @@ namespace hpp {
       /// objects
       void buildKinematicChain ();
       /// Recursively copy a kinematic chain
-      JointPtr_t copyKinematicChain (const JointPtr_t& rootJoint,
-				     const JointConstPtr_t& joint,
-				     std::size_t depth = 0);
+      void copyKinematicChain (const JointPtr_t& parentJoint,
+			       const JointConstPtr_t& joint);
       /// Copy object including kinematic chain.
       void copyObject (const JointPtr_t& rootJoint,
 		       const ObjectConstPtr_t& object);

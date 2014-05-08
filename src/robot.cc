@@ -23,9 +23,8 @@
 
 namespace hpp {
   namespace manipulation {
-    JointPtr_t Robot::copyKinematicChain (const JointPtr_t& rootJoint,
-					  const JointConstPtr_t& joint,
-					  std::size_t depth)
+    void Robot::copyKinematicChain (const JointPtr_t& parentJoint,
+				    const JointConstPtr_t& joint)
     {
       JointPtr_t copy = joint->clone ();
       copy->name (joint->robot ()->name () + "/" + joint->name ());
@@ -34,17 +33,10 @@ namespace hpp {
       // new joint what is its robot.
       copy->robot (weak_.lock ());
       jointMap_ [joint] = copy;
+      parentJoint->addChildJoint (copy);
       for (std::size_t i=0; i<joint->numberChildJoints (); ++i) {
-	JointPtr_t newChild = copyKinematicChain (rootJoint,
-						  joint->childJoint (i),
-						  depth+1);
-	copy->addChildJoint (newChild);
+	copyKinematicChain (copy, joint->childJoint (i));
       }
-      // Joints need to be attached to a robot to accept children.
-      if (depth == 0) {
-	rootJoint->addChildJoint (copy);
-      }
-      return copy;
     }
 
     void Robot::copyObject (const JointPtr_t& rootJoint,
@@ -94,13 +86,13 @@ namespace hpp {
 		  const Objects_t& objects) :
       parent_t (name), robots_ (robots), objects_ (objects)
     {
-      buildKinematicChain ();
     }
 
     void Robot::init (const RobotWkPtr& self)
     {
       parent_t::init (self);
       weak_ = self;
+      buildKinematicChain ();
     }
 
     /// Iterate over objects and for each new object,

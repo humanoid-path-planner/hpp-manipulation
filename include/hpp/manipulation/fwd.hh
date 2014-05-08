@@ -39,8 +39,7 @@ namespace hpp {
     typedef core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
     HPP_PREDEF_CLASS (Grasp);
     typedef boost::shared_ptr <Grasp> GraspPtr_t;
-    class Object;
-    typedef boost::weak_ptr <Object> ObjectWkPtr_t;
+    HPP_PREDEF_CLASS (Object);
     typedef boost::shared_ptr <Object> ObjectPtr_t;
     typedef boost::shared_ptr <const Object> ObjectConstPtr_t;
     HPP_PREDEF_CLASS (ProblemSolver);

@@ -88,7 +88,7 @@ namespace hpp {
     {
     }
 
-    void Robot::init (const RobotWkPtr& self)
+    void Robot::init (const RobotWkPtr_t& self)
     {
       parent_t::init (self);
       weak_ = self;

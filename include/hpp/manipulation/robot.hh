@@ -102,7 +102,7 @@ namespace hpp {
       ///
       /// Call parent implementation, store weak pointer to itself and copy
       /// the kinematic chain of robots and objects.
-      void init (const RobotWkPtr& self);
+      void init (const RobotWkPtr_t& self);
     private:
       typedef std::map <DevicePtr_t, size_type> RankMap_t;
       /// Build the kinematic chain composed of the robot and of the manipulated
@@ -128,7 +128,7 @@ namespace hpp {
       /// Weak pointer to itself
       RankMap_t rankInConfiguration_;
       RankMap_t rankInVelocity_;
-      RobotWkPtr weak_;
+      RobotWkPtr_t weak_;
     }; // class Robot
   } // namespace manipulation
 } // namespace hpp

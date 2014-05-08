@@ -53,7 +53,10 @@ namespace hpp {
       /// Create instance and return shared pointer.
       static ObjectPtr_t create (const std::string& name)
       {
-	return ObjectPtr_t (new Object (name));
+	Object* ptr = new Object (name);
+	ObjectPtr_t shPtr (ptr);
+	ptr->init (shPtr);
+	return shPtr;
       }
       /// Add a handle
       void addHandle (const Handle& handle)
@@ -74,8 +77,14 @@ namespace hpp {
       Object (const std::string& name) : parent_t (name), handles_ ()
 	{
 	}
+      void init (const ObjectWkPtr_t& weakPtr)
+      {
+	parent_t::init (weakPtr);
+	weakPtr_ = weakPtr_;
+      }
     private:
       Handles_t handles_;
+      ObjectWkPtr_t weakPtr_;
     }; // class Object
   } // namespace manipulation
 } // namespace hpp

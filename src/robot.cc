@@ -141,6 +141,7 @@ namespace hpp {
 	   << std::endl;
 	os << "  joint: " << itHandle->second.joint->name () << std::endl;
       }
+      return os;
     }
 
   } // namespace manipulation

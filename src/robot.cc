@@ -125,6 +125,19 @@ namespace hpp {
 	rankInConfiguration += (*itObj)->configSize ();
 	rankInVelocity += (*itObj)->numberDof ();
       }
+      // Copy current configuration
+      Configuration_t q (configSize ());
+      for (Devices_t::const_iterator itDev = robots_.begin ();
+	   itDev != robots_.end (); ++itDev) {
+	q.segment (rankInConfiguration_ [*itDev],
+		   (*itDev)->configSize ()) = (*itDev)->currentConfiguration ();
+      }
+      for (Objects_t::const_iterator itObj = objects_.begin ();
+	   itObj != objects_.end (); ++itObj) {
+	q.segment (rankInConfiguration_ [*itObj],
+		   (*itObj)->configSize ()) = (*itObj)->currentConfiguration ();
+      }
+      currentConfiguration (q);
       // Update kinematic chain after copy.
       updateDistances ();
     }

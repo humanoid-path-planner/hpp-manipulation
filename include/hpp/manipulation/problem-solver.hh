@@ -95,7 +95,7 @@ namespace hpp {
       }
 
       /// Get constraint with given name
-      NumericalConstraintPtr_t constraint (const std::string& name)
+      NumericalConstraintPtr_t numericalConstraint (const std::string& name)
       {
 	return NumericalConstraintMap_ [name];
       }

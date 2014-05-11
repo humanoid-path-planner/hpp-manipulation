@@ -82,7 +82,7 @@ namespace hpp {
       ///
       /// throw if no object is registered with this name.
       ObjectPtr_t object (const std::string& name) const;
-      /// }
+      /// \}
 
       /// \name Constraints
       /// \{

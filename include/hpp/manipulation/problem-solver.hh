@@ -36,7 +36,7 @@ namespace hpp {
       {
       }
       ProblemSolver () : core::ProblemSolver (), robot_ (),
-	robotsAndObjects_ (), NumericalConstraintMap_ ()
+	robotsAndObjects_ ()
 	{
 	}
       /// Set robot
@@ -84,23 +84,6 @@ namespace hpp {
       ObjectPtr_t object (const std::string& name) const;
       /// \}
 
-      /// \name Constraints
-      /// \{
-
-      /// Add a a numerical constraint in the map.
-      void addNumericalConstraint (const std::string& name,
-				   const NumericalConstraintPtr_t& constraint)
-      {
-	NumericalConstraintMap_ [name] = constraint;
-      }
-
-      /// Get constraint with given name
-      NumericalConstraintPtr_t numericalConstraint (const std::string& name)
-      {
-	return NumericalConstraintMap_ [name];
-      }
-      /// \}
-
       /// Build a composite robot from several robots and objects
       /// \param robotName Name of the composite robot,
       /// \param robotNames Names of the robots stored internally that have been
@@ -114,8 +97,6 @@ namespace hpp {
       RobotPtr_t robot_;
       /// Map of single robots to store before building a composite robot.
       RobotsandObjects_t robotsAndObjects_;
-      /// Map of constraints
-      NumericalConstraintMap_t NumericalConstraintMap_;
     }; // class ProblemSolver
   } // namespace manipulation
 } // namespace hpp

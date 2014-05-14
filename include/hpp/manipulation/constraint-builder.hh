@@ -43,7 +43,7 @@ namespace hpp {
 					       const GraspPtr_t& grasp) const
       {
 	return RelativeTransformation::create
-	  (robot, robot->joint (grasp->joint ()), grasp->handle ().joint,
+	  (robot, grasp->joint (), grasp->handle ().joint,
 	   inverse (grasp->handle ().localPosition) *
 	   grasp->handlePositionInJoint ());
       }

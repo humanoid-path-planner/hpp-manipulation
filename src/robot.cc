@@ -17,6 +17,7 @@
 // hpp-manipulation. If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/util/debug.hh>
 #include <hpp/model/object-factory.hh>
 #include <hpp/manipulation/robot.hh>
 #include <hpp/manipulation/grasp.hh>

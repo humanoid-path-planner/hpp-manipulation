@@ -33,7 +33,7 @@ namespace hpp {
       // new joint what is its robot.
       copy->robot (weak_.lock ());
       jointMap_ [joint] = copy;
-      parentJoint->addChildJoint (copy);
+      parentJoint->addChildJoint (copy, false);
       for (std::size_t i=0; i<joint->numberChildJoints (); ++i) {
 	copyKinematicChain (copy, joint->childJoint (i));
       }

@@ -105,6 +105,7 @@ namespace hpp {
       model::ObjectFactory factory;
       Transform3f pos; pos.setIdentity ();
       rootJoint (factory.createJointAnchor (pos));
+      rootJoint ()->name (name () + "/root");
       size_type rankInConfiguration = 0;
       size_type rankInVelocity = 0;
       // Copy robot kinematic chains

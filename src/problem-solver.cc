@@ -16,6 +16,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/pointer.hh>
+#include <hpp/util/debug.hh>
 #include <hpp/manipulation/object.hh>
 #include <hpp/manipulation/problem-solver.hh>
 #include <hpp/manipulation/robot.hh>
@@ -40,6 +41,7 @@ namespace hpp {
       }
       RobotPtr_t composite (Robot::create (robotName, robots, objects));
       robot (composite);
+      hppDout (info, *composite);
     }
 
     DevicePtr_t ProblemSolver::robot (const std::string& name) const

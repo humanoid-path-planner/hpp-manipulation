@@ -20,6 +20,8 @@
 SET(LIBRARY_NAME ${PROJECT_NAME})
 
 ADD_LIBRARY(${LIBRARY_NAME} SHARED
+  axial-handle.cc
+  handle.cc
   problem-solver.cc
   robot.cc
 )

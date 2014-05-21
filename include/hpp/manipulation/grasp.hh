@@ -20,7 +20,7 @@
 #ifndef HPP_MANIPULATION_GRASP_HH
 # define HPP_MANIPULATION_GRASP_HH
 
-# include <hpp/manipulation/object.hh>
+# include <hpp/manipulation/handle.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -34,14 +34,14 @@ namespace hpp {
       /// \param handlePositionInJoint handle position in the the grasping
       ///        joint.
       static GraspPtr_t create (const JointPtr_t& joint,
-				const Object::Handle& handle,
+				const HandlePtr_t& handle,
 				const Transform3f& handlePositionInJoint)
       {
 	Grasp* ptr = new Grasp (joint, handle, handlePositionInJoint);
 	return GraspPtr_t (ptr);
       }
       /// Get handle that is grasped
-      const Object::Handle& handle () const
+      const HandlePtr_t& handle () const
       {
 	return handle_;
       }
@@ -61,7 +61,7 @@ namespace hpp {
       /// \param handle handle that is grasped,
       /// \param handlePositionInJoint handle position in the the grasping
       ///        joint.
-      Grasp (const JointPtr_t& joint, const Object::Handle& handle,
+      Grasp (const JointPtr_t& joint, const HandlePtr_t& handle,
 	     const Transform3f& handlePositionInJoint) :
 	joint_ (joint), handle_ (handle),
 	handlePositionInJoint_ (handlePositionInJoint)
@@ -70,7 +70,7 @@ namespace hpp {
     private:
       /// Joint of the robot that holds the handle.
       JointPtr_t joint_;
-      Object::Handle handle_;
+      HandlePtr_t handle_;
       Transform3f handlePositionInJoint_;
     }; // class Grasp
   } // namespace manipulation

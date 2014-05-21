@@ -20,9 +20,8 @@
 #ifndef HPP_MANIPULATION_OBJECT_HH
 # define HPP_MANIPULATION_OBJECT_HH
 
-# include <hpp/manipulation/config.hh>
-# include <hpp/manipulation/fwd.hh>
 # include <hpp/model/device.hh>
+# include <hpp/manipulation/handle.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -38,17 +37,8 @@ namespace hpp {
     {
     public:
       typedef model::Device parent_t;
-      /// Part of an object that is aimed at being grasped
-      struct Handle
-      {
-	std::string name;
-	/// Position of the handle in the joint frame.
-	Transform3f localPosition;
-	/// Joint to which the handle is linked.
-	JointPtr_t joint;
-      }; // struct Handle
       /// List of handles.
-      typedef std::vector <Handle> Handles_t;
+      typedef std::vector <HandlePtr_t> Handles_t;
 
       /// Create instance and return shared pointer.
       static ObjectPtr_t create (const std::string& name)
@@ -63,7 +53,7 @@ namespace hpp {
       /// \{
 
       /// Add a handle
-      void addHandle (const Handle& handle)
+      void addHandle (const HandlePtr_t& handle)
       {
 	handles_.push_back (handle);
       }
@@ -78,6 +68,16 @@ namespace hpp {
 	return handles_;
       }
       /// \}
+      virtual std::ostream& print (std::ostream &os) const
+      {
+	parent_t::print (os);
+	os << "Handles:" << std::endl;
+	for (Handles_t::const_iterator it = handles_.begin ();
+	     it != handles_.end (); ++it) {
+	  (*it)->print (os); os << std::endl;
+	}
+	return os;
+      }
     protected:
       Object (const std::string& name) : parent_t (name), handles_ ()
 	{

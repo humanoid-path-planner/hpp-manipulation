@@ -52,11 +52,10 @@ namespace hpp {
       for (Object::Handles_t::const_iterator itHandle =
 	     object->handles ().begin ();
 	   itHandle != object->handles ().end (); ++itHandle) {
-	Object::Handle handle;
-	handle.name = object->name () + "/" + itHandle->name;
-	handle.joint = jointMap_ [itHandle->joint];
-	handle.localPosition = itHandle->localPosition;
-	addHandle (handle.name, handle);
+	HandlePtr_t handle = (*itHandle)->clone ();
+	handle->name (object->name () + "/" + (*itHandle)->name ());
+	handle->joint (jointMap_ [(*itHandle)->joint ()]);
+	addHandle (handle->name (), handle);
       }
     }
 
@@ -151,10 +150,7 @@ namespace hpp {
       os << "Handles:" << std::endl;
       for (Handles_t::const_iterator itHandle = handles_.begin ();
 	   itHandle != handles_.end (); ++itHandle) {
-	os << "  name: " << itHandle->second.name << std::endl;
-	os << "  localPosition: " << itHandle->second.localPosition
-	   << std::endl;
-	os << "  joint: " << itHandle->second.joint->name () << std::endl;
+	os << *itHandle->second;
       }
       return os;
     }

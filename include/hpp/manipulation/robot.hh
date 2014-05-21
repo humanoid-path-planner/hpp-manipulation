@@ -20,6 +20,7 @@
 #ifndef HPP_MANIPULATION_ROBOT_HH
 # define HPP_MANIPULATION_ROBOT_HH
 
+# include <hpp/manipulation/handle.hh>
 # include <hpp/manipulation/object.hh>
 # include <hpp/model/device.hh>
 
@@ -76,12 +77,12 @@ namespace hpp {
       /// \{
 
       /// Add a handle
-      void addHandle (const std::string& name, const Object::Handle& handle)
+      void addHandle (const std::string& name, const HandlePtr_t& handle)
       {
 	handles_ [name] = handle;
       }
       /// Return list of handles of the object
-      const Object::Handle& handle (const std::string& name) const
+      const HandlePtr_t& handle (const std::string& name) const
       {
 	Handles_t::const_iterator it = handles_.find (name);
 	if (it == handles_.end ())
@@ -107,7 +108,7 @@ namespace hpp {
       void init (const RobotWkPtr_t& self);
     private:
       typedef std::map <DevicePtr_t, size_type> RankMap_t;
-      typedef std::map <std::string, Object::Handle> Handles_t;
+      typedef std::map <std::string, HandlePtr_t> Handles_t;
       /// Build the kinematic chain composed of the robot and of the manipulated
       /// objects
       void buildKinematicChain ();

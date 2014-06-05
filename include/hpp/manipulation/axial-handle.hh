@@ -51,7 +51,7 @@ namespace hpp {
       /// \return the constraint of relative position between the handle and
       ///         the gripper. The rotation around x is not constrained.
       virtual DifferentiableFunctionPtr_t createGrasp
-      (const RobotPtr_t& robot, const GraspPtr_t& grasp) const;
+      (const GripperPtr_t& gripper) const;
 
       virtual std::ostream& print (std::ostream& os) const;
     protected:

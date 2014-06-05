@@ -38,8 +38,8 @@ namespace hpp {
     typedef boost::shared_ptr <AxialHandle> AxialHandlePtr_t;
     typedef core::DifferentiableFunction DifferentiableFunction;
     typedef core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
-    HPP_PREDEF_CLASS (Grasp);
-    typedef boost::shared_ptr <Grasp> GraspPtr_t;
+    HPP_PREDEF_CLASS (Gripper);
+    typedef boost::shared_ptr <Gripper> GripperPtr_t;
     HPP_PREDEF_CLASS (Handle);
     typedef boost::shared_ptr <Handle> HandlePtr_t;
     HPP_PREDEF_CLASS (Object);
@@ -63,7 +63,7 @@ namespace hpp {
     typedef model::vectorOut_t vectorOut_t;
 
     typedef std::vector <DevicePtr_t> Devices_t;
-    typedef std::vector <GraspPtr_t> Grasps_t;
+    typedef std::vector <GripperPtr_t> Grippers_t;
     typedef std::vector <ObjectPtr_t> Objects_t;
     typedef std::map <JointConstPtr_t, JointPtr_t> JointMap_t;
     typedef core::ConstraintPtr_t ConstraintPtr_t;

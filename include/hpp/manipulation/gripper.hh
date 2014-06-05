@@ -17,62 +17,72 @@
 // hpp-manipulation. If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_MANIPULATION_GRASP_HH
-# define HPP_MANIPULATION_GRASP_HH
+#ifndef HPP_MANIPULATION_GRIPPER_HH
+# define HPP_MANIPULATION_GRIPPER_HH
 
 # include <hpp/manipulation/handle.hh>
 
 namespace hpp {
   namespace manipulation {
     /// Constraint between the position of a robot joint and of an object handle
-    class HPP_MANIPULATION_DLLAPI Grasp
+    class HPP_MANIPULATION_DLLAPI Gripper
     {
     public:
       /// Return a shared pointer to new instance
-      /// \param joint joint of the robot that holds the handle,
-      /// \param handle handle that is grasped,
+      /// \param joint joint of the robot that will hold handles,
       /// \param handlePositionInJoint handle position in the the grasping
       ///        joint.
-      static GraspPtr_t create (const JointPtr_t& joint,
-				const HandlePtr_t& handle,
+      static GripperPtr_t create (const std::string& name, const JointPtr_t& joint,
 				const Transform3f& handlePositionInJoint)
       {
-	Grasp* ptr = new Grasp (joint, handle, handlePositionInJoint);
-	return GraspPtr_t (ptr);
+	Gripper* ptr = new Gripper (name, joint, handlePositionInJoint);
+	return GripperPtr_t (ptr);
       }
-      /// Get handle that is grasped
-      const HandlePtr_t& handle () const
-      {
-	return handle_;
-      }
-      /// Get joint that grasps
+
+      /// Get joint that Grippers
       const JointPtr_t& joint () const
       {
 	return joint_;
       }
-      /// Get handle position in the the grasping joint
+      /// Get handle position in the the Grippering joint
       const Transform3f& handlePositionInJoint () const
       {
 	return handlePositionInJoint_;
       }
+      ///get name
+      const std::string& name () const
+      {
+	return name_;
+      }
+      /// Set name
+      void name (const std::string& n)
+      {
+	name_ = n;
+      }
+
+      
+      DifferentiableFunctionPtr_t createGrasp(HandlePtr_t& handle)
+      {
+        return handle->createGrasp(GripperPtr_t(this));
+      }
+
     protected:
       /// Constructor
       /// \param joint joint of the robot that holds the handle,
-      /// \param handle handle that is grasped,
       /// \param handlePositionInJoint handle position in the the grasping
       ///        joint.
-      Grasp (const JointPtr_t& joint, const HandlePtr_t& handle,
+      Gripper (const std::string& name, const JointPtr_t& joint,
 	     const Transform3f& handlePositionInJoint) :
-	joint_ (joint), handle_ (handle),
+	joint_ (joint),
 	handlePositionInJoint_ (handlePositionInJoint)
       {
       }
     private:
-      /// Joint of the robot that holds the handle.
+      /// Joint of the robot that holds handles.
+      std::string name_;
       JointPtr_t joint_;
-      HandlePtr_t handle_;
       Transform3f handlePositionInJoint_;
-    }; // class Grasp
+    }; // class Gripper
   } // namespace manipulation
 } // namespace hpp
-#endif // HPP_MANIPULATION_GRASP_HH
+#endif // HPP_MANIPULATION_GRIPPER_HH

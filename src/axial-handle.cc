@@ -22,21 +22,21 @@
 #include <hpp/model/joint.hh>
 #include <hpp/constraints/relative-transformation.hh>
 #include <hpp/manipulation/axial-handle.hh>
-#include <hpp/manipulation/grasp.hh>
+#include <hpp/manipulation/gripper.hh>
 #include <hpp/manipulation/robot.hh>
 
 namespace hpp {
   namespace manipulation {
 
     DifferentiableFunctionPtr_t AxialHandle::createGrasp
-    (const RobotPtr_t& robot, const GraspPtr_t& grasp) const
+    (const GripperPtr_t& gripper) const
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(true)(true)(false)(true)(true);
       return RelativeTransformation::create
-	(robot, grasp->joint (), grasp->handle ()->joint (),
-	 inverse (grasp->handle ()->localPosition ()) *
-	 grasp->handlePositionInJoint (), mask);
+	(gripper->joint()->robot(), gripper->joint (), joint(),
+	 inverse (localPosition()) *
+	 gripper->handlePositionInJoint (), mask);
     }
     HandlePtr_t AxialHandle::clone () const
     {

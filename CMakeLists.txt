@@ -40,7 +40,7 @@ ADD_REQUIRED_DEPENDENCY(hpp-constraints >= 3.0.0)
 
 SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/fwd.hh
-  include/hpp/manipulation/grasp.hh
+  include/hpp/manipulation/gripper.hh
   include/hpp/manipulation/axial-handle.hh
   include/hpp/manipulation/handle.hh
   include/hpp/manipulation/object.hh

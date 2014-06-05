@@ -84,8 +84,7 @@ namespace hpp {
       }
 
       /// Create constraint corresponding to a gripper grasping this object
-      /// \param robot the robot that grasps the handle,
-      /// \param grasp object containing the grasp information
+      /// \param gripper object containing the gripper information
       /// \return the constraint of relative position between the handle and
       ///         the gripper.
       /// \note the constraint may constrain less than 6 degrees of freedom
@@ -93,7 +92,7 @@ namespace hpp {
       ///       a handle symmetric with respect to its x-axis for instance, the
       ///       rotation around x is not constrained.
       virtual DifferentiableFunctionPtr_t createGrasp
-      (const RobotPtr_t& robot, const GraspPtr_t& grasp) const;
+      (const GripperPtr_t& gripper) const;
       virtual std::ostream& print (std::ostream& os) const;
 
     protected:

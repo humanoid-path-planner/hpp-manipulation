@@ -81,7 +81,7 @@ namespace hpp {
       {
 	handles_ [name] = handle;
       }
-      /// Return list of handles of the object
+      /// Return the handle named name
       const HandlePtr_t& handle (const std::string& name) const
       {
 	Handles_t::const_iterator it = handles_.find (name);
@@ -90,6 +90,21 @@ namespace hpp {
 	return it->second;
       }
       /// \}
+
+      /// Add a gripper
+      void addGripper (const std::string& name, const GripperPtr_t& gripper)
+      {
+        grippers_ [name] = gripper;
+      }
+      /// Return the gripper named name
+      const GripperPtr_t& gripper (const std::string& name) const
+      {
+	Grippers_t::const_iterator it = grippers_.find (name);
+	if (it == grippers_.end ())
+	  throw std::runtime_error ("no gripper with name " + name);
+	return it->second;
+      }
+ 
 
       /// Print object in a stream
       virtual std::ostream& print (std::ostream& os) const;
@@ -109,6 +124,7 @@ namespace hpp {
     private:
       typedef std::map <DevicePtr_t, size_type> RankMap_t;
       typedef std::map <std::string, HandlePtr_t> Handles_t;
+      typedef std::map <std::string, GripperPtr_t> Grippers_t;
       /// Build the kinematic chain composed of the robot and of the manipulated
       /// objects
       void buildKinematicChain ();
@@ -127,6 +143,8 @@ namespace hpp {
       Objects_t objects_;
       /// Map of handles
       Handles_t handles_;
+      /// Map of grippers
+      Grippers_t grippers_;
       /// Map from original joints to copies
       JointMap_t jointMap_;
       /// Weak pointer to itself

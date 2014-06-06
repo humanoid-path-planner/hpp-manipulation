@@ -73,6 +73,7 @@ namespace hpp {
       ///        joint.
       Gripper (const std::string& name, const JointPtr_t& joint,
 	     const Transform3f& handlePositionInJoint) :
+        name_ (name),
 	joint_ (joint),
 	handlePositionInJoint_ (handlePositionInJoint)
       {

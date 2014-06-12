@@ -22,7 +22,7 @@
 #include <hpp/model/joint.hh>
 #include <hpp/constraints/relative-transformation.hh>
 #include <hpp/manipulation/handle.hh>
-#include <hpp/manipulation/gripper.hh>
+#include <hpp/model/gripper.hh>
 #include <hpp/manipulation/robot.hh>
 
 namespace hpp {

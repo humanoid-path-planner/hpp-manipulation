@@ -20,7 +20,7 @@
 #include <hpp/util/debug.hh>
 #include <hpp/model/object-factory.hh>
 #include <hpp/manipulation/robot.hh>
-#include <hpp/manipulation/gripper.hh>
+#include <hpp/model/gripper.hh>
 
 namespace hpp {
   namespace manipulation {

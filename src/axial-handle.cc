@@ -20,9 +20,9 @@
 #include <boost/assign/list_of.hpp>
 #include <fcl/math/transform.h>
 #include <hpp/model/joint.hh>
+#include <hpp/model/gripper.hh>
 #include <hpp/constraints/relative-transformation.hh>
 #include <hpp/manipulation/axial-handle.hh>
-#include <hpp/manipulation/gripper.hh>
 #include <hpp/manipulation/robot.hh>
 
 namespace hpp {

@@ -93,6 +93,13 @@ namespace hpp {
       ///       rotation around x is not constrained.
       virtual DifferentiableFunctionPtr_t createGrasp
       (const GripperPtr_t& gripper) const;
+
+      static DifferentiableFunctionPtr_t createGrasp
+      (const GripperPtr_t& gripper,const HandlePtr_t& handle)
+      {
+        return handle->createGrasp(gripper);
+      }
+
       virtual std::ostream& print (std::ostream& os) const;
 
     protected:

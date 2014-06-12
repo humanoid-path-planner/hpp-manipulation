@@ -34,12 +34,11 @@ namespace hpp {
     typedef model::Configuration_t Configuration_t;
     typedef model::ConfigurationIn_t ConfigurationIn_t;
     typedef model::ConfigurationOut_t ConfigurationOut_t;
+    typedef model::GripperPtr_t GripperPtr_t;
     HPP_PREDEF_CLASS (AxialHandle);
     typedef boost::shared_ptr <AxialHandle> AxialHandlePtr_t;
     typedef core::DifferentiableFunction DifferentiableFunction;
     typedef core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
-    HPP_PREDEF_CLASS (Gripper);
-    typedef boost::shared_ptr <Gripper> GripperPtr_t;
     HPP_PREDEF_CLASS (Handle);
     typedef boost::shared_ptr <Handle> HandlePtr_t;
     HPP_PREDEF_CLASS (Object);

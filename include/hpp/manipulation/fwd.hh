@@ -27,6 +27,7 @@ namespace hpp {
   namespace manipulation {
     typedef model::Device Device;
     typedef model::DevicePtr_t DevicePtr_t;
+    typedef boost::shared_ptr <const Device> DeviceConstPtr_t;
     typedef model::Joint Joint;
     typedef model::JointPtr_t JointPtr_t;
     typedef model::JointConstPtr_t JointConstPtr_t;

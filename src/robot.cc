@@ -59,6 +59,25 @@ namespace hpp {
       }
     }
 
+    void Robot::copyDevice(const JointPtr_t& rootJoint,
+			   const DeviceConstPtr_t& device)
+    {
+      copyKinematicChain (rootJoint, device->rootJoint ());
+      copyGrippers (device);
+    }
+
+    void Robot::copyGrippers (const DeviceConstPtr_t& device)
+    {
+      for (model::Grippers_t::const_iterator itGripper =
+	     device->grippers ().begin ();
+	   itGripper != device->grippers ().end (); ++itGripper) {
+	GripperPtr_t gripper = (*itGripper)->clone ();
+	gripper->name (device->name () + "/" + (*itGripper)->name ());
+	gripper->joint (jointMap_ [(*itGripper)->joint ()]);
+	addGripper (gripper->name (), gripper);
+      }
+    }
+
     RobotPtr_t Robot::create (const std::string& name, const Devices_t& robots,
 			      const Objects_t& objects)
     {
@@ -110,7 +129,8 @@ namespace hpp {
       // Copy robot kinematic chains
       for (Devices_t::const_iterator itDev = robots_.begin ();
 	   itDev != robots_.end (); ++itDev) {
-	copyKinematicChain (rootJoint (), (*itDev)->rootJoint ());
+	//copyKinematicChain (rootJoint (), (*itDev)->rootJoint ());
+        copyDevice(rootJoint (), *itDev);
 	// Store rank of robot in configuration vector.
 	rankInConfiguration_ [(*itDev)] = rankInConfiguration;
 	rankInVelocity_ [(*itDev)] = rankInVelocity;

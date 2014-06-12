@@ -136,6 +136,11 @@ namespace hpp {
 		       const ObjectConstPtr_t& object);
       /// Copy handles of the object into composite robot.
       void copyHandles (const ObjectConstPtr_t& object);
+      /// Copy Device including kinematic chain.
+      void copyDevice (const JointPtr_t& rootJoint,
+                       const DeviceConstPtr_t& device);
+      /// Copy grippers of the device into composite robot.
+      void copyGrippers (const DeviceConstPtr_t& device);
 
       
       Devices_t robots_;

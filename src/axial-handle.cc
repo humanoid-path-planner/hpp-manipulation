@@ -36,7 +36,7 @@ namespace hpp {
       return RelativeTransformation::create
 	(gripper->joint()->robot(), gripper->joint (), joint(),
 	 inverse (localPosition()) *
-	 gripper->handlePositionInJoint (), mask);
+	 gripper->objectPositionInJoint (), mask);
     }
     HandlePtr_t AxialHandle::clone () const
     {

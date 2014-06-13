@@ -35,7 +35,7 @@ namespace hpp {
       std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(true);
       return RelativeTransformation::create
 	(gripper->joint()->robot(), gripper->joint (), joint(), inverse (localPosition()) *
-	 gripper->handlePositionInJoint (), mask);
+	 gripper->objectPositionInJoint (), mask);
     }
 
     HandlePtr_t Handle::clone () const

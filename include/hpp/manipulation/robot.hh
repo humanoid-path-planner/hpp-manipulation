@@ -104,7 +104,6 @@ namespace hpp {
 	  throw std::runtime_error ("no gripper with name " + name);
 	return it->second;
       }
- 
 
       /// Print object in a stream
       virtual std::ostream& print (std::ostream& os) const;
@@ -142,7 +141,12 @@ namespace hpp {
       /// Copy grippers of the device into composite robot.
       void copyGrippers (const DeviceConstPtr_t& device);
 
-      
+      /// Add Collision pairs between the robots
+      void addCollisions(const DeviceConstPtr_t& device);
+
+      /// Check if joint1 joint2 is a couple gripper-handle 
+      bool isCollisionPairDisabled(JointPtr_t& joint1, JointPtr_t& joint2);
+
       Devices_t robots_;
       /// Set of objects
       Objects_t objects_;

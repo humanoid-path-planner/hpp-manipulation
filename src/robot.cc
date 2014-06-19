@@ -18,12 +18,17 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
+#include <hpp/manipulation/fwd.hh>
 #include <hpp/model/object-factory.hh>
 #include <hpp/manipulation/robot.hh>
 #include <hpp/model/gripper.hh>
 
 namespace hpp {
   namespace manipulation {
+    typedef std::map <std::string, HandlePtr_t> Handles_t;
+    typedef std::map <std::string, GripperPtr_t> Grippers_t;
+    typedef std::vector<JointPtr_t> JointVector_t;
+
     void Robot::copyKinematicChain (const JointPtr_t& parentJoint,
 				    const JointConstPtr_t& joint)
     {
@@ -45,6 +50,7 @@ namespace hpp {
     {
       copyKinematicChain (rootJoint, object->rootJoint ());
       copyHandles (object);
+      addCollisions(object);
     }
 
     void Robot::copyHandles (const ObjectConstPtr_t& object)
@@ -64,6 +70,7 @@ namespace hpp {
     {
       copyKinematicChain (rootJoint, device->rootJoint ());
       copyGrippers (device);
+      addCollisions(device);
     }
 
     void Robot::copyGrippers (const DeviceConstPtr_t& device)
@@ -74,6 +81,12 @@ namespace hpp {
 	GripperPtr_t gripper = (*itGripper)->clone ();
 	gripper->name (device->name () + "/" + (*itGripper)->name ());
 	gripper->joint (jointMap_ [(*itGripper)->joint ()]);
+        gripper->removeAllDisabledCollisions();
+        JointVector_t joints = (*itGripper)->getDisabledCollisions();
+        for (model::JointVector_t::const_iterator itJoint = joints.begin() ;
+               itJoint != joints.end() ; itJoint++ ) {
+          gripper->addDisabledCollision(jointMap_[*itJoint]);
+        } 	 
 	addGripper (gripper->name (), gripper);
       }
     }
@@ -161,6 +174,80 @@ namespace hpp {
       currentConfiguration (q);
       // Update kinematic chain after copy.
       updateDistances ();
+    }
+
+    void Robot::addCollisions (const DeviceConstPtr_t& device)
+    {
+      JointVector_t joints = device->getJointVector ();
+      // Cycle through all joint pairs
+      for (JointVector_t::const_iterator it1 = joints.begin ();
+	   it1 != joints.end (); it1++) {
+	JointPtr_t joint1 = jointMap_[*it1];
+        hpp::model::Body* body1 = joint1->linkedBody ();
+	  if (!body1) {
+	    hppDout (info, "Joint " + joint1->name () <<
+		     " has no hpp::model::Body.");
+	  } else {
+	  for (JointVector_t::const_iterator it2 = getJointVector().begin ();
+	        *it2 != jointMap_[*(joints.begin())]; it2++) {
+	    JointPtr_t joint2 = *it2;
+            hpp::model::Body* body2 = joint2->linkedBody ();
+            if (!body2) {
+	    hppDout (info, "Joint " + joint2->name () <<
+		     " has no hpp::model::Body.");
+	    } else {
+  	      if (!isCollisionPairDisabled (joint1, joint2)) {
+	        hppDout (info, "add collision pairs: ("  << joint1->name() <<
+                                                "," << joint2->name() << ")");
+	        hpp::model::Device::addCollisionPairs (joint1, joint2,
+                                                        hpp::model::COLLISION);
+	        hpp::model::Device::addCollisionPairs (joint1, joint2, 
+                                                        hpp::model::DISTANCE);
+              }
+            }
+	  }
+        }
+      }
+    }
+
+    bool Robot::isCollisionPairDisabled(JointPtr_t& joint1, JointPtr_t& joint2)
+    {
+      // Disable collision if a joint is an handle and the other is a 
+      // disabledCollision from a gripper
+      for (Handles_t::iterator itHandle = handles_.begin();
+             itHandle != handles_.end() ; itHandle++) {
+        if ( itHandle->second->joint() == joint1 ) {
+          for (Grippers_t::iterator itGripper = grippers_.begin();
+                 itGripper != grippers_.end() ; itGripper++) {
+            model::JointVector_t joints = itGripper->second
+                                           ->getDisabledCollisions();
+            for (model::JointVector_t::iterator itJoint = joints.begin() ;
+                   itJoint != joints.end() ; itJoint++ ) {
+              if ( joint2 == *(itJoint) ) {
+                hppDout (info, "Disabled collision between "<< 
+                           joint1->name() << " and " << joint2->name());
+                return true;
+              }
+            }
+          }
+        }
+        if ( itHandle->second->joint() == joint2 ) {
+          for (Grippers_t::iterator itGripper = grippers_.begin();
+                 itGripper != grippers_.end() ; itGripper++) {
+              model::JointVector_t joints = itGripper->second
+                                           ->getDisabledCollisions();
+            for (model::JointVector_t::iterator itJoint = joints.begin() ;
+                   itJoint != joints.end() ; itJoint++ ) {
+              if ( joint1 == *(itJoint) ) {
+                hppDout (info, "Disabled collision between "<< 
+                           joint1->name() << " and " << joint2->name());
+                return true;
+              }
+            }
+          }
+        }
+      }
+      return false;
     }
 
     std::ostream& Robot::print (std::ostream& os) const

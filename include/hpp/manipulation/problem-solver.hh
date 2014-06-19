@@ -86,8 +86,8 @@ namespace hpp {
 
       /// Build a composite robot from several robots and objects
       /// \param robotName Name of the composite robot,
-      /// \param robotNames Names of the robots stored internally that have been
-      ///        added by method addRobot.
+      /// \param robotNames Names of the robots stored internally that have
+      ///        been added by method addRobot.
       ///
       /// Objects are detected by dynamic cast.
       void buildCompositeRobot (const std::string& robotName,

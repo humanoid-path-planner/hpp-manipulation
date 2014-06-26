@@ -105,9 +105,25 @@ namespace hpp {
 	return it->second;
       }
 
+      /// Get Device names in the same order than the compositeRobot has been
+      /// build
+      std::vector<std::string> getDeviceNames()
+      {
+        std::vector<std::string> deviceNames;
+        for ( Devices_t::iterator itDevice = robots_.begin() ; itDevice != 
+                robots_.end() ; itDevice++ ) {
+          deviceNames.push_back((*itDevice)->name());
+        }
+        for ( Objects_t::iterator itObject = objects_.begin() ; itObject !=
+                objects_.end() ; itObject++ ) {
+          deviceNames.push_back((*itObject)->name());
+        }
+        return deviceNames;
+      }
+
       /// Print object in a stream
       virtual std::ostream& print (std::ostream& os) const;
-
+      
     protected:
       /// Constructor
       /// \param name of the new instance,

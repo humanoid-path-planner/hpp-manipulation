@@ -67,5 +67,15 @@ namespace hpp {
       return object;
     }
 
+    ProblemSolver::GraspPtr_t ProblemSolver::grasp (const std::string& graspName) const
+    {
+      GraspsMap_t::const_iterator it =
+	graspsMap_.find (graspName);
+      if (it == graspsMap_.end ()) {
+        GraspPtr_t grasp;
+	return grasp;
+      }
+      return it->second;
+    }
   } // namespace manipulation
 } // namespace hpp

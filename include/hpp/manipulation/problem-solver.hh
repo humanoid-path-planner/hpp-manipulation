@@ -31,12 +31,15 @@ namespace hpp {
     public:
       typedef core::ProblemSolver parent_t;
       typedef std::vector <std::string> Names_t;
+      typedef std::pair< model::GripperPtr_t, HandlePtr_t> Grasp_t;
+      typedef boost::shared_ptr <Grasp_t> GraspPtr_t;
+      typedef std::map <const std::string, GraspPtr_t> GraspsMap_t;
       /// Destructor
       virtual ~ProblemSolver ()
       {
       }
       ProblemSolver () : core::ProblemSolver (), robot_ (),
-	robotsAndObjects_ ()
+	robotsAndObjects_ (), graspsMap_()
 	{
 	}
       /// Set robot
@@ -84,6 +87,27 @@ namespace hpp {
       ObjectPtr_t object (const std::string& name) const;
       /// \}
 
+      /// Add grasp
+      void addGrasp( std::string graspName, model::GripperPtr_t gripper,
+                       HandlePtr_t handle) 
+      {
+        Grasp_t* ptr = new Grasp_t (gripper, handle);
+	GraspPtr_t shPtr (ptr);
+        graspsMap_[graspName] = shPtr;
+      }
+   
+      /// get grapsMap
+      GraspsMap_t& grasps()
+      {
+        return graspsMap_;
+      }
+ 
+      /// get graps by name
+      ///
+      /// return NULL if no grasp named graspName
+      GraspPtr_t grasp(const std::string& graspName) const;
+
+
       /// Build a composite robot from several robots and objects
       /// \param robotName Name of the composite robot,
       /// \param robotNames Names of the robots stored internally that have
@@ -97,6 +121,7 @@ namespace hpp {
       RobotPtr_t robot_;
       /// Map of single robots to store before building a composite robot.
       RobotsandObjects_t robotsAndObjects_;
+      GraspsMap_t graspsMap_;
     }; // class ProblemSolver
   } // namespace manipulation
 } // namespace hpp

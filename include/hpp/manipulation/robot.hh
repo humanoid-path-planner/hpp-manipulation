@@ -160,9 +160,6 @@ namespace hpp {
       /// Add Collision pairs between the robots
       void addCollisions(const DeviceConstPtr_t& device);
 
-      /// Check if joint1 joint2 is a couple gripper-handle 
-      bool isCollisionPairDisabled(JointPtr_t& joint1, JointPtr_t& joint2);
-
       Devices_t robots_;
       /// Set of objects
       Objects_t objects_;

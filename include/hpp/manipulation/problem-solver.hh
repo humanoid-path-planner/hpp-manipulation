@@ -31,9 +31,6 @@ namespace hpp {
     public:
       typedef core::ProblemSolver parent_t;
       typedef std::vector <std::string> Names_t;
-      typedef std::pair< model::GripperPtr_t, HandlePtr_t> Grasp_t;
-      typedef boost::shared_ptr <Grasp_t> GraspPtr_t;
-      typedef std::map <const std::string, GraspPtr_t> GraspsMap_t;
       /// Destructor
       virtual ~ProblemSolver ()
       {
@@ -88,12 +85,13 @@ namespace hpp {
       /// \}
 
       /// Add grasp
-      void addGrasp( std::string graspName, model::GripperPtr_t gripper,
-                       HandlePtr_t handle) 
+      void addGrasp( const DifferentiableFunctionPtr_t& constraint,
+                     const model::GripperPtr_t& gripper,
+                     const HandlePtr_t& handle) 
       {
         Grasp_t* ptr = new Grasp_t (gripper, handle);
 	GraspPtr_t shPtr (ptr);
-        graspsMap_[graspName] = shPtr;
+        graspsMap_[constraint] = shPtr;
       }
    
       /// get grapsMap
@@ -105,8 +103,17 @@ namespace hpp {
       /// get graps by name
       ///
       /// return NULL if no grasp named graspName
-      GraspPtr_t grasp(const std::string& graspName) const;
+      GraspPtr_t grasp(const DifferentiableFunctionPtr_t& constraint) const;
 
+      /// Reset constraint set and put back the disable collisions
+      /// between gripper and handle
+      virtual void resetConstraints ();
+
+      /// Add differentialFunction to the config projector
+      /// Build the config projector if not constructed
+      virtual void addConstraintToConfigProjector(
+                          const std::string& constraintName,
+                          const DifferentiableFunctionPtr_t& constraint);
 
       /// Build a composite robot from several robots and objects
       /// \param robotName Name of the composite robot,

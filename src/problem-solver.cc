@@ -20,6 +20,8 @@
 #include <hpp/manipulation/object.hh>
 #include <hpp/manipulation/problem-solver.hh>
 #include <hpp/manipulation/robot.hh>
+#include <hpp/model/gripper.hh>
+
 
 namespace hpp {
   namespace manipulation {
@@ -67,15 +69,58 @@ namespace hpp {
       return object;
     }
 
-    ProblemSolver::GraspPtr_t ProblemSolver::grasp (const std::string& graspName) const
+    GraspPtr_t ProblemSolver::grasp (
+                      const DifferentiableFunctionPtr_t& constraint) const
     {
       GraspsMap_t::const_iterator it =
-	graspsMap_.find (graspName);
+	graspsMap_.find (constraint);
       if (it == graspsMap_.end ()) {
         GraspPtr_t grasp;
 	return grasp;
       }
       return it->second;
+    }
+
+    void ProblemSolver::resetConstraints ()
+    {
+      if (robot_)
+	constraints_ = ConstraintSet::create (robot_, 
+                                              "Default constraint set");    
+      GraspsMap_t graspsMap = grasps();
+      for (GraspsMap_t::const_iterator itGrasp = graspsMap.begin() ;  
+             itGrasp != graspsMap.end() ; itGrasp++) {
+        GraspPtr_t grasp = itGrasp->second;
+        GripperPtr_t gripper = grasp->first;
+        HandlePtr_t handle = grasp->second;
+        JointPtr_t joint = handle->joint();
+        model::JointVector_t joints = gripper->getDisabledCollisions();
+        for (model::JointVector_t::iterator itJoint = joints.begin() ;
+               itJoint != joints.end() ; itJoint++ ) {
+          robot()->addCollisionPairs(joint, *itJoint, hpp::model::COLLISION);
+          robot()->addCollisionPairs(joint, *itJoint, hpp::model::DISTANCE);
+        }
+      }
+    }
+   
+    void ProblemSolver::addConstraintToConfigProjector (
+                          const std::string& constraintName,
+                          const DifferentiableFunctionPtr_t& constraint)
+    {
+      core::ProblemSolver::addConstraintToConfigProjector(constraintName,
+                                                          constraint);
+      if ( grasp(constraint) ) {
+        GripperPtr_t gripper = grasp(constraint)->first;
+        HandlePtr_t handle = grasp(constraint)->second;
+        JointPtr_t joint1 = handle->joint();
+        model::JointVector_t joints = gripper->getDisabledCollisions();
+        for (model::JointVector_t::iterator itJoint = joints.begin() ;
+               itJoint != joints.end() ; itJoint++ ) {
+          robot()->removeCollisionPairs(joint1, *itJoint,
+                                        hpp::model::COLLISION);
+          robot()->removeCollisionPairs(joint1, *itJoint,
+                                        hpp::model::DISTANCE);
+        }
+      }
     }
   } // namespace manipulation
 } // namespace hpp

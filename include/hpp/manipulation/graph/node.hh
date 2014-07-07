@@ -14,8 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_MANIPULATION_GRAPH_GRIPPER_STATE_HH
-# define HPP_MANIPULATION_GRAPH_GRIPPER_STATE_HH
+#ifndef HPP_MANIPULATION_GRAPH_NODE_HH
+# define HPP_MANIPULATION_GRAPH_NODE_HH
 
 #include <hpp/core/constraints-set.hh>
 
@@ -24,11 +24,11 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      /// State of a gripper.
+      /// State of an end-effector.
       ///
       /// Nodes of the graph of constraints. There is one
-      /// graph for each gripper.
-      class HPP_MANIPULATION_DLLAPI GripperState
+      /// graph for each end-effector.
+      class HPP_MANIPULATION_DLLAPI Node
       {
         public:
           /// Check whether the configuration is in this state.
@@ -36,25 +36,22 @@ namespace hpp {
           /// \param config The configuration to be tested.
           /// \note You should note use that to know in which states a
           /// configuration is. This only checks if the configuration satisfies
-          /// the constraints. Instead, use the class GripperStateSelector.
+          /// the constraints. Instead, use the class NodeSelector.
           virtual bool contains(const Configuration_t config) const;
-
-        protected:
-          typedef hpp::core::ConstraintSet ConstraintSet;
 
         private:
           /// List of possible motions from this state (i.e. the outgoing
           /// vertices).
-          std::vector<GripperTransition*> neighbors_;
+          std::vector < EdgePtr_t > neighbors_;
 
           /// Set of constraints to be statisfied.
-          ConstraintSet* constraints_;
+          ConstraintSetPtr_t constraints_;
 
           /// A selector that will implement the selection of the next state.
-          GripperStateSelector* selector_;
-      }; // class GripperState
+          NodeSelectorPtr_t selector_;
+      }; // class Node
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp
 
-#endif // HPP_MANIPULATION_GRAPH_GRIPPER_STATE_HH
+#endif // HPP_MANIPULATION_GRAPH_NODE_HH

@@ -14,8 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_MANIPULATION_GRAPH_GRIPPER_TRANSITION_HH
-# define HPP_MANIPULATION_GRAPH_GRIPPER_TRANSITION_HH
+#ifndef HPP_MANIPULATION_GRAPH_EDGE_HH
+# define HPP_MANIPULATION_GRAPH_EDGE_HH
 
 #include <hpp/core/constraints-set.hh>
 
@@ -25,43 +25,39 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      /// Transition between states of a gripper.
+      /// Transition between states of a end-effector.
       ///
       /// Vertices of the graph of constraints.
-      class HPP_MANIPULATION_DLLAPI GripperTransition
+      class HPP_MANIPULATION_DLLAPI Edge
       {
         public:
           /// Projector to project onto the same leaf as config.
           /// \return The initialized projector.
           /// \param config Configuration that will initialize the projector.
-          ConfigProjector* configurationProjector(model::Configuration_t config);
+          ConfigProjectorPtr_t configurationProjector(const Configuration_t config);
 
           /// Projector to project a path.
           /// \return The initialized projector.
           /// \param config Configuration that will initialize the projector.
-          ConfigProjector* pathProjector(model::Configuration_t config);
-
-        protected:
-          typedef hpp::core::ConstraintSet ConstraintSet;
-          typedef hpp::core::ConfigProjector ConfigProjector;
+          ConfigProjectorPtr_t pathProjector(const Configuration_t config);
 
         private:
           /// The two ends of the transition.
-          GripperState* startState, endState;
+          NodeWkPtr_t startState, endState;
 
           /// Set of constraints to be statisfied.
-          ConstraintSet* constraints_;
+          ConstraintSetPtr_t constraints_;
 
           /// Projectors ensuring that a path between q_near and q_proj is
           /// valid regarding the manipulation rules.
-          ConfigProjector* configurationProjector_;
+          ConfigProjectorPtr_t configurationProjector_;
 
           /// Projectors ensuring that a path between two configurations in
           /// the same leaf lies in the leaf.
-          ConfigProjector* pathProjector_;
-      }; // class GripperState
+          ConfigProjectorPtr_t pathProjector_;
+      }; // class Edge
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp
 
-#endif // HPP_MANIPULATION_GRAPH_GRIPPER_TRANSITION_HH
+#endif // HPP_MANIPULATION_GRAPH_EDGE_HH

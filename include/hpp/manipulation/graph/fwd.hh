@@ -14,24 +14,26 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include "hpp/manipulation/fwd.hh"
-#include "hpp/manipulation/graph/gripper-state.hh"
+#ifndef HPP_MANIPULATION_GRAPH_FWD_HH
+# define HPP_MANIPULATION_GRAPH_FWD_HH
+
+#include <hpp/util/pointer.hh>
+#include <hpp/util/config.h>
 
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      /// This class is used to get the state of a configuration. States have to
-      /// be ordered because a configuration can be in several states.
-      class HPP_MANIPULATION_DLLAPI GripperStateSelector
-      {
-        public:
-          /// Returns the state of a configuration.
-          virtual GripperState getState(const Configuration_t config) const;
+      HPP_PREDEF_CLASS (Node);
+      HPP_PREDEF_CLASS (Edge);
+      HPP_PREDEF_CLASS (NodeSelector);
+      typedef boost::shared_ptr < Edge > EdgePtr_t;
+      typedef boost::shared_ptr < NodeSelector > NodeSelectorPtr_t;
 
-        private:
-          /// List of the states of one gripper, ordered by priority.
-          std::vector< GripperState > orderedStates_;
-      }
-    }		// -----  End of namespace graph  -----
-  }		// -----  End of namespace manipulation  -----
-}		// -----  End of namespace hpp  -----
+      typedef hpp::core::ConstraintSet_t ConstraintSet_t;
+      typedef hpp::core::ConstraintSetPtr_t ConstraintSetPtr_t;
+      typedef hpp::core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
+    } // namespace graph
+  } // namespace manipulation
+} // namespace hpp
+
+#endif // HPP_MANIPULATION_GRAPH_FWD_HH

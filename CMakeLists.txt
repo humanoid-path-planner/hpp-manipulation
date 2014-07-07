@@ -45,9 +45,10 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/object.hh
   include/hpp/manipulation/problem-solver.hh
   include/hpp/manipulation/robot.hh
-  include/hpp/manipulation/graph/gripper-state.hh
-  include/hpp/manipulation/graph/gripper-transition.hh
-  include/hpp/manipulation/graph/gripper-state-selector.hh
+  include/hpp/manipulation/graph/node.hh
+  include/hpp/manipulation/graph/edge.hh
+  include/hpp/manipulation/graph/node-selector.hh
+  include/hpp/manipulation/graph/graph.hh
   )
 
 # Add dependency toward hpp-model library in pkg-config file.

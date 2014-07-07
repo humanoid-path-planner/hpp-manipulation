@@ -14,25 +14,33 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_MANIPULATION_GRAPH_FWD_HH
-# define HPP_MANIPULATION_GRAPH_FWD_HH
 
-#include <hpp/util/pointer.hh>
+#ifndef HPP_MANIPULATION_GRAPHGRAPH_HH
+# define HPP_MANIPULATION_GRAPHGRAPH_HH
+
+#include "hpp/manipulation/fwd.hh"
+#include "hpp/manipulation/graph/fwd.hh"
 
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      HPP_PREDEF_CLASS (Node);
-      HPP_PREDEF_CLASS (Edge);
-      HPP_PREDEF_CLASS (NodeSelector);
-      typedef boost::shared_ptr < Edge > EdgePtr_t;
-      typedef boost::shared_ptr < NodeSelector > NodeSelectorPtr_t;
+      /// Description of the constraint graph
+      /// This class contains a graph representing a robot with several
+      /// end-effectors.
+      class HPP_MANIPULATION_DLLAPI Graph
+      {
+        public:
 
-      typedef hpp::core::ConstraintSet_t ConstraintSet_t;
-      typedef hpp::core::ConstraintSetPtr_t ConstraintSetPtr_t;
-      typedef hpp::core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
+        private:
+          /// This list contains a node selector for each end-effector.
+          set::list < NodeSelectorPtr_t > nodeSelectors_;
+
+          /// A set of constraints that will always be used, for example
+          /// stability constraints.
+          ConstraintSetPtr_t constraints_;
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp
 
-#endif // HPP_MANIPULATION_GRAPH_FWD_HH
+#endif // HPP_MANIPULATION_GRAPHGRAPH_HH

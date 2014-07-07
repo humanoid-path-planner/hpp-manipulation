@@ -20,6 +20,7 @@
 #include <hpp/core/constraints-set.hh>
 
 #include "hpp/manipulation/fwd.hh"
+#include "hpp/manipulation/graph/fwd.hh"
 
 namespace hpp {
   namespace manipulation {

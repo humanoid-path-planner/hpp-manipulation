@@ -21,6 +21,7 @@
 
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/fwd.hh"
+#include "hpp/manipulation/graph/edge.hh"
 
 namespace hpp {
   namespace manipulation {

@@ -24,6 +24,7 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   handle.cc
   problem-solver.cc
   robot.cc
+  manipulation-planner.cc
 )
 
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-core)

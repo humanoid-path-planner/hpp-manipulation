@@ -61,6 +61,8 @@ namespace hpp {
     typedef model::vector_t vector_t;
     typedef model::vectorIn_t vectorIn_t;
     typedef model::vectorOut_t vectorOut_t;
+    HPP_PREDEF_CLASS (ManipulationPlanner);
+    typedef boost::shared_ptr < ManipulationPlanner > ManipulationPlannerPtr_t;
 
     typedef std::vector <DevicePtr_t> Devices_t;
     typedef std::vector <ObjectPtr_t> Objects_t;

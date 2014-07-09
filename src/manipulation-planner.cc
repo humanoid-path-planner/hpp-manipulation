@@ -18,11 +18,11 @@
 
 namespace hpp {
   namespace manipulation {
-    PlannerPtr_t ManipulationPlanner::create (const core::Problem& problem,
+    ManipulationPlannerPtr_t ManipulationPlanner::create (const core::Problem& problem,
         const core::RoadmapPtr_t& roadmap)
     {
       ManipulationPlanner* ptr = new ManipulationPlanner (problem, roadmap);
-      PlannerPtr_t shPtr (ptr);
+      ManipulationPlannerPtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
     }
@@ -36,7 +36,7 @@ namespace hpp {
       core::PathPlanner (problem, roadmap), shooter_ (problem.robot ())
     {}
 
-    void ManipulationPlanner::init (const PlannerWkPtr_t& weak)
+    void ManipulationPlanner::init (const ManipulationPlannerWkPtr_t& weak)
     {
       core::PathPlanner::init (weak);
       weakPtr_ = weak;

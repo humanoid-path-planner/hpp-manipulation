@@ -28,7 +28,7 @@ namespace hpp {
       typedef boost::shared_ptr < Edge > EdgePtr_t;
       typedef boost::shared_ptr < NodeSelector > NodeSelectorPtr_t;
 
-      typedef hpp::core::ConstraintSet_t ConstraintSet_t;
+      typedef hpp::core::ConstraintSet ConstraintSet_t;
       typedef hpp::core::ConstraintSetPtr_t ConstraintSetPtr_t;
       typedef hpp::core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
     } // namespace graph

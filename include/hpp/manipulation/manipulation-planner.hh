@@ -17,18 +17,18 @@
 #ifndef HPP_MANIPULATION_MANIPULATION_PLANNER_HH
 # define HPP_MANIPULATION_MANIPULATION_PLANNER_HH
 
-#include <hpp/core/path-planner.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/path-planner.hh>
+#include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
 
+#include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/graph/fwd.hh"
 #include "hpp/manipulation/fwd.hh"
 
-
 namespace hpp {
   namespace manipulation {
-    class HPP_MANIPULATION_DLLAPI ManipulationPlanner:
-      public hpp::core::PathPlanner
+    class HPP_MANIPULATION_DLLAPI ManipulationPlanner : public hpp::core::PathPlanner
     {
       public:
         /// Create an instance and return a shared pointer to the instance
@@ -44,7 +44,7 @@ namespace hpp {
 
       protected:
         /// Protected constructor
-        ManipulationPlanner (const Problem& problem,
+        ManipulationPlanner (const core::Problem& problem,
             const core::RoadmapPtr_t& roadmap);
 
         /// Store weak pointer to itself
@@ -55,7 +55,7 @@ namespace hpp {
         core::BasicConfigurationShooter shooter_;
         /// weak pointer to itself
         ManipulationPlannerWkPtr_t weakPtr_;
-    }
+    };
   } // namespace manipulation
 } // namespace hpp
 

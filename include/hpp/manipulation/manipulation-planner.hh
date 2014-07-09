@@ -17,6 +17,7 @@
 #ifndef HPP_MANIPULATION_MANIPULATION_PLANNER_HH
 # define HPP_MANIPULATION_MANIPULATION_PLANNER_HH
 
+#include <hpp/model/configuration.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
 #include <hpp/core/path-planner.hh>
 #include <hpp/core/problem.hh>
@@ -50,9 +51,27 @@ namespace hpp {
         /// Store weak pointer to itself
         void init (const ManipulationPlannerWkPtr_t& weak);
 
+        /// Extend a connected component toward a configuration.
+        /// \return The node added to the connected component.
+        core::NodePtr_t extendConnectedComponent(ConnectedComponentPtr_t connectedComponent,
+            const ConfigurationPtr_t &q_rand);
+
+        /// Select the next state in the graph of constraint.
+        /// \return The edge of the graph.
+        const graph::Edges_t selectNextState(const core::NodePtr_t& q_near);
+
+        /// Extend a node of the roadmap towards a configuration.
+        /// near The node of the roadmap to be extended.
+        /// target The configuration towards which extension is performed.
+        core::PathPtr_t extend(const core::NodePtr_t& near,
+            const ConfigurationPtr_t& target,
+            const graph::Edges_t& edge);
+
       private:
-        /// Configuration shooter to uniformly shoot random configurations
+        /// Configuration shooter
         core::BasicConfigurationShooter shooter_;
+        /// The graph of constraints
+        graph::GraphPtr_t constraintGraph_;
         /// weak pointer to itself
         ManipulationPlannerWkPtr_t weakPtr_;
     };

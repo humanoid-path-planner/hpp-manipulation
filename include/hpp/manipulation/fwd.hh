@@ -35,6 +35,7 @@ namespace hpp {
     typedef model::Configuration_t Configuration_t;
     typedef model::ConfigurationIn_t ConfigurationIn_t;
     typedef model::ConfigurationOut_t ConfigurationOut_t;
+    typedef boost::shared_ptr < model::Configuration_t > ConfigurationPtr_t;
     typedef model::GripperPtr_t GripperPtr_t;
     HPP_PREDEF_CLASS (AxialHandle);
     typedef boost::shared_ptr <AxialHandle> AxialHandlePtr_t;
@@ -63,6 +64,7 @@ namespace hpp {
     typedef model::vectorOut_t vectorOut_t;
     HPP_PREDEF_CLASS (ManipulationPlanner);
     typedef boost::shared_ptr < ManipulationPlanner > ManipulationPlannerPtr_t;
+    typedef core::ConnectedComponentPtr_t ConnectedComponentPtr_t;
 
     typedef std::vector <DevicePtr_t> Devices_t;
     typedef std::vector <ObjectPtr_t> Objects_t;

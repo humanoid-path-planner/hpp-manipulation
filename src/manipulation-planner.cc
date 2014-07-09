@@ -14,6 +14,9 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include <hpp/util/assertion.hh>
+
+#include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
 
 namespace hpp {
@@ -29,6 +32,30 @@ namespace hpp {
 
     void ManipulationPlanner::oneStep ()
     {
+      RobotPtr_t robot = HPP_DYNAMIC_PTR_CAST(Robot, problem ().robot ());
+      HPP_ASSERT(robot);
+
+      // Pick a random node
+      ConfigurationPtr_t q_rand = shooter_.shoot();
+
+      // Extend each connected component
+      for (core::ConnectedComponents_t::const_iterator itcc =
+          roadmap ()->connectedComponents ().begin ();
+          itcc != roadmap ()->connectedComponents ().end (); itcc++) {
+        core::NodePtr_t q_new = extendConnectedComponent(*itcc, q_rand);
+      }
+    }
+
+    core::NodePtr_t ManipulationPlanner::extendConnectedComponent(
+        ConnectedComponentPtr_t connectedComponent,
+        const ConfigurationPtr_t &q_rand)
+    {
+      // Find the nearest neighbor.
+      core::value_type distance;
+      core::NodePtr_t near = roadmap ()->nearestNode (q_rand, connectedComponent, distance);
+
+      // Select next node in the constraint graph.
+      //graph::Edges_t edge = selectNextState(near);
     }
 
     ManipulationPlanner::ManipulationPlanner (const core::Problem& problem,

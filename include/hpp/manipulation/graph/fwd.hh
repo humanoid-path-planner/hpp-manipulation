@@ -18,15 +18,22 @@
 # define HPP_MANIPULATION_GRAPH_FWD_HH
 
 #include <hpp/util/pointer.hh>
+#include <vector>
 
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      HPP_PREDEF_CLASS (Graph);
       HPP_PREDEF_CLASS (Node);
       HPP_PREDEF_CLASS (Edge);
       HPP_PREDEF_CLASS (NodeSelector);
+      typedef boost::shared_ptr < Graph > GraphPtr_t;
+      typedef boost::shared_ptr < Node > NodePtr_t;
       typedef boost::shared_ptr < Edge > EdgePtr_t;
       typedef boost::shared_ptr < NodeSelector > NodeSelectorPtr_t;
+      typedef std::vector < NodePtr_t > Nodes_t;
+      typedef std::vector < EdgePtr_t > Edges_t;
+      typedef std::vector < NodeSelectorPtr_t > NodeSelectors_t;
 
       typedef hpp::core::ConstraintSet ConstraintSet_t;
       typedef hpp::core::ConstraintSetPtr_t ConstraintSetPtr_t;

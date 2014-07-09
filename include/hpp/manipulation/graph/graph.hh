@@ -14,7 +14,6 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-
 #ifndef HPP_MANIPULATION_GRAPHGRAPH_HH
 # define HPP_MANIPULATION_GRAPHGRAPH_HH
 
@@ -30,6 +29,11 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI Graph
       {
         public:
+          /// Returns the states of a configuration.
+          virtual Nodes_t getNode(const Configuration_t config) const;
+
+          /// Select randomly outgoing edges of the given nodes.
+          virtual Edges_t chooseEdge(const Nodes_t& node) const;
 
         private:
           /// This list contains a node selector for each end-effector.
@@ -38,7 +42,7 @@ namespace hpp {
           /// A set of constraints that will always be used, for example
           /// stability constraints.
           ConstraintSetPtr_t constraints_;
-      }
+      }; // Class Graph
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

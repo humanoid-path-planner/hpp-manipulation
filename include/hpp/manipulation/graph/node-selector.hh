@@ -29,12 +29,15 @@ namespace hpp {
       {
         public:
           /// Returns the state of a configuration.
-          virtual Node getState(const Configuration_t config) const;
+          virtual NodePtr_t getNode(const Configuration_t config) const;
+
+          /// Select randomly an outgoing edge of the given node.
+          virtual EdgePtr_t chooseEdge(const NodePtr_t& node) const;
 
         private:
           /// List of the states of one end-effector, ordered by priority.
           std::vector< NodeWkPtr_t > orderedStates_;
-      }; //
+      }; // Class NodeSelector
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

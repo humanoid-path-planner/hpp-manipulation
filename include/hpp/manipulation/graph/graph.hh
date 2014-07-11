@@ -14,8 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_MANIPULATION_GRAPHGRAPH_HH
-# define HPP_MANIPULATION_GRAPHGRAPH_HH
+#ifndef HPP_MANIPULATION_GRAPH_GRAPH_HH
+# define HPP_MANIPULATION_GRAPH_GRAPH_HH
 
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/fwd.hh"
@@ -54,4 +54,4 @@ namespace hpp {
   } // namespace manipulation
 } // namespace hpp
 
-#endif // HPP_MANIPULATION_GRAPHGRAPH_HH
+#endif // HPP_MANIPULATION_GRAPH_GRAPH_HH

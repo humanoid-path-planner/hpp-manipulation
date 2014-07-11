@@ -36,19 +36,50 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI Graph
       {
         public:
+          /// Create a new Graph.
+          static GraphPtr_t create()
+          {
+            Graph* ptr = new Graph;
+            GraphPtr_t shPtr (ptr);
+            ptr->init (shPtr);
+            return shPtr;
+          }
+
+          /// Create and insert a NodeSelector inside the graph.
+          NodeSelectorPtr_t createNodeSelector()
+          {
+            NodeSelectorPtr_t newNodeSelector = NodeSelector::create();
+            nodeSelectors_.push_back(newNodeSelector);
+            return newNodeSelector;
+          }
+
           /// Returns the states of a configuration.
           virtual Nodes_t getNode(const Configuration_t config) const;
 
           /// Select randomly outgoing edges of the given nodes.
           virtual Edges_t chooseEdge(const Nodes_t& node) const;
 
+        protected:
+          /// Initialization of the object.
+          void init (const GraphWkPtr_t& weak)
+          {
+            wkPtr_ = weak;
+          }
+
+          /// Constructor
+          Graph ()
+          {}
+
         private:
           /// This list contains a node selector for each end-effector.
-          set::list < NodeSelectorPtr_t > nodeSelectors_;
+          std::vector < NodeSelectorPtr_t > nodeSelectors_;
 
           /// A set of constraints that will always be used, for example
           /// stability constraints.
           ConstraintPtr_t constraints_;
+
+          /// Weak pointer to itself.
+          GraphWkPtr_t wkPtr_;
       }; // Class Graph
     } // namespace graph
   } // namespace manipulation

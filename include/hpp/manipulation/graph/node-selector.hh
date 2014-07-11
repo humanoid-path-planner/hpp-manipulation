@@ -28,6 +28,15 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI NodeSelector
       {
         public:
+          /// Create a new NodeSelector.
+          static NodeSelectorPtr_t create()
+          {
+            NodeSelector* ptr = new NodeSelector();
+            NodeSelectorPtr_t shPtr (ptr);
+            ptr->init (shPtr);
+            return shPtr;
+          }
+
           /// Create a nodes with the constraints
           NodePtr_t createNode (const ConstraintPtr_t& constraints)
           {
@@ -41,6 +50,17 @@ namespace hpp {
 
           /// Select randomly an outgoing edge of the given node.
           virtual EdgePtr_t chooseEdge(const NodePtr_t& node) const;
+
+        protected:
+          /// Initialization of the object.
+          void init (const GraphWkPtr_t& weak)
+          {
+            wkPtr_ = weak;
+          }
+
+          /// Constructor
+          NodeSelector ()
+          {}
 
         private:
           /// List of the states of one end-effector, ordered by priority.

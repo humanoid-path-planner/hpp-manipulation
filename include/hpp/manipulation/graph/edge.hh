@@ -31,6 +31,16 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI Edge
       {
         public:
+          /// Create a new Edge.
+          static EdgePtr_t create (const NodeWkPtr_t& from, const NodeWkPtr_t& to.
+              const ConstraintPtr_t& constraints)
+          {
+            Edge* ptr = new Edge;
+            EdgePtr_t shPtr (ptr);
+            ptr->init(shPtr, from, to, constraints);
+            return shPtr;
+          }
+
           /// Projector to project onto the same leaf as config.
           /// \return The initialized projector.
           /// \param config Configuration that will initialize the projector.
@@ -41,9 +51,24 @@ namespace hpp {
           /// \param config Configuration that will initialize the projector.
           ConfigProjectorPtr_t pathProjector(const Configuration_t config);
 
+        protected:
+          /// Initialization of the object.
+          void init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,
+              const NodeWkPtr_t& to, const ConstraintPtr_t& constraints)
+          {
+            wkPtr_ = weak;
+            from_ = from;
+            to_ = to;
+            constraints_ = constraints;
+          }
+
+          /// Constructor
+          Edge()
+          {}
+
         private:
           /// The two ends of the transition.
-          NodeWkPtr_t startState, endState;
+          NodeWkPtr_t from_, to_;
 
           /// Set of constraints to be statisfied.
           ConstraintPtr_t constraints_;
@@ -55,6 +80,9 @@ namespace hpp {
           /// Projectors ensuring that a path between two configurations in
           /// the same leaf lies in the leaf.
           ConfigProjectorPtr_t pathProjector_;
+
+          /// Weak pointer to itself.
+          EdgeWkPtr_t wkPtr_;
       }; // class Edge
     } // namespace graph
   } // namespace manipulation

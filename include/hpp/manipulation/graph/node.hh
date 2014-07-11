@@ -33,13 +33,60 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI Node
       {
         public:
+          /// Create a new node.
+          static NodePtr_t create (const ConstraintPtr_t& constraints)
+          {
+            Node* node = new Node;
+            NodePtr_t shPtr(node);
+            shPtr->init(shPtr, constraints);
+            return shPtr;
+          }
+
+          /// Create a link from this node to the given node.
+          EdgePtr_t linkTo(const EdgePtr_t& to, const ConstraintPtr_t& constraints)
+          {
+            EdgePtr_t newEdge = Edge::create(wkPtr_, to, constraints);
+            neighbors_.push_back(newEdge);
+            newEdge->
+          }
+
           /// Check whether the configuration is in this state.
           /// \return True if this state contains this configuration
           /// \param config The configuration to be tested.
           /// \note You should note use that to know in which states a
           /// configuration is. This only checks if the configuration satisfies
           /// the constraints. Instead, use the class NodeSelector.
-          virtual bool contains(const Configuration_t config) const;
+          virtual bool contains (const Configuration_t config) const
+          {
+            // TODO: This is not the most efficient way. We should
+            // compute the value of the constraint instead of apllying
+            // the constraint.
+            ConfigurationOut_t cfg = config;
+            return constraints_->apply(cfg) && ( cfg == config );
+          }
+
+          /// Get the constraint set associated to the node.
+          const ConstraintPtr_t constraints () const
+          {
+            return constraints_;
+          }
+
+          /// Set the constraint set associated to the node.
+          void constraints (const ConstraintPtr_t& constraints)
+          {
+            constraints_ = constraints;
+          }
+
+        protected:
+          /// Initialize the object.
+          void init (const NodeWkPtr_t& self, const ConstraintPtr_t& constraints)
+          {
+            wkPtr_ = self;
+            constraints_ = constraints;
+          }
+
+          Node()
+          {}
 
         private:
           /// List of possible motions from this state (i.e. the outgoing
@@ -51,6 +98,9 @@ namespace hpp {
 
           /// A selector that will implement the selection of the next state.
           NodeSelectorPtr_t selector_;
+
+          /// Weak pointer to itself.
+          NodeWkPtr_t wkPtr_;
       }; // class Node
     } // namespace graph
   } // namespace manipulation

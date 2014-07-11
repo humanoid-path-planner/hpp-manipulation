@@ -28,6 +28,14 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI NodeSelector
       {
         public:
+          /// Create a nodes with the constraints
+          NodePtr_t createNode (const ConstraintPtr_t& constraints)
+          {
+            NodePtr_t newNode = Node::create(constraints);
+            orderedStates_.push_back(newNode);
+            return newNode;
+          }
+
           /// Returns the state of a configuration.
           virtual NodePtr_t getNode(const Configuration_t config) const;
 
@@ -36,7 +44,7 @@ namespace hpp {
 
         private:
           /// List of the states of one end-effector, ordered by priority.
-          std::vector< NodeWkPtr_t > orderedStates_;
+          std::vector< NodePtr_t > orderedStates_;
       }; // Class NodeSelector
     } // namespace graph
   } // namespace manipulation

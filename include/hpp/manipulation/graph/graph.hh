@@ -41,7 +41,7 @@ namespace hpp {
 
           /// A set of constraints that will always be used, for example
           /// stability constraints.
-          ConstraintSetPtr_t constraints_;
+          ConstraintPtr_t constraints_;
       }; // Class Graph
     } // namespace graph
   } // namespace manipulation

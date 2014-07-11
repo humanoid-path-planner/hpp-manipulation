@@ -46,7 +46,7 @@ namespace hpp {
           NodeWkPtr_t startState, endState;
 
           /// Set of constraints to be statisfied.
-          ConstraintSetPtr_t constraints_;
+          ConstraintPtr_t constraints_;
 
           /// Projectors ensuring that a path between q_near and q_proj is
           /// valid regarding the manipulation rules.

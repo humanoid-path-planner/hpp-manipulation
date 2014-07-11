@@ -35,8 +35,8 @@ namespace hpp {
       typedef std::vector < EdgePtr_t > Edges_t;
       typedef std::vector < NodeSelectorPtr_t > NodeSelectors_t;
 
-      typedef hpp::core::ConstraintSet ConstraintSet_t;
-      typedef hpp::core::ConstraintSetPtr_t ConstraintSetPtr_t;
+      typedef hpp::core::Constraint Constraint_t;
+      typedef hpp::core::ConstraintPtr_t ConstraintPtr_t;
       typedef hpp::core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
     } // namespace graph
   } // namespace manipulation

@@ -47,7 +47,7 @@ namespace hpp {
           std::vector < EdgePtr_t > neighbors_;
 
           /// Set of constraints to be statisfied.
-          ConstraintSetPtr_t constraints_;
+          ConstraintPtr_t constraints_;
 
           /// A selector that will implement the selection of the next state.
           NodeSelectorPtr_t selector_;

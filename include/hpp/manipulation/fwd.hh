@@ -75,6 +75,9 @@ namespace hpp {
     typedef std::pair< GripperPtr_t, HandlePtr_t> Grasp_t;
     typedef boost::shared_ptr <Grasp_t> GraspPtr_t;
     typedef std::map <DifferentiableFunctionPtr_t, GraspPtr_t> GraspsMap_t;
+
+    HPP_PREDEF_CLASS(MotionProjector);
+    typedef boost::shared_ptr < MotionProjector > MotionProjectorPtr_t;
   } // namespace manipulation
 } // namespace hpp
 

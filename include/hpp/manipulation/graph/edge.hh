@@ -21,6 +21,7 @@
 
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/fwd.hh"
+#include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/graph/node.hh"
 
 namespace hpp {
@@ -29,7 +30,7 @@ namespace hpp {
       /// Transition between states of a end-effector.
       ///
       /// Vertices of the graph of constraints.
-      class HPP_MANIPULATION_DLLAPI Edge
+      class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent
       {
         public:
           /// Create a new Edge.

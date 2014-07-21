@@ -19,6 +19,7 @@
 
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/fwd.hh"
+#include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/graph/node.hh"
 
 namespace hpp {
@@ -26,7 +27,7 @@ namespace hpp {
     namespace graph {
       /// This class is used to get the state of a configuration. States have to
       /// be ordered because a configuration can be in several states.
-      class HPP_MANIPULATION_DLLAPI NodeSelector
+      class HPP_MANIPULATION_DLLAPI NodeSelector : public GraphComponent
       {
         public:
           /// Create a new NodeSelector.

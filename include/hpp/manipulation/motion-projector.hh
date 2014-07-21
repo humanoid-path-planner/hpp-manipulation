@@ -38,9 +38,9 @@ namespace hpp {
       /// \param maxIterations maximal number of iteration in the resolution of
       ///                      the constraint.
       static MotionProjectorPtr_t create (const DevicePtr_t& robot,
-					  const std::string& name,
-					  value_type errorThreshold,
-					  size_type maxIterations);
+                                          const std::string& name,
+                                          value_type errorThreshold,
+                                          size_type maxIterations);
 
       /// Add constraint
       void addConstraint (const DifferentiableFunctionPtr_t& constraint);
@@ -53,7 +53,7 @@ namespace hpp {
       /// \param maxIterations maximal number of iteration in the resolution of
       ///                      the constraint.
       MotionProjector (const DevicePtr_t& robot, const std::string& name,
-		       value_type errorThreshold, size_type maxIterations);
+                       value_type errorThreshold, size_type maxIterations);
       /// Store weak pointer to itself
       void init (const MotionProjectorPtr_t& self)
       {

@@ -17,16 +17,38 @@
 #ifndef HPP_MANIPULATION_GRAPH_GRAPH_HH
 # define HPP_MANIPULATION_GRAPH_GRAPH_HH
 
-# include "hpp/manipulation/robot.hh"
-# include "hpp/manipulation/graph/node-selector.hh"
+# include <string>
 
-#include "hpp/manipulation/config.hh"
+# include "hpp/manipulation/robot.hh"
+
+# include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
 
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      /// Define common methods of the graph components.
+      class HPP_MANIPULATION_LOCAL GraphComponent
+      {
+        public:
+          /// Get the component name.
+          const std::string& name() const
+          {
+            return name_;
+          }
+
+          /// Set the component name.
+          void name(const std::string& name)
+          {
+            name_ = name;
+          }
+
+        private:
+          std::string name_;
+      };
+
+
       /// Description of the constraint graph
       /// This class contains a graph representing a robot with several
       /// end-effectors.
@@ -37,7 +59,7 @@ namespace hpp {
       /// - A NodeSelector owns the Node s related to one gripper.
       /// - A Node owns its outgoing Edge s.
       /// - An Edge does not own anything.
-      class HPP_MANIPULATION_DLLAPI Graph
+      class HPP_MANIPULATION_DLLAPI Graph : public GraphComponent
       {
         public:
           /// Create a new Graph.

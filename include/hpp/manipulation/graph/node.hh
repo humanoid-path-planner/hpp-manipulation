@@ -30,7 +30,7 @@ namespace hpp {
       ///
       /// Nodes of the graph of constraints. There is one
       /// graph for each end-effector.
-      class HPP_MANIPULATION_DLLAPI Node
+      class HPP_MANIPULATION_DLLAPI Node : public GraphComponent
       {
         public:
           /// Create a new node.

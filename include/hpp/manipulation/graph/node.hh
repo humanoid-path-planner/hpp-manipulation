@@ -59,6 +59,21 @@ namespace hpp {
             constraints_ = constraints;
           }
 
+          /// Get the parent NodeSelector.
+          NodeSelectorWkPtr_t nodeSelector ()
+          {
+            return selector_;
+          }
+
+          /// Set the NodeSelector containing this node.
+          void nodeSelector (const NodeSelectorWkPtr_t& parent)
+          {
+            selector_ = parent;
+          };
+
+          /// Get the neighbors
+          const Edges_t& neighbors() const;
+
         protected:
           /// Initialize the object.
           void init (const NodeWkPtr_t& self, const ConstraintPtr_t& constraints);
@@ -75,7 +90,7 @@ namespace hpp {
           ConstraintPtr_t constraints_;
 
           /// A selector that will implement the selection of the next state.
-          NodeSelectorPtr_t selector_;
+          NodeSelectorWkPtr_t selector_;
 
           /// Weak pointer to itself.
           NodeWkPtr_t wkPtr_;

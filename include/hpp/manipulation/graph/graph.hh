@@ -69,10 +69,10 @@ namespace hpp {
           NodeSelectorPtr_t createNodeSelector();
 
           /// Returns the states of a configuration.
-          virtual Nodes_t getNode(const Configuration_t config) const;
+          virtual Nodes_t getNode(const Configuration_t config);
 
           /// Select randomly outgoing edges of the given nodes.
-          virtual Edges_t chooseEdge(const Nodes_t& node) const;
+          virtual Edges_t chooseEdge(const Nodes_t& node);
 
         protected:
           /// Initialization of the object.

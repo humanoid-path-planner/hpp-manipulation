@@ -14,6 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include <cstdlib>
+
 #include "hpp/manipulation/graph/node-selector.hh"
 
 namespace hpp {
@@ -35,8 +37,24 @@ namespace hpp {
       NodePtr_t NodeSelector::createNode (const ConstraintPtr_t& constraints)
       {
         NodePtr_t newNode = Node::create(constraints);
+        newNode->nodeSelector(wkPtr_);
         orderedStates_.push_back(newNode);
         return newNode;
+      }
+
+      NodePtr_t NodeSelector::getNode(const Configuration_t config)
+      {
+        for (std::vector< NodePtr_t >::iterator it = orderedStates_.begin();
+            orderedStates_.end() == it; it++)
+          if ((*it)->contains(config))
+            return *it;
+      }
+
+      EdgePtr_t NodeSelector::chooseEdge(const NodePtr_t& node)
+      {
+        const Edges_t neighbors = node->neighbors();
+        size_t n = rand() % neighbors.size();
+        return neighbors[n];
       }
     } // namespace graph
   } // namespace manipulation

@@ -37,10 +37,10 @@ namespace hpp {
           NodePtr_t createNode (const ConstraintPtr_t& constraints);
 
           /// Returns the state of a configuration.
-          virtual NodePtr_t getNode(const Configuration_t config) const;
+          virtual NodePtr_t getNode(const Configuration_t config);
 
           /// Select randomly an outgoing edge of the given node.
-          virtual EdgePtr_t chooseEdge(const NodePtr_t& node) const;
+          virtual EdgePtr_t chooseEdge(const NodePtr_t& node);
 
         protected:
           /// Initialization of the object.

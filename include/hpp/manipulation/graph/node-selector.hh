@@ -17,6 +17,7 @@
 #ifndef HPP_MANIPULATION_GRAPH_NODE_SELECTOR_HH
 # define HPP_MANIPULATION_GRAPH_NODE_SELECTOR_HH
 
+#include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/node.hh"
 
@@ -29,21 +30,10 @@ namespace hpp {
       {
         public:
           /// Create a new NodeSelector.
-          static NodeSelectorPtr_t create()
-          {
-            NodeSelector* ptr = new NodeSelector();
-            NodeSelectorPtr_t shPtr (ptr);
-            ptr->init (shPtr);
-            return shPtr;
-          }
+          static NodeSelectorPtr_t create();
 
           /// Create a nodes with the constraints
-          NodePtr_t createNode (const ConstraintPtr_t& constraints)
-          {
-            NodePtr_t newNode = Node::create(constraints);
-            orderedStates_.push_back(newNode);
-            return newNode;
-          }
+          NodePtr_t createNode (const ConstraintPtr_t& constraints);
 
           /// Returns the state of a configuration.
           virtual NodePtr_t getNode(const Configuration_t config) const;
@@ -53,10 +43,7 @@ namespace hpp {
 
         protected:
           /// Initialization of the object.
-          void init (const NodeSelectorPtr_t& weak)
-          {
-            wkPtr_ = weak;
-          }
+          void init (const NodeSelectorPtr_t& weak);
 
           /// Constructor
           NodeSelector ()

@@ -25,6 +25,11 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   problem-solver.cc
   robot.cc
   manipulation-planner.cc
+
+  graph/node.cc
+  graph/edge.cc
+  graph/graph.cc
+  graph/node-selector.cc
 )
 
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-core)

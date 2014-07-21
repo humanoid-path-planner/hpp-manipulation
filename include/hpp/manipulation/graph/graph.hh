@@ -20,6 +20,7 @@
 # include "hpp/manipulation/robot.hh"
 # include "hpp/manipulation/graph/node-selector.hh"
 
+#include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
 
@@ -40,21 +41,10 @@ namespace hpp {
       {
         public:
           /// Create a new Graph.
-          static GraphPtr_t create(RobotPtr_t robot)
-          {
-            Graph* ptr = new Graph;
-            GraphPtr_t shPtr (ptr);
-            ptr->init (shPtr, robot);
-            return shPtr;
-          }
+          static GraphPtr_t create(RobotPtr_t robot);
 
           /// Create and insert a NodeSelector inside the graph.
-          NodeSelectorPtr_t createNodeSelector()
-          {
-            NodeSelectorPtr_t newNodeSelector = NodeSelector::create();
-            nodeSelectors_.push_back(newNodeSelector);
-            return newNodeSelector;
-          }
+          NodeSelectorPtr_t createNodeSelector();
 
           /// Returns the states of a configuration.
           virtual Nodes_t getNode(const Configuration_t config) const;
@@ -64,11 +54,7 @@ namespace hpp {
 
         protected:
           /// Initialization of the object.
-          void init (const GraphWkPtr_t& weak, RobotPtr_t robot)
-          {
-            robot_ = robot;
-            wkPtr_ = weak;
-          }
+          void init (const GraphWkPtr_t& weak, RobotPtr_t robot);
 
           /// Constructor
           Graph ()

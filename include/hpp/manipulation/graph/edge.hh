@@ -19,6 +19,7 @@
 
 #include <hpp/core/constraint-set.hh>
 
+#include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/node.hh"
 
@@ -33,13 +34,7 @@ namespace hpp {
         public:
           /// Create a new Edge.
           static EdgePtr_t create (const NodeWkPtr_t& from, const NodeWkPtr_t& to,
-              const ConstraintPtr_t& constraints)
-          {
-            Edge* ptr = new Edge;
-            EdgePtr_t shPtr (ptr);
-            ptr->init(shPtr, from, to, constraints);
-            return shPtr;
-          }
+              const ConstraintPtr_t& constraints);
 
           /// Projector to project onto the same leaf as config.
           /// \return The initialized projector.
@@ -54,13 +49,7 @@ namespace hpp {
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,
-              const NodeWkPtr_t& to, const ConstraintPtr_t& constraints)
-          {
-            wkPtr_ = weak;
-            from_ = from;
-            to_ = to;
-            constraints_ = constraints;
-          }
+              const NodeWkPtr_t& to, const ConstraintPtr_t& constraints);
 
           /// Constructor
           Edge()

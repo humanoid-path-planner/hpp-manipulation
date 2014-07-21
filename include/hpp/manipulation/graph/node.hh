@@ -34,21 +34,10 @@ namespace hpp {
       {
         public:
           /// Create a new node.
-          static NodePtr_t create (const ConstraintPtr_t& constraints)
-          {
-            Node* node = new Node;
-            NodePtr_t shPtr(node);
-            shPtr->init(shPtr, constraints);
-            return shPtr;
-          }
+          static NodePtr_t create (const ConstraintPtr_t& constraints);
 
           /// Create a link from this node to the given node.
-          EdgePtr_t linkTo(const NodePtr_t& to, const ConstraintPtr_t& constraints)
-          {
-            EdgePtr_t newEdge = Edge::create(wkPtr_, to, constraints);
-            neighbors_.push_back(newEdge);
-            return newEdge;
-          }
+          EdgePtr_t linkTo(const NodePtr_t& to, const ConstraintPtr_t& constraints);
 
           /// Check whether the configuration is in this state.
           /// \return True if this state contains this configuration
@@ -56,14 +45,7 @@ namespace hpp {
           /// \note You should note use that to know in which states a
           /// configuration is. This only checks if the configuration satisfies
           /// the constraints. Instead, use the class NodeSelector.
-          virtual bool contains (const Configuration_t config) const
-          {
-            // TODO: This is not the most efficient way. We should
-            // compute the value of the constraint instead of apllying
-            // the constraint.
-            Configuration_t cfg = config;
-            return constraints_->apply(cfg) && ( cfg == config );
-          }
+          virtual bool contains (const Configuration_t config) const;
 
           /// Get the constraint set associated to the node.
           const ConstraintPtr_t constraints () const
@@ -79,11 +61,7 @@ namespace hpp {
 
         protected:
           /// Initialize the object.
-          void init (const NodeWkPtr_t& self, const ConstraintPtr_t& constraints)
-          {
-            wkPtr_ = self;
-            constraints_ = constraints;
-          }
+          void init (const NodeWkPtr_t& self, const ConstraintPtr_t& constraints);
 
           Node()
           {}

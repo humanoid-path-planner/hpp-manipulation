@@ -52,7 +52,7 @@ namespace hpp {
 
         private:
           /// List of the states of one end-effector, ordered by priority.
-          std::vector< NodePtr_t > orderedStates_;
+          Nodes_t orderedStates_;
 
           /// Weak pointer to itself.
           NodeSelectorPtr_t wkPtr_;

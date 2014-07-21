@@ -46,7 +46,7 @@ namespace hpp {
       Nodes_t Graph::getNode(const Configuration_t config)
       {
         Nodes_t nodes;
-        for (std::vector < NodeSelectorPtr_t >::iterator it = nodeSelectors_.begin();
+        for (NodeSelectors_t::iterator it = nodeSelectors_.begin();
             it == nodeSelectors_.end(); it++)
           nodes.push_back( (*it)->getNode(config) );
         return nodes;

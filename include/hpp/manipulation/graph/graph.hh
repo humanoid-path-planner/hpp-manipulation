@@ -84,7 +84,7 @@ namespace hpp {
 
         private:
           /// This list contains a node selector for each end-effector.
-          std::vector < NodeSelectorPtr_t > nodeSelectors_;
+          NodeSelectors_t nodeSelectors_;
 
           /// A set of constraints that will always be used, for example
           /// stability constraints.

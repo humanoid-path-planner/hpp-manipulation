@@ -44,7 +44,7 @@ namespace hpp {
 
       NodePtr_t NodeSelector::getNode(const Configuration_t config)
       {
-        for (std::vector< NodePtr_t >::iterator it = orderedStates_.begin();
+        for (Nodes_t::iterator it = orderedStates_.begin();
             orderedStates_.end() == it; it++)
           if ((*it)->contains(config))
             return *it;

@@ -84,7 +84,7 @@ namespace hpp {
         private:
           /// List of possible motions from this state (i.e. the outgoing
           /// vertices).
-          std::vector < EdgePtr_t > neighbors_;
+          Edges_t neighbors_;
 
           /// Set of constraints to be statisfied.
           ConstraintPtr_t constraints_;

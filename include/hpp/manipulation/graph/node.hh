@@ -17,7 +17,7 @@
 #ifndef HPP_MANIPULATION_GRAPH_NODE_HH
 # define HPP_MANIPULATION_GRAPH_NODE_HH
 
-#include <hpp/core/constraints-set.hh>
+#include <hpp/core/constraint-set.hh>
 
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/fwd.hh"
@@ -43,11 +43,11 @@ namespace hpp {
           }
 
           /// Create a link from this node to the given node.
-          EdgePtr_t linkTo(const EdgePtr_t& to, const ConstraintPtr_t& constraints)
+          EdgePtr_t linkTo(const NodePtr_t& to, const ConstraintPtr_t& constraints)
           {
             EdgePtr_t newEdge = Edge::create(wkPtr_, to, constraints);
             neighbors_.push_back(newEdge);
-            newEdge->
+            return newEdge;
           }
 
           /// Check whether the configuration is in this state.
@@ -61,7 +61,7 @@ namespace hpp {
             // TODO: This is not the most efficient way. We should
             // compute the value of the constraint instead of apllying
             // the constraint.
-            ConfigurationOut_t cfg = config;
+            Configuration_t cfg = config;
             return constraints_->apply(cfg) && ( cfg == config );
           }
 

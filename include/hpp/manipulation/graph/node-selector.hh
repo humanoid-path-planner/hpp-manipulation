@@ -18,7 +18,7 @@
 # define HPP_MANIPULATION_GRAPH_NODE_SELECTOR_HH
 
 #include "hpp/manipulation/fwd.hh"
-#include "hpp/manipulation/graph/gripper-state.hh"
+#include "hpp/manipulation/graph/node.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -53,7 +53,7 @@ namespace hpp {
 
         protected:
           /// Initialization of the object.
-          void init (const GraphWkPtr_t& weak)
+          void init (const NodeSelectorPtr_t& weak)
           {
             wkPtr_ = weak;
           }
@@ -65,6 +65,9 @@ namespace hpp {
         private:
           /// List of the states of one end-effector, ordered by priority.
           std::vector< NodePtr_t > orderedStates_;
+
+          /// Weak pointer to itself.
+          NodeSelectorPtr_t wkPtr_;
       }; // Class NodeSelector
     } // namespace graph
   } // namespace manipulation

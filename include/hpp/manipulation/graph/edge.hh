@@ -17,10 +17,10 @@
 #ifndef HPP_MANIPULATION_GRAPH_EDGE_HH
 # define HPP_MANIPULATION_GRAPH_EDGE_HH
 
-#include <hpp/core/constraints-set.hh>
+#include <hpp/core/constraint-set.hh>
 
 #include "hpp/manipulation/fwd.hh"
-#include "hpp/manipulation/graph/gripper-state.hh"
+#include "hpp/manipulation/graph/node.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -32,7 +32,7 @@ namespace hpp {
       {
         public:
           /// Create a new Edge.
-          static EdgePtr_t create (const NodeWkPtr_t& from, const NodeWkPtr_t& to.
+          static EdgePtr_t create (const NodeWkPtr_t& from, const NodeWkPtr_t& to,
               const ConstraintPtr_t& constraints)
           {
             Edge* ptr = new Edge;

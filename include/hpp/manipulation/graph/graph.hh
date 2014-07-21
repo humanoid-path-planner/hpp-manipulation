@@ -17,8 +17,10 @@
 #ifndef HPP_MANIPULATION_GRAPH_GRAPH_HH
 # define HPP_MANIPULATION_GRAPH_GRAPH_HH
 
-#include "hpp/manipulation/fwd.hh"
-#include "hpp/manipulation/graph/fwd.hh"
+# include "hpp/manipulation/graph/node-selector.hh"
+
+# include "hpp/manipulation/fwd.hh"
+# include "hpp/manipulation/graph/fwd.hh"
 
 namespace hpp {
   namespace manipulation {

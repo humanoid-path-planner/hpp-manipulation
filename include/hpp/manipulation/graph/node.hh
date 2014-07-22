@@ -34,6 +34,9 @@ namespace hpp {
       {
         public:
           /// Create a new node.
+          static NodePtr_t create ();
+
+          /// Create a new node with the specified constraints
           static NodePtr_t create (const ConstraintPtr_t& constraints);
 
           /// Create a link from this node to the given node.
@@ -72,9 +75,15 @@ namespace hpp {
           };
 
           /// Get the neighbors
-          const Edges_t& neighbors() const;
+          const Edges_t& neighbors() const
+          {
+            return neighbors_;
+          }
 
         protected:
+          /// Initialize the object.
+          void init (const NodeWkPtr_t& self);
+
           /// Initialize the object.
           void init (const NodeWkPtr_t& self, const ConstraintPtr_t& constraints);
 

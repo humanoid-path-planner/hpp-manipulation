@@ -60,6 +60,16 @@ namespace hpp {
           edges.push_back( (*it)->nodeSelector().lock()->chooseEdge(*it) );
         return edges;
       }
+
+      NodeSelectorPtr_t Graph::getNodeSelectorByName (const std::string& name)
+      {
+        for (NodeSelectors_t::iterator it = nodeSelectors_.begin();
+            it == nodeSelectors_.end(); it++) {
+          if (name == (*it)->name())
+            return *it;
+        }
+        return NodeSelectorPtr_t();
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

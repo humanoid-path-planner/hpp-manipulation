@@ -33,7 +33,10 @@ namespace hpp {
           /// Create a new NodeSelector.
           static NodeSelectorPtr_t create();
 
-          /// Create a nodes with the constraints
+          /// Create an empty node
+          NodePtr_t createNode ();
+
+          /// Create a node with the constraints
           NodePtr_t createNode (const ConstraintPtr_t& constraints);
 
           /// Returns the state of a configuration.

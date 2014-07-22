@@ -34,6 +34,14 @@ namespace hpp {
         wkPtr_ = weak;
       }
 
+      NodePtr_t NodeSelector::createNode ()
+      {
+        NodePtr_t newNode = Node::create();
+        newNode->nodeSelector(wkPtr_);
+        orderedStates_.push_back(newNode);
+        return newNode;
+      }
+
       NodePtr_t NodeSelector::createNode (const ConstraintPtr_t& constraints)
       {
         NodePtr_t newNode = Node::create(constraints);
@@ -48,6 +56,7 @@ namespace hpp {
             orderedStates_.end() == it; it++)
           if ((*it)->contains(config))
             return *it;
+        return NodePtr_t ();
       }
 
       EdgePtr_t NodeSelector::chooseEdge(const NodePtr_t& node)

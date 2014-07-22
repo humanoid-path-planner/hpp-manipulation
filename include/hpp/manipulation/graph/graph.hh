@@ -18,6 +18,7 @@
 # define HPP_MANIPULATION_GRAPH_GRAPH_HH
 
 # include <string>
+# include <hpp/util/assertion.hh>
 
 # include "hpp/manipulation/robot.hh"
 
@@ -73,6 +74,10 @@ namespace hpp {
 
           /// Select randomly outgoing edges of the given nodes.
           virtual Edges_t chooseEdge(const Nodes_t& node);
+
+          /// Return the NodeSelector with the given name if any,
+          /// NULL pointer if not found.
+          NodeSelectorPtr_t getNodeSelectorByName (const std::string& name);
 
         protected:
           /// Initialization of the object.

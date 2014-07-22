@@ -19,6 +19,14 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      NodePtr_t Node::create ()
+      {
+        Node* node = new Node;
+        NodePtr_t shPtr(node);
+        shPtr->init(shPtr);
+        return shPtr;
+      }
+
       NodePtr_t Node::create (const ConstraintPtr_t& constraints)
       {
         Node* node = new Node;
@@ -27,10 +35,15 @@ namespace hpp {
         return shPtr;
       }
 
-      void Node::init (const NodeWkPtr_t& self, const ConstraintPtr_t& constraints)
+      void Node::init (const NodeWkPtr_t& weak)
       {
-        wkPtr_ = self;
-        constraints_ = constraints;
+        wkPtr_ = weak;
+      }
+
+      void Node::init (const NodeWkPtr_t& self, const ConstraintPtr_t& constraint)
+      {
+        init(self);
+        constraints(constraint);
       }
 
       EdgePtr_t Node::linkTo(const NodePtr_t& to, const ConstraintPtr_t& constraints)

@@ -47,6 +47,9 @@ namespace hpp {
           /// \param config Configuration that will initialize the projector.
           ConfigProjectorPtr_t pathProjector(const Configuration_t config);
 
+          /// Print the object in a stream.
+          std::ostream& print (std::ostream& os) const;
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,

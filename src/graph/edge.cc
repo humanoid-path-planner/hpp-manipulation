@@ -37,6 +37,14 @@ namespace hpp {
         to_ = to;
         constraints_ = constraints;
       }
+
+      std::ostream& Edge::print (std::ostream& os) const
+      {
+        os << " |   |   |__ " << name () << " --> "
+          << to_.lock ()->name ();
+        return os;
+      }
+
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

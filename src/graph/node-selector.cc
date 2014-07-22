@@ -66,6 +66,15 @@ namespace hpp {
         size_t n = rand() % neighbors.size();
         return neighbors[n];
       }
+
+      std::ostream& NodeSelector::print (std::ostream& os) const
+      {
+        os << " |__ " << name() << std::endl;
+        for (Nodes_t::const_iterator it = orderedStates_.begin();
+            orderedStates_.end() != it; it++)
+          os << *(*it);
+        return os;
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

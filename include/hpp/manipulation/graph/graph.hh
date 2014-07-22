@@ -18,6 +18,7 @@
 # define HPP_MANIPULATION_GRAPH_GRAPH_HH
 
 # include <string>
+# include <ostream>
 # include <hpp/util/assertion.hh>
 
 # include "hpp/manipulation/robot.hh"
@@ -30,7 +31,7 @@ namespace hpp {
   namespace manipulation {
     namespace graph {
       /// Define common methods of the graph components.
-      class HPP_MANIPULATION_LOCAL GraphComponent
+      class HPP_MANIPULATION_DLLAPI GraphComponent
       {
         public:
           /// Get the component name.
@@ -57,6 +58,12 @@ namespace hpp {
           int id () const
           {
             return id_;
+          }
+
+          /// Print the object in a stream.
+          virtual std::ostream& print (std::ostream& os) const
+          {
+            return os;
           }
 
         protected:
@@ -109,6 +116,9 @@ namespace hpp {
           /// NULL pointer if not found.
           NodeSelectorPtr_t getNodeSelectorByName (const std::string& name);
 
+          /// Print the object in a stream.
+          std::ostream& print (std::ostream& os) const;
+
         protected:
           /// Initialization of the object.
           void init (const GraphWkPtr_t& weak, RobotPtr_t robot);
@@ -133,6 +143,10 @@ namespace hpp {
       }; // Class Graph
     } // namespace graph
   } // namespace manipulation
+
+  HPP_MANIPULATION_DLLAPI std::ostream& operator<< (std::ostream& os,
+      const hpp::manipulation::graph::GraphComponent& graphComp);
+
 } // namespace hpp
 
 #endif // HPP_MANIPULATION_GRAPH_GRAPH_HH

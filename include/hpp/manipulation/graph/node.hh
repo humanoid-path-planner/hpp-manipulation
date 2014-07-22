@@ -80,6 +80,9 @@ namespace hpp {
             return neighbors_;
           }
 
+          /// Print the object in a stream.
+          std::ostream& print (std::ostream& os) const;
+
         protected:
           /// Initialize the object.
           void init (const NodeWkPtr_t& self);

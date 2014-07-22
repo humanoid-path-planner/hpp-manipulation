@@ -62,6 +62,15 @@ namespace hpp {
         Configuration_t cfg = config;
         return constraints_->apply(cfg) && ( cfg == config );
       }
+
+      std::ostream& Node::print (std::ostream& os) const
+      {
+        os << " |    |_ " << name() << std::endl;
+        for (Edges_t::const_iterator it = neighbors_.begin();
+            it != neighbors_.end(); it++)
+          os << *(*it);
+        return os;
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

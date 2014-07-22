@@ -45,6 +45,9 @@ namespace hpp {
           /// Select randomly an outgoing edge of the given node.
           virtual EdgePtr_t chooseEdge(const NodePtr_t& node);
 
+          /// Print the object in a stream.
+          std::ostream& print (std::ostream& os) const;
+
         protected:
           /// Initialization of the object.
           void init (const NodeSelectorPtr_t& weak);

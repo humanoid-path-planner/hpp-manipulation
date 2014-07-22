@@ -73,6 +73,22 @@ namespace hpp {
         }
         return NodeSelectorPtr_t();
       }
+
+      std::ostream& Graph::print (std::ostream& os) const
+      {
+        os << name () << std::endl;
+        for (NodeSelectors_t::const_iterator it = nodeSelectors_.begin();
+            it != nodeSelectors_.end(); it++)
+          os << *(*it);
+        return os;
+      }
     } // namespace graph
   } // namespace manipulation
+
+  std::ostream& operator<< (std::ostream& os,
+      const hpp::manipulation::graph::GraphComponent& graphComp)
+  {
+    return graphComp.print (os);
+  }
+
 } // namespace hpp

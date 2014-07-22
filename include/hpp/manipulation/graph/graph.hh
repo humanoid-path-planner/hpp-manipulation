@@ -45,8 +45,39 @@ namespace hpp {
             name_ = name;
           }
 
+          /// Keep track of the create components in order to retrieve them
+          /// easily.
+          static std::vector < GraphComponentWkPtr_t > components;
+
+          /// Get the component by its ID. The validity of the GraphComponent
+          /// is not checked.
+          static GraphComponentWkPtr_t get(int id)
+          {
+            HPP_ASSERT (id >= 0 && id < (int)components.size());
+            return components[id];
+          };
+
+          /// Return the component id.
+          int id () const
+          {
+            return id_;
+          }
+
+        protected:
+          void init (const GraphComponentWkPtr_t& weak)
+          {
+            wkPtr_ = weak;
+            components.push_back (wkPtr_);
+            id_ = components.size();
+          }
+
+          GraphComponent() : id_(-1)
+          {}
+
         private:
           std::string name_;
+          GraphComponentWkPtr_t wkPtr_;
+          int id_;
       };
 
 

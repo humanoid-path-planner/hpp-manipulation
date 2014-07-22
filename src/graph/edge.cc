@@ -31,6 +31,7 @@ namespace hpp {
       void Edge::init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,
           const NodeWkPtr_t& to, const ConstraintPtr_t& constraints)
       {
+        GraphComponent::init (weak);
         wkPtr_ = weak;
         from_ = from;
         to_ = to;

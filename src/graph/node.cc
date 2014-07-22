@@ -37,6 +37,7 @@ namespace hpp {
 
       void Node::init (const NodeWkPtr_t& weak)
       {
+        GraphComponent::init (weak);
         wkPtr_ = weak;
       }
 

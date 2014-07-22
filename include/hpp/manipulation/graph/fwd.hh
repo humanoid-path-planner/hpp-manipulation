@@ -27,6 +27,7 @@ namespace hpp {
       HPP_PREDEF_CLASS (Node);
       HPP_PREDEF_CLASS (Edge);
       HPP_PREDEF_CLASS (NodeSelector);
+      HPP_PREDEF_CLASS (GraphComponent);
       typedef boost::shared_ptr < Graph > GraphPtr_t;
       typedef boost::shared_ptr < Node > NodePtr_t;
       typedef boost::shared_ptr < Edge > EdgePtr_t;

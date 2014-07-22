@@ -22,6 +22,8 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      std::vector < GraphComponentWkPtr_t > GraphComponent::components = std::vector < GraphComponentWkPtr_t >();
+
       GraphPtr_t Graph::create(RobotPtr_t robot)
       {
         Graph* ptr = new Graph;
@@ -32,6 +34,7 @@ namespace hpp {
 
       void Graph::init (const GraphWkPtr_t& weak, RobotPtr_t robot)
       {
+        GraphComponent::init (weak);
         robot_ = robot;
         wkPtr_ = weak;
       }

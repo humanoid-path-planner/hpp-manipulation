@@ -45,10 +45,6 @@ namespace hpp {
             name_ = name;
           }
 
-          /// Keep track of the create components in order to retrieve them
-          /// easily.
-          static std::vector < GraphComponentWkPtr_t > components;
-
           /// Get the component by its ID. The validity of the GraphComponent
           /// is not checked.
           static GraphComponentWkPtr_t get(int id)
@@ -75,11 +71,14 @@ namespace hpp {
           {}
 
         private:
+          /// Keep track of the created components in order to retrieve them
+          /// easily.
+          static std::vector < GraphComponentWkPtr_t > components;
+
           std::string name_;
           GraphComponentWkPtr_t wkPtr_;
           int id_;
       };
-
 
       /// Description of the constraint graph
       /// This class contains a graph representing a robot with several

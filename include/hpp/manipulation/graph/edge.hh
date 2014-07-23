@@ -33,9 +33,12 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent
       {
         public:
-          /// Create a new Edge.
-          static EdgePtr_t create (const NodeWkPtr_t& from, const NodeWkPtr_t& to,
-              const ConstraintPtr_t& constraints);
+          /// Create a new empty Edge.
+          static EdgePtr_t create (const NodeWkPtr_t& from, const NodeWkPtr_t& to);
+
+          /// Set the constraints of the Edge.
+          void constraints (const ConstraintPtr_t& constraints)
+            throw (Bad_function_call);
 
           /// Projector to project onto the same leaf as config.
           /// \return The initialized projector.
@@ -53,7 +56,7 @@ namespace hpp {
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,
-              const NodeWkPtr_t& to, const ConstraintPtr_t& constraints);
+              const NodeWkPtr_t& to);
 
           /// Constructor
           Edge()

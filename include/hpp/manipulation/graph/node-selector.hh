@@ -48,6 +48,12 @@ namespace hpp {
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
 
+          /// Should never be called.
+          virtual void constraints (const ConstraintPtr_t& /* constraints */)
+            throw (Bad_function_call)
+          {
+            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
+          }
         protected:
           /// Initialization of the object.
           void init (const NodeSelectorPtr_t& weak);

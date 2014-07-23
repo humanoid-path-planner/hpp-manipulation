@@ -32,6 +32,7 @@ namespace hpp {
       typedef boost::shared_ptr < Node > NodePtr_t;
       typedef boost::shared_ptr < Edge > EdgePtr_t;
       typedef boost::shared_ptr < NodeSelector > NodeSelectorPtr_t;
+      typedef boost::shared_ptr < GraphComponent > GraphComponentPtr_t;
       typedef std::vector < NodePtr_t > Nodes_t;
       typedef std::vector < EdgePtr_t > Edges_t;
       typedef std::vector < NodeSelectorPtr_t > NodeSelectors_t;

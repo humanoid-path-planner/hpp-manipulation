@@ -19,23 +19,27 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      EdgePtr_t Edge::create (const NodeWkPtr_t& from, const NodeWkPtr_t& to,
-          const ConstraintPtr_t& constraints)
+      EdgePtr_t Edge::create (const NodeWkPtr_t& from, const NodeWkPtr_t& to)
       {
         Edge* ptr = new Edge;
         EdgePtr_t shPtr (ptr);
-        ptr->init(shPtr, from, to, constraints);
+        ptr->init(shPtr, from, to);
         return shPtr;
       }
 
+      void Edge::constraints (const ConstraintPtr_t& constraint)
+        throw (Bad_function_call)
+      {
+        constraints_ = constraint;
+      }
+
       void Edge::init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,
-          const NodeWkPtr_t& to, const ConstraintPtr_t& constraints)
+          const NodeWkPtr_t& to)
       {
         GraphComponent::init (weak);
         wkPtr_ = weak;
         from_ = from;
         to_ = to;
-        constraints_ = constraints;
       }
 
       std::ostream& Edge::print (std::ostream& os) const

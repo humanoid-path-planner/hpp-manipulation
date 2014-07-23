@@ -47,9 +47,15 @@ namespace hpp {
         constraints(constraint);
       }
 
-      EdgePtr_t Node::linkTo(const NodePtr_t& to, const ConstraintPtr_t& constraints)
+      void Node::constraints (const ConstraintPtr_t& constraint)
+        throw (Bad_function_call)
       {
-        EdgePtr_t newEdge = Edge::create(wkPtr_, to, constraints);
+        constraints_ = constraint;
+      }
+
+      EdgePtr_t Node::linkTo(const NodePtr_t& to)
+      {
+        EdgePtr_t newEdge = Edge::create(wkPtr_, to);
         neighbors_.push_back(newEdge);
         return newEdge;
       }

@@ -20,6 +20,7 @@
 # include <string>
 # include <ostream>
 # include <hpp/util/assertion.hh>
+# include <hpp/util/exception.hh>
 
 # include "hpp/manipulation/robot.hh"
 
@@ -30,6 +31,8 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      HPP_MAKE_EXCEPTION ( HPP_MANIPULATION_DLLAPI, Bad_function_call );
+
       /// Define common methods of the graph components.
       class HPP_MANIPULATION_DLLAPI GraphComponent
       {
@@ -61,10 +64,11 @@ namespace hpp {
           }
 
           /// Print the object in a stream.
-          virtual std::ostream& print (std::ostream& os) const
-          {
-            return os;
-          }
+          virtual std::ostream& print (std::ostream& os) const = 0;
+
+          /// Set the constraints of the component.
+          virtual void constraints (const ConstraintPtr_t& /* constraints */)
+            throw (Bad_function_call) = 0;
 
         protected:
           void init (const GraphComponentWkPtr_t& weak)
@@ -118,6 +122,13 @@ namespace hpp {
 
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
+
+          /// Should never be called.
+          virtual void constraints (const ConstraintPtr_t& /* constraints */)
+            throw (Bad_function_call)
+          {
+            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
+          }
 
         protected:
           /// Initialization of the object.

@@ -40,7 +40,7 @@ namespace hpp {
           static NodePtr_t create (const ConstraintPtr_t& constraints);
 
           /// Create a link from this node to the given node.
-          EdgePtr_t linkTo(const NodePtr_t& to, const ConstraintPtr_t& constraints);
+          EdgePtr_t linkTo(const NodePtr_t& to);
 
           /// Check whether the configuration is in this state.
           /// \return True if this state contains this configuration
@@ -58,9 +58,7 @@ namespace hpp {
 
           /// Set the constraint set associated to the node.
           void constraints (const ConstraintPtr_t& constraints)
-          {
-            constraints_ = constraints;
-          }
+            throw (Bad_function_call);
 
           /// Get the parent NodeSelector.
           NodeSelectorWkPtr_t nodeSelector ()
@@ -90,6 +88,7 @@ namespace hpp {
           /// Initialize the object.
           void init (const NodeWkPtr_t& self, const ConstraintPtr_t& constraints);
 
+          /// Constructor
           Node()
           {}
 

@@ -52,8 +52,12 @@ namespace hpp {
           /// Get the component by its ID. The validity of the GraphComponent
           /// is not checked.
           static GraphComponentWkPtr_t get(int id)
+            throw (std::out_of_range)
           {
-            HPP_ASSERT (id >= 0 && id < (int)components.size());
+# ifdef HPP_DEBUG
+            if (id < 0 || id >= (int)components.size())
+              throw std::out_of_range ("ID out of range.");
+# endif // HPP_DEBUG
             return components[id];
           };
 

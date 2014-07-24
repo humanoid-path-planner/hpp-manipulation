@@ -46,6 +46,17 @@ namespace hpp {
           std::ostream& print (std::ostream& os) const;
 
           /// Should never be called.
+          virtual void addNumericalConstraint (const core::DifferentiableFunctionPtr_t& /* function */)
+          {
+            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
+          }
+
+          /// Should never be called.
+          virtual void addLockedDofConstraint (const core::LockedDof& /* constraint */)
+          {
+            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
+          }
+
         protected:
           /// Initialization of the object.
           void init (const NodeSelectorPtr_t& weak);

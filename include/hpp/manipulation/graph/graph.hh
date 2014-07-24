@@ -168,7 +168,45 @@ namespace hpp {
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
 
+          /// Add a core::DifferentiableFunction function.
+          virtual void addNumericalConstraint (const core::DifferentiableFunctionPtr_t& /* function */)
+          {
+            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
+          }
 
+          /// Add a core::LockedDof constraint.
+          virtual void addLockedDofConstraint (const core::LockedDof& /* constraint */)
+          {
+            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
+          }
+
+          /// Set maximal number of iterations
+          void maxIterations (size_type iterations)
+          {
+            maxIterations_ = iterations;
+          }
+          /// Get maximal number of iterations in config projector
+          size_type maxIterations () const
+          {
+            return maxIterations_;
+          }
+
+          /// Set error threshold
+          void errorThreshold (const value_type& threshold)
+          {
+            errorThreshold_ = threshold;
+          }
+          /// Get errorimal number of threshold in config projector
+          value_type errorThreshold () const
+          {
+            return errorThreshold_;
+          }
+
+          /// Get the robot.
+          const RobotPtr_t& robot () const
+          {
+            return robot_;
+          }
         protected:
           /// Initialization of the object.
           void init (const GraphWkPtr_t& weak, RobotPtr_t robot);
@@ -190,6 +228,9 @@ namespace hpp {
 
           /// Weak pointer to itself.
           GraphWkPtr_t wkPtr_;
+
+          value_type errorThreshold_;
+          size_type maxIterations_;
       }; // Class Graph
     } // namespace graph
   } // namespace manipulation

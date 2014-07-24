@@ -76,7 +76,7 @@ namespace hpp {
 
       std::ostream& Graph::print (std::ostream& os) const
       {
-        os << name () << std::endl;
+        GraphComponent::print (os) << std::endl;
         for (NodeSelectors_t::const_iterator it = nodeSelectors_.begin();
             it != nodeSelectors_.end(); it++)
           os << *(*it);

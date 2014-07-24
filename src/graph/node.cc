@@ -71,7 +71,7 @@ namespace hpp {
 
       std::ostream& Node::print (std::ostream& os) const
       {
-        os << " |    |_ " << name() << std::endl;
+        GraphComponent::print (os << " |   |__ ") << std::endl;
         for (Edges_t::const_iterator it = neighbors_.begin();
             it != neighbors_.end(); it++)
           os << *(*it);

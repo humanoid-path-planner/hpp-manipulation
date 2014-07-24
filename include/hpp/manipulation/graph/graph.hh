@@ -68,7 +68,11 @@ namespace hpp {
           }
 
           /// Print the object in a stream.
-          virtual std::ostream& print (std::ostream& os) const = 0;
+          virtual std::ostream& print (std::ostream& os) const
+          {
+            os << id () << " : " << name ();
+            return os;
+          }
 
           /// Set the constraints of the component.
           virtual void constraints (const ConstraintPtr_t& /* constraints */)

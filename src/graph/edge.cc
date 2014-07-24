@@ -44,8 +44,8 @@ namespace hpp {
 
       std::ostream& Edge::print (std::ostream& os) const
       {
-        os << " |   |   |__ " << name () << " --> "
-          << to_.lock ()->name ();
+        GraphComponent::print (os << " |   |   |__ ")
+          << " --> " << to_.lock ()->name () << std::endl;
         return os;
       }
 

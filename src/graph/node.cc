@@ -58,6 +58,21 @@ namespace hpp {
           os << *(*it);
         return os;
       }
+
+      ConstraintPtr_t Node::configConstraint()
+      {
+        if (!configConstraints_) {
+          ConstraintSetPtr_t configConst = buildConstraintSet (graph_, name () + "-cfgconstraint");
+          insertListIn <LockedDofs_t> (lockedDofConstraints_, configConst);
+          if (numericalConstraints_.size () > 0) {
+            ConfigProjectorPtr_t cp = buildConfigProjector (graph_, name () + "cfgproj");
+            insertListIn <DifferentiableFunctions_t> (numericalConstraints_, cp);
+            configConst->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, cp));
+          }
+          configConstraints_ = configConst;
+        }
+        return configConstraints_;
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

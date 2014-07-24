@@ -71,6 +71,9 @@ namespace hpp {
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
 
+          /// Constraint to project onto this node.
+          ConstraintPtr_t configConstraint();
+
         protected:
           /// Initialize the object.
           void init (const NodeWkPtr_t& self);

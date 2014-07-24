@@ -27,30 +27,10 @@ namespace hpp {
         return shPtr;
       }
 
-      NodePtr_t Node::create (const ConstraintPtr_t& constraints)
-      {
-        Node* node = new Node;
-        NodePtr_t shPtr(node);
-        shPtr->init(shPtr, constraints);
-        return shPtr;
-      }
-
       void Node::init (const NodeWkPtr_t& weak)
       {
         GraphComponent::init (weak);
         wkPtr_ = weak;
-      }
-
-      void Node::init (const NodeWkPtr_t& self, const ConstraintPtr_t& constraint)
-      {
-        init(self);
-        constraints(constraint);
-      }
-
-      void Node::constraints (const ConstraintPtr_t& constraint)
-        throw (Bad_function_call)
-      {
-        constraints_ = constraint;
       }
 
       EdgePtr_t Node::linkTo(const NodePtr_t& to)
@@ -66,7 +46,7 @@ namespace hpp {
         // compute the value of the constraint instead of apllying
         // the constraint.
         Configuration_t cfg = config;
-        return constraints_->apply(cfg) && ( cfg == config );
+        return configConstraints_->apply(cfg) && ( cfg == config );
       }
 
       std::ostream& Node::print (std::ostream& os) const

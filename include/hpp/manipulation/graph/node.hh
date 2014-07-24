@@ -17,7 +17,10 @@
 #ifndef HPP_MANIPULATION_GRAPH_NODE_HH
 # define HPP_MANIPULATION_GRAPH_NODE_HH
 
+
+#include <hpp/core/locked-dof.hh>
 #include <hpp/core/constraint-set.hh>
+#include <hpp/core/config-projector.hh>
 
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/fwd.hh"
@@ -36,9 +39,6 @@ namespace hpp {
           /// Create a new node.
           static NodePtr_t create ();
 
-          /// Create a new node with the specified constraints
-          static NodePtr_t create (const ConstraintPtr_t& constraints);
-
           /// Create a link from this node to the given node.
           EdgePtr_t linkTo(const NodePtr_t& to);
 
@@ -49,16 +49,6 @@ namespace hpp {
           /// configuration is. This only checks if the configuration satisfies
           /// the constraints. Instead, use the class NodeSelector.
           virtual bool contains (const Configuration_t config) const;
-
-          /// Get the constraint set associated to the node.
-          const ConstraintPtr_t constraints () const
-          {
-            return constraints_;
-          }
-
-          /// Set the constraint set associated to the node.
-          void constraints (const ConstraintPtr_t& constraints)
-            throw (Bad_function_call);
 
           /// Get the parent NodeSelector.
           NodeSelectorWkPtr_t nodeSelector ()
@@ -85,9 +75,6 @@ namespace hpp {
           /// Initialize the object.
           void init (const NodeWkPtr_t& self);
 
-          /// Initialize the object.
-          void init (const NodeWkPtr_t& self, const ConstraintPtr_t& constraints);
-
           /// Constructor
           Node()
           {}
@@ -98,7 +85,7 @@ namespace hpp {
           Edges_t neighbors_;
 
           /// Set of constraints to be statisfied.
-          ConstraintPtr_t constraints_;
+          ConstraintPtr_t configConstraints_;
 
           /// A selector that will implement the selection of the next state.
           NodeSelectorWkPtr_t selector_;
@@ -106,6 +93,42 @@ namespace hpp {
           /// Weak pointer to itself.
           NodeWkPtr_t wkPtr_;
       }; // class Node
+
+      template <typename T>
+        static inline void insertListIn (const T& l, ConstraintSetPtr_t cs)
+      {
+        typename T::const_iterator it;
+        for (it = l.begin(); it != l.end(); it++)
+          cs->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, *it));
+      }
+      template <typename T>
+        static inline void insertListIn (const T& l, ConfigProjectorPtr_t cs)
+      {
+        typename T::const_iterator it;
+        for (it = l.begin(); it != l.end(); it++)
+          cs->addConstraint (*it);
+      }
+      static ConfigProjectorPtr_t buildConfigProjector (GraphWkPtr_t graph, const std::string& name)
+      {
+        GraphPtr_t g = graph.lock ();
+        if (!g) {
+          HPP_THROW_EXCEPTION(Bad_function_call, "Invalid weak_ptr to the Graph.");
+        }
+
+        ConfigProjectorPtr_t ret = ConfigProjector::
+          create(g->robot(), name, g->errorThreshold(), g->maxIterations());
+        return ret;
+      }
+      static ConstraintSetPtr_t buildConstraintSet (GraphWkPtr_t graph, const std::string& name)
+      {
+        GraphPtr_t g = graph.lock ();
+        if (!g) {
+          HPP_THROW_EXCEPTION(Bad_function_call, "Invalid weak_ptr to the Graph.");
+        }
+
+        ConstraintSetPtr_t ret = ConstraintSet::create(g->robot(), name);
+        return ret;
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

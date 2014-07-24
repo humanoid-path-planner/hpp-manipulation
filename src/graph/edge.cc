@@ -27,12 +27,6 @@ namespace hpp {
         return shPtr;
       }
 
-      void Edge::constraints (const ConstraintPtr_t& constraint)
-        throw (Bad_function_call)
-      {
-        constraints_ = constraint;
-      }
-
       void Edge::init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,
           const NodeWkPtr_t& to)
       {

@@ -74,11 +74,9 @@ namespace hpp {
             return os;
           }
 
-          /// Set the constraints of the component.
-          virtual void constraints (const ConstraintPtr_t& /* constraints */)
-            throw (Bad_function_call) = 0;
 
         protected:
+          /// Initialize the component
           void init (const GraphComponentWkPtr_t& weak)
           {
             wkPtr_ = weak;
@@ -94,8 +92,11 @@ namespace hpp {
           /// easily.
           static std::vector < GraphComponentWkPtr_t > components;
 
+          /// Name of the component.
           std::string name_;
+          /// Weak pointer to itself.
           GraphComponentWkPtr_t wkPtr_;
+          /// ID of the component (index in components vector).
           int id_;
       };
 
@@ -131,12 +132,6 @@ namespace hpp {
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
 
-          /// Should never be called.
-          virtual void constraints (const ConstraintPtr_t& /* constraints */)
-            throw (Bad_function_call)
-          {
-            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
-          }
 
         protected:
           /// Initialization of the object.

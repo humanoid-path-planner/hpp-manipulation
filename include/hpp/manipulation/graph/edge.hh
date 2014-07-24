@@ -36,19 +36,15 @@ namespace hpp {
           /// Create a new empty Edge.
           static EdgePtr_t create (const NodeWkPtr_t& from, const NodeWkPtr_t& to);
 
-          /// Set the constraints of the Edge.
-          void constraints (const ConstraintPtr_t& constraints)
-            throw (Bad_function_call);
-
-          /// Projector to project onto the same leaf as config.
+          /// Constraint to project onto the same leaf as config.
           /// \return The initialized projector.
           /// \param config Configuration that will initialize the projector.
-          ConfigProjectorPtr_t configurationProjector(const Configuration_t config);
+          ConstraintPtr_t configConstraint(ConfigurationIn_t config);
 
-          /// Projector to project a path.
-          /// \return The initialized projector.
-          /// \param config Configuration that will initialize the projector.
-          ConfigProjectorPtr_t pathProjector(const Configuration_t config);
+          /// Constraint to project a path.
+          /// \return The initialized constraint.
+          /// \param config Configuration that will initialize the constraint.
+          ConstraintPtr_t pathConstraint(ConfigurationIn_t config);
 
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
@@ -66,16 +62,12 @@ namespace hpp {
           /// The two ends of the transition.
           NodeWkPtr_t from_, to_;
 
-          /// Set of constraints to be statisfied.
-          ConstraintPtr_t constraints_;
+          /// See pathConstraint member function.
+          ConstraintPtr_t pathConstraints_;
 
-          /// Projectors ensuring that a path between q_near and q_proj is
-          /// valid regarding the manipulation rules.
-          ConfigProjectorPtr_t configurationProjector_;
-
-          /// Projectors ensuring that a path between two configurations in
-          /// the same leaf lies in the leaf.
-          ConfigProjectorPtr_t pathProjector_;
+          /// Constraint ensuring that a q_proj will be in to_ and in the
+          /// same leaf of to_ as the configuration used for initialization.
+          ConstraintPtr_t configConstraints_;
 
           /// Weak pointer to itself.
           EdgeWkPtr_t wkPtr_;

@@ -43,14 +43,6 @@ namespace hpp {
         return newNode;
       }
 
-      NodePtr_t NodeSelector::createNode (const ConstraintPtr_t& constraints)
-      {
-        NodePtr_t newNode = Node::create(constraints);
-        newNode->nodeSelector(wkPtr_);
-        orderedStates_.push_back(newNode);
-        return newNode;
-      }
-
       NodePtr_t NodeSelector::getNode(const Configuration_t config)
       {
         for (Nodes_t::iterator it = orderedStates_.begin();

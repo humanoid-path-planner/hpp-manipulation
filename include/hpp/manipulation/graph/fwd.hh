@@ -37,9 +37,20 @@ namespace hpp {
       typedef std::vector < EdgePtr_t > Edges_t;
       typedef std::vector < NodeSelectorPtr_t > NodeSelectors_t;
 
-      typedef hpp::core::Constraint Constraint_t;
+      typedef hpp::core::value_type value_type;
+      typedef hpp::model::ConfigurationIn_t ConfigurationIn_t;
+
+      typedef hpp::core::Constraint Constraint;
       typedef hpp::core::ConstraintPtr_t ConstraintPtr_t;
+      typedef hpp::core::LockedDof LockedDof;
+      typedef hpp::core::LockedDofPtr_t LockedDofPtr_t;
+      typedef hpp::core::ConfigProjector ConfigProjector;
       typedef hpp::core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
+      typedef hpp::core::ConstraintSet ConstraintSet;
+      typedef hpp::core::ConstraintSetPtr_t ConstraintSetPtr_t;
+      typedef hpp::core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
+      typedef std::list < DifferentiableFunctionPtr_t > DifferentiableFunctions_t;
+      typedef std::list < LockedDofPtr_t > LockedDofs_t;
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

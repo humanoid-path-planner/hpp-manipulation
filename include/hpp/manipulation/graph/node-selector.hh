@@ -36,9 +36,6 @@ namespace hpp {
           /// Create an empty node
           NodePtr_t createNode ();
 
-          /// Create a node with the constraints
-          NodePtr_t createNode (const ConstraintPtr_t& constraints);
-
           /// Returns the state of a configuration.
           virtual NodePtr_t getNode(const Configuration_t config);
 
@@ -49,11 +46,6 @@ namespace hpp {
           std::ostream& print (std::ostream& os) const;
 
           /// Should never be called.
-          virtual void constraints (const ConstraintPtr_t& /* constraints */)
-            throw (Bad_function_call)
-          {
-            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
-          }
         protected:
           /// Initialization of the object.
           void init (const NodeSelectorPtr_t& weak);

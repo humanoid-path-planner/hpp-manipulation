@@ -78,8 +78,8 @@ namespace hpp {
           void init (const GraphComponentWkPtr_t& weak)
           {
             wkPtr_ = weak;
-            components.push_back (wkPtr_);
             id_ = components.size();
+            components.push_back (wkPtr_);
           }
 
           GraphComponent() : id_(-1)

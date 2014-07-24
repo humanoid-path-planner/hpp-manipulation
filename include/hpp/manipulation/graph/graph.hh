@@ -74,6 +74,35 @@ namespace hpp {
             return os;
           }
 
+          /// Add core::DifferentiableFunction to the component.
+          virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function)
+          {
+            numericalConstraints_.push_back(function);
+          }
+
+          /// Add core::LockedDof constraint to the component.
+          virtual void addLockedDofConstraint (const LockedDofPtr_t& constraint)
+          {
+            lockedDofConstraints_.push_back (constraint);
+          }
+
+          /// Get a reference to the DifferentiableFunctions_t
+          const DifferentiableFunctions_t& numericalConstraints() const
+          {
+            return numericalConstraints_;
+          }
+
+          /// Get a reference to the LockedDofs_t
+          const LockedDofs_t& lockedDofConstraints () const
+          {
+            return lockedDofConstraints_;
+          }
+
+          /// Set the parent graph.
+          void parentGraph(const GraphWkPtr_t& parent)
+          {
+            graph_ = parent;
+          }
 
         protected:
           /// Initialize the component
@@ -86,6 +115,13 @@ namespace hpp {
 
           GraphComponent() : id_(-1)
           {}
+
+          /// Stores the numerical constraints.
+          DifferentiableFunctions_t numericalConstraints_;
+          /// List of LockedDof constraints
+          LockedDofs_t lockedDofConstraints_;
+          /// A weak pointer to the parent graph.
+          GraphWkPtr_t graph_;
 
         private:
           /// Keep track of the created components in order to retrieve them

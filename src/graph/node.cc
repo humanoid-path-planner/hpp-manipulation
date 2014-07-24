@@ -37,6 +37,7 @@ namespace hpp {
       {
         EdgePtr_t newEdge = Edge::create(wkPtr_, to);
         neighbors_.push_back(newEdge);
+        newEdge->parentGraph(graph_);
         return newEdge;
       }
 

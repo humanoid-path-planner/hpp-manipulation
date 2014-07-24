@@ -39,6 +39,7 @@ namespace hpp {
       {
         NodePtr_t newNode = Node::create();
         newNode->nodeSelector(wkPtr_);
+        newNode->parentGraph(graph_);
         orderedStates_.push_back(newNode);
         return newNode;
       }

@@ -43,6 +43,7 @@ namespace hpp {
       {
         NodeSelectorPtr_t newNodeSelector = NodeSelector::create();
         nodeSelectors_.push_back(newNodeSelector);
+        newNodeSelector->parentGraph (wkPtr_);
         return newNodeSelector;
       }
 

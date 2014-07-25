@@ -98,40 +98,21 @@ namespace hpp {
       }; // class Node
 
       template <typename T>
-        static inline void insertListIn (const T& l, ConstraintSetPtr_t cs)
+        extern inline void insertListIn (const T& l, ConstraintSetPtr_t cs)
       {
         typename T::const_iterator it;
         for (it = l.begin(); it != l.end(); it++)
           cs->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, *it));
       }
       template <typename T>
-        static inline void insertListIn (const T& l, ConfigProjectorPtr_t cs)
+        extern inline void insertListIn (const T& l, ConfigProjectorPtr_t cs)
       {
         typename T::const_iterator it;
         for (it = l.begin(); it != l.end(); it++)
           cs->addConstraint (*it);
       }
-      static ConfigProjectorPtr_t buildConfigProjector (GraphWkPtr_t graph, const std::string& name)
-      {
-        GraphPtr_t g = graph.lock ();
-        if (!g) {
-          HPP_THROW_EXCEPTION(Bad_function_call, "Invalid weak_ptr to the Graph.");
-        }
-
-        ConfigProjectorPtr_t ret = ConfigProjector::
-          create(g->robot(), name, g->errorThreshold(), g->maxIterations());
-        return ret;
-      }
-      static ConstraintSetPtr_t buildConstraintSet (GraphWkPtr_t graph, const std::string& name)
-      {
-        GraphPtr_t g = graph.lock ();
-        if (!g) {
-          HPP_THROW_EXCEPTION(Bad_function_call, "Invalid weak_ptr to the Graph.");
-        }
-
-        ConstraintSetPtr_t ret = ConstraintSet::create(g->robot(), name);
-        return ret;
-      }
+      extern ConfigProjectorPtr_t buildConfigProjector (GraphWkPtr_t graph, const std::string& name);
+      extern ConstraintSetPtr_t buildConstraintSet (GraphWkPtr_t graph, const std::string& name);
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

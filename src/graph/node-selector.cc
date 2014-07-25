@@ -62,7 +62,7 @@ namespace hpp {
 
       std::ostream& NodeSelector::print (std::ostream& os) const
       {
-        GraphComponent::print (os << " |__ ") << std::endl;
+        GraphComponent::print (os << "|-- ") << std::endl;
         for (Nodes_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; it++)
           os << *(*it);

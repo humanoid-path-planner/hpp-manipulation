@@ -37,9 +37,6 @@ namespace hpp {
       typedef std::vector < EdgePtr_t > Edges_t;
       typedef std::vector < NodeSelectorPtr_t > NodeSelectors_t;
 
-      typedef hpp::core::value_type value_type;
-      typedef hpp::model::ConfigurationIn_t ConfigurationIn_t;
-
       typedef hpp::core::Constraint Constraint;
       typedef hpp::core::ConstraintPtr_t ConstraintPtr_t;
       typedef hpp::core::LockedDof LockedDof;

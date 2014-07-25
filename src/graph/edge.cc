@@ -61,7 +61,7 @@ namespace hpp {
           }
           configConstraints_ = configConst;
         }
-        configConstraints_->setLeafParameterFromConfig (config);
+        configConstraints_->offsetFromConfig (config);
         return configConstraints_;
       }
 
@@ -77,7 +77,7 @@ namespace hpp {
           }
           pathConstraints_ = pathConst;
         }
-        pathConstraints_->setLeafParameterFromConfig (config);
+        pathConstraints_->offsetFromConfig (config);
         return pathConstraints_;
       }
     } // namespace graph

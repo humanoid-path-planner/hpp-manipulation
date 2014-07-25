@@ -69,6 +69,16 @@ namespace hpp {
       return object;
     }
 
+    LockedDofPtr_t ProblemSolver::lockedDofConstraint (const std::string& name) const
+    {
+      LockedDofConstraintMap_t::const_iterator it =
+	lockedDofConstraintMap_.find (name);
+      if (it == lockedDofConstraintMap_.end ()) {
+	throw std::runtime_error ("No LockedDof constraint with this name");
+      }
+      return it->second;
+    }
+
     GraspPtr_t ProblemSolver::grasp (
                       const DifferentiableFunctionPtr_t& constraint) const
     {

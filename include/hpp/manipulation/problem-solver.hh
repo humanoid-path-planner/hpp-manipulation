@@ -36,7 +36,7 @@ namespace hpp {
       {
       }
       ProblemSolver () : core::ProblemSolver (), robot_ (),
-	robotsAndObjects_ (), graspsMap_()
+	robotsAndObjects_ (), graspsMap_(), lockedDofConstraintMap_()
 	{
 	}
       /// Set robot
@@ -105,6 +105,19 @@ namespace hpp {
       /// return NULL if no grasp named graspName
       GraspPtr_t grasp(const DifferentiableFunctionPtr_t& constraint) const;
 
+      /// Add a LockedDof constraint to the map
+      /// \param name key of the constraint as stored in an internal map.
+      /// \param lockedDof the constraint to add.
+      void addLockedDofConstraint (const std::string& name,
+          const LockedDofPtr_t& lockedDof)
+      {
+	lockedDofConstraintMap_ [name] = lockedDof;
+      }
+
+      /// Get a LockedDof constraint by name
+      /// \param name key of the constraint as stored in an internal map.
+      LockedDofPtr_t lockedDofConstraint (const std::string& name) const;
+
       /// Reset constraint set and put back the disable collisions
       /// between gripper and handle
       virtual void resetConstraints ();
@@ -129,6 +142,7 @@ namespace hpp {
       /// Map of single robots to store before building a composite robot.
       RobotsandObjects_t robotsAndObjects_;
       GraspsMap_t graspsMap_;
+      LockedDofConstraintMap_t lockedDofConstraintMap_;
     }; // class ProblemSolver
   } // namespace manipulation
 } // namespace hpp

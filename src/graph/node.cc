@@ -64,13 +64,13 @@ namespace hpp {
         return newEdge;
       }
 
-      bool Node::contains (const Configuration_t config) const
+      bool Node::contains (const Configuration_t config)
       {
         // TODO: This is not the most efficient way. We should
         // compute the value of the constraint instead of apllying
         // the constraint.
         Configuration_t cfg = config;
-        return configConstraints_->apply(cfg) && ( cfg == config );
+        return configConstraint()->apply(cfg) && ( cfg == config );
       }
 
       std::ostream& Node::print (std::ostream& os) const

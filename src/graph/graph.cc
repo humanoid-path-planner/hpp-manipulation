@@ -51,7 +51,7 @@ namespace hpp {
       {
         Nodes_t nodes;
         for (NodeSelectors_t::iterator it = nodeSelectors_.begin();
-            it == nodeSelectors_.end(); it++)
+            it != nodeSelectors_.end(); it++)
           nodes.push_back( (*it)->getNode(config) );
         return nodes;
       }

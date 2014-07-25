@@ -48,7 +48,7 @@ namespace hpp {
           /// \note You should note use that to know in which states a
           /// configuration is. This only checks if the configuration satisfies
           /// the constraints. Instead, use the class NodeSelector.
-          virtual bool contains (const Configuration_t config) const;
+          virtual bool contains (const Configuration_t config);
 
           /// Get the parent NodeSelector.
           NodeSelectorWkPtr_t nodeSelector ()

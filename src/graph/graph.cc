@@ -17,6 +17,7 @@
 #include <hpp/util/assertion.hh>
 
 #include "hpp/manipulation/graph/node-selector.hh"
+#include "hpp/manipulation/graph/node.hh"
 #include "hpp/manipulation/graph/graph.hh"
 
 namespace hpp {
@@ -73,6 +74,63 @@ namespace hpp {
             return *it;
         }
         return NodeSelectorPtr_t();
+      }
+
+      ConstraintPtr_t Graph::configConstraint (const Nodes_t& nodes)
+      {
+        ConstraintSetPtr_t constraint = ConstraintSet::create (robot (), name ());
+        insertListIn <LockedDofs_t> (lockedDofConstraints (), constraint);
+        for (Nodes_t::const_iterator it = nodes.begin();
+            it != nodes.end(); it++)
+          insertListIn <LockedDofs_t> ((*it)->lockedDofConstraints (), constraint);
+
+        ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
+        for (Nodes_t::const_iterator it = nodes.begin();
+            it != nodes.end(); it++)
+          insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);
+
+        constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
+        return constraint;
+      }
+
+      ConstraintPtr_t Graph::configConstraint (const Edges_t& edges, ConfigurationIn_t config)
+      {
+        ConstraintSetPtr_t constraint = ConstraintSet::create (robot (), name ());
+        insertListIn <LockedDofs_t> (lockedDofConstraints (), constraint);
+        for (Edges_t::const_iterator it = edges.begin();
+            it != edges.end(); it++) {
+          insertListIn <LockedDofs_t> ((*it)->lockedDofConstraints (), constraint);
+          insertListIn <LockedDofs_t> ((*it)->to()->lockedDofConstraints(), constraint);
+        }
+
+        ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
+        for (Edges_t::const_iterator it = edges.begin();
+            it != edges.end(); it++) {
+          insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);
+          insertListIn <DifferentiableFunctions_t> ((*it)->to()->numericalConstraints (), proj);
+        }
+
+        constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
+        constraint->offsetFromConfig (config);
+        return constraint;
+      }
+
+      ConstraintPtr_t Graph::pathConstraint (const Edges_t& edges, ConfigurationIn_t config)
+      {
+        ConstraintSetPtr_t constraint = ConstraintSet::create (robot (), name ());
+        insertListIn <LockedDofs_t> (lockedDofConstraints (), constraint);
+        for (Edges_t::const_iterator it = edges.begin();
+            it != edges.end(); it++)
+          insertListIn <LockedDofs_t> ((*it)->lockedDofConstraints (), constraint);
+
+        ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
+        for (Edges_t::const_iterator it = edges.begin();
+            it != edges.end(); it++)
+          insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);
+
+        constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
+        constraint->offsetFromConfig (config);
+        return constraint;
       }
 
       std::ostream& Graph::print (std::ostream& os) const

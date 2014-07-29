@@ -49,6 +49,18 @@ namespace hpp {
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
 
+          /// Get the destination
+          NodePtr_t to () const
+          {
+            return to_.lock();
+          }
+
+          /// Get the origin
+          NodePtr_t from () const
+          {
+            return from_.lock();
+          }
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,

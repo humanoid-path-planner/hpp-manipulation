@@ -75,32 +75,20 @@ namespace hpp {
           std::ostream& print (std::ostream& os) const;
 
           /// Set maximal number of iterations
-          void maxIterations (size_type iterations)
-          {
-            maxIterations_ = iterations;
-          }
+          void maxIterations (size_type iterations);
+
           /// Get maximal number of iterations in config projector
-          size_type maxIterations () const
-          {
-            return maxIterations_;
-          }
+          size_type maxIterations () const;
 
           /// Set error threshold
-          void errorThreshold (const value_type& threshold)
-          {
-            errorThreshold_ = threshold;
-          }
+          void errorThreshold (const value_type& threshold);
+
           /// Get errorimal number of threshold in config projector
-          value_type errorThreshold () const
-          {
-            return errorThreshold_;
-          }
+          value_type errorThreshold () const;
 
           /// Get the robot.
-          const RobotPtr_t& robot () const
-          {
-            return robot_;
-          }
+          const RobotPtr_t& robot () const;
+
         protected:
           /// Initialization of the object.
           void init (const GraphWkPtr_t& weak, RobotPtr_t robot);

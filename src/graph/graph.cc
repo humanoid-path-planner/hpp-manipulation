@@ -48,6 +48,31 @@ namespace hpp {
         return newNodeSelector;
       }
 
+      void Graph::maxIterations (size_type iterations)
+      {
+        maxIterations_ = iterations;
+      }
+
+      size_type Graph::maxIterations () const
+      {
+        return maxIterations_;
+      }
+
+      void Graph::errorThreshold (const value_type& threshold)
+      {
+        errorThreshold_ = threshold;
+      }
+
+      value_type Graph::errorThreshold () const
+      {
+        return errorThreshold_;
+      }
+
+      const RobotPtr_t& Graph::robot () const
+      {
+        return robot_;
+      }
+
       Nodes_t Graph::getNode(const Configuration_t config)
       {
         Nodes_t nodes;

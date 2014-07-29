@@ -85,6 +85,7 @@ namespace hpp {
           insertListIn <LockedDofs_t> ((*it)->lockedDofConstraints (), constraint);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
+        insertListIn <DifferentiableFunctions_t> (numericalConstraints (), proj);
         for (Nodes_t::const_iterator it = nodes.begin();
             it != nodes.end(); it++)
           insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);
@@ -104,6 +105,7 @@ namespace hpp {
         }
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
+        insertListIn <DifferentiableFunctions_t> (numericalConstraints (), proj);
         for (Edges_t::const_iterator it = edges.begin();
             it != edges.end(); it++) {
           insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);
@@ -124,6 +126,7 @@ namespace hpp {
           insertListIn <LockedDofs_t> ((*it)->lockedDofConstraints (), constraint);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
+        insertListIn <DifferentiableFunctions_t> (numericalConstraints (), proj);
         for (Edges_t::const_iterator it = edges.begin();
             it != edges.end(); it++)
           insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);

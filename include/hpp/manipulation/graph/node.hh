@@ -22,9 +22,10 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
 
+#include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/fwd.hh"
-#include "hpp/manipulation/graph/edge.hh"
+#include "hpp/manipulation/graph/graph-component.hh"
 
 namespace hpp {
   namespace manipulation {

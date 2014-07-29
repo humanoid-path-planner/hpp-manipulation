@@ -16,15 +16,15 @@
 
 #include <hpp/util/assertion.hh>
 
+#include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/node-selector.hh"
 #include "hpp/manipulation/graph/node.hh"
+#include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/graph.hh"
 
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      std::vector < GraphComponentWkPtr_t > GraphComponent::components = std::vector < GraphComponentWkPtr_t >();
-
       GraphPtr_t Graph::create(RobotPtr_t robot)
       {
         Graph* ptr = new Graph;
@@ -146,11 +146,5 @@ namespace hpp {
       }
     } // namespace graph
   } // namespace manipulation
-
-  std::ostream& operator<< (std::ostream& os,
-      const hpp::manipulation::graph::GraphComponent& graphComp)
-  {
-    return graphComp.print (os);
-  }
 
 } // namespace hpp

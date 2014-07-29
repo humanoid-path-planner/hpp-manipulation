@@ -185,18 +185,6 @@ namespace hpp {
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
 
-          /// Add a core::DifferentiableFunction function.
-          virtual void addNumericalConstraint (const core::DifferentiableFunctionPtr_t& /* function */)
-          {
-            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
-          }
-
-          /// Add a core::LockedDof constraint.
-          virtual void addLockedDofConstraint (const core::LockedDof& /* constraint */)
-          {
-            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
-          }
-
           /// Set maximal number of iterations
           void maxIterations (size_type iterations)
           {

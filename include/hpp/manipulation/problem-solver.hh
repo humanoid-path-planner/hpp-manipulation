@@ -21,8 +21,9 @@
 # include <map>
 # include <hpp/core/problem-solver.hh>
 # include <hpp/model/device.hh>
-# include <hpp/manipulation/object.hh>
-# include <hpp/manipulation/robot.hh>
+# include "hpp/manipulation/object.hh"
+# include "hpp/manipulation/robot.hh"
+# include "hpp/manipulation/graph/fwd.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -77,29 +78,52 @@ namespace hpp {
       ///
       /// throw if no robot is registered with this name.
       DevicePtr_t robot (const std::string& name) const;
-      
+
       /// Get object with given name
       ///
       /// throw if no object is registered with this name.
       ObjectPtr_t object (const std::string& name) const;
       /// \}
 
+      /// \name Constraint graph
+      /// \{
+
+      /// Set the constraint graph
+      void constraintGraph (const graph::GraphPtr_t& graph);
+
+      /// Get the constraint graph
+      graph::GraphPtr_t constraintGraph () const;
+      /// \}
+
+      /// \name Solve problem
+      /// \{
+
+      /// Prepare the solver for a step by step planning.
+      /// and try to make direct connections (call PathPlanner::tryDirectPath)
+      /// \return the return value of PathPlanner::pathExists
+      virtual bool prepareSolveStepByStep ();
+
+      /// Set and solve the problem
+      virtual void solve ();
+
+      /// \}
+
       /// Add grasp
       void addGrasp( const DifferentiableFunctionPtr_t& constraint,
                      const model::GripperPtr_t& gripper,
-                     const HandlePtr_t& handle) 
+                     const HandlePtr_t& handle)
       {
         Grasp_t* ptr = new Grasp_t (gripper, handle);
 	GraspPtr_t shPtr (ptr);
         graspsMap_[constraint] = shPtr;
       }
-   
+
       /// get grapsMap
       GraspsMap_t& grasps()
       {
         return graspsMap_;
       }
- 
+
       /// get graps by name
       ///
       /// return NULL if no grasp named graspName
@@ -139,6 +163,7 @@ namespace hpp {
     private:
       typedef std::map <const std::string, DevicePtr_t> RobotsandObjects_t;
       RobotPtr_t robot_;
+      graph::GraphPtr_t constraintGraph_;
       /// Map of single robots to store before building a composite robot.
       RobotsandObjects_t robotsAndObjects_;
       GraspsMap_t graspsMap_;

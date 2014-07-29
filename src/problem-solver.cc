@@ -17,11 +17,14 @@
 
 #include <hpp/util/pointer.hh>
 #include <hpp/util/debug.hh>
-#include <hpp/manipulation/object.hh>
-#include <hpp/manipulation/problem-solver.hh>
-#include <hpp/manipulation/robot.hh>
 #include <hpp/model/gripper.hh>
 
+#include "hpp/manipulation/object.hh"
+#include "hpp/manipulation/robot.hh"
+#include "hpp/manipulation/graph/graph.hh"
+#include "hpp/manipulation/manipulation-planner.hh"
+
+#include "hpp/manipulation/problem-solver.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -69,6 +72,16 @@ namespace hpp {
       return object;
     }
 
+    void ProblemSolver::constraintGraph (const graph::GraphPtr_t& graph)
+    {
+      constraintGraph_ = graph;
+    }
+
+    graph::GraphPtr_t ProblemSolver::constraintGraph () const
+    {
+      return constraintGraph_;
+    }
+
     LockedDofPtr_t ProblemSolver::lockedDofConstraint (const std::string& name) const
     {
       LockedDofConstraintMap_t::const_iterator it =
@@ -94,10 +107,10 @@ namespace hpp {
     void ProblemSolver::resetConstraints ()
     {
       if (robot_)
-	constraints_ = ConstraintSet::create (robot_, 
-                                              "Default constraint set");    
+	constraints_ = ConstraintSet::create (robot_,
+                                              "Default constraint set");
       GraspsMap_t graspsMap = grasps();
-      for (GraspsMap_t::const_iterator itGrasp = graspsMap.begin() ;  
+      for (GraspsMap_t::const_iterator itGrasp = graspsMap.begin();
              itGrasp != graspsMap.end() ; itGrasp++) {
         GraspPtr_t grasp = itGrasp->second;
         GripperPtr_t gripper = grasp->first;
@@ -111,7 +124,7 @@ namespace hpp {
         }
       }
     }
-   
+
     void ProblemSolver::addConstraintToConfigProjector (
                           const std::string& constraintName,
                           const DifferentiableFunctionPtr_t& constraint)
@@ -131,6 +144,28 @@ namespace hpp {
                                         hpp::model::DISTANCE);
         }
       }
+    }
+
+    bool ProblemSolver::prepareSolveStepByStep ()
+    {
+      ManipulationPlannerPtr_t manipPlanner =
+        HPP_DYNAMIC_PTR_CAST (ManipulationPlanner, pathPlanner ());
+      if (manipPlanner)
+        manipPlanner->constraintGraph (constraintGraph_);
+      else
+        hppDout (warning, "The planner is not a manipulation planner.");
+      return core::ProblemSolver::prepareSolveStepByStep ();
+    }
+
+    void ProblemSolver::solve ()
+    {
+      ManipulationPlannerPtr_t manipPlanner =
+        HPP_DYNAMIC_PTR_CAST (ManipulationPlanner, pathPlanner ());
+      if (manipPlanner)
+        manipPlanner->constraintGraph (constraintGraph_);
+      else
+        hppDout (warning, "The planner is not a manipulation planner.");
+      core::ProblemSolver::solve ();
     }
   } // namespace manipulation
 } // namespace hpp

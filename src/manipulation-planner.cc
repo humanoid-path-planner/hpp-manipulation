@@ -15,6 +15,7 @@
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/assertion.hh>
+#include <hpp/core/path-validation.hh>
 
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
@@ -30,37 +31,102 @@ namespace hpp {
       return shPtr;
     }
 
+    bool belongs (const ConfigurationPtr_t& q, const core::Nodes_t& nodes)
+    {
+      for (core::Nodes_t::const_iterator itNode = nodes.begin ();
+          itNode != nodes.end (); ++itNode) {
+        if (*((*itNode)->configuration ()) == *q) return true;
+      }
+      return false;
+    }
+
+
     void ManipulationPlanner::oneStep ()
     {
       RobotPtr_t robot = HPP_DYNAMIC_PTR_CAST(Robot, problem ().robot ());
       HPP_ASSERT(robot);
+      core::Nodes_t newNodes;
+      core::PathPtr_t path;
 
       // Pick a random node
-      ConfigurationPtr_t q_rand = shooter_.shoot();
+      ConfigurationPtr_t q_rand = shooter_->shoot();
 
       // Extend each connected component
       for (core::ConnectedComponents_t::const_iterator itcc =
           roadmap ()->connectedComponents ().begin ();
           itcc != roadmap ()->connectedComponents ().end (); itcc++) {
-        core::NodePtr_t q_new = extendConnectedComponent(*itcc, q_rand);
+        // Find the nearest neighbor.
+        core::value_type distance;
+        core::NodePtr_t near = roadmap ()->nearestNode (q_rand, *itcc, distance);
+
+        bool pathIsValid = extend (near->configuration (), q_rand, path);
+        // Insert new path to q_near in roadmap
+        value_type t_final = path->timeRange ().second;
+        if (t_final != path->timeRange ().first) {
+          ConfigurationPtr_t q_new (new Configuration_t
+              ((*path) (t_final)));
+          if (!pathIsValid || !belongs (q_new, newNodes)) {
+            newNodes.push_back (roadmap ()->addNodeAndEdge
+                (near, q_new, path));
+          } else {
+            core::NodePtr_t newNode = roadmap ()->addNode (q_new);
+            roadmap ()->addEdge (near, newNode, path);
+            core::interval_t timeRange = path->timeRange ();
+            roadmap ()->addEdge (newNode, near, path->extract
+                (core::interval_t (timeRange.second ,
+                                   timeRange.first)));
+          }
+        }
+      }
+
+      // Try to connect the new nodes together
+      const core::SteeringMethodPtr_t& sm (problem ().steeringMethod ());
+      core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
+      core::PathPtr_t validPath;
+      for (core::Nodes_t::const_iterator itn1 = newNodes.begin ();
+          itn1 != newNodes.end (); ++itn1) {
+        for (core::Nodes_t::const_iterator itn2 = boost::next (itn1);
+            itn2 != newNodes.end (); ++itn2) {
+          ConfigurationPtr_t q1 ((*itn1)->configuration ());
+          ConfigurationPtr_t q2 ((*itn2)->configuration ());
+          assert (*q1 != *q2);
+          path = (*sm) (*q1, *q2);
+          if (pathValidation->validate (path, false, validPath)) {
+            roadmap ()->addEdge (*itn1, *itn2, path);
+            core::interval_t timeRange = path->timeRange ();
+            roadmap ()->addEdge (*itn2, *itn1, path->extract
+                (core::interval_t (timeRange.second,
+                                   timeRange.first)));
+          }
+        }
       }
     }
 
-    core::NodePtr_t ManipulationPlanner::extendConnectedComponent(
-        ConnectedComponentPtr_t connectedComponent,
-        const ConfigurationPtr_t &q_rand)
+    bool ManipulationPlanner::extend(
+        const ConfigurationPtr_t& q_near,
+        const ConfigurationPtr_t& q_rand,
+        core::PathPtr_t& validPath)
     {
-      // Find the nearest neighbor.
-      core::value_type distance;
-      core::NodePtr_t near = roadmap ()->nearestNode (q_rand, connectedComponent, distance);
-
       // Select next node in the constraint graph.
-      //graph::Edges_t edge = selectNextState(near);
+      graph::Nodes_t nodes = constraintGraph_->getNode (*q_near);
+      graph::Edges_t edges = constraintGraph_->chooseEdge (nodes);
+      ConstraintPtr_t constraint = constraintGraph_->configConstraint (edges, *q_near);
+      qProj_ = *q_rand;
+      if (!constraint->apply (qProj_))
+        return core::PathPtr_t();
+      core::SteeringMethodPtr_t sm (problem().steeringMethod());
+      core::PathPtr_t path = (*sm) (*q_near, qProj_);
+      if (!path)
+        return core::PathPtr_t();
+      core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
+      return pathValidation->validate (path, false, validPath);
     }
 
     ManipulationPlanner::ManipulationPlanner (const core::Problem& problem,
         const core::RoadmapPtr_t& roadmap) :
-      core::PathPlanner (problem, roadmap), shooter_ (problem.robot ())
+      core::PathPlanner (problem, roadmap),
+      shooter_ (new core::BasicConfigurationShooter (problem.robot ())),
+      qProj_ (problem.robot ()->configSize ())
     {}
 
     void ManipulationPlanner::init (const ManipulationPlannerWkPtr_t& weak)

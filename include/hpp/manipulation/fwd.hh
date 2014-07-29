@@ -77,6 +77,8 @@ namespace hpp {
     typedef core::ConstraintSet ConstraintSet;
     typedef core::ConstraintSetPtr_t ConstraintSetPtr_t;
     typedef core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
+    typedef core::ConfigurationShooter ConfigurationShooter;
+    typedef core::ConfigurationShooterPtr_t ConfigurationShooterPtr_t;
     
     typedef std::pair< GripperPtr_t, HandlePtr_t> Grasp_t;
     typedef boost::shared_ptr <Grasp_t> GraspPtr_t;

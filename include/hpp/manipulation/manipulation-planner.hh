@@ -25,6 +25,7 @@
 
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/graph/fwd.hh"
+#include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/fwd.hh"
 
 namespace hpp {
@@ -35,6 +36,12 @@ namespace hpp {
         /// Create an instance and return a shared pointer to the instance
         static ManipulationPlannerPtr_t create (const core::Problem& problem,
             const core::RoadmapPtr_t& roadmap);
+
+        /// Set the constraint graph
+        void constraintGraph (const graph::GraphPtr_t& graph)
+        {
+          constraintGraph_ = graph;
+        }
 
         /// One step of extension.
         /// 
@@ -51,14 +58,14 @@ namespace hpp {
         /// Store weak pointer to itself
         void init (const ManipulationPlannerWkPtr_t& weak);
 
-        /// Extend a connected component toward a configuration.
-        /// \return The node added to the connected component.
-        core::NodePtr_t extendConnectedComponent(ConnectedComponentPtr_t connectedComponent,
-            const ConfigurationPtr_t &q_rand);
-
-        /// Select the next state in the graph of constraint.
-        /// \return The edge of the graph.
-        const graph::Edges_t selectNextState(const core::NodePtr_t& q_near);
+        /// Extend a the configuration q_near toward q_rand.
+        /// \param q_near the configuration to be extended.
+        /// \param q_rand the configuration toward extension is performed.
+        /// \retval validPath the longest valid path (possibly of length 0),
+        ///         resulting from the extension.
+        /// \return True if the path needed not to be shortened to be valid.
+        bool extend (const ConfigurationPtr_t &q_near,
+            const ConfigurationPtr_t &q_rand, core::PathPtr_t& validPath);
 
         /// Extend a node of the roadmap towards a configuration.
         /// near The node of the roadmap to be extended.
@@ -69,11 +76,13 @@ namespace hpp {
 
       private:
         /// Configuration shooter
-        core::BasicConfigurationShooter shooter_;
+        ConfigurationShooterPtr_t shooter_;
         /// The graph of constraints
         graph::GraphPtr_t constraintGraph_;
         /// weak pointer to itself
         ManipulationPlannerWkPtr_t weakPtr_;
+
+        mutable Configuration_t qProj_;
     };
   } // namespace manipulation
 } // namespace hpp

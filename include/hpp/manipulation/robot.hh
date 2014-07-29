@@ -20,9 +20,10 @@
 #ifndef HPP_MANIPULATION_ROBOT_HH
 # define HPP_MANIPULATION_ROBOT_HH
 
-# include <hpp/manipulation/handle.hh>
-# include <hpp/manipulation/object.hh>
 # include <hpp/model/device.hh>
+
+# include "hpp/manipulation/fwd.hh"
+# include "hpp/manipulation/config.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -58,68 +59,33 @@ namespace hpp {
 			   vectorIn_t fullVelocity);
 
       /// Get robot manipulating objects
-      const Devices_t& robots () const
-      {
-	return robots_;
-      }
+      const Devices_t& robots () const;
+
       /// Get objects manipulated by the robot
-      const Objects_t& objects () const
-      {
-	return objects_;
-      }
+      const Objects_t& objects () const;
+
       /// Get joint of this corresponding to joint of original object or robot.
-      const JointPtr_t& joint (const JointConstPtr_t& original)
-      {
-	return jointMap_ [original];
-      }
+      const JointPtr_t& joint (const JointConstPtr_t& original);
 
       /// \name Composite robot handles
       /// \{
 
       /// Add a handle
-      void addHandle (const std::string& name, const HandlePtr_t& handle)
-      {
-	handles_ [name] = handle;
-      }
+      void addHandle (const std::string& name, const HandlePtr_t& handle);
+
       /// Return the handle named name
-      const HandlePtr_t& handle (const std::string& name) const
-      {
-	Handles_t::const_iterator it = handles_.find (name);
-	if (it == handles_.end ())
-	  throw std::runtime_error ("no handle with name " + name);
-	return it->second;
-      }
+      const HandlePtr_t& handle (const std::string& name) const;
       /// \}
 
       /// Add a gripper
-      void addGripper (const std::string& name, const GripperPtr_t& gripper)
-      {
-        grippers_ [name] = gripper;
-      }
+      void addGripper (const std::string& name, const GripperPtr_t& gripper);
+
       /// Return the gripper named name
-      const GripperPtr_t& gripper (const std::string& name) const
-      {
-	Grippers_t::const_iterator it = grippers_.find (name);
-	if (it == grippers_.end ())
-	  throw std::runtime_error ("no gripper with name " + name);
-	return it->second;
-      }
+      const GripperPtr_t& gripper (const std::string& name) const;
 
       /// Get Device names in the same order than the compositeRobot has been
       /// build
-      std::vector<std::string> getDeviceNames()
-      {
-        std::vector<std::string> deviceNames;
-        for ( Devices_t::iterator itDevice = robots_.begin() ; itDevice != 
-                robots_.end() ; itDevice++ ) {
-          deviceNames.push_back((*itDevice)->name());
-        }
-        for ( Objects_t::iterator itObject = objects_.begin() ; itObject !=
-                objects_.end() ; itObject++ ) {
-          deviceNames.push_back((*itObject)->name());
-        }
-        return deviceNames;
-      }
+      std::vector<std::string> getDeviceNames();
 
       /// Print object in a stream
       virtual std::ostream& print (std::ostream& os) const;

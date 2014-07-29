@@ -18,16 +18,74 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/debug.hh>
-#include <hpp/manipulation/fwd.hh>
-#include <hpp/model/object-factory.hh>
-#include <hpp/manipulation/robot.hh>
 #include <hpp/model/gripper.hh>
+#include <hpp/model/object-factory.hh>
+
+#include "hpp/manipulation/fwd.hh"
+#include "hpp/manipulation/handle.hh"
+#include "hpp/manipulation/object.hh"
+#include "hpp/manipulation/robot.hh"
 
 namespace hpp {
   namespace manipulation {
     typedef std::map <std::string, HandlePtr_t> Handles_t;
     typedef std::map <std::string, GripperPtr_t> Grippers_t;
     typedef std::vector<JointPtr_t> JointVector_t;
+
+    const Devices_t& Robot::robots () const
+    {
+      return robots_;
+    }
+
+    const Objects_t& Robot::objects () const
+    {
+      return objects_;
+    }
+
+    const JointPtr_t& Robot::joint (const JointConstPtr_t& original)
+    {
+      return jointMap_ [original];
+    }
+
+    void Robot::addHandle (const std::string& name, const HandlePtr_t& handle)
+    {
+      handles_ [name] = handle;
+    }
+
+    const HandlePtr_t& Robot::handle (const std::string& name) const
+    {
+      Handles_t::const_iterator it = handles_.find (name);
+      if (it == handles_.end ())
+        throw std::runtime_error ("no handle with name " + name);
+      return it->second;
+    }
+
+    void Robot::addGripper (const std::string& name, const GripperPtr_t& gripper)
+    {
+      grippers_ [name] = gripper;
+    }
+
+    const GripperPtr_t& Robot::gripper (const std::string& name) const
+    {
+      Grippers_t::const_iterator it = grippers_.find (name);
+      if (it == grippers_.end ())
+        throw std::runtime_error ("no gripper with name " + name);
+      return it->second;
+    }
+
+    std::vector<std::string> Robot::getDeviceNames()
+    {
+      std::vector<std::string> deviceNames;
+      for ( Devices_t::iterator itDevice = robots_.begin() ; itDevice !=
+          robots_.end() ; itDevice++ ) {
+        deviceNames.push_back((*itDevice)->name());
+      }
+      for ( Objects_t::iterator itObject = objects_.begin() ; itObject !=
+          objects_.end() ; itObject++ ) {
+        deviceNames.push_back((*itObject)->name());
+      }
+      return deviceNames;
+    }
 
     void Robot::copyKinematicChain (const JointPtr_t& parentJoint,
 				    const JointConstPtr_t& joint)
@@ -86,7 +144,7 @@ namespace hpp {
         for (model::JointVector_t::const_iterator itJoint = joints.begin() ;
                itJoint != joints.end() ; itJoint++ ) {
           gripper->addDisabledCollision(jointMap_[*itJoint]);
-        } 	 
+        }
 	addGripper (gripper->name (), gripper);
       }
     }
@@ -200,7 +258,7 @@ namespace hpp {
                                               "," << joint2->name() << ")");
 	      hpp::model::Device::addCollisionPairs (joint1, joint2,
                                                       hpp::model::COLLISION);
-	      hpp::model::Device::addCollisionPairs (joint1, joint2, 
+	      hpp::model::Device::addCollisionPairs (joint1, joint2,
                                                       hpp::model::DISTANCE);
             }
 	  }

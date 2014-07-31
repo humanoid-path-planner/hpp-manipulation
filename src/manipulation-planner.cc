@@ -18,6 +18,7 @@
 #include <hpp/core/path-validation.hh>
 
 #include "hpp/manipulation/robot.hh"
+#include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
 
 namespace hpp {
@@ -25,7 +26,13 @@ namespace hpp {
     ManipulationPlannerPtr_t ManipulationPlanner::create (const core::Problem& problem,
         const core::RoadmapPtr_t& roadmap)
     {
-      ManipulationPlanner* ptr = new ManipulationPlanner (problem, roadmap);
+      ManipulationPlanner* ptr;
+      try {
+        const Problem& p = dynamic_cast < const Problem& > (problem);
+        ptr = new ManipulationPlanner (p, roadmap);
+      } catch (std::exception&) {
+        throw std::invalid_argument ("The problem must be of type hpp::manipulation::Problem.");
+      }
       ManipulationPlannerPtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
@@ -107,10 +114,11 @@ namespace hpp {
         const ConfigurationPtr_t& q_rand,
         core::PathPtr_t& validPath)
     {
+      graph::GraphPtr_t graph = problem_.constraintGraph ();
       // Select next node in the constraint graph.
-      graph::Nodes_t nodes = constraintGraph_->getNode (*q_near);
-      graph::Edges_t edges = constraintGraph_->chooseEdge (nodes);
-      ConstraintPtr_t constraint = constraintGraph_->configConstraint (edges, *q_near);
+      graph::Nodes_t nodes = graph->getNode (*q_near);
+      graph::Edges_t edges = graph->chooseEdge (nodes);
+      ConstraintPtr_t constraint = graph->configConstraint (edges, *q_near);
       qProj_ = *q_rand;
       if (!constraint->apply (qProj_))
         return core::PathPtr_t();
@@ -122,10 +130,11 @@ namespace hpp {
       return pathValidation->validate (path, false, validPath);
     }
 
-    ManipulationPlanner::ManipulationPlanner (const core::Problem& problem,
+    ManipulationPlanner::ManipulationPlanner (const Problem& problem,
         const core::RoadmapPtr_t& roadmap) :
       core::PathPlanner (problem, roadmap),
       shooter_ (new core::BasicConfigurationShooter (problem.robot ())),
+      problem_ (problem),
       qProj_ (problem.robot ()->configSize ())
     {}
 

@@ -20,7 +20,6 @@
 #include <hpp/model/configuration.hh>
 #include <hpp/core/basic-configuration-shooter.hh>
 #include <hpp/core/path-planner.hh>
-#include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
 
 #include "hpp/manipulation/config.hh"
@@ -37,26 +36,12 @@ namespace hpp {
         static ManipulationPlannerPtr_t create (const core::Problem& problem,
             const core::RoadmapPtr_t& roadmap);
 
-        /// Set the constraint graph
-        void constraintGraph (const graph::GraphPtr_t& graph)
-        {
-          constraintGraph_ = graph;
-        }
-
         /// One step of extension.
         /// 
         /// A set of constraints is choosen using the graph of constraints.
         /// A constraint extension is done using a choosen set.
         ///
         virtual void oneStep ();
-
-      protected:
-        /// Protected constructor
-        ManipulationPlanner (const core::Problem& problem,
-            const core::RoadmapPtr_t& roadmap);
-
-        /// Store weak pointer to itself
-        void init (const ManipulationPlannerWkPtr_t& weak);
 
         /// Extend a the configuration q_near toward q_rand.
         /// \param q_near the configuration to be extended.
@@ -67,18 +52,19 @@ namespace hpp {
         bool extend (const ConfigurationPtr_t &q_near,
             const ConfigurationPtr_t &q_rand, core::PathPtr_t& validPath);
 
-        /// Extend a node of the roadmap towards a configuration.
-        /// near The node of the roadmap to be extended.
-        /// target The configuration towards which extension is performed.
-        core::PathPtr_t extend(const core::NodePtr_t& near,
-            const ConfigurationPtr_t& target,
-            const graph::Edges_t& edge);
+      protected:
+        /// Protected constructor
+        ManipulationPlanner (const Problem& problem,
+            const core::RoadmapPtr_t& roadmap);
+
+        /// Store weak pointer to itself
+        void init (const ManipulationPlannerWkPtr_t& weak);
 
       private:
         /// Configuration shooter
         ConfigurationShooterPtr_t shooter_;
-        /// The graph of constraints
-        graph::GraphPtr_t constraintGraph_;
+        /// Pointer to the problem
+        const Problem& problem_;
         /// weak pointer to itself
         ManipulationPlannerWkPtr_t weakPtr_;
 

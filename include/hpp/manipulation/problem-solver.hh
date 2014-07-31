@@ -23,6 +23,7 @@
 # include <hpp/model/device.hh>
 # include "hpp/manipulation/object.hh"
 # include "hpp/manipulation/robot.hh"
+# include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
 
 namespace hpp {
@@ -95,19 +96,6 @@ namespace hpp {
       graph::GraphPtr_t constraintGraph () const;
       /// \}
 
-      /// \name Solve problem
-      /// \{
-
-      /// Prepare the solver for a step by step planning.
-      /// and try to make direct connections (call PathPlanner::tryDirectPath)
-      /// \return the return value of PathPlanner::pathExists
-      virtual bool prepareSolveStepByStep ();
-
-      /// Set and solve the problem
-      virtual void solve ();
-
-      /// \}
-
       /// Add grasp
       void addGrasp( const DifferentiableFunctionPtr_t& constraint,
                      const model::GripperPtr_t& gripper,
@@ -160,9 +148,21 @@ namespace hpp {
       /// Objects are detected by dynamic cast.
       void buildCompositeRobot (const std::string& robotName,
 				const Names_t& robotNames);
+
+      /// Create new problem.
+      virtual void resetProblem ();
+
+      /// Get pointer to problem
+      ProblemPtr_t problem ()
+      {
+	return problem_;
+      }
+
     private:
       typedef std::map <const std::string, DevicePtr_t> RobotsandObjects_t;
       RobotPtr_t robot_;
+      /// The pointer should point to the same object as core::Problem.
+      ProblemPtr_t problem_;
       graph::GraphPtr_t constraintGraph_;
       /// Map of single robots to store before building a composite robot.
       RobotsandObjects_t robotsAndObjects_;

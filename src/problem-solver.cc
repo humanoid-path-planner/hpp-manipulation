@@ -18,11 +18,13 @@
 #include <hpp/util/pointer.hh>
 #include <hpp/util/debug.hh>
 #include <hpp/model/gripper.hh>
+#include <hpp/core/roadmap.hh>
 
 #include "hpp/manipulation/object.hh"
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
+#include "hpp/manipulation/problem.hh"
 
 #include "hpp/manipulation/problem-solver.hh"
 
@@ -70,6 +72,17 @@ namespace hpp {
 	throw std::runtime_error (name + std::string (" is not an object"));
       }
       return object;
+    }
+
+    void ProblemSolver::resetProblem ()
+    {
+      if (problem_)
+        delete (problem_);
+      problem_ = new Problem (robot_);
+      roadmap (core::Roadmap::create (problem_->distance (), problem_->robot()));
+      problem_->constraints ();
+      problem_->constraintGraph (constraintGraph_);
+      core::ProblemSolver::problem (problem_);
     }
 
     void ProblemSolver::constraintGraph (const graph::GraphPtr_t& graph)
@@ -144,28 +157,6 @@ namespace hpp {
                                         hpp::model::DISTANCE);
         }
       }
-    }
-
-    bool ProblemSolver::prepareSolveStepByStep ()
-    {
-      ManipulationPlannerPtr_t manipPlanner =
-        HPP_DYNAMIC_PTR_CAST (ManipulationPlanner, pathPlanner ());
-      if (manipPlanner)
-        manipPlanner->constraintGraph (constraintGraph_);
-      else
-        hppDout (warning, "The planner is not a manipulation planner.");
-      return core::ProblemSolver::prepareSolveStepByStep ();
-    }
-
-    void ProblemSolver::solve ()
-    {
-      ManipulationPlannerPtr_t manipPlanner =
-        HPP_DYNAMIC_PTR_CAST (ManipulationPlanner, pathPlanner ());
-      if (manipPlanner)
-        manipPlanner->constraintGraph (constraintGraph_);
-      else
-        hppDout (warning, "The planner is not a manipulation planner.");
-      core::ProblemSolver::solve ();
     }
   } // namespace manipulation
 } // namespace hpp

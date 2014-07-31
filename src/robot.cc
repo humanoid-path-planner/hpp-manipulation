@@ -277,6 +277,5 @@ namespace hpp {
       }
       return os;
     }
-
   } // namespace manipulation
 } // namespace hpp

@@ -46,6 +46,8 @@ namespace hpp {
     typedef boost::shared_ptr <const Object> ObjectConstPtr_t;
     HPP_PREDEF_CLASS (ProblemSolver);
     typedef ProblemSolver* ProblemSolverPtr_t;
+    HPP_PREDEF_CLASS (Problem);
+    typedef Problem* ProblemPtr_t;
     typedef constraints::RelativeOrientation RelativeOrientation;
     typedef constraints::RelativePosition RelativePosition;
     typedef constraints::RelativeOrientationPtr_t RelativeOrientationPtr_t;

@@ -86,7 +86,7 @@ namespace hpp {
       {
         Edges_t edges;
         for (Nodes_t::const_iterator it = nodes.begin();
-            it == nodes.end(); it++)
+            it != nodes.end(); it++)
           edges.push_back( (*it)->nodeSelector().lock()->chooseEdge(*it) );
         return edges;
       }

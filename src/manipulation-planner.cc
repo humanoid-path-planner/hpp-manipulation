@@ -73,7 +73,7 @@ namespace hpp {
           ConfigurationPtr_t q_new (new Configuration_t
               ((*path) (t_final)));
           if (!pathIsValid || !belongs (q_new, newNodes)) {
-            newNodes.push_back (roadmap ()->addNodeAndEdge
+            newNodes.push_back (roadmap ()->addNodeAndEdges
                 (near, q_new, path));
           } else {
             core::NodePtr_t newNode = roadmap ()->addNode (q_new);

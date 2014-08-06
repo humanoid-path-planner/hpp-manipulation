@@ -43,6 +43,14 @@ namespace hpp {
           return graph_;
         }
 
+        /// Check whether the problem is well formulated.
+        virtual void checkProblem () const
+        {
+          core::Problem::checkProblem ();
+          if (!graph_)
+            throw std::runtime_error ("No graph in the problem.");
+        }
+
       private:
         /// The graph of constraints
         graph::GraphPtr_t graph_;

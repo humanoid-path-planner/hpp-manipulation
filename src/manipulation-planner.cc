@@ -68,20 +68,22 @@ namespace hpp {
 
         bool pathIsValid = extend (near->configuration (), q_rand, path);
         // Insert new path to q_near in roadmap
-        value_type t_final = path->timeRange ().second;
-        if (pathIsValid && t_final != path->timeRange ().first) {
-          ConfigurationPtr_t q_new (new Configuration_t
-              ((*path) (t_final)));
-          if (!belongs (q_new, newNodes)) {
-            newNodes.push_back (roadmap ()->addNodeAndEdges
-                (near, q_new, path));
-          } else {
-            core::NodePtr_t newNode = roadmap ()->addNode (q_new);
-            roadmap ()->addEdge (near, newNode, path);
-            core::interval_t timeRange = path->timeRange ();
-            roadmap ()->addEdge (newNode, near, path->extract
-                (core::interval_t (timeRange.second ,
-                                   timeRange.first)));
+        if (pathIsValid) {
+          value_type t_final = path->timeRange ().second;
+          if (t_final != path->timeRange ().first) {
+            ConfigurationPtr_t q_new (new Configuration_t
+                ((*path) (t_final)));
+            if (!belongs (q_new, newNodes)) {
+              newNodes.push_back (roadmap ()->addNodeAndEdges
+                  (near, q_new, path));
+            } else {
+              core::NodePtr_t newNode = roadmap ()->addNode (q_new);
+              roadmap ()->addEdge (near, newNode, path);
+              core::interval_t timeRange = path->timeRange ();
+              roadmap ()->addEdge (newNode, near, path->extract
+                  (core::interval_t (timeRange.second ,
+                                     timeRange.first)));
+            }
           }
         }
       }

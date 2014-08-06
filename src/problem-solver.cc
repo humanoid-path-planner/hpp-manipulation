@@ -30,6 +30,11 @@
 
 namespace hpp {
   namespace manipulation {
+    std::ostream& operator<< (std::ostream& os, const Robot& robot)
+    {
+      return robot.print (os);
+    }
+
     void ProblemSolver::buildCompositeRobot (const std::string& robotName,
 					     const Names_t& robotNames)
     {

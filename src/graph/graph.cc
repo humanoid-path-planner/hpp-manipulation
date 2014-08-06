@@ -101,7 +101,7 @@ namespace hpp {
         return NodeSelectorPtr_t();
       }
 
-      ConstraintPtr_t Graph::configConstraint (const Nodes_t& nodes)
+      ConstraintSetPtr_t Graph::configConstraint (const Nodes_t& nodes)
       {
         ConstraintSetPtr_t constraint = ConstraintSet::create (robot (), name ());
 
@@ -120,7 +120,7 @@ namespace hpp {
         return constraint;
       }
 
-      ConstraintPtr_t Graph::configConstraint (const Edges_t& edges, ConfigurationIn_t config)
+      ConstraintSetPtr_t Graph::configConstraint (const Edges_t& edges, ConfigurationIn_t config)
       {
         ConstraintSetPtr_t constraint = ConstraintSet::create (robot (), name ());
 
@@ -144,7 +144,7 @@ namespace hpp {
         return constraint;
       }
 
-      ConstraintPtr_t Graph::pathConstraint (const Edges_t& edges, ConfigurationIn_t config)
+      ConstraintSetPtr_t Graph::pathConstraint (const Edges_t& edges, ConfigurationIn_t config)
       {
         ConstraintSetPtr_t constraint = ConstraintSet::create (robot (), name ());
 

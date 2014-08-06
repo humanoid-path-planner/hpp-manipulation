@@ -53,19 +53,19 @@ namespace hpp {
           /// Constraint to project onto the Nodes_t.
           /// \param the Nodes_t on which to project.
           /// \return The initialized projector.
-          virtual ConstraintPtr_t configConstraint (const Nodes_t& nodes);
+          virtual ConstraintSetPtr_t configConstraint (const Nodes_t& nodes);
 
           /// Constraint to project onto the same leaf as config.
           /// \param edges a list of edges defining the foliation.
           /// \param config Configuration that will initialize the projector.
           /// \return The initialized projector.
-          virtual ConstraintPtr_t configConstraint (const Edges_t& edges, ConfigurationIn_t config);
+          virtual ConstraintSetPtr_t configConstraint (const Edges_t& edges, ConfigurationIn_t config);
 
           /// Constraint to project a path.
           /// \param edges a list of edges defining the foliation.
           /// \param config Configuration that will initialize the constraint.
           /// \return The initialized constraint.
-          virtual ConstraintPtr_t pathConstraint (const Edges_t& edges, ConfigurationIn_t config);
+          virtual ConstraintSetPtr_t pathConstraint (const Edges_t& edges, ConfigurationIn_t config);
 
           /// Return the NodeSelector with the given name if any,
           /// NULL pointer if not found.

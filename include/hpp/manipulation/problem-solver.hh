@@ -158,6 +158,9 @@ namespace hpp {
 	return problem_;
       }
 
+    protected:
+      void initializeProblem (ProblemPtr_t problem);
+
     private:
       typedef std::map <const std::string, DevicePtr_t> RobotsandObjects_t;
       RobotPtr_t robot_;

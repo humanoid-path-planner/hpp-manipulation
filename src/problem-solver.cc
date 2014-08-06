@@ -78,11 +78,13 @@ namespace hpp {
     {
       if (problem_)
         delete (problem_);
-      problem_ = new Problem (robot_);
-      roadmap (core::Roadmap::create (problem_->distance (), problem_->robot()));
-      problem_->constraints ();
-      problem_->constraintGraph (constraintGraph_);
-      core::ProblemSolver::problem (problem_);
+      initializeProblem (new Problem (robot_));
+    }
+
+    void ProblemSolver::initializeProblem (ProblemPtr_t problem)
+    {
+      problem_ = problem;
+      core::ProblemSolver::initializeProblem (problem_);
     }
 
     void ProblemSolver::constraintGraph (const graph::GraphPtr_t& graph)

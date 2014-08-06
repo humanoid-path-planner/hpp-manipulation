@@ -124,6 +124,7 @@ namespace hpp {
         return false;
       core::SteeringMethodPtr_t sm (problem().steeringMethod());
       core::PathPtr_t path = (*sm) (*q_near, qProj_);
+      path->constraints (graph->pathConstraint (edges, *q_near));
       if (!path)
         return false;
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());

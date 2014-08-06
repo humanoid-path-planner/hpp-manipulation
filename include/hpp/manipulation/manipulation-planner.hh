@@ -48,7 +48,7 @@ namespace hpp {
         /// \param q_rand the configuration toward extension is performed.
         /// \retval validPath the longest valid path (possibly of length 0),
         ///         resulting from the extension.
-        /// \return True if the path needed not to be shortened to be valid.
+        /// \return True if the returned path is valid.
         bool extend (const ConfigurationPtr_t &q_near,
             const ConfigurationPtr_t &q_rand, core::PathPtr_t& validPath);
 

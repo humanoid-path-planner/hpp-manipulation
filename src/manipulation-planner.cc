@@ -121,13 +121,14 @@ namespace hpp {
       ConstraintPtr_t constraint = graph->configConstraint (edges, *q_near);
       qProj_ = *q_rand;
       if (!constraint->apply (qProj_))
-        return core::PathPtr_t();
+        return false;
       core::SteeringMethodPtr_t sm (problem().steeringMethod());
       core::PathPtr_t path = (*sm) (*q_near, qProj_);
       if (!path)
-        return core::PathPtr_t();
+        return false;
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
-      return pathValidation->validate (path, false, validPath);
+      pathValidation->validate (path, false, validPath);
+      return true;
     }
 
     ManipulationPlanner::ManipulationPlanner (const Problem& problem,

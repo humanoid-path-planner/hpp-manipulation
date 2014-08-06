@@ -153,7 +153,7 @@ namespace hpp {
       virtual void resetProblem ();
 
       /// Get pointer to problem
-      ProblemPtr_t problem ()
+      ProblemPtr_t problem () const
       {
 	return problem_;
       }

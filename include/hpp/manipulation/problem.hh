@@ -18,6 +18,7 @@
 
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/graph.hh"
+#include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/fwd.hh"
 
 namespace hpp {
@@ -25,16 +26,22 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI Problem : public core::Problem
     {
       public:
+        typedef core::Problem Parent;
+
         /// Constructor
         Problem (RobotPtr_t robot) : core::Problem (robot),
-        graph_()
+          graph_()
         {
+          Parent::pathValidation (GraphPathValidation::create (Parent::pathValidation(), graph_));
         }
 
         /// Set the graph of constraints
         void constraintGraph (const graph::GraphPtr_t& graph)
         {
           graph_ = graph;
+          GraphPathValidationPtr_t graphValidation = pathValidation();
+          if (graphValidation)
+            graphValidation->constraintGraph(graph);
         }
 
         /// Get the graph of constraints
@@ -51,6 +58,11 @@ namespace hpp {
             throw std::runtime_error ("No graph in the problem.");
         }
 
+        /// Get the path validation as a GraphPathValidation
+        GraphPathValidationPtr_t pathValidation ()
+        {
+          return HPP_DYNAMIC_PTR_CAST (GraphPathValidation, Parent::pathValidation());
+        }
       private:
         /// The graph of constraints
         graph::GraphPtr_t graph_;

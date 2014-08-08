@@ -47,6 +47,9 @@ namespace hpp {
           /// Returns the states of a configuration.
           Nodes_t getNode(const Configuration_t config) const;
 
+          /// Get possible edges between two nodes.
+          std::vector <Edges_t> getEdge(const Nodes_t& from, const Nodes_t& to) const;
+
           /// Select randomly outgoing edges of the given nodes.
           Edges_t chooseEdge(const Nodes_t& node) const;
 

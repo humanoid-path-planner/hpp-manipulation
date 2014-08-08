@@ -82,6 +82,73 @@ namespace hpp {
         return nodes;
       }
 
+      static void buildPossibleEdges (Edges_t current,
+          const std::vector <Edges_t>& edgesPerNodeSelector,
+          std::vector <Edges_t>& possibleEdges)
+      {
+        size_t d = current.size();
+        if (d == edgesPerNodeSelector.size()) {
+          possibleEdges.push_back (current);
+          return;
+        }
+        Edges_t::const_iterator it = edgesPerNodeSelector[d].begin();
+        while (it != edgesPerNodeSelector[d].end()) {
+          current.push_back (*it);
+          buildPossibleEdges (current, edgesPerNodeSelector, possibleEdges);
+          current.pop_back ();
+          it++;
+        }
+      }
+
+      std::vector <Edges_t> Graph::getEdge(const Nodes_t& from, const Nodes_t& to) const
+      {
+        assert (from.size() == to.size());
+        assert (nodeSelectors_.size() == to.size());
+        size_t numberPossibleEdges = 1;
+        std::vector < Edges_t > edgesPerNodeSelector (nodeSelectors_.size());
+        std::vector < Edges_t >::iterator itEdgePerNodeSelector = edgesPerNodeSelector.begin();
+        Nodes_t::const_iterator itFrom = from.begin (),
+                                itTo   =   to.begin ();
+        // We first iterate through from. For each element of from,
+        // we look for all edges between this element of from and its corresponding
+        // element in to. The resulting set of Edges_t is stored in
+        // edgesPerNodeSelector.
+
+        // Temporary variable.
+        Edges_t edgesInNodeSelector;
+        const Edges_t* neighbors;
+        Edges_t::const_iterator itEdge;
+        while (itFrom != from.end()) {
+          edgesInNodeSelector.clear ();
+          neighbors = &((*itFrom)->neighbors ());
+          itEdge = neighbors->begin();
+          // Find the edges between *itFrom and *itTo
+          while (itEdge != neighbors->end()) {
+            if ( (*itEdge)->to() == (*itTo) )
+              edgesInNodeSelector.push_back (*itEdge);
+            itEdge++;
+          }
+          /// If no Edge is found, the two Node are not connected.
+          if (edgesInNodeSelector.empty ())
+            return std::vector <Edges_t>(0);
+
+          // Store the Edges.
+          numberPossibleEdges *= edgesInNodeSelector.size();
+          *itEdgePerNodeSelector = edgesInNodeSelector;
+
+          itFrom++; itTo++; itEdgePerNodeSelector++;
+        }
+        assert (itTo == to.end());
+        assert (itEdgePerNodeSelector == edgesPerNodeSelector.end());
+
+        // Now, we can create the list of possible Edges_t
+        // between from and to.
+        std::vector <Edges_t> possibleEdges;
+        buildPossibleEdges (Edges_t(), edgesPerNodeSelector, possibleEdges);
+        assert (possibleEdges.size() == numberPossibleEdges);
+        return possibleEdges;
+      }
+
       Edges_t Graph::chooseEdge(const Nodes_t& nodes) const
       {
         Edges_t edges;

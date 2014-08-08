@@ -49,6 +49,30 @@ namespace hpp {
         /// the encapsulated PathValidation::validate.
         bool validate (const PathPtr_t& path, bool reverse, PathPtr_t& validPart);
 
+        /// Set the encapsulated path validator.
+        void innerValidation (const PathValidationPtr_t& pathValidation)
+        {
+          pathValidation_ = pathValidation;
+        }
+
+        /// Get the encapsulated path validator.
+        const PathValidationPtr_t& innerValidation ()
+        {
+          return pathValidation_;
+        }
+
+        /// Set the graph of constraints
+        void constraintGraph (const graph::GraphPtr_t& graph)
+        {
+          constraintGraph_ = graph;
+        }
+
+        /// Get the graph of constraints
+        graph::GraphPtr_t constraintGraph () const
+        {
+          return constraintGraph_;
+        }
+
         /// Create a new instance of this class.
         /// \param pathValidation a PathValidation that is responsible for collision
         //         checking.

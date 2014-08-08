@@ -66,6 +66,8 @@ namespace hpp {
     HPP_PREDEF_CLASS (ManipulationPlanner);
     typedef boost::shared_ptr < ManipulationPlanner > ManipulationPlannerPtr_t;
     typedef core::ConnectedComponentPtr_t ConnectedComponentPtr_t;
+    HPP_PREDEF_CLASS (GraphPathValidation);
+    typedef boost::shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
 
     typedef std::vector <DevicePtr_t> Devices_t;
     typedef std::vector <ObjectPtr_t> Objects_t;

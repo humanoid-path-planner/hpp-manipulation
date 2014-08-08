@@ -49,6 +49,7 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/problem-solver.hh
   include/hpp/manipulation/robot.hh
   include/hpp/manipulation/manipulation-planner.hh
+  include/hpp/manipulation/graph-path-validation.hh
   include/hpp/manipulation/graph/node.hh
   include/hpp/manipulation/graph/edge.hh
   include/hpp/manipulation/graph/node-selector.hh

@@ -25,6 +25,7 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   problem-solver.cc
   robot.cc
   manipulation-planner.cc
+  graph-path-validation.cc
 
   graph/node.cc
   graph/edge.cc

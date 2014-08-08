@@ -44,16 +44,16 @@ namespace hpp {
         return newNode;
       }
 
-      NodePtr_t NodeSelector::getNode(const Configuration_t config)
+      NodePtr_t NodeSelector::getNode(const Configuration_t config) const
       {
-        for (Nodes_t::iterator it = orderedStates_.begin();
+        for (Nodes_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; it++)
           if ((*it)->contains(config))
             return *it;
         return NodePtr_t ();
       }
 
-      EdgePtr_t NodeSelector::chooseEdge(const NodePtr_t& node)
+      EdgePtr_t NodeSelector::chooseEdge(const NodePtr_t& node) const
       {
         const Edges_t neighbors = node->neighbors();
         size_t n = rand() % neighbors.size();

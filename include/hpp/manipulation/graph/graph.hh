@@ -45,27 +45,27 @@ namespace hpp {
           NodeSelectorPtr_t createNodeSelector();
 
           /// Returns the states of a configuration.
-          virtual Nodes_t getNode(const Configuration_t config);
+          Nodes_t getNode(const Configuration_t config) const;
 
           /// Select randomly outgoing edges of the given nodes.
-          virtual Edges_t chooseEdge(const Nodes_t& node);
+          Edges_t chooseEdge(const Nodes_t& node) const;
 
           /// Constraint to project onto the Nodes_t.
           /// \param the Nodes_t on which to project.
           /// \return The initialized projector.
-          virtual ConstraintSetPtr_t configConstraint (const Nodes_t& nodes);
+          ConstraintSetPtr_t configConstraint (const Nodes_t& nodes);
 
           /// Constraint to project onto the same leaf as config.
           /// \param edges a list of edges defining the foliation.
           /// \param config Configuration that will initialize the projector.
           /// \return The initialized projector.
-          virtual ConstraintSetPtr_t configConstraint (const Edges_t& edges, ConfigurationIn_t config);
+          ConstraintSetPtr_t configConstraint (const Edges_t& edges, ConfigurationIn_t config);
 
           /// Constraint to project a path.
           /// \param edges a list of edges defining the foliation.
           /// \param config Configuration that will initialize the constraint.
           /// \return The initialized constraint.
-          virtual ConstraintSetPtr_t pathConstraint (const Edges_t& edges, ConfigurationIn_t config);
+          ConstraintSetPtr_t pathConstraint (const Edges_t& edges, ConfigurationIn_t config);
 
           /// Return the NodeSelector with the given name if any,
           /// NULL pointer if not found.

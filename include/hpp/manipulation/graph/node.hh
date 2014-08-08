@@ -52,7 +52,7 @@ namespace hpp {
           virtual bool contains (const Configuration_t config);
 
           /// Get the parent NodeSelector.
-          NodeSelectorWkPtr_t nodeSelector ()
+          NodeSelectorWkPtr_t nodeSelector () const
           {
             return selector_;
           }

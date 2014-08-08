@@ -37,22 +37,22 @@ namespace hpp {
           NodePtr_t createNode ();
 
           /// Returns the state of a configuration.
-          virtual NodePtr_t getNode(const Configuration_t config);
+          NodePtr_t getNode(const Configuration_t config) const;
 
           /// Select randomly an outgoing edge of the given node.
-          virtual EdgePtr_t chooseEdge(const NodePtr_t& node);
+          virtual EdgePtr_t chooseEdge(const NodePtr_t& node) const;
 
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
 
           /// Should never be called.
-          virtual void addNumericalConstraint (const core::DifferentiableFunctionPtr_t& /* function */)
+          void addNumericalConstraint (const core::DifferentiableFunctionPtr_t& /* function */)
           {
             HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
           }
 
           /// Should never be called.
-          virtual void addLockedDofConstraint (const core::LockedDof& /* constraint */)
+          void addLockedDofConstraint (const core::LockedDof& /* constraint */)
           {
             HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
           }

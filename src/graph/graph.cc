@@ -73,16 +73,16 @@ namespace hpp {
         return robot_;
       }
 
-      Nodes_t Graph::getNode(const Configuration_t config)
+      Nodes_t Graph::getNode(const Configuration_t config) const
       {
         Nodes_t nodes;
-        for (NodeSelectors_t::iterator it = nodeSelectors_.begin();
+        for (NodeSelectors_t::const_iterator it = nodeSelectors_.begin();
             it != nodeSelectors_.end(); it++)
           nodes.push_back( (*it)->getNode(config) );
         return nodes;
       }
 
-      Edges_t Graph::chooseEdge(const Nodes_t& nodes)
+      Edges_t Graph::chooseEdge(const Nodes_t& nodes) const
       {
         Edges_t edges;
         for (Nodes_t::const_iterator it = nodes.begin();

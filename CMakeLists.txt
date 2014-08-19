@@ -35,11 +35,16 @@ IF (HPP_DEBUG)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_DEBUG")
 ENDIF()
 
+# Activate test using UR5 if requested
+SET (TEST_UR5 FALSE CACHE BOOL "Activate tests using ur5")
+
 SEARCH_FOR_BOOST()
 ADD_DOC_DEPENDENCY(hpp-model >= 3.0.0)
 ADD_REQUIRED_DEPENDENCY(hpp-core >= 3.0.0)
-ADD_REQUIRED_DEPENDENCY(hpp-model-urdf >= 3.0.0)
 ADD_REQUIRED_DEPENDENCY(hpp-constraints >= 3.0.0)
+IF (TEST_UR5)
+  ADD_REQUIRED_DEPENDENCY(hpp-model-urdf >= 3.0.0)
+ENDIF ()
 
 SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/fwd.hh

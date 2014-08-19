@@ -25,6 +25,8 @@
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/robot.hh"
+#include "hpp/manipulation/problem.hh"
+#include "hpp/manipulation/graph-path-validation.hh"
 
 #include <boost/test/unit_test.hpp>
 
@@ -61,8 +63,11 @@ namespace hpp_test {
   }
   //*/
   RobotPtr_t robot;
+
+  Configuration_t q1, q2;
+
   GraphComponents components;
-  GraphPtr_t graph;
+  GraphPtr_t graph_;
   NodeSelectorPtr_t ns1;
   NodeSelectorPtr_t ns2;
   NodePtr_t n11;
@@ -77,31 +82,56 @@ namespace hpp_test {
   EdgePtr_t e221;
   EdgePtr_t e212;
   EdgePtr_t e222;
+
+  void initialize (bool ur5)
+  {
+    if (ur5) {
+#ifdef TEST_UR5
+      DevicePtr_t dev = Device::create ("test-ur5");
+      hpp::model::urdf::loadUrdfModel (dev, "anchor", "ur_description", "ur5_robot");
+      Devices_t devs; devs.push_back (dev);
+      robot = Robot::create ("test-robot", devs, Objects_t());
+#else // TEST_UR5
+      BOOST_ERROR ("Set TEST_UR5 in cmake to activate this.");
+#endif // TEST_UR5
+    } else {
+      robot = Robot::create ("test-robot", Devices_t() , Objects_t());
+    }
+    graph_ = Graph::create (robot); components.push_back(graph_);
+    graph_->maxIterations (20);
+    graph_->errorThreshold (1e-4);
+    ns1 = graph_->createNodeSelector(); components.push_back(ns1);
+    if (!ur5)
+      ns2 = graph_->createNodeSelector(); components.push_back(ns2);
+    n11 = ns1->createNode (); components.push_back(n11);
+    n12 = ns1->createNode (); components.push_back(n12);
+    if (!ur5) {
+      n21 = ns2->createNode (); components.push_back(n21);
+      n22 = ns2->createNode (); components.push_back(n22);
+    }
+    e111 = n11->linkTo (n11); components.push_back(e111);
+    e121 = n12->linkTo (n11); components.push_back(e121);
+    e112 = n11->linkTo (n12); components.push_back(e112);
+    e122 = n12->linkTo (n12); components.push_back(e122);
+    if (!ur5) {
+      e211 = n21->linkTo (n21); components.push_back(e211);
+      e221 = n22->linkTo (n21); components.push_back(e221);
+      e212 = n21->linkTo (n22); components.push_back(e212);
+      e222 = n22->linkTo (n22); components.push_back(e222);
+    }
+
+    q1 = Configuration_t::Zero(6);
+    q2 = Configuration_t::Zero(6);
+    q1 << 1,1,1,0,2.5,-1.9;
+    q2 << 2,0,1,0,2.5,-1.9;
+  }
 }
 
 BOOST_AUTO_TEST_CASE (GraphStructure)
 {
   using namespace hpp_test;
-  using hpp_test::graph;
-  DevicePtr_t dev = Device::create ("test-ur5");
-  hpp::model::urdf::loadUrdfModel (dev, "planar", "ur_description", "ur5_robot");
-  Devices_t devs; devs.push_back (dev);
-  robot = Robot::create ("test-robot", devs, Objects_t());
-  graph = Graph::create (robot); components.push_back(graph);
-  ns1 = graph->createNodeSelector(); components.push_back(ns1);
-  ns2 = graph->createNodeSelector(); components.push_back(ns2);
-  n11 = ns1->createNode (); components.push_back(n11);
-  n12 = ns1->createNode (); components.push_back(n12);
-  n21 = ns2->createNode (); components.push_back(n21);
-  n22 = ns2->createNode (); components.push_back(n22);
-  e111 = n11->linkTo (n11); components.push_back(e111);
-  e121 = n12->linkTo (n11); components.push_back(e121);
-  e112 = n11->linkTo (n12); components.push_back(e112);
-  e122 = n12->linkTo (n12); components.push_back(e122);
-  e211 = n21->linkTo (n21); components.push_back(e211);
-  e221 = n22->linkTo (n21); components.push_back(e221);
-  e212 = n21->linkTo (n22); components.push_back(e212);
-  e222 = n22->linkTo (n22); components.push_back(e222);
+  using hpp_test::graph_;
+  initialize (false);
 
   // Check that GraphComponent keeps track of all object properly.
   size_t index = 0;
@@ -119,7 +149,7 @@ BOOST_AUTO_TEST_CASE (GraphStructure)
   to.push_back (n12);
   to.push_back (n22);
   std::vector <Edges_t> checkPossibleEdges,
-                        possibleEdges = graph->getEdge (from, to);
+                        possibleEdges = graph_->getEdge (from, to);
   do {
     Edges_t edges;
     edges.push_back (e112);
@@ -133,19 +163,75 @@ BOOST_AUTO_TEST_CASE (GraphStructure)
   }
 
   Configuration_t cfg;
-  Nodes_t nodes = graph->getNode (cfg);
+  Nodes_t nodes = graph_->getNode (cfg);
   BOOST_CHECK (nodes.size() == 2);
   BOOST_CHECK (nodes[0] == n11);
   BOOST_CHECK (nodes[1] == n21);
-  Edges_t edges = graph->chooseEdge (nodes);
+  Edges_t edges = graph_->chooseEdge (nodes);
   BOOST_CHECK (edges.size() == 2);
   BOOST_CHECK (edges[0]->from() == n11);
   BOOST_CHECK (edges[1]->from() == n21);
 }
 
+#ifdef TEST_UR5
 BOOST_AUTO_TEST_CASE (ConstraintSets)
 {
   using namespace hpp_test;
   using namespace hpp::constraints;
-  RelativeComPtr_t com = RelativeCom::create (robot, robot->rootJoint(), vector3_t(0,0,0));
+
+  vector_t res, expectedRes;
+
+  initialize (true);
+  JointPtr_t ee = robot->getJointByBodyName ("ee_link");
+
+  robot->currentConfiguration (q2);
+  robot->computeForwardKinematics ();
+  RelativeComPtr_t com = RelativeCom::create (robot, robot->rootJoint(), robot->positionCenterOfMass());
+  res.resize (com->outputSize()); expectedRes = vector_t::Zero(res.size());
+  (*com) (res,q2);
+  BOOST_CHECK (res == expectedRes);
+
+  robot->currentConfiguration (q1);
+  robot->computeForwardKinematics ();
+  fcl::Vec3f position = ee->currentTransformation ().getTranslation ();
+  PositionPtr_t pos = Position::create (robot, ee, vector3_t(0,0,0),
+      vector3_t(position[0],position[1],position[2]));
+  res.resize (pos->outputSize()); expectedRes = vector_t::Zero(res.size());
+  (*pos) (res,q1);
+  BOOST_CHECK (res == expectedRes);
+
+  //graph_->addNumericalConstraint (com);
+  n11->addNumericalConstraint (pos);
 }
+
+BOOST_AUTO_TEST_CASE (PathValidationTest)
+{
+  using namespace hpp_test;
+
+  ProblemPtr_t pb = new Problem (robot);
+  BOOST_CHECK(robot->configSize() == 6);
+  pb->constraintGraph (graph_);
+  Nodes_t nodes11; nodes11.push_back (n11);
+  Nodes_t nodes12; nodes12.push_back (n12);
+  ConstraintSetPtr_t constraintn11 = graph_->configConstraint (nodes11);
+  ConstraintSetPtr_t constraintn12 = graph_->configConstraint (nodes12);
+  BOOST_CHECK ( constraintn11->isSatisfied (q1));
+  BOOST_CHECK (!constraintn11->isSatisfied (q2));
+  BOOST_CHECK ( constraintn12->isSatisfied (q2));
+  PathPtr_t p = (*pb->steeringMethod ())(ConfigurationIn_t(q1),ConfigurationIn_t(q2)),
+            validp;
+  Nodes_t nq1 = graph_->getNode (q1);
+  Nodes_t nq2 = graph_->getNode (q2);
+  BOOST_CHECK (nq1.size() == 1); BOOST_CHECK (nq1[0] == n11);
+  BOOST_CHECK (nq2.size() == 1); BOOST_CHECK (nq2[0] == n12);
+  GraphPathValidationPtr_t pv = pb->pathValidation ();
+  BOOST_CHECK (pv);
+  if (!pv->validate(p, false, validp)) {
+      BOOST_CHECK_MESSAGE (false,
+      "Valid part has length " << validp->length() << " and p " << p->length());
+      pv->innerValidation ()->validate (p, false, validp);
+      BOOST_CHECK_MESSAGE (false,
+      "Inner validation returned: Valid part has length " << validp->length() << " and p " << p->length());
+  }
+}
+#endif // TEST_UR5

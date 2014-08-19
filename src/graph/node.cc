@@ -72,8 +72,7 @@ namespace hpp {
         // TODO: This is not the most efficient way. We should
         // compute the value of the constraint instead of apllying
         // the constraint.
-        Configuration_t cfg = config;
-        return configConstraint()->apply(cfg) && ( cfg == config );
+        return configConstraint()->isSatisfied (config);
       }
 
       std::ostream& Node::print (std::ostream& os) const

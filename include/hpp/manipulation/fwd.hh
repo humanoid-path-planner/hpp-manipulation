@@ -68,6 +68,8 @@ namespace hpp {
     typedef core::ConnectedComponentPtr_t ConnectedComponentPtr_t;
     HPP_PREDEF_CLASS (GraphPathValidation);
     typedef boost::shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
+    HPP_PREDEF_CLASS (GraphSteeringMethod);
+    typedef boost::shared_ptr < GraphSteeringMethod > GraphSteeringMethodPtr_t;
 
     typedef std::vector <DevicePtr_t> Devices_t;
     typedef std::vector <ObjectPtr_t> Objects_t;

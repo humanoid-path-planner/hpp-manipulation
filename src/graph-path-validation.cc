@@ -74,7 +74,7 @@ namespace hpp {
     bool GraphPathValidation::impl_validate (
         const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
     {
-      PathVectorPtr_t pathVector (path->as <PathVector> ());
+      PathVectorPtr_t pathVector = HPP_DYNAMIC_PTR_CAST(PathVector, path);
       if (pathVector)
         return impl_validate (pathVector, reverse, validPart);
 

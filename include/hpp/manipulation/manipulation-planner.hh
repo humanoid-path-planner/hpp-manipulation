@@ -61,6 +61,9 @@ namespace hpp {
         void init (const ManipulationPlannerWkPtr_t& weak);
 
       private:
+        /// Try to connect configurations in a list.
+        void tryConnect (const core::Nodes_t nodes);
+
         /// Configuration shooter
         ConfigurationShooterPtr_t shooter_;
         /// Pointer to the problem

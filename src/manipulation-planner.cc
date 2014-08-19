@@ -89,26 +89,7 @@ namespace hpp {
       }
 
       // Try to connect the new nodes together
-      const core::SteeringMethodPtr_t& sm (problem ().steeringMethod ());
-      core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
-      core::PathPtr_t validPath;
-      for (core::Nodes_t::const_iterator itn1 = newNodes.begin ();
-          itn1 != newNodes.end (); ++itn1) {
-        for (core::Nodes_t::const_iterator itn2 = boost::next (itn1);
-            itn2 != newNodes.end (); ++itn2) {
-          ConfigurationPtr_t q1 ((*itn1)->configuration ());
-          ConfigurationPtr_t q2 ((*itn2)->configuration ());
-          assert (*q1 != *q2);
-          path = (*sm) (*q1, *q2);
-          if (pathValidation->validate (path, false, validPath)) {
-            roadmap ()->addEdge (*itn1, *itn2, path);
-            core::interval_t timeRange = path->timeRange ();
-            roadmap ()->addEdge (*itn2, *itn1, path->extract
-                (core::interval_t (timeRange.second,
-                                   timeRange.first)));
-          }
-        }
-      }
+      tryConnect (newNodes);
     }
 
     bool ManipulationPlanner::extend(
@@ -132,6 +113,41 @@ namespace hpp {
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
       pathValidation->validate (path, false, validPath);
       return true;
+    }
+
+    inline void ManipulationPlanner::tryConnect (const core::Nodes_t nodes)
+    {
+      const core::SteeringMethodPtr_t& sm (problem ().steeringMethod ());
+      core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
+      core::PathPtr_t path, validPath;
+      graph::GraphPtr_t graph = problem_.constraintGraph ();
+      graph::Nodes_t n1, n2;
+      graph::Edges_t edges;
+      std::vector< graph::Edges_t > possibleEdges;
+      for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
+          itn1 != nodes.end (); ++itn1) {
+        ConfigurationPtr_t q1 ((*itn1)->configuration ());
+        for (core::Nodes_t::const_iterator itn2 = boost::next (itn1);
+            itn2 != nodes.end (); ++itn2) {
+          ConfigurationPtr_t q2 ((*itn2)->configuration ());
+          assert (*q1 != *q2);
+          // Select next node in the constraint graph.
+          n1 = graph->getNode (*q1);
+          n2 = graph->getNode (*q2);
+          possibleEdges = graph->getEdge (n1, n2);
+          if (possibleEdges.empty())
+            continue;
+          path = (*sm) (*q1, *q2);
+          path->constraints (graph->pathConstraint (possibleEdges[0], *q1));
+          if (pathValidation->validate (path, false, validPath)) {
+            roadmap ()->addEdge (*itn1, *itn2, path);
+            core::interval_t timeRange = path->timeRange ();
+            roadmap ()->addEdge (*itn2, *itn1, path->extract
+                (core::interval_t (timeRange.second,
+                                   timeRange.first)));
+          }
+        }
+      }
     }
 
     ManipulationPlanner::ManipulationPlanner (const Problem& problem,

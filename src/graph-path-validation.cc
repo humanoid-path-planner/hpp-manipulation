@@ -93,10 +93,7 @@ namespace hpp {
       ConstraintSetPtr_t constraints;
       while (!possibleEdges.empty ()) {
         constraints = constraintGraph_->pathConstraint (possibleEdges.back(), configAt (tmin));
-        // TODO: We need a quick way of checking that a configuration
-        // statisfies a constraint.
-        Configuration_t cfg = configAt (tmax);
-        if (constraints->apply(cfg) && ( cfg == configAt(tmax) )) {
+        if (constraints->isSatisfied (configAt (tmax))) {
           validPart = path;
           return true;
         }

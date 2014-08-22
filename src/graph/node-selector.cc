@@ -50,6 +50,7 @@ namespace hpp {
             orderedStates_.end() != it; it++)
           if ((*it)->contains(config))
             return *it;
+        throw std::logic_error ("A configuration has no node");
         return NodePtr_t ();
       }
 

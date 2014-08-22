@@ -20,6 +20,7 @@
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
+#include "hpp/manipulation/graph/edge.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -103,16 +104,48 @@ namespace hpp {
       graph::Edges_t edges = graph->chooseEdge (nodes);
       ConstraintPtr_t constraint = graph->configConstraint (edges, *q_near);
       qProj_ = *q_rand;
-      if (!constraint->apply (qProj_))
+      if (!constraint->apply (qProj_)) {
+        addFailure (PROJECTION, edges);
         return false;
+      }
       core::SteeringMethodPtr_t sm (problem().steeringMethod());
       core::PathPtr_t path = (*sm) (*q_near, qProj_);
-      if (!path)
+      if (!path) {
+        addFailure (STEERING_METHOD, edges);
         return false;
+      }
       path->constraints (graph->pathConstraint (edges, *q_near));
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
       pathValidation->validate (path, false, validPath);
+      if (validPath->length () == 0)
+        addFailure (PATH_VALIDATION, edges);
+      else
+        extendStatistics_.addSuccess ();
+      if (extendStatistics_.nbSuccess () < extendStatistics_.nbFailure ()) {
+        hppDout (warning, "Extend method seems to fail often." << std::endl
+            << extendStatistics_);
+      }
       return true;
+    }
+
+    void ManipulationPlanner::addFailure (TypeOfFailure t, const graph::Edges_t& edges)
+    {
+      EdgesReasonMap::iterator it = failureReasons_.find (edges);
+      if (it == failureReasons_.end ()) {
+        std::string edgesStr = "(";
+        for (graph::Edges_t::const_iterator itEdge = edges.begin();
+            itEdge != edges.end (); itEdge++)
+          edgesStr += (*itEdge)->name () + " / ";
+        edgesStr += ")";
+        Reasons r (SuccessBin::createReason ("Projection for " + edgesStr),
+                   SuccessBin::createReason ("SteeringMethod for " + edgesStr),
+                   SuccessBin::createReason ("PathValidation returned length 0 for " + edgesStr));
+        failureReasons_.insert (EdgesReasonPair (edges, r));
+        extendStatistics_.addFailure (r.get (t));
+        return;
+      }
+      Reasons r = it->second;
+      extendStatistics_.addFailure (r.get (t));
     }
 
     inline void ManipulationPlanner::tryConnect (const core::Nodes_t nodes)

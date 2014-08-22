@@ -22,6 +22,8 @@
 #include <hpp/core/path-planner.hh>
 #include <hpp/core/roadmap.hh>
 
+#include <hpp/statistics/success-bin.hh>
+
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/graph/fwd.hh"
 #include "hpp/manipulation/graph/graph.hh"
@@ -70,6 +72,43 @@ namespace hpp {
         const Problem& problem_;
         /// weak pointer to itself
         ManipulationPlannerWkPtr_t weakPtr_;
+
+        /// Keep track of success and failure for method
+        /// extend.
+        typedef ::hpp::statistics::SuccessStatistics SuccessStatistics;
+        typedef ::hpp::statistics::SuccessBin SuccessBin;
+        SuccessStatistics extendStatistics_;
+
+        /// A Reason is associated to each Edges_t that generated a failure.
+        enum TypeOfFailure {
+          PROJECTION,
+          STEERING_METHOD,
+          PATH_VALIDATION
+        };
+        struct Reasons {
+          typedef ::hpp::statistics::SuccessBin::Reason Reason;
+          Reason projFailed, smFailed, pvFailed;
+
+          Reasons (const Reason& proj, const Reason& sm, const Reason& pv) :
+            projFailed (proj), smFailed (sm), pvFailed (pv) {}
+          const Reason& get (TypeOfFailure t)
+          {
+            switch (t) {
+              case PROJECTION:
+                return projFailed;
+              case STEERING_METHOD:
+                return smFailed;
+              case PATH_VALIDATION:
+                return pvFailed;
+            }
+            return ::hpp::statistics::SuccessBin::REASON_UNKNOWN;
+          }
+        };
+        typedef std::pair < graph::Edges_t, Reasons > EdgesReasonPair;
+        typedef std::map  < graph::Edges_t, Reasons > EdgesReasonMap;
+        EdgesReasonMap failureReasons_;
+
+        void addFailure (TypeOfFailure t, const graph::Edges_t& edges);
 
         mutable Configuration_t qProj_;
     };

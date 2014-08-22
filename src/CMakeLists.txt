@@ -26,6 +26,7 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   robot.cc
   manipulation-planner.cc
   graph-path-validation.cc
+  graph-steering-method.cc
 
   graph/node.cc
   graph/edge.cc

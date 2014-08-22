@@ -19,18 +19,49 @@
 # define HPP_MANIPULATION_GRAPH_STEERING_METHOD_HH
 
 # include <hpp/core/steering-method.hh>
+# include <hpp/core/weighed-distance.hh>
+# include <hpp/model/device.hh>
 
-#include "hpp/manipulation/fwd.hh"
+# include "hpp/manipulation/fwd.hh"
 
 namespace hpp {
   namespace manipulation {
-    class GraphSteeringMethod : public SteeringMethod
+    using core::SteeringMethod;
+    using core::PathPtr_t;
+
+    class HPP_MANIPULATION_DLLAPI GraphSteeringMethod : public SteeringMethod
     {
       public:
-        GraphSteeringMethod (SteeringMethod)
+        /// Constructor
+        GraphSteeringMethod (const DevicePtr_t& robot);
+
+        /// \name Graph of constraints applicable to the robot.
+        /// \{
+
+        /// Set constraint graph
+        void constraintGraph (const graph::GraphPtr_t& graph)
+        {
+          graph_ = graph;
+        }
+
+        /// Get constraint graph
+        const graph::GraphPtr_t& constraintGraph () const
+        {
+          return graph_;
+        }
+        /// \}
+
       protected:
         virtual PathPtr_t impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
-    }
+
+      private:
+        /// A pointer to the graph of constraint.
+        graph::GraphPtr_t graph_;
+        /// Pointer to the Robot.
+        core::DeviceWkPtr_t robot_;
+        /// Metric in configuration space.
+        core::WeighedDistancePtr_t distance_;
+    };
   } // namespace manipulation
 } // namespace hpp
 

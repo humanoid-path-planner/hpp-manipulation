@@ -131,12 +131,6 @@ namespace hpp {
             itn2 != nodes.end (); ++itn2) {
           ConfigurationPtr_t q2 ((*itn2)->configuration ());
           assert (*q1 != *q2);
-          // Select next node in the constraint graph.
-          n1 = graph->getNode (*q1);
-          n2 = graph->getNode (*q2);
-          possibleEdges = graph->getEdge (n1, n2);
-          if (possibleEdges.empty())
-            continue;
           path = (*sm) (*q1, *q2);
           if (path && pathValidation->validate (path, false, validPath)) {
             roadmap ()->addEdge (*itn1, *itn2, path);

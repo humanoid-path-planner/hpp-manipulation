@@ -114,6 +114,16 @@ namespace hpp {
           /// Weak pointer to itself.
           GraphWkPtr_t wkPtr_;
 
+          /// Map of constraint sets (from Nodes).
+          typedef std::map  < Nodes_t, ConstraintSetPtr_t > MapFromNode;
+          typedef std::pair < Nodes_t, ConstraintSetPtr_t > PairNodesConstraints;
+          MapFromNode constraintSetMapFromNode_;
+
+          /// Map of constraint sets (from Edges).
+          typedef std::map  < Edges_t, ConstraintSetPtr_t > MapFromEdge;
+          typedef std::pair < Edges_t, ConstraintSetPtr_t > PairEdgesConstraints;
+          MapFromEdge cfgConstraintSetMapFromEdge_, pathConstraintSetMapFromEdge_;
+
           value_type errorThreshold_;
           size_type maxIterations_;
       }; // Class Graph

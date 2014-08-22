@@ -33,9 +33,10 @@ namespace hpp {
     bool GraphPathValidation::validate (
           const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
     {
+      assert (path);
       PathPtr_t pathGraphValid;
       bool graphValid = impl_validate (path, reverse, pathGraphValid);
-      bool collisionValid = pathValidation_->validate (pathGraphValid, reverse, validPart); 
+      bool collisionValid = pathValidation_->validate (pathGraphValid, reverse, validPart);
       return graphValid && collisionValid;
     }
 
@@ -45,18 +46,20 @@ namespace hpp {
       size_t start = 0,
              end = path->numberPaths ();
       int inc = 1;
+      value_type timeOffset = path->timeRange().first;
       if (reverse) {
         std::swap (start, end);
+        start--;end--;
         inc = -1;
+        timeOffset = path->timeRange ().second;
       }
       PathPtr_t validSubPart;
-      value_type timeOffset = path->timeRange().first; 
       for (size_t index = start; index != end; index += inc) {
         // We should stop at the first non valid subpath.
         if (!impl_validate (path->pathAtRank (index), reverse, validSubPart)) {
           if (reverse)
             validPart = path->extract (
-                std::make_pair (timeOffset + validSubPart->timeRange().first,
+                std::make_pair (timeOffset - validSubPart->timeRange().second,
                                 path->timeRange().second));
           else
             validPart = path->extract (
@@ -64,7 +67,7 @@ namespace hpp {
                                 timeOffset + validSubPart->timeRange().second));
           return false;
         }
-        timeOffset += path->pathAtRank (index)->length(); 
+        timeOffset += inc * path->pathAtRank (index)->length();
       }
       // Here, every subpath is valid.
       validPart = path;

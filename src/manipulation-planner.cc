@@ -107,9 +107,9 @@ namespace hpp {
         return false;
       core::SteeringMethodPtr_t sm (problem().steeringMethod());
       core::PathPtr_t path = (*sm) (*q_near, qProj_);
-      path->constraints (graph->pathConstraint (edges, *q_near));
       if (!path)
         return false;
+      path->constraints (graph->pathConstraint (edges, *q_near));
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
       pathValidation->validate (path, false, validPath);
       return true;
@@ -138,8 +138,7 @@ namespace hpp {
           if (possibleEdges.empty())
             continue;
           path = (*sm) (*q1, *q2);
-          path->constraints (graph->pathConstraint (possibleEdges[0], *q1));
-          if (pathValidation->validate (path, false, validPath)) {
+          if (path && pathValidation->validate (path, false, validPath)) {
             roadmap ()->addEdge (*itn1, *itn2, path);
             core::interval_t timeRange = path->timeRange ();
             roadmap ()->addEdge (*itn2, *itn1, path->extract

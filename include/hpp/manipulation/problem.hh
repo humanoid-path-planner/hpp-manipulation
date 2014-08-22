@@ -19,6 +19,7 @@
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
+#include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/fwd.hh"
 
 namespace hpp {
@@ -30,9 +31,10 @@ namespace hpp {
 
         /// Constructor
         Problem (RobotPtr_t robot) : core::Problem (robot),
-          graph_()
+          graph_(), steeringMethod_ (new GraphSteeringMethod (robot))
         {
           Parent::pathValidation (GraphPathValidation::create (Parent::pathValidation(), graph_));
+          steeringMethod (steeringMethod_);
         }
 
         /// Set the graph of constraints
@@ -42,6 +44,7 @@ namespace hpp {
           GraphPathValidationPtr_t graphValidation = pathValidation();
           if (graphValidation)
             graphValidation->constraintGraph(graph);
+          steeringMethod_->constraintGraph (graph);
         }
 
         /// Get the graph of constraints
@@ -66,6 +69,8 @@ namespace hpp {
       private:
         /// The graph of constraints
         graph::GraphPtr_t graph_;
+        /// Steering method
+        GraphSteeringMethodPtr_t steeringMethod_;
     };
   } // namespace manipulation
 } // namespace hpp

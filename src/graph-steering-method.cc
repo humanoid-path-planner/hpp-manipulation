@@ -36,7 +36,8 @@ namespace hpp {
         graph_->getEdge (graph_->getNode (q1), graph_->getNode (q2));
       ConstraintSetPtr_t constraints;
       while (!possibleEdges.empty()) {
-        constraints = graph_->pathConstraint (possibleEdges.back(), q1);
+        constraints = graph_->pathConstraint (possibleEdges.back());
+        constraints->offsetFromConfig(q1);
         if (constraints->isSatisfied (q2)) {
           path->constraints (constraints);
           break;

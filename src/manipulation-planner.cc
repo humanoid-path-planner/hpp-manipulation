@@ -102,7 +102,8 @@ namespace hpp {
       // Select next node in the constraint graph.
       graph::Nodes_t nodes = graph->getNode (*q_near);
       graph::Edges_t edges = graph->chooseEdge (nodes);
-      ConstraintPtr_t constraint = graph->configConstraint (edges, *q_near);
+      ConstraintPtr_t constraint = graph->configConstraint (edges);
+      constraint->offsetFromConfig (*q_near);
       qProj_ = *q_rand;
       if (!constraint->apply (qProj_)) {
         addFailure (PROJECTION, edges);
@@ -114,7 +115,7 @@ namespace hpp {
         addFailure (STEERING_METHOD, edges);
         return false;
       }
-      path->constraints (graph->pathConstraint (edges, *q_near));
+      path->constraints (graph->pathConstraint (edges));
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
       pathValidation->validate (path, false, validPath);
       if (validPath->length () == 0)

@@ -92,7 +92,8 @@ namespace hpp {
       // We check for all of them if both nodes are on the same leaf.
       ConstraintSetPtr_t constraints;
       while (!possibleEdges.empty ()) {
-        constraints = constraintGraph_->pathConstraint (possibleEdges.back(), configAt (tmin));
+        constraints = constraintGraph_->pathConstraint (possibleEdges.back());
+        constraints->offsetFromConfig(configAt (tmin));
         if (constraints->isSatisfied (configAt (tmax))) {
           validPart = path;
           return true;

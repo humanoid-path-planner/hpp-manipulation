@@ -59,10 +59,10 @@ namespace hpp {
         wkPtr_ = weak;
       }
 
-      EdgePtr_t Node::linkTo(const NodePtr_t& to)
+      EdgePtr_t Node::linkTo(const NodePtr_t& to, const Weight_t& w)
       {
         EdgePtr_t newEdge = Edge::create(wkPtr_, to);
-        neighbors_.push_back(newEdge);
+        neighbors_.insert (newEdge, w);
         newEdge->parentGraph(graph_);
         return newEdge;
       }
@@ -78,9 +78,9 @@ namespace hpp {
       std::ostream& Node::print (std::ostream& os) const
       {
         GraphComponent::print (os << "|   |-- ") << std::endl;
-        for (Edges_t::const_iterator it = neighbors_.begin();
+        for (Neighbors_t::const_iterator it = neighbors_.begin();
             it != neighbors_.end(); it++)
-          os << *(*it);
+          os << *(it->second);
         return os;
       }
 

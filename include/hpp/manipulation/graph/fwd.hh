@@ -18,6 +18,7 @@
 # define HPP_MANIPULATION_GRAPH_FWD_HH
 
 #include <hpp/util/pointer.hh>
+#include <hpp/statistics/distribution.hh>
 #include <vector>
 
 namespace hpp {
@@ -35,6 +36,8 @@ namespace hpp {
       typedef boost::shared_ptr < GraphComponent > GraphComponentPtr_t;
       typedef std::vector < NodePtr_t > Nodes_t;
       typedef std::vector < EdgePtr_t > Edges_t;
+      typedef ::hpp::statistics::DiscreteDistribution< EdgePtr_t >::Weight_t Weight_t;
+      typedef ::hpp::statistics::DiscreteDistribution< EdgePtr_t > Neighbors_t;
       typedef std::vector < NodeSelectorPtr_t > NodeSelectors_t;
 
       typedef hpp::core::Constraint Constraint;

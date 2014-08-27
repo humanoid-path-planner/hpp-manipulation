@@ -116,16 +116,16 @@ namespace hpp {
 
         // Temporary variable.
         Edges_t edgesInNodeSelector;
-        const Edges_t* neighbors;
-        Edges_t::const_iterator itEdge;
+        const Neighbors_t* neighbors;
+        Neighbors_t::const_iterator itEdge;
         while (itFrom != from.end()) {
           edgesInNodeSelector.clear ();
           neighbors = &((*itFrom)->neighbors ());
           itEdge = neighbors->begin();
           // Find the edges between *itFrom and *itTo
           while (itEdge != neighbors->end()) {
-            if ( (*itEdge)->to() == (*itTo) )
-              edgesInNodeSelector.push_back (*itEdge);
+            if (itEdge->second->to() == (*itTo) )
+              edgesInNodeSelector.push_back (itEdge->second);
             itEdge++;
           }
           /// If no Edge is found, the two Node are not connected.

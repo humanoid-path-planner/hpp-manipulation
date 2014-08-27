@@ -56,9 +56,8 @@ namespace hpp {
 
       EdgePtr_t NodeSelector::chooseEdge(const NodePtr_t& node) const
       {
-        const Edges_t neighbors = node->neighbors();
-        size_t n = rand() % neighbors.size();
-        return neighbors[n];
+        const Neighbors_t neighbors = node->neighbors();
+        return neighbors ();
       }
 
       std::ostream& NodeSelector::print (std::ostream& os) const

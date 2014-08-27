@@ -41,7 +41,7 @@ namespace hpp {
           static NodePtr_t create ();
 
           /// Create a link from this node to the given node.
-          EdgePtr_t linkTo(const NodePtr_t& to);
+          EdgePtr_t linkTo(const NodePtr_t& to, const Weight_t& w = 1);
 
           /// Check whether the configuration is in this state.
           /// \return True if this state contains this configuration
@@ -64,7 +64,7 @@ namespace hpp {
           };
 
           /// Get the neighbors
-          const Edges_t& neighbors() const
+          const Neighbors_t& neighbors() const
           {
             return neighbors_;
           }
@@ -86,7 +86,7 @@ namespace hpp {
         private:
           /// List of possible motions from this state (i.e. the outgoing
           /// vertices).
-          Edges_t neighbors_;
+          Neighbors_t neighbors_;
 
           /// Set of constraints to be statisfied.
           ConstraintPtr_t configConstraints_;

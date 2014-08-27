@@ -16,7 +16,9 @@
 
 #include <hpp/util/assertion.hh>
 #include <hpp/core/path-validation.hh>
+#include <hpp/statistics/operators.hh>
 
+#include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
@@ -106,6 +108,8 @@ namespace hpp {
       constraint->offsetFromConfig (*q_near);
       qProj_ = *q_rand;
       if (!constraint->apply (qProj_)) {
+        hppDout (info, "Projection failed: " << *constraint
+            << std::endl << *q_near);
         addFailure (PROJECTION, edges);
         return false;
       }
@@ -123,8 +127,8 @@ namespace hpp {
       else
         extendStatistics_.addSuccess ();
       if (extendStatistics_.nbSuccess () < extendStatistics_.nbFailure ()) {
-        hppDout (warning, "Extend method seems to fail often." << std::endl
-            << extendStatistics_);
+        hppDout (warning, "Extend method seems to fail often.");
+        hppDout (warning, extendStatistics_);
       }
       return true;
     }

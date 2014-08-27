@@ -24,6 +24,8 @@
 
 #include <hpp/statistics/success-bin.hh>
 
+#include "hpp/manipulation/graph/statistics.hh"
+
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/graph/fwd.hh"
 #include "hpp/manipulation/graph/graph.hh"

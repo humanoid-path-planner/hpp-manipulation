@@ -48,6 +48,8 @@ namespace hpp {
     typedef ProblemSolver* ProblemSolverPtr_t;
     HPP_PREDEF_CLASS (Problem);
     typedef Problem* ProblemPtr_t;
+    HPP_PREDEF_CLASS (Roadmap);
+    typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     typedef constraints::RelativeOrientation RelativeOrientation;
     typedef constraints::RelativePosition RelativePosition;
     typedef constraints::RelativeOrientationPtr_t RelativeOrientationPtr_t;

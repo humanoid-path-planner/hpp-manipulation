@@ -22,9 +22,10 @@ SET(LIBRARY_NAME ${PROJECT_NAME})
 ADD_LIBRARY(${LIBRARY_NAME} SHARED
   axial-handle.cc
   handle.cc
+  manipulation-planner.cc
   problem-solver.cc
   robot.cc
-  manipulation-planner.cc
+  roadmap.cc
   graph-path-validation.cc
   graph-steering-method.cc
 

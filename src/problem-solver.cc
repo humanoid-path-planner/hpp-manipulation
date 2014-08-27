@@ -25,6 +25,7 @@
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/problem.hh"
+#include "hpp/manipulation/roadmap.hh"
 
 #include "hpp/manipulation/problem-solver.hh"
 
@@ -164,6 +165,13 @@ namespace hpp {
                                         hpp::model::DISTANCE);
         }
       }
+    }
+
+    void ProblemSolver::resetRoadmap ()
+    {
+      if (!problem ())
+        throw std::runtime_error ("The problem is not defined.");
+      roadmap (Roadmap::create (problem ()->distance (), problem ()->robot ()));
     }
   } // namespace manipulation
 } // namespace hpp

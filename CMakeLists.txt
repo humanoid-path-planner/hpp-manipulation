@@ -55,6 +55,7 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/problem.hh
   include/hpp/manipulation/problem-solver.hh
   include/hpp/manipulation/robot.hh
+  include/hpp/manipulation/roadmap.hh
   include/hpp/manipulation/manipulation-planner.hh
   include/hpp/manipulation/graph-path-validation.hh
   include/hpp/manipulation/graph-steering-method.hh
@@ -62,6 +63,7 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/graph/edge.hh
   include/hpp/manipulation/graph/node-selector.hh
   include/hpp/manipulation/graph/graph.hh
+  include/hpp/manipulation/graph/statistics.hh
   include/hpp/manipulation/graph/graph-component.hh
   include/hpp/manipulation/graph/fwd.hh
   )

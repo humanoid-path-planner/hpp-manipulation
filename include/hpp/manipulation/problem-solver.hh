@@ -149,8 +149,11 @@ namespace hpp {
       void buildCompositeRobot (const std::string& robotName,
 				const Names_t& robotNames);
 
-      /// Create new problem.
+      /// Create a new problem.
       virtual void resetProblem ();
+
+      /// Create a new Roadmap
+      virtual void resetRoadmap ();
 
       /// Get pointer to problem
       ProblemPtr_t problem () const

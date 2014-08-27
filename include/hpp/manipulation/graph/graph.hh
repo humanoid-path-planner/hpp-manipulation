@@ -58,17 +58,25 @@ namespace hpp {
           /// \return The initialized projector.
           ConstraintSetPtr_t configConstraint (const Nodes_t& nodes);
 
+          /// Kept for compatibility. Do not use. Use configConstraint(const Edges_t&) instead
+          /// \param config Configuration that will initialize the projector.
+          /// \return The initialized constraint.
+          ConstraintSetPtr_t configConstraint (const Edges_t& edges, ConfigurationIn_t config) __attribute__ ((deprecated));
+
           /// Constraint to project onto the same leaf as config.
           /// \param edges a list of edges defining the foliation.
-          /// \param config Configuration that will initialize the projector.
-          /// \return The initialized projector.
-          ConstraintSetPtr_t configConstraint (const Edges_t& edges, ConfigurationIn_t config);
+          /// \return The constraint.
+          ConstraintSetPtr_t configConstraint (const Edges_t& edges);
 
           /// Constraint to project a path.
           /// \param edges a list of edges defining the foliation.
+          /// \return The constraint.
+          ConstraintSetPtr_t pathConstraint (const Edges_t& edges);
+
+          /// Kept for compatibility. Do not use. Use pathConstraint(const Edges_t&) instead
           /// \param config Configuration that will initialize the constraint.
           /// \return The initialized constraint.
-          ConstraintSetPtr_t pathConstraint (const Edges_t& edges, ConfigurationIn_t config);
+          ConstraintSetPtr_t pathConstraint (const Edges_t& edges, ConfigurationIn_t config) __attribute__ ((deprecated));
 
           /// Return the NodeSelector with the given name if any,
           /// NULL pointer if not found.

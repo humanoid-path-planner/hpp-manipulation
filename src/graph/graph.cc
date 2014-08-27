@@ -195,6 +195,13 @@ namespace hpp {
 
       ConstraintSetPtr_t Graph::configConstraint (const Edges_t& edges, ConfigurationIn_t config)
       {
+        ConstraintSetPtr_t constraint = configConstraint (edges);
+        constraint->offsetFromConfig (config);
+        return constraint;
+      }
+
+      ConstraintSetPtr_t Graph::configConstraint (const Edges_t& edges)
+      {
         ConstraintSetPtr_t constraint;
         MapFromEdge::const_iterator it = cfgConstraintSetMapFromEdge_.find (edges);
         if (it == cfgConstraintSetMapFromEdge_.end ()) {
@@ -220,11 +227,17 @@ namespace hpp {
           constraint = it->second;
         }
 
-        constraint->offsetFromConfig (config);
         return constraint;
       }
 
       ConstraintSetPtr_t Graph::pathConstraint (const Edges_t& edges, ConfigurationIn_t config)
+      {
+        ConstraintSetPtr_t constraint = pathConstraint (edges);
+        constraint->offsetFromConfig (config);
+        return constraint;
+      }
+
+      ConstraintSetPtr_t Graph::pathConstraint (const Edges_t& edges)
       {
         ConstraintSetPtr_t constraint;
         MapFromEdge::const_iterator it = pathConstraintSetMapFromEdge_.find (edges);
@@ -247,7 +260,6 @@ namespace hpp {
           constraint = it->second;
         }
 
-        constraint->offsetFromConfig (config);
         return constraint;
       }
 

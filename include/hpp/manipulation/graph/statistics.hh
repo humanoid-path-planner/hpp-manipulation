@@ -85,32 +85,46 @@ namespace hpp {
       class HPP_MANIPULATION_DLLLOCAL NodeBin : public ::hpp::statistics::Bin
       {
         public :
-          NodeBin(const ConstraintSetPtr_t& c): constraint_(c), configs_() {}
+          NodeBin(const Nodes_t& ns): nodes_(ns), configs_() {}
 
           void push_back(const Configuration_t& cfg) {
             configs_.push_back(cfg);
           }
 
           bool operator<(const NodeBin& rhs) const {
-            return constraint_.get() < rhs.constraint ().get();
+            Nodes_t::const_iterator it1,
+              it2 = rhs.nodes ().begin();
+            for (it1 = nodes_.begin(); it1 != nodes_.end(); it1++) {
+              if ((*it1)->id () < (*it2)->id())
+                return true;
+              if ((*it1)->id () > (*it2)->id())
+                return false;
+              it2++;
+            }
+            return false;
           }
 
           bool operator==(const NodeBin& rhs) const {
-            return constraint_ == rhs.constraint ();
+            return nodes_ == rhs.nodes ();
           }
 
-          const ConstraintSetPtr_t& constraint () const {
-            return constraint_;
+          const Nodes_t& nodes () const
+          {
+            return nodes_;
           }
 
         private:
-          ConstraintSetPtr_t constraint_;
+          Nodes_t nodes_;
 
           std::list <Configuration_t> configs_;
 
           std::ostream& printValue (std::ostream& os) const
           {
-            return os << "NodeBin (" << constraint_->name () << ")";
+            os << "NodeBin (";
+            Nodes_t::const_iterator it1;
+            for (it1 = nodes_.begin(); it1 != nodes_.end(); it1++)
+              os << (*it1)->name () << " / ";
+            return os << ")";
           }
       };
 

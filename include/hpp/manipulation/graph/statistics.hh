@@ -156,12 +156,15 @@ namespace hpp {
             LeafBin b(constraint_->offsetFromConfig (config));
             increment (b);
             b.push_back (config);
+            if (numberOfObservations()%10 == 0) {
+              hppDoutPrint(info, (*this));
+            }
           }
 
           std::ostream& print (std::ostream& os) const
           {
-            os << "Histogram constains ConstraintSet: ";
-            os << *constraint_ << std::endl;
+            os << "Histogram constains ConstraintSet: "
+              << constraint_->name () << std::endl;
             return Parent::print (os);
           }
 
@@ -204,7 +207,7 @@ namespace hpp {
 
           std::ostream& print (std::ostream& os) const
           {
-            os << "Graph Node Histogram constains: ";
+            os << "Graph Node Histogram constains: " << std::endl;
             return Parent::print (os);
           }
 

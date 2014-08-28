@@ -108,8 +108,6 @@ namespace hpp {
       constraint->offsetFromConfig (*q_near);
       qProj_ = *q_rand;
       if (!constraint->apply (qProj_)) {
-        hppDout (info, "Projection failed: " << *constraint
-            << std::endl << *q_near);
         addFailure (PROJECTION, edges);
         return false;
       }

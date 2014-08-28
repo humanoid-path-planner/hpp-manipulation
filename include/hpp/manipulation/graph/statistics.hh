@@ -179,6 +179,49 @@ namespace hpp {
           /// The constraint that creates the foliation.
           ConstraintSetPtr_t constraint_;
       };
+
+      class HPP_MANIPULATION_DLLLOCAL NodeHistogram : public ::hpp::statistics::Statistics < NodeBin >
+                                                      , public Histogram
+      {
+        public:
+          typedef ::hpp::statistics::Statistics < NodeBin > Parent;
+          /// Constructor
+          /// \param graph The constraint graph used to get the nodes from
+          ///        a configuration.
+          NodeHistogram (const graph::GraphPtr_t& graph) :
+            graph_ (graph) {}
+
+          /// Insert an occurence of a value in the histogram
+          void add (const Configuration_t& config)
+          {
+            NodeBin b(graph_->getNode (config));
+            increment (b);
+            b.push_back (config);
+            if (numberOfObservations()%10 == 0) {
+              hppDoutPrint(info, (*this));
+            }
+          }
+
+          std::ostream& print (std::ostream& os) const
+          {
+            os << "Graph Node Histogram constains: ";
+            return Parent::print (os);
+          }
+
+          const graph::GraphPtr_t& constraintGraph () const
+          {
+            return graph_;
+          }
+
+          virtual HistogramPtr_t clone () const
+          {
+            return HistogramPtr_t (new NodeHistogram (graph_));
+          }
+
+        private:
+          /// The constraint graph
+          graph::GraphPtr_t graph_;
+      };
     } // namespace graph
   } // namespace manipulation
 

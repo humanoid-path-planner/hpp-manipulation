@@ -55,5 +55,10 @@ namespace hpp {
     {
       histograms_.push_back (graph::HistogramPtr_t (new graph::LeafHistogram (constraint)));
     }
+
+    void Roadmap::constraintGraph (const graph::GraphPtr_t& graph)
+    {
+      histograms_.push_back (graph::HistogramPtr_t (new graph::NodeHistogram (graph)));
+    }
   } // namespace manipulation
 } // namespace hpp

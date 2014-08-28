@@ -38,6 +38,9 @@ namespace hpp {
         /// Add a ConstraintSet that creates a foliation.
         void statAddFoliation (ConstraintSetPtr_t constraint);
 
+        /// Register the constraint graph to do statistics.
+        void constraintGraph (const graph::GraphPtr_t& graph);
+
         /// Clear the histograms and call parent implementation.
         void clear ();
 

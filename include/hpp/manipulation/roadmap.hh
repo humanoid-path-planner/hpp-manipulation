@@ -54,7 +54,7 @@ namespace hpp {
       private:
         /// Keep track of the leaf that are explored.
         /// There should be one histogram per foliation.
-        std::vector < graph::LeafHistogram > histograms_;
+        std::vector < graph::HistogramPtr_t > histograms_;
     };
   } // namespace manipulation
 } // namespace hpp

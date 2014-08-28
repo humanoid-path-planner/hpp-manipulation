@@ -17,11 +17,6 @@
 #include "hpp/manipulation/roadmap.hh"
 
 namespace hpp {
-  std::ostream& operator<< (std::ostream& os, const manipulation::graph::LeafHistogram& h)
-  {
-    return h.print (os);
-  }
-
   namespace manipulation {
     Roadmap::Roadmap (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot) :
       core::Roadmap (distance, robot) {}
@@ -34,10 +29,10 @@ namespace hpp {
     void Roadmap::clear ()
     {
       Parent::clear ();
-      std::vector < graph::LeafHistogram > newHistograms;
-      std::vector < graph::LeafHistogram >::iterator it;
+      std::vector < graph::HistogramPtr_t > newHistograms;
+      std::vector < graph::HistogramPtr_t >::iterator it;
       for (it = histograms_.begin(); it != histograms_.end(); it++) {
-        newHistograms.push_back (graph::LeafHistogram (it->constraint ()));
+        newHistograms.push_back ((*it)->clone ());
       }
       histograms_ = newHistograms;
     }
@@ -50,18 +45,15 @@ namespace hpp {
 
     void Roadmap::statInsert (ConfigurationIn_t config)
     {
-      std::vector < graph::LeafHistogram >::iterator it;
+      std::vector < graph::HistogramPtr_t >::iterator it;
       for (it = histograms_.begin(); it != histograms_.end(); it++) {
-        it->add (config);
-        if (it->numberOfObservations()%10 == 0) {
-          hppDout(info, *it);
-        }
+        (*it)->add (config);
       }
     }
 
     void Roadmap::statAddFoliation (ConstraintSetPtr_t constraint)
     {
-      histograms_.push_back (graph::LeafHistogram (constraint));
+      histograms_.push_back (graph::HistogramPtr_t (new graph::LeafHistogram (constraint)));
     }
   } // namespace manipulation
 } // namespace hpp

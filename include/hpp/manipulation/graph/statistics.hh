@@ -18,12 +18,16 @@
 #ifndef HPP_MANIPULATION_GRAPH_STATISTICS_HH
 # define HPP_MANIPULATION_GRAPH_STATISTICS_HH
 
+# include <hpp/util/debug.hh>
+
 # include <hpp/core/node.hh>
 # include <hpp/core/constraint-set.hh>
 # include <hpp/statistics/bin.hh>
 
 # include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/fwd.hh"
+# include "hpp/manipulation/graph/graph.hh"
+# include "hpp/manipulation/graph/node.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -110,7 +114,19 @@ namespace hpp {
           }
       };
 
+      class Histogram;
+      typedef boost::shared_ptr <Histogram> HistogramPtr_t;
+
+      class HPP_MANIPULATION_DLLLOCAL Histogram
+      {
+        public:
+          virtual void add (const Configuration_t& config) = 0;
+
+          virtual HistogramPtr_t clone () const = 0;
+      };
+
       class HPP_MANIPULATION_DLLLOCAL LeafHistogram : public ::hpp::statistics::Statistics < LeafBin >
+                                                      , public Histogram
       {
         public:
           typedef ::hpp::statistics::Statistics < LeafBin > Parent;
@@ -138,6 +154,11 @@ namespace hpp {
           const ConstraintSetPtr_t& constraint () const
           {
             return constraint_;
+          }
+
+          virtual HistogramPtr_t clone () const
+          {
+            return HistogramPtr_t (new LeafHistogram (constraint_));
           }
 
         private:

@@ -14,13 +14,16 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/core/problem.hh>
+#ifndef HPP_MANIPULATION_PROBLEM_HH
+# define HPP_MANIPULATION_PROBLEM_HH
 
-#include "hpp/manipulation/robot.hh"
-#include "hpp/manipulation/graph/graph.hh"
-#include "hpp/manipulation/graph-path-validation.hh"
-#include "hpp/manipulation/graph-steering-method.hh"
-#include "hpp/manipulation/fwd.hh"
+# include <hpp/core/problem.hh>
+
+# include "hpp/manipulation/robot.hh"
+# include "hpp/manipulation/graph/graph.hh"
+# include "hpp/manipulation/graph-path-validation.hh"
+# include "hpp/manipulation/graph-steering-method.hh"
+# include "hpp/manipulation/fwd.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -30,7 +33,7 @@ namespace hpp {
         typedef core::Problem Parent;
 
         /// Constructor
-        Problem (RobotPtr_t robot) : core::Problem (robot),
+        Problem (RobotPtr_t robot) : Parent (robot),
           graph_(), steeringMethod_ (new GraphSteeringMethod (robot))
         {
           Parent::pathValidation (GraphPathValidation::create (Parent::pathValidation(), graph_));
@@ -41,9 +44,8 @@ namespace hpp {
         void constraintGraph (const graph::GraphPtr_t& graph)
         {
           graph_ = graph;
-          GraphPathValidationPtr_t graphValidation = pathValidation();
-          if (graphValidation)
-            graphValidation->constraintGraph(graph);
+          GraphPathValidationPtr_t gv = pathValidation();
+          if (gv) gv->constraintGraph(graph);
           steeringMethod_->constraintGraph (graph);
         }
 
@@ -66,6 +68,7 @@ namespace hpp {
         {
           return HPP_DYNAMIC_PTR_CAST (GraphPathValidation, Parent::pathValidation());
         }
+
       private:
         /// The graph of constraints
         graph::GraphPtr_t graph_;
@@ -74,3 +77,5 @@ namespace hpp {
     };
   } // namespace manipulation
 } // namespace hpp
+
+#endif // HPP_MANIPULATION_PROBLEM_HH

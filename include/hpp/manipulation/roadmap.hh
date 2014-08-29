@@ -55,9 +55,10 @@ namespace hpp {
         Roadmap (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot);
 
       private:
+        typedef std::list < graph::HistogramPtr_t > Histograms;
         /// Keep track of the leaf that are explored.
         /// There should be one histogram per foliation.
-        std::vector < graph::HistogramPtr_t > histograms_;
+        Histograms histograms_;
     };
   } // namespace manipulation
 } // namespace hpp

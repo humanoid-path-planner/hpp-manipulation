@@ -14,6 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include <hpp/util/pointer.hh>
+
 #include "hpp/manipulation/roadmap.hh"
 
 namespace hpp {
@@ -29,8 +31,8 @@ namespace hpp {
     void Roadmap::clear ()
     {
       Parent::clear ();
-      std::vector < graph::HistogramPtr_t > newHistograms;
-      std::vector < graph::HistogramPtr_t >::iterator it;
+      Histograms newHistograms;
+      Histograms::iterator it;
       for (it = histograms_.begin(); it != histograms_.end(); it++) {
         newHistograms.push_back ((*it)->clone ());
       }
@@ -45,7 +47,7 @@ namespace hpp {
 
     void Roadmap::statInsert (ConfigurationIn_t config)
     {
-      std::vector < graph::HistogramPtr_t >::iterator it;
+      Histograms::iterator it;
       for (it = histograms_.begin(); it != histograms_.end(); it++) {
         (*it)->add (config);
       }
@@ -58,6 +60,13 @@ namespace hpp {
 
     void Roadmap::constraintGraph (const graph::GraphPtr_t& graph)
     {
+      Histograms::iterator it = histograms_.begin();
+      for (; it != histograms_.end();) {
+        if (HPP_DYNAMIC_PTR_CAST (graph::NodeHistogram, *it))
+          it = histograms_.erase (it);
+        else
+          it++;
+      }
       histograms_.push_back (graph::HistogramPtr_t (new graph::NodeHistogram (graph)));
     }
   } // namespace manipulation

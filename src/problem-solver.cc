@@ -96,6 +96,8 @@ namespace hpp {
     void ProblemSolver::constraintGraph (const graph::GraphPtr_t& graph)
     {
       constraintGraph_ = graph;
+      RoadmapPtr_t r = HPP_DYNAMIC_PTR_CAST (Roadmap, roadmap());
+      if (r) r->constraintGraph (graph);
     }
 
     graph::GraphPtr_t ProblemSolver::constraintGraph () const
@@ -171,7 +173,9 @@ namespace hpp {
     {
       if (!problem ())
         throw std::runtime_error ("The problem is not defined.");
-      roadmap (Roadmap::create (problem ()->distance (), problem ()->robot ()));
+      RoadmapPtr_t r (Roadmap::create (problem ()->distance (), problem ()->robot ()));
+      if (constraintGraph_) r->constraintGraph (constraintGraph_);
+      roadmap (r);
     }
   } // namespace manipulation
 } // namespace hpp

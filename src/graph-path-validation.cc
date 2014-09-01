@@ -94,7 +94,9 @@ namespace hpp {
       while (!possibleEdges.empty ()) {
         constraints = constraintGraph_->pathConstraint (possibleEdges.back());
         constraints->offsetFromConfig(configAt (tmin));
-        if (constraints->isSatisfied (configAt (tmax))) {
+        assert (constraints->isSatisfied (configAt (tmin)));
+        if (constraints == path->constraints ()
+            && constraints->isSatisfied (configAt (tmax))) {
           validPart = path;
           return true;
         }

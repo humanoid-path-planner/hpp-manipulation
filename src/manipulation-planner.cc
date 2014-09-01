@@ -117,7 +117,6 @@ namespace hpp {
         addFailure (STEERING_METHOD, edges);
         return false;
       }
-      path->constraints (graph->pathConstraint (edges));
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
       pathValidation->validate (path, false, validPath);
       if (validPath->length () == 0)

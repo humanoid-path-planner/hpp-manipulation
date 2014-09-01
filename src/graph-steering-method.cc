@@ -38,6 +38,7 @@ namespace hpp {
       while (!possibleEdges.empty()) {
         constraints = graph_->pathConstraint (possibleEdges.back());
         constraints->offsetFromConfig(q1);
+        assert (constraints->isSatisfied (q1));
         if (constraints->isSatisfied (q2)) {
           path->constraints (constraints);
           break;

@@ -124,8 +124,8 @@ namespace hpp {
       else
         extendStatistics_.addSuccess ();
       if (extendStatistics_.nbSuccess () < extendStatistics_.nbFailure ()) {
-        hppDout (warning, "Extend method seems to fail often.");
-        hppDout (warning, extendStatistics_);
+        hppDout (warning, "Extend method seems to fail often." << std::endl
+            << extendStatistics_);
       }
       return true;
     }

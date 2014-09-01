@@ -102,7 +102,7 @@ namespace hpp {
         }
         possibleEdges.pop_back();
       }
-      validPart = path->extract (std::make_pair (tmin, tmin));
+      validPart = PathPtr_t ();
       return false;
     }
   } // namespace manipulation

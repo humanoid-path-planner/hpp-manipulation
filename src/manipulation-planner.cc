@@ -110,8 +110,10 @@ namespace hpp {
       if (!constraint->apply (qProj_)) {
         addFailure (PROJECTION, edges);
         SuccessStatistics& ss = constraint->configProjector ()->statistics ();
-        if (ss.nbFailure () > ss.nbSuccess ())
+        if (ss.nbFailure () > ss.nbSuccess ()) {
+          hppDout (warning, constraint->name () << " fails often.");
           hppDoutPrint (warning, ss);
+        }
         return false;
       }
       core::SteeringMethodPtr_t sm (problem().steeringMethod());

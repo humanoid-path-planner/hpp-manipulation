@@ -34,6 +34,7 @@ namespace hpp {
         wkPtr_ = weak;
         from_ = from;
         to_ = to;
+        isInNodeFrom_ = false;
       }
 
       std::ostream& Edge::print (std::ostream& os) const

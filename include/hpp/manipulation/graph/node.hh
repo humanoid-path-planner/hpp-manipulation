@@ -41,7 +41,7 @@ namespace hpp {
           static NodePtr_t create ();
 
           /// Create a link from this node to the given node.
-          EdgePtr_t linkTo(const NodePtr_t& to, const Weight_t& w = 1);
+          EdgePtr_t linkTo(const NodePtr_t& to, const Weight_t& w = 1, const bool& isInNodeFrom = false);
 
           /// Check whether the configuration is in this state.
           /// \return True if this state contains this configuration

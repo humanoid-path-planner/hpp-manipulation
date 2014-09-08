@@ -61,6 +61,18 @@ namespace hpp {
             return from_.lock();
           }
 
+          /// Get the node in which path is.
+          NodePtr_t node () const
+          {
+            if (isInNodeFrom_) return from ();
+            else return to ();
+          }
+
+          void isInNodeFrom (bool iinf)
+          {
+            isInNodeFrom_ = iinf;
+          }
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,
@@ -73,6 +85,9 @@ namespace hpp {
         private:
           /// The two ends of the transition.
           NodeWkPtr_t from_, to_;
+
+          /// True if this path is in node from, False if in node to
+          bool isInNodeFrom_;
 
           /// See pathConstraint member function.
           ConstraintPtr_t pathConstraints_;

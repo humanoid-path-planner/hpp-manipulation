@@ -247,14 +247,18 @@ namespace hpp {
           ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
           insertListIn <DifferentiableFunctions_t> (numericalConstraints (), proj);
           for (Edges_t::const_iterator it = edges.begin();
-              it != edges.end(); it++)
+              it != edges.end(); it++) {
             insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);
+            insertListIn <DifferentiableFunctions_t> ((*it)->node()->numericalConstraints (), proj);
+          }
           constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
 
           insertListIn <LockedDofs_t> (lockedDofConstraints (), constraint);
           for (Edges_t::const_iterator it = edges.begin();
-              it != edges.end(); it++)
+              it != edges.end(); it++) {
             insertListIn <LockedDofs_t> ((*it)->lockedDofConstraints (), constraint);
+            insertListIn <LockedDofs_t> ((*it)->node()->lockedDofConstraints(), constraint);
+          }
           pathConstraintSetMapFromEdge_.insert (PairEdgesConstraints (edges, constraint));
         } else {
           constraint = it->second;

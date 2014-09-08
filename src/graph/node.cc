@@ -59,11 +59,12 @@ namespace hpp {
         wkPtr_ = weak;
       }
 
-      EdgePtr_t Node::linkTo(const NodePtr_t& to, const Weight_t& w)
+      EdgePtr_t Node::linkTo(const NodePtr_t& to, const Weight_t& w, const bool& isInNodeFrom)
       {
         EdgePtr_t newEdge = Edge::create(wkPtr_, to);
         neighbors_.insert (newEdge, w);
         newEdge->parentGraph(graph_);
+        newEdge->isInNodeFrom (isInNodeFrom);
         return newEdge;
       }
 

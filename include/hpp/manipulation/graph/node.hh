@@ -75,6 +75,18 @@ namespace hpp {
           /// Constraint to project onto this node.
           ConstraintPtr_t configConstraint();
 
+          /// Add core::DifferentiableFunction to the component.
+          virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function)
+          {
+            numericalConstraintsForPath_.push_back (function);
+          }
+
+          /// Get a reference to the DifferentiableFunctions_t
+          const DifferentiableFunctions_t& numericalConstraintsForPath () const
+          {
+            return numericalConstraintsForPath_;
+          }
+
         protected:
           /// Initialize the object.
           void init (const NodeWkPtr_t& self);
@@ -90,6 +102,9 @@ namespace hpp {
 
           /// Set of constraints to be statisfied.
           ConstraintPtr_t configConstraints_;
+
+          /// Stores the numerical constraints for path.
+          DifferentiableFunctions_t numericalConstraintsForPath_;
 
           /// A selector that will implement the selection of the next state.
           NodeSelectorWkPtr_t selector_;

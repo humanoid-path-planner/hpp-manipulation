@@ -249,7 +249,7 @@ namespace hpp {
           for (Edges_t::const_iterator it = edges.begin();
               it != edges.end(); it++) {
             insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);
-            insertListIn <DifferentiableFunctions_t> ((*it)->node()->numericalConstraints (), proj);
+            insertListIn <DifferentiableFunctions_t> ((*it)->node()->numericalConstraintsForPath (), proj);
           }
           constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
 

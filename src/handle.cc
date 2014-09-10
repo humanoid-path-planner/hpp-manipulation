@@ -38,6 +38,16 @@ namespace hpp {
 	 gripper->objectPositionInJoint (), mask);
     }
 
+    DifferentiableFunctionPtr_t Handle::createPreGrasp
+    (const GripperPtr_t& gripper) const
+    {
+      using boost::assign::list_of;
+      std::vector <bool> mask = list_of (true)(false)(true)(true)(true)(true);
+      Transform3f transform = inverse (gripper->objectPositionInJoint ()) * localPosition();
+      return RelativeTransformation::create
+	(gripper->joint()->robot(), joint(), gripper->joint (), transform, mask);
+    }
+
     HandlePtr_t Handle::clone () const
     {
       HandlePtr_t self = weakPtr_.lock ();

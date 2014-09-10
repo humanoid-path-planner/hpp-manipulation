@@ -94,6 +94,17 @@ namespace hpp {
       virtual DifferentiableFunctionPtr_t createGrasp
       (const GripperPtr_t& gripper) const;
 
+      /// Create constraint corresponding to a gripper grasping this object
+      /// \param gripper object containing the gripper information
+      /// \return the constraint of relative position between the handle and
+      ///         the gripper.
+      /// \note the constraint may constrain less than 6 degrees of freedom
+      ///       if the handle can be grasped in different positions. In case of
+      ///       a handle symmetric with respect to its x-axis for instance, the
+      ///       rotation around x is not constrained.
+      virtual DifferentiableFunctionPtr_t createPreGrasp
+      (const GripperPtr_t& gripper) const;
+
       static DifferentiableFunctionPtr_t createGrasp
       (const GripperPtr_t& gripper,const HandlePtr_t& handle)
       {

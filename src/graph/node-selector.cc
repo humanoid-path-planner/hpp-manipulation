@@ -51,7 +51,6 @@ namespace hpp {
           if ((*it)->contains(config))
             return *it;
         throw std::logic_error ("A configuration has no node");
-        return NodePtr_t ();
       }
 
       EdgePtr_t NodeSelector::chooseEdge(const NodePtr_t& node) const

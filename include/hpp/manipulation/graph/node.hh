@@ -78,7 +78,21 @@ namespace hpp {
           /// Add core::DifferentiableFunction to the component.
           virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function)
           {
-            numericalConstraintsForPath_.push_back (function);
+            numericalConstraintsForPath_.push_back (DiffFuncAndIneqPair_t(function,Equality::create()));
+          }
+
+          /// Add core::DifferentiableFunction to the component.
+          virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function, const InequalityPtr_t& ineq)
+          {
+            numericalConstraintsForPath_.push_back (DiffFuncAndIneqPair_t(function,ineq));
+          }
+
+          /// Insert the numerical constraints in a ConfigProjector
+          void insertNumericalConstraintsForPath (ConfigProjectorPtr_t& proj) const
+          {
+            for (DifferentiableFunctions_t::const_iterator it = numericalConstraintsForPath_.begin();
+                it != numericalConstraintsForPath_.end(); it++)
+              proj->addConstraint (it->first, it->second);
           }
 
           /// Get a reference to the DifferentiableFunctions_t
@@ -112,23 +126,6 @@ namespace hpp {
           /// Weak pointer to itself.
           NodeWkPtr_t wkPtr_;
       }; // class Node
-
-      template <typename T>
-        extern inline void insertListIn (const T& l, ConstraintSetPtr_t cs)
-      {
-        typename T::const_iterator it;
-        for (it = l.begin(); it != l.end(); it++)
-          cs->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, *it));
-      }
-      template <typename T>
-        extern inline void insertListIn (const T& l, ConfigProjectorPtr_t cs)
-      {
-        typename T::const_iterator it;
-        for (it = l.begin(); it != l.end(); it++)
-          cs->addConstraint (*it);
-      }
-      extern ConfigProjectorPtr_t buildConfigProjector (GraphWkPtr_t graph, const std::string& name);
-      extern ConstraintSetPtr_t buildConstraintSet (GraphWkPtr_t graph, const std::string& name);
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

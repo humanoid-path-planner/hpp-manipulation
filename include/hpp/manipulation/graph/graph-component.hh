@@ -51,10 +51,19 @@ namespace hpp {
           virtual std::ostream& print (std::ostream& os) const;
 
           /// Add core::DifferentiableFunction to the component.
-          virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function);
+          virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function) __attribute__ ((deprecated));
+
+          /// Add core::DifferentiableFunction to the component.
+          virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const InequalityPtr_t& ineq);
 
           /// Add core::LockedDof constraint to the component.
           virtual void addLockedDofConstraint (const LockedDofPtr_t& constraint);
+
+          /// Insert the numerical constraints in a ConfigProjector
+          void insertNumericalConstraints (ConfigProjectorPtr_t& proj) const;
+
+          /// Insert the LockedDof constraints in a ConstraintSet
+          void insertLockedDofs (ConstraintSetPtr_t cs) const;
 
           /// Get a reference to the DifferentiableFunctions_t
           const DifferentiableFunctions_t& numericalConstraints() const;

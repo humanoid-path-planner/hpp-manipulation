@@ -48,8 +48,11 @@ namespace hpp {
       typedef hpp::core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
       typedef hpp::core::ConstraintSet ConstraintSet;
       typedef hpp::core::ConstraintSetPtr_t ConstraintSetPtr_t;
+      typedef hpp::core::Equality Equality;
+      typedef hpp::core::InequalityPtr_t InequalityPtr_t;
       typedef hpp::core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
-      typedef std::list < DifferentiableFunctionPtr_t > DifferentiableFunctions_t;
+      typedef std::pair < DifferentiableFunctionPtr_t, InequalityPtr_t > DiffFuncAndIneqPair_t;
+      typedef std::list < DiffFuncAndIneqPair_t > DifferentiableFunctions_t;
       typedef std::list < LockedDofPtr_t > LockedDofs_t;
     } // namespace graph
   } // namespace manipulation

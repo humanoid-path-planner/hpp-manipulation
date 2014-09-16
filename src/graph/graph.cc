@@ -176,16 +176,16 @@ namespace hpp {
           constraint = ConstraintSet::create (robot (), name ());
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
-          insertListIn <DifferentiableFunctions_t> (numericalConstraints (), proj);
+          insertNumericalConstraints (proj);
           for (Nodes_t::const_iterator it = nodes.begin();
               it != nodes.end(); it++)
-            insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);
+            (*it)->insertNumericalConstraints (proj);
           constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
 
-          insertListIn <LockedDofs_t> (lockedDofConstraints (), constraint);
+          insertLockedDofs (constraint);
           for (Nodes_t::const_iterator it = nodes.begin();
               it != nodes.end(); it++)
-            insertListIn <LockedDofs_t> ((*it)->lockedDofConstraints (), constraint);
+            (*it)->insertLockedDofs (constraint);
           constraintSetMapFromNode_.insert (PairNodesConstraints(nodes, constraint));
         } else {
           constraint = it->second;
@@ -208,19 +208,19 @@ namespace hpp {
           constraint = ConstraintSet::create (robot (), name ());
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
-          insertListIn <DifferentiableFunctions_t> (numericalConstraints (), proj);
+          insertNumericalConstraints (proj);
           for (Edges_t::const_iterator it = edges.begin();
               it != edges.end(); it++) {
-            insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);
-            insertListIn <DifferentiableFunctions_t> ((*it)->to()->numericalConstraints (), proj);
+            (*it)->insertNumericalConstraints (proj);
+            (*it)->to ()->insertNumericalConstraints (proj);
           }
           constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
 
-          insertListIn <LockedDofs_t> (lockedDofConstraints (), constraint);
+          insertLockedDofs (constraint);
           for (Edges_t::const_iterator it = edges.begin();
               it != edges.end(); it++) {
-            insertListIn <LockedDofs_t> ((*it)->lockedDofConstraints (), constraint);
-            insertListIn <LockedDofs_t> ((*it)->to()->lockedDofConstraints(), constraint);
+            (*it)->insertLockedDofs (constraint);
+            (*it)->to ()->insertLockedDofs (constraint);
           }
           cfgConstraintSetMapFromEdge_.insert (PairEdgesConstraints(edges, constraint));
         } else {
@@ -245,19 +245,19 @@ namespace hpp {
           constraint = ConstraintSet::create (robot (), name ());
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
-          insertListIn <DifferentiableFunctions_t> (numericalConstraints (), proj);
+          insertNumericalConstraints (proj);
           for (Edges_t::const_iterator it = edges.begin();
               it != edges.end(); it++) {
-            insertListIn <DifferentiableFunctions_t> ((*it)->numericalConstraints (), proj);
-            insertListIn <DifferentiableFunctions_t> ((*it)->node()->numericalConstraintsForPath (), proj);
+            (*it)->insertNumericalConstraints (proj);
+            (*it)->node ()->insertNumericalConstraintsForPath (proj);
           }
           constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
 
-          insertListIn <LockedDofs_t> (lockedDofConstraints (), constraint);
+          insertLockedDofs (constraint);
           for (Edges_t::const_iterator it = edges.begin();
               it != edges.end(); it++) {
-            insertListIn <LockedDofs_t> ((*it)->lockedDofConstraints (), constraint);
-            insertListIn <LockedDofs_t> ((*it)->node()->lockedDofConstraints(), constraint);
+            (*it)->insertLockedDofs (constraint);
+            (*it)->node ()->insertLockedDofs (constraint);
           }
           pathConstraintSetMapFromEdge_.insert (PairEdgesConstraints (edges, constraint));
         } else {

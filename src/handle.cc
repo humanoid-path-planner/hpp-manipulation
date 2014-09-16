@@ -20,6 +20,7 @@
 #include <boost/assign/list_of.hpp>
 #include <fcl/math/transform.h>
 #include <hpp/model/joint.hh>
+#include <hpp/constraints/relative-position.hh>
 #include <hpp/constraints/relative-transformation.hh>
 #include <hpp/manipulation/handle.hh>
 #include <hpp/model/gripper.hh>
@@ -46,6 +47,17 @@ namespace hpp {
       Transform3f transform = inverse (gripper->objectPositionInJoint ()) * localPosition();
       return RelativeTransformation::create
 	(gripper->joint()->robot(), joint(), gripper->joint (), transform, mask);
+    }
+
+    DifferentiableFunctionPtr_t Handle::createPreGraspOnLine
+    (const GripperPtr_t& gripper, const value_type& shift) const
+    {
+      using boost::assign::list_of;
+      std::vector <bool> mask = list_of (false)(true)(false);
+      Transform3f transform = inverse (gripper->objectPositionInJoint ()) * localPosition();
+      fcl::Vec3f target = transform.getTranslation () + fcl::Vec3f (0,shift,0);
+      return RelativePosition::create
+        (gripper->joint()->robot(), joint(), gripper->joint (), target, fcl::Vec3f (0,0,0), mask);
     }
 
     HandlePtr_t Handle::clone () const

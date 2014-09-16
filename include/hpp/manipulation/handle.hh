@@ -105,6 +105,14 @@ namespace hpp {
       virtual DifferentiableFunctionPtr_t createPreGrasp
       (const GripperPtr_t& gripper) const;
 
+      /// Create a constraint define on the line of approach of the object
+      /// This is useful for inequality constraints.
+      /// \name gripper The hpp::model::Gripper
+      /// \name shift a position on the line wrt the axis of the handle joint.
+      /// \return A hpp::constraints::RelativePosition constraint.
+      virtual DifferentiableFunctionPtr_t createPreGraspOnLine
+        (const GripperPtr_t& gripper, const value_type& shift) const;
+
       static DifferentiableFunctionPtr_t createGrasp
       (const GripperPtr_t& gripper,const HandlePtr_t& handle)
       {

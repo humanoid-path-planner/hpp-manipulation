@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE (ConstraintSets)
   BOOST_CHECK (res == expectedRes);
 
   //graph_->addNumericalConstraint (com);
-  n11->addNumericalConstraint (pos);
+  n11->addNumericalConstraint (pos, Equality::create ());
 }
 
 BOOST_AUTO_TEST_CASE (PathValidationTest)

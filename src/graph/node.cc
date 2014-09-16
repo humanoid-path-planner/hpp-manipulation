@@ -22,29 +22,6 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      ConfigProjectorPtr_t buildConfigProjector (GraphWkPtr_t graph, const std::string& name)
-      {
-        GraphPtr_t g = graph.lock ();
-        if (!g) {
-          HPP_THROW_EXCEPTION(Bad_function_call, "Invalid weak_ptr to the Graph.");
-        }
-
-        ConfigProjectorPtr_t ret = ConfigProjector::
-          create(g->robot(), name, g->errorThreshold(), g->maxIterations());
-        return ret;
-      }
-
-      ConstraintSetPtr_t buildConstraintSet (GraphWkPtr_t graph, const std::string& name)
-      {
-        GraphPtr_t g = graph.lock ();
-        if (!g) {
-          HPP_THROW_EXCEPTION(Bad_function_call, "Invalid weak_ptr to the Graph.");
-        }
-
-        ConstraintSetPtr_t ret = ConstraintSet::create(g->robot(), name);
-        return ret;
-      }
-
       NodePtr_t Node::create ()
       {
         Node* node = new Node;

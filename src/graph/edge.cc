@@ -47,20 +47,8 @@ namespace hpp {
       ConstraintPtr_t Edge::configConstraint(ConfigurationIn_t config)
       {
         if (!configConstraints_) {
-          NodePtr_t to = to_.lock();
-          if (!to)
-            HPP_THROW_EXCEPTION (Bad_function_call, "Edge does not have a destination.");
-          ConstraintSetPtr_t configConst = buildConstraintSet (graph_, name () + "-cfg");
-          insertListIn <LockedDofs_t> (lockedDofConstraints_, configConst);
-          insertListIn <LockedDofs_t> (to->lockedDofConstraints(), configConst);
-          DifferentiableFunctions_t toNumConst = to->numericalConstraints();
-          if (numericalConstraints_.size() > 0 || toNumConst.size() > 0) {
-            ConfigProjectorPtr_t cp = buildConfigProjector (graph_, name () + "cfgproj");
-            insertListIn <DifferentiableFunctions_t> (numericalConstraints_, cp);
-            insertListIn <DifferentiableFunctions_t> (toNumConst, cp);
-            configConst->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, cp));
-          }
-          configConstraints_ = configConst;
+          Edges_t thisEdge; thisEdge.push_back (wkPtr_.lock ());
+          configConstraints_ = graph_.lock ()->configConstraint (thisEdge);
         }
         configConstraints_->offsetFromConfig (config);
         return configConstraints_;
@@ -69,14 +57,8 @@ namespace hpp {
       ConstraintPtr_t Edge::pathConstraint(ConfigurationIn_t config)
       {
         if (!pathConstraints_) {
-          ConstraintSetPtr_t pathConst = buildConstraintSet (graph_, name () + "-pathconstraint");
-          insertListIn <LockedDofs_t> (lockedDofConstraints_, pathConst);
-          if (numericalConstraints_.size () > 0) {
-            ConfigProjectorPtr_t cp = buildConfigProjector (graph_, name () + "pathproj");
-            insertListIn <DifferentiableFunctions_t> (numericalConstraints_, cp);
-            pathConst->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, cp));
-          }
-          pathConstraints_ = pathConst;
+          Edges_t thisEdge; thisEdge.push_back (wkPtr_.lock ());
+          pathConstraints_ = graph_.lock ()->pathConstraint (thisEdge);
         }
         pathConstraints_->offsetFromConfig (config);
         return pathConstraints_;

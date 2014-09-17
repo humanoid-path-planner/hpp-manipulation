@@ -43,7 +43,7 @@ namespace hpp {
     (const GripperPtr_t& gripper) const
     {
       using boost::assign::list_of;
-      std::vector <bool> mask = list_of (true)(false)(true)(true)(true)(true);
+      std::vector <bool> mask = list_of (false)(true)(true)(true)(true)(true);
       Transform3f transform = inverse (gripper->objectPositionInJoint ()) * localPosition();
       return RelativeTransformation::create
 	(gripper->joint()->robot(), joint(), gripper->joint (), transform, mask);
@@ -53,7 +53,7 @@ namespace hpp {
     (const GripperPtr_t& gripper, const value_type& shift) const
     {
       using boost::assign::list_of;
-      std::vector <bool> mask = list_of (false)(true)(false);
+      std::vector <bool> mask = list_of (true)(false)(false);
       Transform3f transform = inverse (gripper->objectPositionInJoint ()) * localPosition();
       fcl::Vec3f target = transform.getTranslation () + fcl::Vec3f (0,shift,0);
       return RelativePosition::create

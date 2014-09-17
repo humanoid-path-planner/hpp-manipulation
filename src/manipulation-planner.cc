@@ -16,7 +16,6 @@
 
 #include <hpp/util/assertion.hh>
 #include <hpp/core/path-validation.hh>
-#include <hpp/statistics/operators.hh>
 
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/robot.hh"
@@ -111,8 +110,7 @@ namespace hpp {
         addFailure (PROJECTION, edges);
         SuccessStatistics& ss = constraint->configProjector ()->statistics ();
         if (ss.nbFailure () > ss.nbSuccess ()) {
-          hppDout (warning, constraint->name () << " fails often.");
-          hppDoutPrint (warning, ss);
+          hppDout (warning, constraint->name () << " fails often." << std::endl << ss);
         }
         return false;
       }

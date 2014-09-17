@@ -157,7 +157,7 @@ namespace hpp {
             increment (b);
             b.push_back (config);
             if (numberOfObservations()%10 == 0) {
-              hppDoutPrint(info, (*this));
+              hppDout (info, this);
             }
           }
 
@@ -201,7 +201,7 @@ namespace hpp {
             increment (b);
             b.push_back (config);
             if (numberOfObservations()%10 == 0) {
-              hppDoutPrint(info, (*this));
+              hppDout (info, this);
             }
           }
 
@@ -227,8 +227,6 @@ namespace hpp {
       };
     } // namespace graph
   } // namespace manipulation
-
-  std::ostream& operator<< (std::ostream& os, const manipulation::graph::LeafHistogram& h);
 } // namespace hpp
 
 #endif // HPP_MANIPULATION_GRAPH_STATISTICS_HH

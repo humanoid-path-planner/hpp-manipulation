@@ -42,14 +42,14 @@ namespace hpp {
     void Roadmap::push_node (const core::NodePtr_t& n)
     {
       Parent::push_node (n);
-      statInsert (*(n->configuration ()));
+      statInsert (n);
     }
 
-    void Roadmap::statInsert (ConfigurationIn_t config)
+    void Roadmap::statInsert (const core::NodePtr_t& n)
     {
       Histograms::iterator it;
       for (it = histograms_.begin(); it != histograms_.end(); it++) {
-        (*it)->add (config);
+        (*it)->add (n);
       }
     }
 

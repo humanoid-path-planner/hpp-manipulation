@@ -49,7 +49,7 @@ namespace hpp {
 
       protected:
         /// Register a new configuration.
-        void statInsert (ConfigurationIn_t config);
+        void statInsert (const core::NodePtr_t& n);
 
         /// Constructor
         Roadmap (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot);

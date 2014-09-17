@@ -37,10 +37,11 @@ namespace hpp {
       class HPP_MANIPULATION_DLLLOCAL LeafBin : public ::hpp::statistics::Bin
       {
         public :
-          LeafBin(const vector_t& v): value_(v), configs_() {}
+          typedef ::hpp::statistics::Bin Parent;
+          LeafBin(const vector_t& v): value_(v), nodes_() {}
 
-          void push_back(const Configuration_t& cfg) {
-            configs_.push_back(cfg);
+          void push_back(const core::NodePtr_t& n) {
+            nodes_.push_back(n);
           }
 
           bool operator<(const LeafBin& rhs) const {
@@ -61,10 +62,39 @@ namespace hpp {
             return value_;
           }
 
+          std::ostream& print (std::ostream& os) const
+          {
+            Parent::print (os) << " (";
+            /// Sort by connected component.
+            typedef std::list <RoadmapNodes_t> NodesList_t;
+            NodesList_t l;
+            bool found;
+            for (RoadmapNodes_t::const_iterator itn = nodes_.begin ();
+                itn != nodes_.end (); itn++) {
+              found = false;
+              for (NodesList_t::iterator itc = l.begin ();
+                  itc != l.end (); itc++) {
+                if ((*itn)->connectedComponent () == itc->front ()->connectedComponent ()) {
+                  itc->push_back (*itn);
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                l.push_back (RoadmapNodes_t (1, *itn));
+              }
+            }
+            for (NodesList_t::iterator itc = l.begin ();
+                itc != l.end (); itc++)
+              os << itc->front ()->connectedComponent () << " - " << itc->size () << ", ";
+            return os << ").";
+          }
+
         private:
           vector_t value_;
 
-          std::list <Configuration_t> configs_;
+          typedef std::list <core::NodePtr_t> RoadmapNodes_t;
+          RoadmapNodes_t nodes_;
 
           std::ostream& printValue (std::ostream& os) const
           {
@@ -85,10 +115,11 @@ namespace hpp {
       class HPP_MANIPULATION_DLLLOCAL NodeBin : public ::hpp::statistics::Bin
       {
         public :
-          NodeBin(const Nodes_t& ns): nodes_(ns), configs_() {}
+          typedef ::hpp::statistics::Bin Parent;
+          NodeBin(const Nodes_t& ns): nodes_(ns), roadmapNodes_() {}
 
-          void push_back(const Configuration_t& cfg) {
-            configs_.push_back(cfg);
+          void push_back(const core::NodePtr_t& n) {
+            roadmapNodes_.push_back(n);
           }
 
           bool operator<(const NodeBin& rhs) const {
@@ -113,10 +144,39 @@ namespace hpp {
             return nodes_;
           }
 
+          std::ostream& print (std::ostream& os) const
+          {
+            Parent::print (os) << " (";
+            /// Sort by connected component.
+            typedef std::list <RoadmapNodes_t> NodesList_t;
+            NodesList_t l;
+            bool found;
+            for (RoadmapNodes_t::const_iterator itn = roadmapNodes_.begin ();
+                itn != roadmapNodes_.end (); itn++) {
+              found = false;
+              for (NodesList_t::iterator itc = l.begin ();
+                  itc != l.end (); itc++) {
+                if ((*itn)->connectedComponent () == itc->front ()->connectedComponent ()) {
+                  itc->push_back (*itn);
+                  found = true;
+                  break;
+                }
+              }
+              if (!found) {
+                l.push_back (RoadmapNodes_t (1, *itn));
+              }
+            }
+            for (NodesList_t::iterator itc = l.begin ();
+                itc != l.end (); itc++)
+              os << itc->front ()->connectedComponent () << " - " << itc->size () << ", ";
+            return os << ").";
+          }
+
         private:
           Nodes_t nodes_;
 
-          std::list <Configuration_t> configs_;
+          typedef std::list <core::NodePtr_t> RoadmapNodes_t;
+          RoadmapNodes_t roadmapNodes_;
 
           std::ostream& printValue (std::ostream& os) const
           {
@@ -134,7 +194,7 @@ namespace hpp {
       class HPP_MANIPULATION_DLLLOCAL Histogram
       {
         public:
-          virtual void add (const Configuration_t& config) = 0;
+          virtual void add (const core::NodePtr_t& node) = 0;
 
           virtual HistogramPtr_t clone () const = 0;
       };
@@ -151,13 +211,13 @@ namespace hpp {
             constraint_ (constraint) {}
 
           /// Insert an occurence of a value in the histogram
-          void add (const Configuration_t& config)
+          void add (const core::NodePtr_t& n)
           {
-            LeafBin b(constraint_->offsetFromConfig (config));
+            LeafBin b(constraint_->offsetFromConfig (*n->configuration ()));
             increment (b);
-            b.push_back (config);
+            b.push_back (n);
             if (numberOfObservations()%10 == 0) {
-              hppDout (info, this);
+              hppDout (info, *this);
             }
           }
 
@@ -195,13 +255,13 @@ namespace hpp {
             graph_ (graph) {}
 
           /// Insert an occurence of a value in the histogram
-          void add (const Configuration_t& config)
+          void add (const core::NodePtr_t& n)
           {
-            NodeBin b(graph_->getNode (config));
+            NodeBin b(graph_->getNode (*n->configuration ()));
             increment (b);
-            b.push_back (config);
+            b.push_back (n);
             if (numberOfObservations()%10 == 0) {
-              hppDout (info, this);
+              hppDout (info, *this);
             }
           }
 

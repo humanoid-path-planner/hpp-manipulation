@@ -16,6 +16,7 @@
 
 #include <hpp/util/assertion.hh>
 #include <hpp/core/path-validation.hh>
+#include <hpp/core/connected-component.hh>
 
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/robot.hh"
@@ -163,22 +164,33 @@ namespace hpp {
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       graph::Nodes_t n1, n2;
       graph::Edges_t edges;
+      bool connectSucceed = false;
       std::vector< graph::Edges_t > possibleEdges;
       for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
           itn1 != nodes.end (); ++itn1) {
         ConfigurationPtr_t q1 ((*itn1)->configuration ());
-        for (core::Nodes_t::const_iterator itn2 = boost::next (itn1);
-            itn2 != nodes.end (); ++itn2) {
-          ConfigurationPtr_t q2 ((*itn2)->configuration ());
-          assert (*q1 != *q2);
-          path = (*sm) (*q1, *q2);
-          if (path && pathValidation->validate (path, false, validPath)) {
-            roadmap ()->addEdge (*itn1, *itn2, path);
-            core::interval_t timeRange = path->timeRange ();
-            roadmap ()->addEdge (*itn2, *itn1, path->extract
-                (core::interval_t (timeRange.second,
-                                   timeRange.first)));
+        connectSucceed = false;
+        for (core::ConnectedComponents_t::const_iterator itcc =
+            roadmap ()->connectedComponents ().begin ();
+            itcc != roadmap ()->connectedComponents ().end (); itcc++) {
+          if (*itcc == (*itn1)->connectedComponent ())
+            continue;
+          for (core::Nodes_t::const_iterator itn2 = (*itcc)->nodes().begin ();
+              itn2 != (*itcc)->nodes ().end (); itn2 ++) {
+            ConfigurationPtr_t q2 ((*itn2)->configuration ());
+            assert (*q1 != *q2);
+            path = (*sm) (*q1, *q2);
+            if (path && pathValidation->validate (path, false, validPath)) {
+              roadmap ()->addEdge (*itn1, *itn2, path);
+              core::interval_t timeRange = path->timeRange ();
+              roadmap ()->addEdge (*itn2, *itn1, path->extract
+                  (core::interval_t (timeRange.second,
+                                     timeRange.first)));
+              connectSucceed = true;
+              break;
+            }
           }
+          if (connectSucceed) break;
         }
       }
     }

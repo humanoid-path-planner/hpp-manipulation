@@ -111,6 +111,8 @@ namespace hpp {
         SuccessStatistics& ss = constraint->configProjector ()->statistics ();
         if (ss.nbFailure () > ss.nbSuccess ()) {
           hppDout (warning, constraint->name () << " fails often." << std::endl << ss);
+        } else {
+          hppDout (warning, constraint->name () << " succeeds at rate " << (double)(ss.nbSuccess ()) / ss.numberOfObservations () << ".");
         }
         return false;
       }

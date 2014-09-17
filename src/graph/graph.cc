@@ -25,6 +25,24 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      static std::string toString (const Nodes_t& n) {
+        std::string nodesStr = "(";
+        for (graph::Nodes_t::const_iterator itNode = n.begin();
+            itNode != n.end (); itNode++)
+          nodesStr += (*itNode)->name () + " / ";
+        nodesStr += ")";
+        return nodesStr;
+      }
+
+      static std::string toString (const Edges_t& e) {
+        std::string edgesStr = "(";
+        for (graph::Edges_t::const_iterator itEdge = e.begin();
+            itEdge != e.end (); itEdge++)
+          edgesStr += (*itEdge)->name () + " / ";
+        edgesStr += ")";
+        return edgesStr;
+      }
+
       GraphPtr_t Graph::create(RobotPtr_t robot)
       {
         Graph* ptr = new Graph;
@@ -173,9 +191,10 @@ namespace hpp {
         ConstraintSetPtr_t constraint;
         MapFromNode::const_iterator it = constraintSetMapFromNode_.find (nodes);
         if (it == constraintSetMapFromNode_.end ()) {
-          constraint = ConstraintSet::create (robot (), name ());
+          std::string name = toString (nodes);
+          constraint = ConstraintSet::create (robot (), "Set " + name);
 
-          ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
+          ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), "proj " + name, errorThreshold(), maxIterations());
           insertNumericalConstraints (proj);
           for (Nodes_t::const_iterator it = nodes.begin();
               it != nodes.end(); it++)
@@ -205,9 +224,10 @@ namespace hpp {
         ConstraintSetPtr_t constraint;
         MapFromEdge::const_iterator it = cfgConstraintSetMapFromEdge_.find (edges);
         if (it == cfgConstraintSetMapFromEdge_.end ()) {
-          constraint = ConstraintSet::create (robot (), name ());
+          std::string name = toString (edges);
+          constraint = ConstraintSet::create (robot (), "Set " + name);
 
-          ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
+          ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), "proj " + name, errorThreshold(), maxIterations());
           insertNumericalConstraints (proj);
           for (Edges_t::const_iterator it = edges.begin();
               it != edges.end(); it++) {
@@ -242,9 +262,10 @@ namespace hpp {
         ConstraintSetPtr_t constraint;
         MapFromEdge::const_iterator it = pathConstraintSetMapFromEdge_.find (edges);
         if (it == pathConstraintSetMapFromEdge_.end ()) {
-          constraint = ConstraintSet::create (robot (), name ());
+          std::string name = toString (edges);
+          constraint = ConstraintSet::create (robot (), "Set " + name);
 
-          ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), name (), errorThreshold(), maxIterations());
+          ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), "proj " + name, errorThreshold(), maxIterations());
           insertNumericalConstraints (proj);
           for (Edges_t::const_iterator it = edges.begin();
               it != edges.end(); it++) {

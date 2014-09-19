@@ -44,9 +44,9 @@ namespace hpp {
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (false)(true)(true)(true)(true)(true);
-      Transform3f transform = inverse (gripper->objectPositionInJoint ()) * localPosition();
+      Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
       return RelativeTransformation::create
-	(gripper->joint()->robot(), joint(), gripper->joint (), transform, mask);
+	(gripper->joint()->robot(), gripper->joint (), joint(), transform, mask);
     }
 
     DifferentiableFunctionPtr_t Handle::createPreGraspOnLine
@@ -54,10 +54,10 @@ namespace hpp {
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(false)(false);
-      Transform3f transform = inverse (gripper->objectPositionInJoint ()) * localPosition();
-      fcl::Vec3f target = transform.getTranslation () + fcl::Vec3f (0,shift,0);
+      Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
+      fcl::Vec3f target = transform.getTranslation () + fcl::Vec3f (shift,0,0);
       return RelativePosition::create
-        (gripper->joint()->robot(), joint(), gripper->joint (), target, fcl::Vec3f (0,0,0), mask);
+        (gripper->joint()->robot(), gripper->joint (), joint(), target, fcl::Vec3f (0,0,0), mask);
     }
 
     HandlePtr_t Handle::clone () const

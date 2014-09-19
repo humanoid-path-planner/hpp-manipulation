@@ -119,8 +119,8 @@ namespace hpp {
       while (!possibleEdges.empty ()) {
         constraints = constraintGraph_->pathConstraint (possibleEdges.back());
         constraints->offsetFromConfig(newPath (newTmin));
-        assert (constraints->isSatisfied (newPath (newTmin)));
-        if (constraints->isSatisfied (newPath (newTmax))) {
+        if (constraints->isSatisfied (newPath (newTmin))
+            && constraints->isSatisfied (newPath (newTmax))) {
           pathNoCollision->constraints (constraints);
           impl_validate (pathNoCollision, reverse, validPart);
           return false;

@@ -31,14 +31,18 @@ namespace hpp {
     PathPtr_t GraphSteeringMethod::impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const
     {
       value_type length = (*distance_) (q1,q2);
-      std::vector< graph::Edges_t > possibleEdges =
-        graph_->getEdge (graph_->getNode (q1), graph_->getNode (q2));
+      std::vector< graph::Edges_t > possibleEdges;
+      try {
+        possibleEdges = graph_->getEdge (graph_->getNode (q1), graph_->getNode (q2));
+      } catch (const std::logic_error& e) {
+        hppDout (error, e.what ());
+        return PathPtr_t ();
+      }
       ConstraintSetPtr_t constraints;
       while (!possibleEdges.empty()) {
         constraints = graph_->pathConstraint (possibleEdges.back());
         constraints->offsetFromConfig(q1);
-        assert (constraints->isSatisfied (q1));
-        if (constraints->isSatisfied (q2)) {
+        if (constraints->isSatisfied (q1) && constraints->isSatisfied (q2)) {
           PathPtr_t path = core::StraightPath::create (robot_.lock(), q1, q2, length);
           path->constraints (constraints);
           return path;

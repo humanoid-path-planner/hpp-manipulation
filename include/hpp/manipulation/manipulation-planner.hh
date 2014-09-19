@@ -81,7 +81,7 @@ namespace hpp {
         typedef ::hpp::statistics::SuccessBin SuccessBin;
         SuccessStatistics extendStatistics_;
 
-        /// A Reason is associated to each Edges_t that generated a failure.
+        /// A Reason is associated to each EdgePtr_t that generated a failure.
         enum TypeOfFailure {
           PROJECTION,
           STEERING_METHOD,
@@ -106,11 +106,11 @@ namespace hpp {
             return ::hpp::statistics::SuccessBin::REASON_UNKNOWN;
           }
         };
-        typedef std::pair < graph::Edges_t, Reasons > EdgesReasonPair;
-        typedef std::map  < graph::Edges_t, Reasons > EdgesReasonMap;
-        EdgesReasonMap failureReasons_;
+        typedef std::pair < graph::EdgePtr_t, Reasons > EdgeReasonPair;
+        typedef std::map  < graph::EdgePtr_t, Reasons > EdgeReasonMap;
+        EdgeReasonMap failureReasons_;
 
-        void addFailure (TypeOfFailure t, const graph::Edges_t& edges);
+        void addFailure (TypeOfFailure t, const graph::EdgePtr_t& edge);
 
         mutable Configuration_t qProj_;
     };

@@ -91,13 +91,13 @@ namespace hpp {
                  newTmax = pathNoCollision->timeRange ().second,
                  oldTmin = path->timeRange ().first,
                  oldTmax = path->timeRange ().second;
-      graph::Nodes_t origNodes, destNodes;
+      graph::NodePtr_t origNode, destNode;
       try {
-        origNodes = constraintGraph_->getNode (newPath (newTmin));
-        destNodes = constraintGraph_->getNode (newPath (newTmax));
+        origNode = constraintGraph_->getNode (newPath (newTmin));
+        destNode = constraintGraph_->getNode (newPath (newTmax));
 
-        if (origNodes == constraintGraph_->getNode ((*path) (oldTmin))
-            && destNodes == constraintGraph_->getNode ((*path) (oldTmax))) {
+        if (origNode == constraintGraph_->getNode ((*path) (oldTmin))
+            && destNode == constraintGraph_->getNode ((*path) (oldTmax))) {
           validPart = pathNoCollision;
           return false;
         }
@@ -113,7 +113,7 @@ namespace hpp {
       // - Use the steering method to create a new path and validate it.
       // - Return a null path.
       assert (!reverse && "This has never been tested with reverse path");
-      std::vector <graph::Edges_t> possibleEdges (constraintGraph_->getEdge (origNodes, destNodes));
+      graph::Edges_t possibleEdges (constraintGraph_->getEdges (origNode, destNode));
       // We check for all of them if both nodes are on the same leaf.
       ConstraintSetPtr_t constraints;
       while (!possibleEdges.empty ()) {

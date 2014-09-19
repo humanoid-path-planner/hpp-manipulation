@@ -102,13 +102,13 @@ namespace hpp {
     {
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       // Select next node in the constraint graph.
-      graph::Nodes_t nodes = graph->getNode (*q_near);
-      graph::Edges_t edges = graph->chooseEdge (nodes);
-      ConstraintSetPtr_t constraint = graph->configConstraint (edges);
+      graph::NodePtr_t node = graph->getNode (*q_near);
+      graph::EdgePtr_t edge = graph->chooseEdge (node);
+      ConstraintSetPtr_t constraint = graph->configConstraint (edge);
       constraint->offsetFromConfig (*q_near);
       qProj_ = *q_rand;
       if (!constraint->apply (qProj_)) {
-        addFailure (PROJECTION, edges);
+        addFailure (PROJECTION, edge);
         SuccessStatistics& ss = constraint->configProjector ()->statistics ();
         if (ss.nbFailure () > ss.nbSuccess ()) {
           hppDout (warning, constraint->name () << " fails often." << std::endl << ss);
@@ -120,31 +120,27 @@ namespace hpp {
       core::SteeringMethodPtr_t sm (problem().steeringMethod());
       core::PathPtr_t path = (*sm) (*q_near, qProj_);
       if (!path) {
-        addFailure (STEERING_METHOD, edges);
+        addFailure (STEERING_METHOD, edge);
         return false;
       }
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
       pathValidation->validate (path, false, validPath);
       if (validPath->length () == 0)
-        addFailure (PATH_VALIDATION, edges);
+        addFailure (PATH_VALIDATION, edge);
       else
         extendStatistics_.addSuccess ();
       return true;
     }
 
-    void ManipulationPlanner::addFailure (TypeOfFailure t, const graph::Edges_t& edges)
+    void ManipulationPlanner::addFailure (TypeOfFailure t, const graph::EdgePtr_t& edge)
     {
-      EdgesReasonMap::iterator it = failureReasons_.find (edges);
+      EdgeReasonMap::iterator it = failureReasons_.find (edge);
       if (it == failureReasons_.end ()) {
-        std::string edgesStr = "(";
-        for (graph::Edges_t::const_iterator itEdge = edges.begin();
-            itEdge != edges.end (); itEdge++)
-          edgesStr += (*itEdge)->name () + " / ";
-        edgesStr += ")";
-        Reasons r (SuccessBin::createReason ("Projection for " + edgesStr),
-                   SuccessBin::createReason ("SteeringMethod for " + edgesStr),
-                   SuccessBin::createReason ("PathValidation returned length 0 for " + edgesStr));
-        failureReasons_.insert (EdgesReasonPair (edges, r));
+        std::string edgeStr = "(" + edge->name () + ")";
+        Reasons r (SuccessBin::createReason ("Projection for " + edgeStr),
+                   SuccessBin::createReason ("SteeringMethod for " + edgeStr),
+                   SuccessBin::createReason ("PathValidation returned length 0 for " + edgeStr));
+        failureReasons_.insert (EdgeReasonPair (edge, r));
         extendStatistics_.addFailure (r.get (t));
         return;
       }
@@ -160,10 +156,7 @@ namespace hpp {
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
       core::PathPtr_t path, validPath;
       graph::GraphPtr_t graph = problem_.constraintGraph ();
-      graph::Nodes_t n1, n2;
-      graph::Edges_t edges;
       bool connectSucceed = false;
-      std::vector< graph::Edges_t > possibleEdges;
       for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
           itn1 != nodes.end (); ++itn1) {
         ConfigurationPtr_t q1 ((*itn1)->configuration ());

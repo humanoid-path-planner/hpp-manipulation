@@ -25,21 +25,13 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      static std::string toString (const Nodes_t& n) {
-        std::string nodesStr = "(";
-        for (graph::Nodes_t::const_iterator itNode = n.begin();
-            itNode != n.end (); itNode++)
-          nodesStr += (*itNode)->name () + " / ";
-        nodesStr += ")";
+      static std::string toString (const NodePtr_t& n) {
+        std::string nodesStr = "(" + n->name () + ")";
         return nodesStr;
       }
 
-      static std::string toString (const Edges_t& e) {
-        std::string edgesStr = "(";
-        for (graph::Edges_t::const_iterator itEdge = e.begin();
-            itEdge != e.end (); itEdge++)
-          edgesStr += (*itEdge)->name () + " / ";
-        edgesStr += ")";
+      static std::string toString (const EdgePtr_t& e) {
+        std::string edgesStr = "(" + e->name () + ")";
         return edgesStr;
       }
 
@@ -60,10 +52,9 @@ namespace hpp {
 
       NodeSelectorPtr_t Graph::createNodeSelector()
       {
-        NodeSelectorPtr_t newNodeSelector = NodeSelector::create();
-        nodeSelectors_.push_back(newNodeSelector);
-        newNodeSelector->parentGraph (wkPtr_);
-        return newNodeSelector;
+        nodeSelector_ = NodeSelector::create();
+        nodeSelector_->parentGraph (wkPtr_);
+        return nodeSelector_;
       }
 
       void Graph::maxIterations (size_type iterations)
@@ -91,158 +82,67 @@ namespace hpp {
         return robot_;
       }
 
-      Nodes_t Graph::getNode(const Configuration_t config) const
+      NodePtr_t Graph::getNode (const Configuration_t config) const
       {
-        Nodes_t nodes;
-        for (NodeSelectors_t::const_iterator it = nodeSelectors_.begin();
-            it != nodeSelectors_.end(); it++)
-          nodes.push_back( (*it)->getNode(config) );
-        return nodes;
+        return nodeSelector_->getNode (config);
       }
 
-      static void buildPossibleEdges (Edges_t current,
-          const std::vector <Edges_t>& edgesPerNodeSelector,
-          std::vector <Edges_t>& possibleEdges)
-      {
-        size_t d = current.size();
-        if (d == edgesPerNodeSelector.size()) {
-          possibleEdges.push_back (current);
-          return;
-        }
-        Edges_t::const_iterator it = edgesPerNodeSelector[d].begin();
-        while (it != edgesPerNodeSelector[d].end()) {
-          current.push_back (*it);
-          buildPossibleEdges (current, edgesPerNodeSelector, possibleEdges);
-          current.pop_back ();
-          it++;
-        }
-      }
-
-      std::vector <Edges_t> Graph::getEdge(const Nodes_t& from, const Nodes_t& to) const
-      {
-        assert (from.size() == to.size());
-        assert (nodeSelectors_.size() == to.size());
-        size_t numberPossibleEdges = 1;
-        std::vector < Edges_t > edgesPerNodeSelector (nodeSelectors_.size());
-        std::vector < Edges_t >::iterator itEdgePerNodeSelector = edgesPerNodeSelector.begin();
-        Nodes_t::const_iterator itFrom = from.begin (),
-                                itTo   =   to.begin ();
-        // We first iterate through from. For each element of from,
-        // we look for all edges between this element of from and its corresponding
-        // element in to. The resulting set of Edges_t is stored in
-        // edgesPerNodeSelector.
-
-        // Temporary variable.
-        Edges_t edgesInNodeSelector;
-        const Neighbors_t* neighbors;
-        Neighbors_t::const_iterator itEdge;
-        while (itFrom != from.end()) {
-          edgesInNodeSelector.clear ();
-          neighbors = &((*itFrom)->neighbors ());
-          itEdge = neighbors->begin();
-          // Find the edges between *itFrom and *itTo
-          while (itEdge != neighbors->end()) {
-            if (itEdge->second->to() == (*itTo) )
-              edgesInNodeSelector.push_back (itEdge->second);
-            itEdge++;
-          }
-          /// If no Edge is found, the two Node are not connected.
-          if (edgesInNodeSelector.empty ())
-            return std::vector <Edges_t>(0);
-
-          // Store the Edges.
-          numberPossibleEdges *= edgesInNodeSelector.size();
-          *itEdgePerNodeSelector = edgesInNodeSelector;
-
-          itFrom++; itTo++; itEdgePerNodeSelector++;
-        }
-        assert (itTo == to.end());
-        assert (itEdgePerNodeSelector == edgesPerNodeSelector.end());
-
-        // Now, we can create the list of possible Edges_t
-        // between from and to.
-        std::vector <Edges_t> possibleEdges;
-        buildPossibleEdges (Edges_t(), edgesPerNodeSelector, possibleEdges);
-        assert (possibleEdges.size() == numberPossibleEdges);
-        return possibleEdges;
-      }
-
-      Edges_t Graph::chooseEdge(const Nodes_t& nodes) const
+      Edges_t Graph::getEdges (const NodePtr_t& from, const NodePtr_t& to) const
       {
         Edges_t edges;
-        for (Nodes_t::const_iterator it = nodes.begin();
-            it != nodes.end(); it++)
-          edges.push_back( (*it)->nodeSelector().lock()->chooseEdge(*it) );
+        for (Neighbors_t::const_iterator it = from->neighbors ().begin ();
+            it != from->neighbors ().end (); it++) {
+          if (it->second->to () == to)
+            edges.push_back (it->second);
+        }
         return edges;
       }
 
-      NodeSelectorPtr_t Graph::getNodeSelectorByName (const std::string& name)
+      EdgePtr_t Graph::chooseEdge (const NodePtr_t& node) const
       {
-        for (NodeSelectors_t::iterator it = nodeSelectors_.begin();
-            it != nodeSelectors_.end(); it++) {
-          if (name == (*it)->name())
-            return *it;
-        }
-        return NodeSelectorPtr_t();
+        return nodeSelector_->chooseEdge (node);
       }
 
-      ConstraintSetPtr_t Graph::configConstraint (const Nodes_t& nodes)
+      ConstraintSetPtr_t Graph::configConstraint (const NodePtr_t& node)
       {
         ConstraintSetPtr_t constraint;
-        MapFromNode::const_iterator it = constraintSetMapFromNode_.find (nodes);
+        MapFromNode::const_iterator it = constraintSetMapFromNode_.find (node);
         if (it == constraintSetMapFromNode_.end ()) {
-          std::string name = toString (nodes);
+          std::string name = toString (node);
           constraint = ConstraintSet::create (robot (), "Set " + name);
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), "proj " + name, errorThreshold(), maxIterations());
           insertNumericalConstraints (proj);
-          for (Nodes_t::const_iterator it = nodes.begin();
-              it != nodes.end(); it++)
-            (*it)->insertNumericalConstraints (proj);
+          node->insertNumericalConstraints (proj);
           constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
 
           insertLockedDofs (constraint);
-          for (Nodes_t::const_iterator it = nodes.begin();
-              it != nodes.end(); it++)
-            (*it)->insertLockedDofs (constraint);
-          constraintSetMapFromNode_.insert (PairNodesConstraints(nodes, constraint));
+          node->insertLockedDofs (constraint);
+          constraintSetMapFromNode_.insert (PairNodeConstraints(node, constraint));
         } else {
           constraint = it->second;
         }
         return constraint;
       }
 
-      ConstraintSetPtr_t Graph::configConstraint (const Edges_t& edges, ConfigurationIn_t config)
-      {
-        ConstraintSetPtr_t constraint = configConstraint (edges);
-        constraint->offsetFromConfig (config);
-        return constraint;
-      }
-
-      ConstraintSetPtr_t Graph::configConstraint (const Edges_t& edges)
+      ConstraintSetPtr_t Graph::configConstraint (const EdgePtr_t& edge)
       {
         ConstraintSetPtr_t constraint;
-        MapFromEdge::const_iterator it = cfgConstraintSetMapFromEdge_.find (edges);
+        MapFromEdge::const_iterator it = cfgConstraintSetMapFromEdge_.find (edge);
         if (it == cfgConstraintSetMapFromEdge_.end ()) {
-          std::string name = toString (edges);
+          std::string name = toString (edge);
           constraint = ConstraintSet::create (robot (), "Set " + name);
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), "proj " + name, errorThreshold(), maxIterations());
           insertNumericalConstraints (proj);
-          for (Edges_t::const_iterator it = edges.begin();
-              it != edges.end(); it++) {
-            (*it)->insertNumericalConstraints (proj);
-            (*it)->to ()->insertNumericalConstraints (proj);
-          }
+          edge->insertNumericalConstraints (proj);
+          edge->to ()->insertNumericalConstraints (proj);
           constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
 
           insertLockedDofs (constraint);
-          for (Edges_t::const_iterator it = edges.begin();
-              it != edges.end(); it++) {
-            (*it)->insertLockedDofs (constraint);
-            (*it)->to ()->insertLockedDofs (constraint);
-          }
-          cfgConstraintSetMapFromEdge_.insert (PairEdgesConstraints(edges, constraint));
+          edge->insertLockedDofs (constraint);
+          edge->to ()->insertLockedDofs (constraint);
+          cfgConstraintSetMapFromEdge_.insert (PairEdgeConstraints(edge, constraint));
         } else {
           constraint = it->second;
         }
@@ -250,37 +150,24 @@ namespace hpp {
         return constraint;
       }
 
-      ConstraintSetPtr_t Graph::pathConstraint (const Edges_t& edges, ConfigurationIn_t config)
-      {
-        ConstraintSetPtr_t constraint = pathConstraint (edges);
-        constraint->offsetFromConfig (config);
-        return constraint;
-      }
-
-      ConstraintSetPtr_t Graph::pathConstraint (const Edges_t& edges)
+      ConstraintSetPtr_t Graph::pathConstraint (const EdgePtr_t& edge)
       {
         ConstraintSetPtr_t constraint;
-        MapFromEdge::const_iterator it = pathConstraintSetMapFromEdge_.find (edges);
+        MapFromEdge::const_iterator it = pathConstraintSetMapFromEdge_.find (edge);
         if (it == pathConstraintSetMapFromEdge_.end ()) {
-          std::string name = toString (edges);
+          std::string name = toString (edge);
           constraint = ConstraintSet::create (robot (), "Set " + name);
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), "proj " + name, errorThreshold(), maxIterations());
           insertNumericalConstraints (proj);
-          for (Edges_t::const_iterator it = edges.begin();
-              it != edges.end(); it++) {
-            (*it)->insertNumericalConstraints (proj);
-            (*it)->node ()->insertNumericalConstraintsForPath (proj);
-          }
+          edge->insertNumericalConstraints (proj);
+          edge->node ()->insertNumericalConstraintsForPath (proj);
           constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
 
           insertLockedDofs (constraint);
-          for (Edges_t::const_iterator it = edges.begin();
-              it != edges.end(); it++) {
-            (*it)->insertLockedDofs (constraint);
-            (*it)->node ()->insertLockedDofs (constraint);
-          }
-          pathConstraintSetMapFromEdge_.insert (PairEdgesConstraints (edges, constraint));
+          edge->insertLockedDofs (constraint);
+          edge->node ()->insertLockedDofs (constraint);
+          pathConstraintSetMapFromEdge_.insert (PairEdgeConstraints (edge, constraint));
         } else {
           constraint = it->second;
         }
@@ -290,11 +177,7 @@ namespace hpp {
 
       std::ostream& Graph::print (std::ostream& os) const
       {
-        GraphComponent::print (os) << std::endl;
-        for (NodeSelectors_t::const_iterator it = nodeSelectors_.begin();
-            it != nodeSelectors_.end(); it++)
-          os << *(*it);
-        return os;
+        return GraphComponent::print (os) << std::endl << nodeSelector_;
       }
     } // namespace graph
   } // namespace manipulation

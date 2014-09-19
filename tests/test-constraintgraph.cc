@@ -68,20 +68,13 @@ namespace hpp_test {
 
   GraphComponents components;
   GraphPtr_t graph_;
-  NodeSelectorPtr_t ns1;
-  NodeSelectorPtr_t ns2;
-  NodePtr_t n11;
-  NodePtr_t n12;
-  NodePtr_t n21;
-  NodePtr_t n22;
-  EdgePtr_t e111;
-  EdgePtr_t e121;
-  EdgePtr_t e112;
-  EdgePtr_t e122;
-  EdgePtr_t e211;
-  EdgePtr_t e221;
-  EdgePtr_t e212;
-  EdgePtr_t e222;
+  NodeSelectorPtr_t ns;
+  NodePtr_t n1;
+  NodePtr_t n2;
+  EdgePtr_t e11;
+  EdgePtr_t e21;
+  EdgePtr_t e12;
+  EdgePtr_t e22;
 
   void initialize (bool ur5)
   {
@@ -100,25 +93,13 @@ namespace hpp_test {
     graph_ = Graph::create (robot); components.push_back(graph_);
     graph_->maxIterations (20);
     graph_->errorThreshold (1e-4);
-    ns1 = graph_->createNodeSelector(); components.push_back(ns1);
-    if (!ur5)
-      ns2 = graph_->createNodeSelector(); components.push_back(ns2);
-    n11 = ns1->createNode (); components.push_back(n11);
-    n12 = ns1->createNode (); components.push_back(n12);
-    if (!ur5) {
-      n21 = ns2->createNode (); components.push_back(n21);
-      n22 = ns2->createNode (); components.push_back(n22);
-    }
-    e111 = n11->linkTo (n11); components.push_back(e111);
-    e121 = n12->linkTo (n11); components.push_back(e121);
-    e112 = n11->linkTo (n12); components.push_back(e112);
-    e122 = n12->linkTo (n12); components.push_back(e122);
-    if (!ur5) {
-      e211 = n21->linkTo (n21); components.push_back(e211);
-      e221 = n22->linkTo (n21); components.push_back(e221);
-      e212 = n21->linkTo (n22); components.push_back(e212);
-      e222 = n22->linkTo (n22); components.push_back(e222);
-    }
+    ns = graph_->createNodeSelector(); components.push_back(ns);
+    n1 = ns->createNode (); components.push_back(n1);
+    n2 = ns->createNode (); components.push_back(n2);
+    e11 = n1->linkTo (n1); components.push_back(e11);
+    e21 = n2->linkTo (n1); components.push_back(e21);
+    e12 = n1->linkTo (n2); components.push_back(e12);
+    e22 = n2->linkTo (n2); components.push_back(e22);
 
     q1 = Configuration_t::Zero(6);
     q2 = Configuration_t::Zero(6);
@@ -143,34 +124,19 @@ BOOST_AUTO_TEST_CASE (GraphStructure)
   }
 
   // Test function Graph::getEdge
-  Nodes_t from, to;
-  from.push_back (n11);
-  from.push_back (n22);
-  to.push_back (n12);
-  to.push_back (n22);
-  std::vector <Edges_t> checkPossibleEdges,
-                        possibleEdges = graph_->getEdge (from, to);
-  do {
-    Edges_t edges;
-    edges.push_back (e112);
-    edges.push_back (e222);
-    checkPossibleEdges.push_back (edges);
-  } while (0);
-  for (size_t i = 0; i < possibleEdges.size(); i++) {
-    for (size_t j = 0; j < possibleEdges[i].size(); j++)
-      BOOST_CHECK_MESSAGE (possibleEdges[i][j] == checkPossibleEdges[i][j],
-          "i = " << i << " and j = " << j);
-  }
+  NodePtr_t from(n1), to(n2);
+  Edges_t checkPossibleEdges,
+          possibleEdges = graph_->getEdges (from, to);
+  checkPossibleEdges.push_back (e12);
+  for (size_t j = 0; j < possibleEdges.size(); j++)
+    BOOST_CHECK_MESSAGE (possibleEdges[j] == checkPossibleEdges[j],
+        "Possible edge j = " << j);
 
   Configuration_t cfg;
-  Nodes_t nodes = graph_->getNode (cfg);
-  BOOST_CHECK (nodes.size() == 2);
-  BOOST_CHECK (nodes[0] == n11);
-  BOOST_CHECK (nodes[1] == n21);
-  Edges_t edges = graph_->chooseEdge (nodes);
-  BOOST_CHECK (edges.size() == 2);
-  BOOST_CHECK (edges[0]->from() == n11);
-  BOOST_CHECK (edges[1]->from() == n21);
+  NodePtr_t node = graph_->getNode (cfg);
+  BOOST_CHECK (node == n1);
+  EdgePtr_t edge = graph_->chooseEdge (node);
+  BOOST_CHECK (edge->from() == n1);
 }
 
 #ifdef TEST_UR5
@@ -201,7 +167,7 @@ BOOST_AUTO_TEST_CASE (ConstraintSets)
   BOOST_CHECK (res == expectedRes);
 
   //graph_->addNumericalConstraint (com);
-  n11->addNumericalConstraint (pos, Equality::create ());
+  n1->addNumericalConstraint (pos, Equality::create ());
 }
 
 BOOST_AUTO_TEST_CASE (PathValidationTest)
@@ -211,19 +177,17 @@ BOOST_AUTO_TEST_CASE (PathValidationTest)
   ProblemPtr_t pb = new Problem (robot);
   BOOST_CHECK(robot->configSize() == 6);
   pb->constraintGraph (graph_);
-  Nodes_t nodes11; nodes11.push_back (n11);
-  Nodes_t nodes12; nodes12.push_back (n12);
-  ConstraintSetPtr_t constraintn11 = graph_->configConstraint (nodes11);
-  ConstraintSetPtr_t constraintn12 = graph_->configConstraint (nodes12);
-  BOOST_CHECK ( constraintn11->isSatisfied (q1));
-  BOOST_CHECK (!constraintn11->isSatisfied (q2));
-  BOOST_CHECK ( constraintn12->isSatisfied (q2));
+  ConstraintSetPtr_t constraintn1 = graph_->configConstraint (n1);
+  ConstraintSetPtr_t constraintn2 = graph_->configConstraint (n2);
+  BOOST_CHECK ( constraintn1->isSatisfied (q1));
+  BOOST_CHECK (!constraintn1->isSatisfied (q2));
+  BOOST_CHECK ( constraintn2->isSatisfied (q2));
   PathPtr_t p = (*pb->steeringMethod ())(ConfigurationIn_t(q1),ConfigurationIn_t(q2)),
             validp;
-  Nodes_t nq1 = graph_->getNode (q1);
-  Nodes_t nq2 = graph_->getNode (q2);
-  BOOST_CHECK (nq1.size() == 1); BOOST_CHECK (nq1[0] == n11);
-  BOOST_CHECK (nq2.size() == 1); BOOST_CHECK (nq2[0] == n12);
+  NodePtr_t nq1 = graph_->getNode (q1);
+  NodePtr_t nq2 = graph_->getNode (q2);
+  BOOST_CHECK (nq1 == n1);
+  BOOST_CHECK (nq2 == n2);
   GraphPathValidationPtr_t pv = pb->pathValidation ();
   BOOST_CHECK (pv);
   if (!pv->validate(p, false, validp)) {

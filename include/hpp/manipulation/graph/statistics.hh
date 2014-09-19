@@ -116,32 +116,23 @@ namespace hpp {
       {
         public :
           typedef ::hpp::statistics::Bin Parent;
-          NodeBin(const Nodes_t& ns): nodes_(ns), roadmapNodes_() {}
+          NodeBin(const NodePtr_t& n): node_(n), roadmapNodes_() {}
 
           void push_back(const core::NodePtr_t& n) {
             roadmapNodes_.push_back(n);
           }
 
           bool operator<(const NodeBin& rhs) const {
-            Nodes_t::const_iterator it1,
-              it2 = rhs.nodes ().begin();
-            for (it1 = nodes_.begin(); it1 != nodes_.end(); it1++) {
-              if ((*it1)->id () < (*it2)->id())
-                return true;
-              if ((*it1)->id () > (*it2)->id())
-                return false;
-              it2++;
-            }
-            return false;
+            return node_->id () < rhs.node ()->id ();
           }
 
           bool operator==(const NodeBin& rhs) const {
-            return nodes_ == rhs.nodes ();
+            return node_ == rhs.node ();
           }
 
-          const Nodes_t& nodes () const
+          const NodePtr_t& node () const
           {
-            return nodes_;
+            return node_;
           }
 
           std::ostream& print (std::ostream& os) const
@@ -173,18 +164,14 @@ namespace hpp {
           }
 
         private:
-          Nodes_t nodes_;
+          NodePtr_t node_;
 
           typedef std::list <core::NodePtr_t> RoadmapNodes_t;
           RoadmapNodes_t roadmapNodes_;
 
           std::ostream& printValue (std::ostream& os) const
           {
-            os << "NodeBin (";
-            Nodes_t::const_iterator it1;
-            for (it1 = nodes_.begin(); it1 != nodes_.end(); it1++)
-              os << (*it1)->name () << " / ";
-            return os << ")";
+            return os << "NodeBin (" << node_->name () << ")";
           }
       };
 

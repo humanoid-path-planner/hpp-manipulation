@@ -42,45 +42,31 @@ namespace hpp {
           static GraphPtr_t create(RobotPtr_t robot);
 
           /// Create and insert a NodeSelector inside the graph.
-          NodeSelectorPtr_t createNodeSelector();
+          NodeSelectorPtr_t createNodeSelector ();
 
           /// Returns the states of a configuration.
-          Nodes_t getNode(const Configuration_t config) const;
+          NodePtr_t getNode (const Configuration_t config) const;
 
           /// Get possible edges between two nodes.
-          std::vector <Edges_t> getEdge(const Nodes_t& from, const Nodes_t& to) const;
+          Edges_t getEdges (const NodePtr_t& from, const NodePtr_t& to) const;
 
-          /// Select randomly outgoing edges of the given nodes.
-          Edges_t chooseEdge(const Nodes_t& node) const;
+          /// Select randomly outgoing edge of the given node.
+          EdgePtr_t chooseEdge(const NodePtr_t& node) const;
 
-          /// Constraint to project onto the Nodes_t.
-          /// \param the Nodes_t on which to project.
+          /// Constraint to project onto the Node.
+          /// \param the Node_t on which to project.
           /// \return The initialized projector.
-          ConstraintSetPtr_t configConstraint (const Nodes_t& nodes);
-
-          /// Kept for compatibility. Do not use. Use configConstraint(const Edges_t&) instead
-          /// \param config Configuration that will initialize the projector.
-          /// \return The initialized constraint.
-          ConstraintSetPtr_t configConstraint (const Edges_t& edges, ConfigurationIn_t config) __attribute__ ((deprecated));
+          ConstraintSetPtr_t configConstraint (const NodePtr_t& node);
 
           /// Constraint to project onto the same leaf as config.
           /// \param edges a list of edges defining the foliation.
           /// \return The constraint.
-          ConstraintSetPtr_t configConstraint (const Edges_t& edges);
+          ConstraintSetPtr_t configConstraint (const EdgePtr_t& edge);
 
           /// Constraint to project a path.
-          /// \param edges a list of edges defining the foliation.
+          /// \param edge a list of edges defining the foliation.
           /// \return The constraint.
-          ConstraintSetPtr_t pathConstraint (const Edges_t& edges);
-
-          /// Kept for compatibility. Do not use. Use pathConstraint(const Edges_t&) instead
-          /// \param config Configuration that will initialize the constraint.
-          /// \return The initialized constraint.
-          ConstraintSetPtr_t pathConstraint (const Edges_t& edges, ConfigurationIn_t config) __attribute__ ((deprecated));
-
-          /// Return the NodeSelector with the given name if any,
-          /// NULL pointer if not found.
-          NodeSelectorPtr_t getNodeSelectorByName (const std::string& name);
+          ConstraintSetPtr_t pathConstraint (const EdgePtr_t& edge);
 
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
@@ -110,7 +96,7 @@ namespace hpp {
 
         private:
           /// This list contains a node selector for each end-effector.
-          NodeSelectors_t nodeSelectors_;
+          NodeSelectorPtr_t nodeSelector_;
 
           /// A set of constraints that will always be used, for example
           /// stability constraints.
@@ -122,14 +108,14 @@ namespace hpp {
           /// Weak pointer to itself.
           GraphWkPtr_t wkPtr_;
 
-          /// Map of constraint sets (from Nodes).
-          typedef std::map  < Nodes_t, ConstraintSetPtr_t > MapFromNode;
-          typedef std::pair < Nodes_t, ConstraintSetPtr_t > PairNodesConstraints;
+          /// Map of constraint sets (from Node).
+          typedef std::map  < NodePtr_t, ConstraintSetPtr_t > MapFromNode;
+          typedef std::pair < NodePtr_t, ConstraintSetPtr_t > PairNodeConstraints;
           MapFromNode constraintSetMapFromNode_;
 
-          /// Map of constraint sets (from Edges).
-          typedef std::map  < Edges_t, ConstraintSetPtr_t > MapFromEdge;
-          typedef std::pair < Edges_t, ConstraintSetPtr_t > PairEdgesConstraints;
+          /// Map of constraint sets (from Edge).
+          typedef std::map  < EdgePtr_t, ConstraintSetPtr_t > MapFromEdge;
+          typedef std::pair < EdgePtr_t, ConstraintSetPtr_t > PairEdgeConstraints;
           MapFromEdge cfgConstraintSetMapFromEdge_, pathConstraintSetMapFromEdge_;
 
           value_type errorThreshold_;

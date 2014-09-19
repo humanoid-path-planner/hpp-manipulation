@@ -31,9 +31,9 @@ namespace hpp {
     PathPtr_t GraphSteeringMethod::impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const
     {
       value_type length = (*distance_) (q1,q2);
-      std::vector< graph::Edges_t > possibleEdges;
+      graph::Edges_t possibleEdges;
       try {
-        possibleEdges = graph_->getEdge (graph_->getNode (q1), graph_->getNode (q2));
+        possibleEdges = graph_->getEdges (graph_->getNode (q1), graph_->getNode (q2));
       } catch (const std::logic_error& e) {
         hppDout (error, e.what ());
         return PathPtr_t ();

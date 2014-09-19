@@ -47,8 +47,7 @@ namespace hpp {
       ConstraintPtr_t Edge::configConstraint(ConfigurationIn_t config)
       {
         if (!configConstraints_) {
-          Edges_t thisEdge; thisEdge.push_back (wkPtr_.lock ());
-          configConstraints_ = graph_.lock ()->configConstraint (thisEdge);
+          configConstraints_ = graph_.lock ()->configConstraint (wkPtr_.lock ());
         }
         configConstraints_->offsetFromConfig (config);
         return configConstraints_;
@@ -57,8 +56,7 @@ namespace hpp {
       ConstraintPtr_t Edge::pathConstraint(ConfigurationIn_t config)
       {
         if (!pathConstraints_) {
-          Edges_t thisEdge; thisEdge.push_back (wkPtr_.lock ());
-          pathConstraints_ = graph_.lock ()->pathConstraint (thisEdge);
+          pathConstraints_ = graph_.lock ()->pathConstraint (wkPtr_.lock ());
         }
         pathConstraints_->offsetFromConfig (config);
         return pathConstraints_;

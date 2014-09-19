@@ -47,9 +47,6 @@ namespace hpp {
 
       bool Node::contains (const Configuration_t config)
       {
-        // TODO: This is not the most efficient way. We should
-        // compute the value of the constraint instead of apllying
-        // the constraint.
         return configConstraint()->isSatisfied (config);
       }
 
@@ -65,8 +62,7 @@ namespace hpp {
       ConstraintPtr_t Node::configConstraint()
       {
         if (!configConstraints_) {
-          Nodes_t thisNode; thisNode.push_back (wkPtr_.lock ());
-          configConstraints_ = graph_.lock ()->configConstraint (thisNode);
+          configConstraints_ = graph_.lock ()->configConstraint (wkPtr_.lock ());
         }
         return configConstraints_;
       }

@@ -129,10 +129,6 @@ namespace hpp {
         addFailure (PATH_VALIDATION, edges);
       else
         extendStatistics_.addSuccess ();
-      if (extendStatistics_.nbSuccess () < extendStatistics_.nbFailure ()) {
-        hppDout (warning, "Extend method seems to fail often." << std::endl
-            << extendStatistics_);
-      }
       return true;
     }
 
@@ -154,6 +150,8 @@ namespace hpp {
       }
       Reasons r = it->second;
       extendStatistics_.addFailure (r.get (t));
+      hppDout (info, "Extension failed." << std::endl
+            << extendStatistics_);
     }
 
     inline void ManipulationPlanner::tryConnect (const core::Nodes_t nodes)

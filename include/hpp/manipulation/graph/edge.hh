@@ -18,6 +18,8 @@
 # define HPP_MANIPULATION_GRAPH_EDGE_HH
 
 #include <hpp/core/constraint-set.hh>
+#include <hpp/core/weighed-distance.hh>
+#include <hpp/core/path.hh>
 
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/fwd.hh"
@@ -27,24 +29,58 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      template <typename C>
+        class HPP_MANIPULATION_LOCAL Cache
+      {
+        public:
+          void set (const C& c)
+          {
+            c_ = c;
+          }
+
+          operator bool() const
+          {
+            return (bool)c_;
+          }
+
+          const C& get () const
+          {
+            return c_;
+          }
+
+        private:
+          C c_;
+      };
+
       /// Transition between states of a end-effector.
       ///
       /// Vertices of the graph of constraints.
       class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent
       {
         public:
+          /// Destructor
+          ~Edge ()
+
           /// Create a new empty Edge.
           static EdgePtr_t create (const NodeWkPtr_t& from, const NodeWkPtr_t& to);
 
           /// Constraint to project onto the same leaf as config.
           /// \return The initialized projector.
           /// \param config Configuration that will initialize the projector.
-          ConstraintPtr_t configConstraint(ConfigurationIn_t config);
+          ConstraintSetPtr_t configConstraint(ConfigurationIn_t config) const;
 
           /// Constraint to project a path.
           /// \return The initialized constraint.
           /// \param config Configuration that will initialize the constraint.
-          ConstraintPtr_t pathConstraint(ConfigurationIn_t config);
+          ConstraintSetPtr_t pathConstraint(ConfigurationIn_t config) const;
+
+          /// Constraint to project onto the same leaf as config.
+          /// \return The initialized projector.
+          ConstraintSetPtr_t configConstraint() const;
+
+          /// Constraint to project a path.
+          /// \return The initialized constraint.
+          ConstraintSetPtr_t pathConstraint() const;
 
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
@@ -73,16 +109,19 @@ namespace hpp {
             isInNodeFrom_ = iinf;
           }
 
+          bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,
               const NodeWkPtr_t& to);
 
           /// Constructor
-          Edge()
-          {}
+          Edge();
 
         private:
+          typedef Cache < ConstraintSetPtr_t > Constraint_t;
+
           /// The two ends of the transition.
           NodeWkPtr_t from_, to_;
 
@@ -90,11 +129,11 @@ namespace hpp {
           bool isInNodeFrom_;
 
           /// See pathConstraint member function.
-          ConstraintPtr_t pathConstraints_;
+          Constraint_t* pathConstraints_;
 
           /// Constraint ensuring that a q_proj will be in to_ and in the
           /// same leaf of to_ as the configuration used for initialization.
-          ConstraintPtr_t configConstraints_;
+          Constraint_t* configConstraints_;
 
           /// Weak pointer to itself.
           EdgeWkPtr_t wkPtr_;

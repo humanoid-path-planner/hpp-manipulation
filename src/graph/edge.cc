@@ -14,11 +14,24 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/straight-path.hh>
+
+#include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/edge.hh"
 
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      Edge::Edge () : pathConstraints_ (new Constraint_t()),
+      configConstraints_ (new Constraint_t())
+      {}
+
+      Edge::~Edge ()
+      {
+        if (pathConstraints_  ) delete pathConstraints_;
+        if (configConstraints_) delete configConstraints_;
+      }
+
       EdgePtr_t Edge::create (const NodeWkPtr_t& from, const NodeWkPtr_t& to)
       {
         Edge* ptr = new Edge;
@@ -44,22 +57,44 @@ namespace hpp {
         return os;
       }
 
-      ConstraintPtr_t Edge::configConstraint(ConfigurationIn_t config)
+      ConstraintSetPtr_t Edge::configConstraint() const
       {
-        if (!configConstraints_) {
-          configConstraints_ = graph_.lock ()->configConstraint (wkPtr_.lock ());
+        if (!*configConstraints_) {
+          configConstraints_->set (graph_.lock ()->configConstraint (wkPtr_.lock ()));
         }
-        configConstraints_->offsetFromConfig (config);
-        return configConstraints_;
+        return configConstraints_->get ();
       }
 
-      ConstraintPtr_t Edge::pathConstraint(ConfigurationIn_t config)
+      ConstraintSetPtr_t Edge::pathConstraint() const
       {
-        if (!pathConstraints_) {
-          pathConstraints_ = graph_.lock ()->pathConstraint (wkPtr_.lock ());
+        if (!*pathConstraints_) {
+          pathConstraints_->set (graph_.lock ()->pathConstraint (wkPtr_.lock ()));
         }
-        pathConstraints_->offsetFromConfig (config);
-        return pathConstraints_;
+        return pathConstraints_->get ();
+      }
+
+      ConstraintSetPtr_t Edge::configConstraint(ConfigurationIn_t config) const
+      {
+        configConstraint ()->offsetFromConfig (config);
+        return configConstraint ();
+      }
+
+      ConstraintSetPtr_t Edge::pathConstraint(ConfigurationIn_t config) const
+      {
+        pathConstraint ()->offsetFromConfig (config);
+        return pathConstraint ();
+      }
+
+      bool Edge::build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const
+      {
+        ConstraintSetPtr_t constraints = pathConstraint ();
+        constraints->offsetFromConfig(q1);
+        if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
+          return false;
+        }
+        path = core::StraightPath::create (graph_.lock ()->robot (), q1, q2, d (q1, q2));
+        path->constraints (constraints);
+        return true;
       }
     } // namespace graph
   } // namespace manipulation

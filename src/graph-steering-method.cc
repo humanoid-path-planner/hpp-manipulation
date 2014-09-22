@@ -30,7 +30,6 @@ namespace hpp {
 
     PathPtr_t GraphSteeringMethod::impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const
     {
-      value_type length = (*distance_) (q1,q2);
       graph::Edges_t possibleEdges;
       try {
         possibleEdges = graph_->getEdges (graph_->getNode (q1), graph_->getNode (q2));
@@ -38,13 +37,9 @@ namespace hpp {
         hppDout (error, e.what ());
         return PathPtr_t ();
       }
-      ConstraintSetPtr_t constraints;
+      PathPtr_t path;
       while (!possibleEdges.empty()) {
-        constraints = graph_->pathConstraint (possibleEdges.back());
-        constraints->offsetFromConfig(q1);
-        if (constraints->isSatisfied (q1) && constraints->isSatisfied (q2)) {
-          PathPtr_t path = core::StraightPath::create (robot_.lock(), q1, q2, length);
-          path->constraints (constraints);
+        if (possibleEdges.back ()->build (path, q1, q2, *distance_)) {
           return path;
         }
         possibleEdges.pop_back ();

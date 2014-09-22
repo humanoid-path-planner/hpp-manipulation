@@ -66,16 +66,6 @@ namespace hpp {
 
           /// Constraint to project onto the same leaf as config.
           /// \return The initialized projector.
-          /// \param config Configuration that will initialize the projector.
-          ConstraintSetPtr_t configConstraint(ConfigurationIn_t config) const;
-
-          /// Constraint to project a path.
-          /// \return The initialized constraint.
-          /// \param config Configuration that will initialize the constraint.
-          ConstraintSetPtr_t pathConstraint(ConfigurationIn_t config) const;
-
-          /// Constraint to project onto the same leaf as config.
-          /// \return The initialized projector.
           ConstraintSetPtr_t configConstraint() const;
 
           /// Constraint to project a path.

@@ -73,18 +73,6 @@ namespace hpp {
         return pathConstraints_->get ();
       }
 
-      ConstraintSetPtr_t Edge::configConstraint(ConfigurationIn_t config) const
-      {
-        configConstraint ()->offsetFromConfig (config);
-        return configConstraint ();
-      }
-
-      ConstraintSetPtr_t Edge::pathConstraint(ConfigurationIn_t config) const
-      {
-        pathConstraint ()->offsetFromConfig (config);
-        return pathConstraint ();
-      }
-
       bool Edge::build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const
       {
         ConstraintSetPtr_t constraints = pathConstraint ();

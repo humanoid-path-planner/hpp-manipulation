@@ -60,18 +60,10 @@ namespace hpp {
       {
         public:
           /// Destructor
-          ~Edge ()
+          ~Edge ();
 
           /// Create a new empty Edge.
           static EdgePtr_t create (const NodeWkPtr_t& from, const NodeWkPtr_t& to);
-
-          /// Constraint to project onto the same leaf as config.
-          /// \return The initialized projector.
-          ConstraintSetPtr_t configConstraint() const;
-
-          /// Constraint to project a path.
-          /// \return The initialized constraint.
-          ConstraintSetPtr_t pathConstraint() const;
 
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
@@ -125,6 +117,14 @@ namespace hpp {
           /// Constraint ensuring that a q_proj will be in to_ and in the
           /// same leaf of to_ as the configuration used for initialization.
           Constraint_t* configConstraints_;
+
+          /// Constraint to project onto the same leaf as config.
+          /// \return The initialized projector.
+          ConstraintSetPtr_t configConstraint() const;
+
+          /// Constraint to project a path.
+          /// \return The initialized constraint.
+          ConstraintSetPtr_t pathConstraint() const;
 
           /// Weak pointer to itself.
           EdgeWkPtr_t wkPtr_;

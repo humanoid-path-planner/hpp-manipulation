@@ -29,6 +29,7 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      /// Cache mechanism that enable const-correctness of member functions.
       template <typename C>
         class HPP_MANIPULATION_LOCAL Cache
       {

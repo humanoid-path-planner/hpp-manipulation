@@ -104,17 +104,9 @@ namespace hpp {
       // Select next node in the constraint graph.
       graph::NodePtr_t node = graph->getNode (*q_near);
       graph::EdgePtr_t edge = graph->chooseEdge (node);
-      ConstraintSetPtr_t constraint = graph->configConstraint (edge);
-      constraint->offsetFromConfig (*q_near);
       qProj_ = *q_rand;
-      if (!constraint->apply (qProj_)) {
+      if (!edge->applyConstraints (*q_near, qProj_)) {
         addFailure (PROJECTION, edge);
-        SuccessStatistics& ss = constraint->configProjector ()->statistics ();
-        if (ss.nbFailure () > ss.nbSuccess ()) {
-          hppDout (warning, constraint->name () << " fails often." << std::endl << ss);
-        } else {
-          hppDout (warning, constraint->name () << " succeeds at rate " << (double)(ss.nbSuccess ()) / ss.numberOfObservations () << ".");
-        }
         return false;
       }
       core::SteeringMethodPtr_t sm (problem().steeringMethod());

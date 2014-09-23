@@ -92,7 +92,11 @@ namespace hpp {
             isInNodeFrom_ = iinf;
           }
 
-          bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
+          virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
+
+          virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
+
+          EdgePtr_t createWaypoint ();
 
         protected:
           /// Initialization of the object.
@@ -104,12 +108,16 @@ namespace hpp {
 
         private:
           typedef Cache < ConstraintSetPtr_t > Constraint_t;
+          typedef std::pair < EdgePtr_t, NodePtr_t > Waypoint;
 
           /// The two ends of the transition.
           NodeWkPtr_t from_, to_;
 
           /// True if this path is in node from, False if in node to
           bool isInNodeFrom_;
+
+          Waypoint waypoint_;
+          mutable Configuration_t config_;
 
           /// See pathConstraint member function.
           Constraint_t* pathConstraints_;

@@ -36,32 +36,6 @@ using namespace ::hpp::manipulation::graph;
 typedef std::vector <GraphComponentPtr_t> GraphComponents;
 
 namespace hpp_test {
-/* 
-  enum GraphComponentType {
-    UNKNOWN,
-    NODE,
-    NODE_SELECTOR,
-    GRAPH,
-    EDGE
-  };
-
-  static GraphComponentType getTypeOf (const GraphComponentPtr_t& component) {
-    EdgePtr_t e = HPP_DYNAMIC_PTR_CAST (Edge, component);
-    NodePtr_t n = HPP_DYNAMIC_PTR_CAST (Node, component);
-    GraphPtr_t g = HPP_DYNAMIC_PTR_CAST (Graph, component);
-    NodeSelectorPtr_t ns = HPP_DYNAMIC_PTR_CAST (NodeSelector, component);
-    if (e)
-      return EDGE;
-    else if (n)
-      return NODE;
-    else if (g)
-      return GRAPH;
-    else if (ns)
-      return NODE_SELECTOR;
-
-    return UNKNOWN;
-  }
-  //*/
   RobotPtr_t robot;
 
   Configuration_t q1, q2;

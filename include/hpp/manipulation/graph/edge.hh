@@ -152,6 +152,25 @@ namespace hpp {
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
       }; // class WaypointEdge
+
+      /// Edge that find intersection of level set.
+      class HPP_MANIPULATION_DLLAPI LevelSetEdge : public Edge
+      {
+        public:
+          /// Create a new WaypointEdge.
+          static LevelSetEdgePtr_t create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to);
+
+          virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
+
+        protected:
+          /// Initialization of the object.
+          void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+              const NodeWkPtr_t& to);
+
+        private:
+          /// Print the object in a stream.
+          virtual std::ostream& print (std::ostream& os) const;
+      }; // class LevelSetEdge
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

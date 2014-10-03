@@ -183,6 +183,32 @@ namespace hpp {
           << " (waypoint) --> " << to ()->name () << std::endl;
         return os;
       }
+
+      std::ostream& LevelSetEdge::print (std::ostream& os) const
+      {
+        os << "|   |   |-- " << (GraphComponent*) this
+          << " (waypoint) --> " << to ()->name () << std::endl;
+        return os;
+      }
+
+      bool LevelSetEdge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
+      {
+        return Edge::applyConstraints (qoffset, q);
+      }
+
+      void LevelSetEdge::init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+          const NodeWkPtr_t& to)
+      {
+        Edge::init (weak, graph, from, to);
+      }
+
+      LevelSetEdgePtr_t LevelSetEdge::create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to)
+      {
+        LevelSetEdge* ptr = new LevelSetEdge;
+        LevelSetEdgePtr_t shPtr (ptr);
+        ptr->init(shPtr, graph, from, to);
+        return shPtr;
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

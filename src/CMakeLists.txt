@@ -34,6 +34,7 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   graph/graph.cc
   graph/graph-component.cc
   graph/node-selector.cc
+  graph/statistics.cc
 )
 
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-core)

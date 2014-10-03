@@ -38,57 +38,17 @@ namespace hpp {
       {
         public :
           typedef ::hpp::statistics::Bin Parent;
-          LeafBin(const vector_t& v): value_(v), nodes_() {}
+          LeafBin(const vector_t& v);
 
-          void push_back(const core::NodePtr_t& n) {
-            nodes_.push_back(n);
-          }
+          void push_back(const core::NodePtr_t& n);
 
-          bool operator<(const LeafBin& rhs) const {
-            const vector_t& v = rhs.value ();
-            assert (value_.size() == v.size());
-            for (int p = 0; p < value_.size(); p++) {
-              if (value_[p] != v[p])
-                return value_[p] < v[p];
-            }
-            return false;
-          }
+          bool operator<(const LeafBin& rhs) const;
 
-          bool operator==(const LeafBin& rhs) const {
-            return value_ == rhs.value();
-          }
+          bool operator==(const LeafBin& rhs) const;
 
-          const vector_t& value () const {
-            return value_;
-          }
+          const vector_t& value () const;
 
-          std::ostream& print (std::ostream& os) const
-          {
-            Parent::print (os) << " (";
-            /// Sort by connected component.
-            typedef std::list <RoadmapNodes_t> NodesList_t;
-            NodesList_t l;
-            bool found;
-            for (RoadmapNodes_t::const_iterator itn = nodes_.begin ();
-                itn != nodes_.end (); itn++) {
-              found = false;
-              for (NodesList_t::iterator itc = l.begin ();
-                  itc != l.end (); itc++) {
-                if ((*itn)->connectedComponent () == itc->front ()->connectedComponent ()) {
-                  itc->push_back (*itn);
-                  found = true;
-                  break;
-                }
-              }
-              if (!found) {
-                l.push_back (RoadmapNodes_t (1, *itn));
-              }
-            }
-            for (NodesList_t::iterator itc = l.begin ();
-                itc != l.end (); itc++)
-              os << itc->front ()->connectedComponent () << " - " << itc->size () << ", ";
-            return os << ").";
-          }
+          std::ostream& print (std::ostream& os) const;
 
         private:
           vector_t value_;
@@ -96,18 +56,7 @@ namespace hpp {
           typedef std::list <core::NodePtr_t> RoadmapNodes_t;
           RoadmapNodes_t nodes_;
 
-          std::ostream& printValue (std::ostream& os) const
-          {
-            os << "LeafBin (";
-            size_t s = value_.size();
-            if (s != 0) {
-              for (size_t i = 0; i < s - 1; i++)
-                os << value_[i] << "; ";
-              os << value_[s-1];
-            }
-            os << ")";
-            return os;
-          }
+          std::ostream& printValue (std::ostream& os) const;
       };
 
       /// This class is used to do statistics on the roadmap.
@@ -116,52 +65,17 @@ namespace hpp {
       {
         public :
           typedef ::hpp::statistics::Bin Parent;
-          NodeBin(const NodePtr_t& n): node_(n), roadmapNodes_() {}
+          NodeBin(const NodePtr_t& n);
 
-          void push_back(const core::NodePtr_t& n) {
-            roadmapNodes_.push_back(n);
-          }
+          void push_back(const core::NodePtr_t& n);
 
-          bool operator<(const NodeBin& rhs) const {
-            return node_->id () < rhs.node ()->id ();
-          }
+          bool operator<(const NodeBin& rhs) const;
 
-          bool operator==(const NodeBin& rhs) const {
-            return node_ == rhs.node ();
-          }
+          bool operator==(const NodeBin& rhs) const;
 
-          const NodePtr_t& node () const
-          {
-            return node_;
-          }
+          const NodePtr_t& node () const;
 
-          std::ostream& print (std::ostream& os) const
-          {
-            Parent::print (os) << " (";
-            /// Sort by connected component.
-            typedef std::list <RoadmapNodes_t> NodesList_t;
-            NodesList_t l;
-            bool found;
-            for (RoadmapNodes_t::const_iterator itn = roadmapNodes_.begin ();
-                itn != roadmapNodes_.end (); itn++) {
-              found = false;
-              for (NodesList_t::iterator itc = l.begin ();
-                  itc != l.end (); itc++) {
-                if ((*itn)->connectedComponent () == itc->front ()->connectedComponent ()) {
-                  itc->push_back (*itn);
-                  found = true;
-                  break;
-                }
-              }
-              if (!found) {
-                l.push_back (RoadmapNodes_t (1, *itn));
-              }
-            }
-            for (NodesList_t::iterator itc = l.begin ();
-                itc != l.end (); itc++)
-              os << itc->front ()->connectedComponent () << " - " << itc->size () << ", ";
-            return os << ").";
-          }
+          std::ostream& print (std::ostream& os) const;
 
         private:
           NodePtr_t node_;
@@ -169,10 +83,7 @@ namespace hpp {
           typedef std::list <core::NodePtr_t> RoadmapNodes_t;
           RoadmapNodes_t roadmapNodes_;
 
-          std::ostream& printValue (std::ostream& os) const
-          {
-            return os << "NodeBin (" << node_->name () << ")";
-          }
+          std::ostream& printValue (std::ostream& os) const;
       };
 
       class Histogram;
@@ -194,35 +105,16 @@ namespace hpp {
           /// Constructor
           /// \param constraint The constraint that create the foliation being
           ///        studied.
-          LeafHistogram (const ConstraintSetPtr_t& constraint) :
-            constraint_ (constraint) {}
+          LeafHistogram (const ConstraintSetPtr_t& constraint);
 
           /// Insert an occurence of a value in the histogram
-          void add (const core::NodePtr_t& n)
-          {
-            iterator it = insert (LeafBin (constraint_->offsetFromConfig (*n->configuration ())));
-            it->push_back (n);
-            if (numberOfObservations()%10 == 0) {
-              hppDout (info, *this);
-            }
-          }
+          void add (const core::NodePtr_t& n);
 
-          std::ostream& print (std::ostream& os) const
-          {
-            os << "Histogram constains ConstraintSet: "
-              << constraint_->name () << std::endl;
-            return Parent::print (os);
-          }
+          std::ostream& print (std::ostream& os) const;
 
-          const ConstraintSetPtr_t& constraint () const
-          {
-            return constraint_;
-          }
+          const ConstraintSetPtr_t& constraint () const;
 
-          virtual HistogramPtr_t clone () const
-          {
-            return HistogramPtr_t (new LeafHistogram (constraint_));
-          }
+          virtual HistogramPtr_t clone () const;
 
         private:
           /// The constraint that creates the foliation.
@@ -237,34 +129,16 @@ namespace hpp {
           /// Constructor
           /// \param graph The constraint graph used to get the nodes from
           ///        a configuration.
-          NodeHistogram (const graph::GraphPtr_t& graph) :
-            graph_ (graph) {}
+          NodeHistogram (const graph::GraphPtr_t& graph);
 
           /// Insert an occurence of a value in the histogram
-          void add (const core::NodePtr_t& n)
-          {
-            iterator it = insert (NodeBin (graph_->getNode (*n->configuration ())));
-            it->push_back (n);
-            if (numberOfObservations()%10 == 0) {
-              hppDout (info, *this);
-            }
-          }
+          void add (const core::NodePtr_t& n);
 
-          std::ostream& print (std::ostream& os) const
-          {
-            os << "Graph Node Histogram constains: " << std::endl;
-            return Parent::print (os);
-          }
+          std::ostream& print (std::ostream& os) const;
 
-          const graph::GraphPtr_t& constraintGraph () const
-          {
-            return graph_;
-          }
+          const graph::GraphPtr_t& constraintGraph () const;
 
-          virtual HistogramPtr_t clone () const
-          {
-            return HistogramPtr_t (new NodeHistogram (graph_));
-          }
+          virtual HistogramPtr_t clone () const;
 
         private:
           /// The constraint graph

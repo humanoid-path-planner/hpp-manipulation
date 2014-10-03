@@ -17,6 +17,7 @@
 #ifndef HPP_MANIPULATION_GRAPH_NODE_HH
 # define HPP_MANIPULATION_GRAPH_NODE_HH
 
+# include <boost/function.hpp>
 
 #include <hpp/core/locked-dof.hh>
 #include <hpp/core/constraint-set.hh>
@@ -25,6 +26,7 @@
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/fwd.hh"
+#include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/graph-component.hh"
 
 namespace hpp {
@@ -41,7 +43,10 @@ namespace hpp {
           static NodePtr_t create ();
 
           /// Create a link from this node to the given node.
-          EdgePtr_t linkTo(const NodePtr_t& to, const Weight_t& w = 1, const bool& isInNodeFrom = false);
+          EdgePtr_t linkTo(const NodePtr_t& to, const Weight_t& w = 1,
+              const bool& isInNodeFrom = false,
+              boost::function < EdgePtr_t (const GraphWkPtr_t&, const NodeWkPtr_t&, const NodeWkPtr_t&) > create
+              = Edge::create);
 
           /// Check whether the configuration is in this state.
           /// \return True if this state contains this configuration

@@ -177,7 +177,7 @@ namespace hpp {
 
       std::ostream& Graph::print (std::ostream& os) const
       {
-        return GraphComponent::print (os) << std::endl << nodeSelector_;
+        return os << (GraphComponent*)this << std::endl << nodeSelector_;
       }
     } // namespace graph
   } // namespace manipulation

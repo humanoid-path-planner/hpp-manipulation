@@ -47,9 +47,6 @@ namespace hpp {
           /// Return the component id.
           int id () const;
 
-          /// Print the object in a stream.
-          virtual std::ostream& print (std::ostream& os) const;
-
           /// Add core::DifferentiableFunction to the component.
           virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function) __attribute__ ((deprecated));
 
@@ -99,10 +96,13 @@ namespace hpp {
           GraphComponentWkPtr_t wkPtr_;
           /// ID of the component (index in components vector).
           int id_;
+
+          /// Print the object in a stream.
+          virtual std::ostream& print (std::ostream& os) const;
+          friend std::ostream& operator<< (std::ostream&, const GraphComponent&);
       };
 
-      std::ostream& operator<< (std::ostream& os,
-          const hpp::manipulation::graph::GraphComponent& graphComp);
+      std::ostream& operator<< (std::ostream& os, const GraphComponent& graphComp);
     } // namespace graph
   } // namespace manipulation
 

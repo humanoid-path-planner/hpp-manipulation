@@ -52,7 +52,7 @@ namespace hpp {
 
       std::ostream& Node::print (std::ostream& os) const
       {
-        GraphComponent::print (os << "|   |-- ") << std::endl;
+        os << "|   |-- " << (GraphComponent*)this << std::endl;
         for (Neighbors_t::const_iterator it = neighbors_.begin();
             it != neighbors_.end(); it++)
           os << *(it->second);

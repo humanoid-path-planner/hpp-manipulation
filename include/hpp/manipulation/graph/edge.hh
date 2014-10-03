@@ -121,6 +121,8 @@ namespace hpp {
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
+
+          friend class Graph;
       }; // class Edge
 
       /// Edge with waypoint
@@ -157,7 +159,7 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI LevelSetEdge : public Edge
       {
         public:
-          /// Create a new WaypointEdge.
+          /// Create a new LevelSetEdge.
           static LevelSetEdgePtr_t create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to);
 
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;

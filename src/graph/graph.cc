@@ -25,16 +25,6 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      static std::string toString (const NodePtr_t& n) {
-        std::string nodesStr = "(" + n->name () + ")";
-        return nodesStr;
-      }
-
-      static std::string toString (const EdgePtr_t& e) {
-        std::string edgesStr = "(" + e->name () + ")";
-        return edgesStr;
-      }
-
       GraphPtr_t Graph::create(RobotPtr_t robot)
       {
         Graph* ptr = new Graph;
@@ -105,74 +95,17 @@ namespace hpp {
 
       ConstraintSetPtr_t Graph::configConstraint (const NodePtr_t& node)
       {
-        ConstraintSetPtr_t constraint;
-        MapFromNode::const_iterator it = constraintSetMapFromNode_.find (node);
-        if (it == constraintSetMapFromNode_.end ()) {
-          std::string name = toString (node);
-          constraint = ConstraintSet::create (robot (), "Set " + name);
-
-          ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), "proj " + name, errorThreshold(), maxIterations());
-          insertNumericalConstraints (proj);
-          node->insertNumericalConstraints (proj);
-          constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
-
-          insertLockedDofs (constraint);
-          node->insertLockedDofs (constraint);
-          constraintSetMapFromNode_.insert (PairNodeConstraints(node, constraint));
-        } else {
-          constraint = it->second;
-        }
-        return constraint;
+        return node->configConstraint ();
       }
 
       ConstraintSetPtr_t Graph::configConstraint (const EdgePtr_t& edge)
       {
-        ConstraintSetPtr_t constraint;
-        MapFromEdge::const_iterator it = cfgConstraintSetMapFromEdge_.find (edge);
-        if (it == cfgConstraintSetMapFromEdge_.end ()) {
-          std::string name = toString (edge);
-          constraint = ConstraintSet::create (robot (), "Set " + name);
-
-          ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), "proj " + name, errorThreshold(), maxIterations());
-          insertNumericalConstraints (proj);
-          edge->insertNumericalConstraints (proj);
-          edge->to ()->insertNumericalConstraints (proj);
-          constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
-
-          insertLockedDofs (constraint);
-          edge->insertLockedDofs (constraint);
-          edge->to ()->insertLockedDofs (constraint);
-          cfgConstraintSetMapFromEdge_.insert (PairEdgeConstraints(edge, constraint));
-        } else {
-          constraint = it->second;
-        }
-
-        return constraint;
+        return edge->configConstraint ();
       }
 
       ConstraintSetPtr_t Graph::pathConstraint (const EdgePtr_t& edge)
       {
-        ConstraintSetPtr_t constraint;
-        MapFromEdge::const_iterator it = pathConstraintSetMapFromEdge_.find (edge);
-        if (it == pathConstraintSetMapFromEdge_.end ()) {
-          std::string name = toString (edge);
-          constraint = ConstraintSet::create (robot (), "Set " + name);
-
-          ConfigProjectorPtr_t proj = ConfigProjector::create(robot(), "proj " + name, errorThreshold(), maxIterations());
-          insertNumericalConstraints (proj);
-          edge->insertNumericalConstraints (proj);
-          edge->node ()->insertNumericalConstraintsForPath (proj);
-          constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
-
-          insertLockedDofs (constraint);
-          edge->insertLockedDofs (constraint);
-          edge->node ()->insertLockedDofs (constraint);
-          pathConstraintSetMapFromEdge_.insert (PairEdgeConstraints (edge, constraint));
-        } else {
-          constraint = it->second;
-        }
-
-        return constraint;
+        return edge->pathConstraint ();
       }
 
       std::ostream& Graph::print (std::ostream& os) const

@@ -22,6 +22,14 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      Node::Node () : configConstraints_ (new Constraint_t())
+      {}
+
+      Node::~Node ()
+      {
+        if (configConstraints_) delete configConstraints_;
+      }
+
       NodePtr_t Node::create ()
       {
         Node* node = new Node;
@@ -59,12 +67,23 @@ namespace hpp {
         return os;
       }
 
-      ConstraintPtr_t Node::configConstraint()
+      ConstraintSetPtr_t Node::configConstraint() const
       {
-        if (!configConstraints_) {
-          configConstraints_ = graph_.lock ()->configConstraint (wkPtr_.lock ());
+        if (!*configConstraints_) {
+          std::string n = "(" + name () + ")";
+          GraphPtr_t g = graph_.lock ();
+          ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+
+          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj " + n, g->errorThreshold(), g->maxIterations());
+          g->insertNumericalConstraints (proj);
+          insertNumericalConstraints (proj);
+          constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
+
+          g->insertLockedDofs (constraint);
+          insertLockedDofs (constraint);
+          configConstraints_->set (constraint);
         }
-        return configConstraints_;
+        return configConstraints_->get ();
       }
     } // namespace graph
   } // namespace manipulation

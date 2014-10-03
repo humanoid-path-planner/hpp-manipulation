@@ -79,7 +79,21 @@ namespace hpp {
       ConstraintSetPtr_t Edge::configConstraint() const
       {
         if (!*configConstraints_) {
-          configConstraints_->set (graph_.lock ()->configConstraint (wkPtr_.lock ()));
+          std::string n = "(" + name () + ")";
+          GraphPtr_t g = graph_.lock ();
+
+          ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+
+          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+          g->insertNumericalConstraints (proj);
+          insertNumericalConstraints (proj);
+          to ()->insertNumericalConstraints (proj);
+          constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
+
+          g->insertLockedDofs (constraint);
+          insertLockedDofs (constraint);
+          to ()->insertLockedDofs (constraint);
+          configConstraints_->set (constraint);
         }
         return configConstraints_->get ();
       }
@@ -87,7 +101,21 @@ namespace hpp {
       ConstraintSetPtr_t Edge::pathConstraint() const
       {
         if (!*pathConstraints_) {
-          pathConstraints_->set (graph_.lock ()->pathConstraint (wkPtr_.lock ()));
+          std::string n = "(" + name () + ")";
+          GraphPtr_t g = graph_.lock ();
+
+          ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+
+          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+          g->insertNumericalConstraints (proj);
+          insertNumericalConstraints (proj);
+          node ()->insertNumericalConstraintsForPath (proj);
+          constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
+
+          g->insertLockedDofs (constraint);
+          insertLockedDofs (constraint);
+          node ()->insertLockedDofs (constraint);
+          pathConstraints_->set (constraint);
         }
         return pathConstraints_->get ();
       }

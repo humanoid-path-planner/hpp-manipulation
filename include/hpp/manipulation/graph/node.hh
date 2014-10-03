@@ -39,6 +39,9 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI Node : public GraphComponent
       {
         public:
+          /// Destructor
+          ~Node ();
+
           /// Create a new node.
           static NodePtr_t create ();
 
@@ -78,7 +81,7 @@ namespace hpp {
           std::ostream& print (std::ostream& os) const;
 
           /// Constraint to project onto this node.
-          ConstraintPtr_t configConstraint();
+          ConstraintSetPtr_t configConstraint() const;
 
           /// Add core::DifferentiableFunction to the component.
           virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function)
@@ -111,8 +114,7 @@ namespace hpp {
           void init (const NodeWkPtr_t& self);
 
           /// Constructor
-          Node()
-          {}
+          Node();
 
         private:
           /// List of possible motions from this state (i.e. the outgoing
@@ -120,7 +122,8 @@ namespace hpp {
           Neighbors_t neighbors_;
 
           /// Set of constraints to be statisfied.
-          ConstraintPtr_t configConstraints_;
+          typedef Cache < ConstraintSetPtr_t > Constraint_t;
+          Constraint_t* configConstraints_;
 
           /// Stores the numerical constraints for path.
           DifferentiableFunctions_t numericalConstraintsForPath_;

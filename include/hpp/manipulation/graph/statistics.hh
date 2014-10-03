@@ -33,7 +33,7 @@ namespace hpp {
   namespace manipulation {
     namespace graph {
       /// This class is used to do statistics on the roadmap.
-      /// It keeps a track of which leaf of a foliation have been visited.
+      /// It keeps a track of which leaves of a foliation have been visited.
       class HPP_MANIPULATION_DLLLOCAL LeafBin : public ::hpp::statistics::Bin
       {
         public :
@@ -111,7 +111,7 @@ namespace hpp {
       };
 
       /// This class is used to do statistics on the roadmap.
-      /// It keeps a track of which leaf of a foliation have been visited.
+      /// It keeps a track of which nodes of the constraint graph have been visited.
       class HPP_MANIPULATION_DLLLOCAL NodeBin : public ::hpp::statistics::Bin
       {
         public :
@@ -200,9 +200,8 @@ namespace hpp {
           /// Insert an occurence of a value in the histogram
           void add (const core::NodePtr_t& n)
           {
-            LeafBin b(constraint_->offsetFromConfig (*n->configuration ()));
-            increment (b);
-            b.push_back (n);
+            iterator it = insert (LeafBin (constraint_->offsetFromConfig (*n->configuration ())));
+            it->push_back (n);
             if (numberOfObservations()%10 == 0) {
               hppDout (info, *this);
             }
@@ -244,9 +243,8 @@ namespace hpp {
           /// Insert an occurence of a value in the histogram
           void add (const core::NodePtr_t& n)
           {
-            NodeBin b(graph_->getNode (*n->configuration ()));
-            increment (b);
-            b.push_back (n);
+            iterator it = insert (NodeBin (graph_->getNode (*n->configuration ())));
+            it->push_back (n);
             if (numberOfObservations()%10 == 0) {
               hppDout (info, *this);
             }

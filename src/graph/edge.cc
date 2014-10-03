@@ -34,18 +34,35 @@ namespace hpp {
         if (configConstraints_) delete configConstraints_;
       }
 
-      EdgePtr_t Edge::create (const NodeWkPtr_t& from, const NodeWkPtr_t& to)
+      NodePtr_t Edge::to () const
+      {
+        return to_.lock();
+      }
+
+      NodePtr_t Edge::from () const
+      {
+        return from_.lock();
+      }
+
+      NodePtr_t Edge::node () const
+      {
+        if (isInNodeFrom_) return from ();
+        else return to ();
+      }
+
+      EdgePtr_t Edge::create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to)
       {
         Edge* ptr = new Edge;
         EdgePtr_t shPtr (ptr);
-        ptr->init(shPtr, from, to);
+        ptr->init(shPtr, graph, from, to);
         return shPtr;
       }
 
-      void Edge::init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,
+      void Edge::init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
           const NodeWkPtr_t& to)
       {
         GraphComponent::init (weak);
+        parentGraph (graph);
         wkPtr_ = weak;
         from_ = from;
         to_ = to;
@@ -54,7 +71,7 @@ namespace hpp {
 
       std::ostream& Edge::print (std::ostream& os) const
       {
-        GraphComponent::print (os << "|   |   |-- ")
+        os << "|   |   |-- " << (GraphComponent*) this
           << " --> " << to_.lock ()->name () << std::endl;
         return os;
       }
@@ -77,43 +94,18 @@ namespace hpp {
 
       bool Edge::build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const
       {
-        if (waypoint_.first) {
-          core::PathPtr_t pathToWaypoint;
-          config_ = q2;
-          if (!waypoint_.first->applyConstraints (q1, config_))
-            return false;
-          if (!waypoint_.first->build (pathToWaypoint, q1, config_, d))
-            return false;
-          core::PathVectorPtr_t pv = core::PathVector::create (graph_.lock ()->robot ()->configSize ());
-          path = pv;
-          pv->appendPath (pathToWaypoint);
-
-          ConstraintSetPtr_t constraints = pathConstraint ();
-          constraints->offsetFromConfig(config_);
-          if (!constraints->isSatisfied (config_) || !constraints->isSatisfied (q2)) {
-            return false;
-          }
-          core::PathPtr_t end = core::StraightPath::create (graph_.lock ()->robot (), config_, q2, d (config_, q2));
-          end->constraints (constraints);
-          pv->appendPath (end);
-        } else {
-          ConstraintSetPtr_t constraints = pathConstraint ();
-          constraints->offsetFromConfig(q1);
-          if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
-            return false;
-          }
-          path = core::StraightPath::create (graph_.lock ()->robot (), q1, q2, d (q1, q2));
-          path->constraints (constraints);
+        ConstraintSetPtr_t constraints = pathConstraint ();
+        constraints->offsetFromConfig(q1);
+        if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
+          return false;
         }
+        path = core::StraightPath::create (graph_.lock ()->robot (), q1, q2, d (q1, q2));
+        path->constraints (constraints);
         return true;
       }
 
       bool Edge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
       {
-        if (waypoint_.first) {
-          if (!waypoint_.first->applyConstraints (qoffset, q))
-            return false;
-        }
         configConstraint ()->offsetFromConfig (qoffset);
         if (configConstraint ()->apply (q))
           return true;
@@ -127,16 +119,69 @@ namespace hpp {
         return false;
       }
 
-      EdgePtr_t Edge::createWaypoint ()
+      WaypointEdgePtr_t WaypointEdge::create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to)
+      {
+        WaypointEdge* ptr = new WaypointEdge;
+        WaypointEdgePtr_t shPtr (ptr);
+        ptr->init(shPtr, graph, from, to);
+        return shPtr;
+      }
+
+      void WaypointEdge::init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+          const NodeWkPtr_t& to)
+      {
+        Edge::init (weak, graph, from, to);
+        createWaypoint ();
+      }
+
+      bool WaypointEdge::build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const
+      {
+        assert (waypoint_.first);
+        core::PathPtr_t pathToWaypoint;
+        config_ = q2;
+        if (!waypoint_.first->applyConstraints (q1, config_))
+          return false;
+        if (!waypoint_.first->build (pathToWaypoint, q1, config_, d))
+          return false;
+        core::PathVectorPtr_t pv = core::PathVector::create (graph_.lock ()->robot ()->configSize ());
+        path = pv;
+        pv->appendPath (pathToWaypoint);
+
+        core::PathPtr_t end;
+        if (!Edge::build (end, config_, q2, d))
+          return false;
+        pv->appendPath (end);
+        return true;
+      }
+
+      bool WaypointEdge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
+      {
+        assert (waypoint_.first);
+        if (!waypoint_.first->applyConstraints (qoffset, q))
+          return false;
+        return Edge::applyConstraints (qoffset, q);
+      }
+
+      void WaypointEdge::createWaypoint ()
       {
         NodePtr_t node = Node::create ();
         node->parentGraph(graph_);
-        EdgePtr_t edge = Edge::create (from (), node);
-        edge->parentGraph(graph_);
-        edge->isInNodeFrom (isInNodeFrom_);
+        EdgePtr_t edge = Edge::create (graph_, from (), node);
+        edge->isInNodeFrom (isInNodeFrom ());
         waypoint_ = Waypoint (edge, node);
         config_ = Configuration_t(graph_.lock ()->robot ()->configSize ());
-        return edge;
+      }
+
+      EdgePtr_t WaypointEdge::waypoint () const
+      {
+        return waypoint_.first;
+      }
+
+      std::ostream& WaypointEdge::print (std::ostream& os) const
+      {
+        os << "|   |   |-- " << (GraphComponent*) this
+          << " (waypoint) --> " << to ()->name () << std::endl;
+        return os;
       }
     } // namespace graph
   } // namespace manipulation

@@ -24,7 +24,6 @@
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/graph.hh"
-#include "hpp/manipulation/graph/node.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -53,9 +52,7 @@ namespace hpp {
           C c_;
       };
 
-      /// Transition between states of a end-effector.
-      ///
-      /// Vertices of the graph of constraints.
+      /// Abstract class representing representing the link between two nodes.
       class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent
       {
         public:
@@ -63,44 +60,33 @@ namespace hpp {
           ~Edge ();
 
           /// Create a new empty Edge.
-          static EdgePtr_t create (const NodeWkPtr_t& from, const NodeWkPtr_t& to);
+          static EdgePtr_t create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to);
 
-          /// Print the object in a stream.
-          std::ostream& print (std::ostream& os) const;
+          virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
+
+          virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
 
           /// Get the destination
-          NodePtr_t to () const
-          {
-            return to_.lock();
-          }
+          NodePtr_t to () const;
 
           /// Get the origin
-          NodePtr_t from () const
-          {
-            return from_.lock();
-          }
+          NodePtr_t from () const;
 
           /// Get the node in which path is.
-          NodePtr_t node () const
-          {
-            if (isInNodeFrom_) return from ();
-            else return to ();
-          }
+          NodePtr_t node () const;
 
           void isInNodeFrom (bool iinf)
           {
             isInNodeFrom_ = iinf;
           }
 
-          virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
-
-          virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
-
-          EdgePtr_t createWaypoint ();
-
+          bool isInNodeFrom () const
+          {
+            return isInNodeFrom_;
+          }
         protected:
           /// Initialization of the object.
-          void init (const EdgeWkPtr_t& weak, const NodeWkPtr_t& from,
+          void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
               const NodeWkPtr_t& to);
 
           /// Constructor
@@ -108,16 +94,6 @@ namespace hpp {
 
         private:
           typedef Cache < ConstraintSetPtr_t > Constraint_t;
-          typedef std::pair < EdgePtr_t, NodePtr_t > Waypoint;
-
-          /// The two ends of the transition.
-          NodeWkPtr_t from_, to_;
-
-          /// True if this path is in node from, False if in node to
-          bool isInNodeFrom_;
-
-          Waypoint waypoint_;
-          mutable Configuration_t config_;
 
           /// See pathConstraint member function.
           Constraint_t* pathConstraints_;
@@ -125,6 +101,15 @@ namespace hpp {
           /// Constraint ensuring that a q_proj will be in to_ and in the
           /// same leaf of to_ as the configuration used for initialization.
           Constraint_t* configConstraints_;
+
+          /// The two ends of the transition.
+          NodeWkPtr_t from_, to_;
+
+          /// True if this path is in node from, False if in node to
+          bool isInNodeFrom_;
+
+          /// Weak pointer to itself.
+          EdgeWkPtr_t wkPtr_;
 
           /// Constraint to project onto the same leaf as config.
           /// \return The initialized projector.
@@ -134,9 +119,39 @@ namespace hpp {
           /// \return The initialized constraint.
           ConstraintSetPtr_t pathConstraint() const;
 
-          /// Weak pointer to itself.
-          EdgeWkPtr_t wkPtr_;
+          /// Print the object in a stream.
+          virtual std::ostream& print (std::ostream& os) const;
       }; // class Edge
+
+      /// Edge with waypoint
+      class HPP_MANIPULATION_DLLAPI WaypointEdge : public Edge
+      {
+        public:
+          /// Create a new WaypointEdge.
+          static WaypointEdgePtr_t create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to);
+
+          virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
+
+          virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
+
+          EdgePtr_t waypoint () const;
+
+        protected:
+          /// Initialization of the object.
+          void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+              const NodeWkPtr_t& to);
+
+        private:
+          typedef std::pair < EdgePtr_t, NodePtr_t > Waypoint;
+
+          void createWaypoint ();
+
+          Waypoint waypoint_;
+          mutable Configuration_t config_;
+
+          /// Print the object in a stream.
+          virtual std::ostream& print (std::ostream& os) const;
+      }; // class WaypointEdge
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

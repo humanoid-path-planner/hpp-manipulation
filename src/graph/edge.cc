@@ -224,9 +224,16 @@ namespace hpp {
         return os;
       }
 
-      bool LevelSetEdge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
+      bool LevelSetEdge::applyConstraints (ConfigurationIn_t, ConfigurationOut_t) const
       {
-        return Edge::applyConstraints (qoffset, q);
+        throw std::logic_error ("I need to know which connected component we wish to use.");
+      }
+
+      bool LevelSetEdge::applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const
+      {
+        // First, get an offset from the histogram that is not in the same connected component.
+        // Then, set the offset and do the actual projection.
+        return Edge::applyConstraints (*(n_offset->configuration ()), q);
       }
 
       void LevelSetEdge::init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,

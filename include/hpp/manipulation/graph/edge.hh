@@ -115,11 +115,11 @@ namespace hpp {
 
           /// Constraint to project onto the same leaf as config.
           /// \return The initialized projector.
-          ConstraintSetPtr_t configConstraint() const;
+          virtual ConstraintSetPtr_t configConstraint() const;
 
           /// Constraint to project a path.
           /// \return The initialized constraint.
-          ConstraintSetPtr_t pathConstraint() const;
+          virtual ConstraintSetPtr_t pathConstraint() const;
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;

@@ -50,6 +50,8 @@ namespace hpp {
 
           std::ostream& print (std::ostream& os) const;
 
+          unsigned int numberOfObsOutOfConnectedComponent (const core::ConnectedComponentPtr_t& cc) const;
+
         private:
           vector_t value_;
 
@@ -86,9 +88,6 @@ namespace hpp {
           std::ostream& printValue (std::ostream& os) const;
       };
 
-      class Histogram;
-      typedef boost::shared_ptr <Histogram> HistogramPtr_t;
-
       class HPP_MANIPULATION_DLLLOCAL Histogram
       {
         public:
@@ -115,6 +114,9 @@ namespace hpp {
           const ConstraintSetPtr_t& constraint () const;
 
           virtual HistogramPtr_t clone () const;
+
+          statistics::DiscreteDistribution < vector_t > getDistribOutOfConnectedComponent (
+              const core::ConnectedComponentPtr_t& cc) const;
 
         private:
           /// The constraint that creates the foliation.

@@ -204,6 +204,35 @@ namespace hpp {
       {
         return HistogramPtr_t (new NodeHistogram (graph_));
       }
+
+      unsigned int LeafBin::numberOfObsOutOfConnectedComponent (const core::ConnectedComponentPtr_t& cc) const
+      {
+        unsigned int count = 0;
+        for (RoadmapNodes_t::const_iterator it = nodes_.begin ();
+            it != nodes_.end (); it++)
+          if ((*it)->connectedComponent () != cc)
+            count++;
+        return count;
+      }
+
+      statistics::DiscreteDistribution < vector_t > LeafHistogram::getDistribOutOfConnectedComponent (
+          const core::ConnectedComponentPtr_t& cc) const
+      {
+        statistics::DiscreteDistribution < vector_t > distrib;
+        typedef std::pair < const vector_t, unsigned int > Element;
+        std::list <Element> elemts;
+        unsigned int M = 0;
+        for (const_iterator bin = begin(); bin != end (); bin++) {
+          elemts.push_back (Element (bin->value (), bin->numberOfObsOutOfConnectedComponent (cc)));
+          if (elemts.back ().second > M)
+            M = elemts.back ().second;
+        }
+        while (!elemts.empty ()) {
+          distrib.insert (elemts.back ().first, M - elemts.back ().second);
+          elemts.pop_back ();
+        }
+        return distrib;
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

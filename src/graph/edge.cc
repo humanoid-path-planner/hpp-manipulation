@@ -17,9 +17,9 @@
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
 
-#include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/edge.hh"
+#include "hpp/manipulation/graph/statistics.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -132,6 +132,11 @@ namespace hpp {
         return true;
       }
 
+      bool Edge::applyConstraints (core::NodePtr_t nnear, ConfigurationOut_t q) const
+      {
+        return applyConstraints (*(nnear->configuration ()), q);
+      }
+
       bool Edge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
       {
         configConstraint ()->offsetFromConfig (qoffset);
@@ -236,6 +241,11 @@ namespace hpp {
         LevelSetEdgePtr_t shPtr (ptr);
         ptr->init(shPtr, graph, from, to);
         return shPtr;
+      }
+
+      void LevelSetEdge::histogram (LeafHistogramPtr_t hist)
+      {
+        hist_ = hist;
       }
     } // namespace graph
   } // namespace manipulation

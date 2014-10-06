@@ -53,7 +53,7 @@ namespace hpp {
         /// \retval validPath the longest valid path (possibly of length 0),
         ///         resulting from the extension.
         /// \return True if the returned path is valid.
-        bool extend (const ConfigurationPtr_t &q_near,
+        bool extend (const core::NodePtr_t &q_near,
             const ConfigurationPtr_t &q_rand, core::PathPtr_t& validPath);
 
       protected:

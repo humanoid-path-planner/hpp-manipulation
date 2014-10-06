@@ -69,7 +69,7 @@ namespace hpp {
         core::value_type distance;
         core::NodePtr_t near = roadmap ()->nearestNode (q_rand, *itcc, distance);
 
-        bool pathIsValid = extend (near->configuration (), q_rand, path);
+        bool pathIsValid = extend (near, q_rand, path);
         // Insert new path to q_near in roadmap
         if (pathIsValid) {
           value_type t_final = path->timeRange ().second;
@@ -96,16 +96,17 @@ namespace hpp {
     }
 
     bool ManipulationPlanner::extend(
-        const ConfigurationPtr_t& q_near,
+        const core::NodePtr_t& n_near,
         const ConfigurationPtr_t& q_rand,
         core::PathPtr_t& validPath)
     {
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       // Select next node in the constraint graph.
+      const ConfigurationPtr_t q_near = n_near->configuration ();
       graph::NodePtr_t node = graph->getNode (*q_near);
       graph::EdgePtr_t edge = graph->chooseEdge (node);
       qProj_ = *q_rand;
-      if (!edge->applyConstraints (*q_near, qProj_)) {
+      if (!edge->applyConstraints (n_near, qProj_)) {
         addFailure (PROJECTION, edge);
         return false;
       }

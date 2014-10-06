@@ -58,6 +58,13 @@ namespace hpp {
       typedef std::pair < DifferentiableFunctionPtr_t, InequalityPtr_t > DiffFuncAndIneqPair_t;
       typedef std::list < DiffFuncAndIneqPair_t > DifferentiableFunctions_t;
       typedef std::list < LockedDofPtr_t > LockedDofs_t;
+
+      class Histogram;
+      class NodeHistogram;
+      class LeafHistogram;
+      typedef boost::shared_ptr <Histogram> HistogramPtr_t;
+      typedef boost::shared_ptr <NodeHistogram> NodeHistogramPtr_t;
+      typedef boost::shared_ptr <LeafHistogram> LeafHistogramPtr_t;
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

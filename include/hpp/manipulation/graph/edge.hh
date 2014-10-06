@@ -62,6 +62,8 @@ namespace hpp {
           /// Create a new empty Edge.
           static EdgePtr_t create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to);
 
+          virtual bool applyConstraints (core::NodePtr_t nnear, ConfigurationOut_t q) const;
+
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
           virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
@@ -164,6 +166,10 @@ namespace hpp {
 
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
+          virtual bool applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const;
+
+          void histogram (LeafHistogramPtr_t hist);
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
@@ -172,6 +178,9 @@ namespace hpp {
         private:
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
+
+          /// This histogram will be used to find a good level set.
+          LeafHistogramPtr_t hist_;
       }; // class LevelSetEdge
     } // namespace graph
   } // namespace manipulation

@@ -77,6 +77,7 @@ namespace hpp {
             return neighbors_;
           }
 
+          void updateWeight (const EdgePtr_t&edge, const Weight_t& w);
 
           /// Constraint to project onto this node.
           ConstraintSetPtr_t configConstraint() const;

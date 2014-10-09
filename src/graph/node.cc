@@ -86,6 +86,11 @@ namespace hpp {
         }
         return configConstraints_->get ();
       }
+
+      void Node::updateWeight (const EdgePtr_t& e, const Weight_t& w)
+      {
+        neighbors_.insert (e, w);
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

@@ -107,6 +107,7 @@ namespace hpp {
       graph::EdgePtr_t edge = graph->chooseEdge (node);
       qProj_ = *q_rand;
       if (!edge->applyConstraints (n_near, qProj_)) {
+        node->updateWeight (edge, node->neighbors ().get(edge) + 1);
         addFailure (PROJECTION, edge);
         return false;
       }

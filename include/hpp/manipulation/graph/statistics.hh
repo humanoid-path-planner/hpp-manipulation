@@ -38,6 +38,8 @@ namespace hpp {
       {
         public :
           typedef ::hpp::statistics::Bin Parent;
+          typedef std::list <core::NodePtr_t> RoadmapNodes_t;
+
           LeafBin(const vector_t& v);
 
           void push_back(const core::NodePtr_t& n);
@@ -52,10 +54,11 @@ namespace hpp {
 
           unsigned int numberOfObsOutOfConnectedComponent (const core::ConnectedComponentPtr_t& cc) const;
 
+          const RoadmapNodes_t& nodes () const;
+
         private:
           vector_t value_;
 
-          typedef std::list <core::NodePtr_t> RoadmapNodes_t;
           RoadmapNodes_t nodes_;
 
           std::ostream& printValue (std::ostream& os) const;
@@ -115,7 +118,7 @@ namespace hpp {
 
           virtual HistogramPtr_t clone () const;
 
-          statistics::DiscreteDistribution < vector_t > getDistribOutOfConnectedComponent (
+          statistics::DiscreteDistribution < core::NodePtr_t > getDistribOutOfConnectedComponent (
               const core::ConnectedComponentPtr_t& cc) const;
 
         private:

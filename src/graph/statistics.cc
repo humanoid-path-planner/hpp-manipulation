@@ -215,23 +215,34 @@ namespace hpp {
         return count;
       }
 
-      statistics::DiscreteDistribution < vector_t > LeafHistogram::getDistribOutOfConnectedComponent (
+      statistics::DiscreteDistribution < core::NodePtr_t > LeafHistogram::getDistribOutOfConnectedComponent (
           const core::ConnectedComponentPtr_t& cc) const
       {
-        statistics::DiscreteDistribution < vector_t > distrib;
-        typedef std::pair < const vector_t, unsigned int > Element;
+        statistics::DiscreteDistribution < core::NodePtr_t > distrib;
+        typedef std::pair < core::NodePtr_t, unsigned int > Element;
         std::list <Element> elemts;
         unsigned int M = 0;
         for (const_iterator bin = begin(); bin != end (); bin++) {
-          elemts.push_back (Element (bin->value (), bin->numberOfObsOutOfConnectedComponent (cc)));
+          unsigned int w = bin->numberOfObsOutOfConnectedComponent (cc);
+          if (w == 0)
+            continue;
+          elemts.push_back (Element (bin->nodes ().front (), bin->numberOfObsOutOfConnectedComponent (cc)));
           if (elemts.back ().second > M)
             M = elemts.back ().second;
         }
-        while (!elemts.empty ()) {
-          distrib.insert (elemts.back ().first, M - elemts.back ().second);
-          elemts.pop_back ();
-        }
+        if (elemts.size () == 1)
+          distrib.insert (elemts.back ().first, elemts.back ().second);
+        else
+          while (!elemts.empty ()) {
+            distrib.insert (elemts.back ().first, M - elemts.back ().second);
+            elemts.pop_back ();
+          }
         return distrib;
+      }
+
+      const LeafBin::RoadmapNodes_t& LeafBin::nodes () const
+      {
+        return nodes_;
       }
     } // namespace graph
   } // namespace manipulation

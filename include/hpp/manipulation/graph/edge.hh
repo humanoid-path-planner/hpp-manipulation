@@ -94,6 +94,18 @@ namespace hpp {
           /// Constructor
           Edge();
 
+          /// Constraint to project onto the same leaf as config.
+          /// \return The initialized projector.
+          ConstraintSetPtr_t configConstraint() const;
+
+          /// Constraint to project a path.
+          /// \return The initialized constraint.
+          ConstraintSetPtr_t pathConstraint() const;
+
+          virtual ConstraintSetPtr_t buildConfigConstraint() const;
+
+          virtual ConstraintSetPtr_t buildPathConstraint() const;
+
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
 
@@ -115,14 +127,6 @@ namespace hpp {
 
           /// Weak pointer to itself.
           EdgeWkPtr_t wkPtr_;
-
-          /// Constraint to project onto the same leaf as config.
-          /// \return The initialized projector.
-          virtual ConstraintSetPtr_t configConstraint() const;
-
-          /// Constraint to project a path.
-          /// \return The initialized constraint.
-          virtual ConstraintSetPtr_t pathConstraint() const;
 
           friend class Graph;
       }; // class Edge
@@ -161,6 +165,8 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI LevelSetEdge : public Edge
       {
         public:
+          ~LevelSetEdge ();
+
           /// Create a new LevelSetEdge.
           static LevelSetEdgePtr_t create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to);
 
@@ -168,16 +174,36 @@ namespace hpp {
 
           virtual bool applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const;
 
-          void histogram (LeafHistogramPtr_t hist);
+          void buildHistogram ();
+
+          LeafHistogramPtr_t histogram () const;
+
+          void insertConfigConstraint (const DifferentiableFunctionPtr_t function, const InequalityPtr_t ineq);
+
+          void insertConfigConstraint (const LockedDofPtr_t lockedDof);
 
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
               const NodeWkPtr_t& to);
 
-        private:
+          LevelSetEdge ();
+
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
+
+        private:
+          typedef Cache < ConstraintSetPtr_t > Constraint_t;
+
+          /// See pathConstraint member function.
+          Constraint_t* extraConstraints_;
+          virtual ConstraintSetPtr_t extraConfigConstraint () const;
+
+          /// Extra DifferentiableFunctions_t
+          DifferentiableFunctions_t extraNumericalFunctions_;
+
+          /// Extra LockedDofs_t
+          LockedDofs_t extraLockedDofs_;
 
           /// This histogram will be used to find a good level set.
           LeafHistogramPtr_t hist_;

@@ -16,6 +16,7 @@
 
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
+#include <hpp/core/differentiable-function.hh>
 
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/edge.hh"
@@ -80,45 +81,55 @@ namespace hpp {
       ConstraintSetPtr_t Edge::configConstraint() const
       {
         if (!*configConstraints_) {
-          std::string n = "(" + name () + ")";
-          GraphPtr_t g = graph_.lock ();
-
-          ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
-
-          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-          g->insertNumericalConstraints (proj);
-          insertNumericalConstraints (proj);
-          to ()->insertNumericalConstraints (proj);
-          constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
-
-          g->insertLockedDofs (constraint);
-          insertLockedDofs (constraint);
-          to ()->insertLockedDofs (constraint);
-          configConstraints_->set (constraint);
+          configConstraints_->set (buildConfigConstraint ());
         }
         return configConstraints_->get ();
+      }
+
+      ConstraintSetPtr_t Edge::buildConfigConstraint() const
+      {
+        std::string n = "(" + name () + ")";
+        GraphPtr_t g = graph_.lock ();
+
+        ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+
+        ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+        g->insertNumericalConstraints (proj);
+        insertNumericalConstraints (proj);
+        to ()->insertNumericalConstraints (proj);
+        constraint->addConstraint (proj);
+
+        g->insertLockedDofs (constraint);
+        insertLockedDofs (constraint);
+        to ()->insertLockedDofs (constraint);
+        return constraint;
       }
 
       ConstraintSetPtr_t Edge::pathConstraint() const
       {
         if (!*pathConstraints_) {
-          std::string n = "(" + name () + ")";
-          GraphPtr_t g = graph_.lock ();
-
-          ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
-
-          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-          g->insertNumericalConstraints (proj);
-          insertNumericalConstraints (proj);
-          node ()->insertNumericalConstraintsForPath (proj);
-          constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
-
-          g->insertLockedDofs (constraint);
-          insertLockedDofs (constraint);
-          node ()->insertLockedDofs (constraint);
-          pathConstraints_->set (constraint);
+          pathConstraints_->set (buildPathConstraint ());
         }
         return pathConstraints_->get ();
+      }
+
+      ConstraintSetPtr_t Edge::buildPathConstraint() const
+      {
+        std::string n = "(" + name () + ")";
+        GraphPtr_t g = graph_.lock ();
+
+        ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+
+        ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+        g->insertNumericalConstraints (proj);
+        insertNumericalConstraints (proj);
+        node ()->insertNumericalConstraintsForPath (proj);
+        constraint->addConstraint (proj);
+
+        g->insertLockedDofs (constraint);
+        insertLockedDofs (constraint);
+        node ()->insertLockedDofs (constraint);
+        return constraint;
       }
 
       bool Edge::build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const
@@ -235,8 +246,46 @@ namespace hpp {
       bool LevelSetEdge::applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const
       {
         // First, get an offset from the histogram that is not in the same connected component.
-        // Then, set the offset and do the actual projection.
-        return Edge::applyConstraints (*(n_offset->configuration ()), q);
+        statistics::DiscreteDistribution < core::NodePtr_t > distrib = hist_->getDistribOutOfConnectedComponent (n_offset->connectedComponent ());
+        const Configuration_t& levelsetTarget = *(distrib ()->configuration ()),
+                               q_offset = *(n_offset->configuration ());
+        // Then, set the offset.
+        ConstraintSetPtr_t cs = extraConfigConstraint ();
+        cs->offsetFromConfig (q_offset);
+
+        if (cs->configProjector ()) {
+          const ConfigProjectorPtr_t cp = cs->configProjector ();
+          vector_t offset = cp->offsetFromConfig (q_offset);
+          size_t row = 0, nbRows = 0;
+          for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
+              it != extraNumericalFunctions_.end (); it++) {
+            const core::DifferentiableFunction& f = *(it->first);
+            nbRows = f.outputSize ();
+            vector_t value = vector_t::Zero (nbRows);
+            if (f.isParametric ()) {
+              f (value, levelsetTarget);
+            }
+            offset.segment (row, nbRows) = value;
+            row += nbRows;
+          }
+          cp->offset (offset);
+        }
+        for (LockedDofs_t::const_iterator it = extraLockedDofs_.begin ();
+            it != extraLockedDofs_.end (); it++) {
+          (*it)->offsetFromConfig (levelsetTarget);
+        }
+
+        // Eventually, do the projection.
+        if (cs->apply (q))
+          return true;
+        typedef ::hpp::statistics::SuccessStatistics SuccessStatistics;
+        SuccessStatistics& ss = cs->configProjector ()->statistics ();
+        if (ss.nbFailure () > ss.nbSuccess ()) {
+          hppDout (warning, configConstraint ()->name () << " fails often." << std::endl << ss);
+        } else {
+          hppDout (warning, configConstraint ()->name () << " succeeds at rate " << (double)(ss.nbSuccess ()) / ss.numberOfObservations () << ".");
+        }
+        return false;
       }
 
       void LevelSetEdge::init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
@@ -253,9 +302,81 @@ namespace hpp {
         return shPtr;
       }
 
-      void LevelSetEdge::histogram (LeafHistogramPtr_t hist)
+      void LevelSetEdge::buildHistogram ()
       {
-        hist_ = hist;
+        std::string n = "(" + name () + ")";
+        GraphPtr_t g = graph_.lock ();
+
+        /// The order is important here for the offset.
+        ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+
+        if (!extraNumericalFunctions_.empty ()) {
+          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+          for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
+              it != extraNumericalFunctions_.end (); it++) {
+            proj->addConstraint (it->first);
+          }
+          constraint->addConstraint (proj);
+        }
+
+        for (LockedDofs_t::const_iterator it = extraLockedDofs_.begin ();
+            it != extraLockedDofs_.end (); it++)
+          constraint->addConstraint (*it);
+
+        hist_ = graph::LeafHistogramPtr_t (new graph::LeafHistogram (constraint));
+      }
+
+      LeafHistogramPtr_t LevelSetEdge::histogram () const
+      {
+        return hist_;
+      }
+
+      ConstraintSetPtr_t LevelSetEdge::extraConfigConstraint () const
+      {
+        if (!*extraConstraints_) {
+          std::string n = "(" + name () + "_extra)";
+          GraphPtr_t g = graph_.lock ();
+
+          /// The order is important here for the offset.
+          ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+
+          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+          g->insertNumericalConstraints (proj);
+          for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
+              it != extraNumericalFunctions_.end (); it++) {
+            proj->addConstraint (it->first, it->second);
+          }
+          insertNumericalConstraints (proj);
+          to ()->insertNumericalConstraints (proj);
+          constraint->addConstraint (proj);
+
+          g->insertLockedDofs (constraint);
+          for (LockedDofs_t::const_iterator it = extraLockedDofs_.begin ();
+              it != extraLockedDofs_.end (); it++) {
+            constraint->addConstraint (*it);
+          }
+          insertLockedDofs (constraint);
+          to ()->insertLockedDofs (constraint);
+          extraConstraints_->set (constraint);
+        }
+        return extraConstraints_->get ();
+      }
+
+      void LevelSetEdge::insertConfigConstraint (const DifferentiableFunctionPtr_t function, const InequalityPtr_t ineq)
+      {
+        extraNumericalFunctions_.push_back (DiffFuncAndIneqPair_t (function, ineq));
+      }
+
+      void LevelSetEdge::insertConfigConstraint (const LockedDofPtr_t lockedDof)
+      {
+        extraLockedDofs_.push_back (lockedDof);
+      }
+
+      LevelSetEdge::LevelSetEdge (): extraConstraints_ (new Constraint_t()) {}
+
+      LevelSetEdge::~LevelSetEdge ()
+      {
+        if (extraConstraints_  ) delete extraConstraints_;
       }
     } // namespace graph
   } // namespace manipulation

@@ -78,7 +78,7 @@ namespace hpp {
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj " + n, g->errorThreshold(), g->maxIterations());
           g->insertNumericalConstraints (proj);
           insertNumericalConstraints (proj);
-          constraint->addConstraint (HPP_DYNAMIC_PTR_CAST(Constraint, proj));
+          constraint->addConstraint (proj);
 
           g->insertLockedDofs (constraint);
           insertLockedDofs (constraint);

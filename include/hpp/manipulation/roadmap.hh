@@ -38,6 +38,10 @@ namespace hpp {
         /// Add a ConstraintSet that creates a foliation.
         void statAddFoliation (ConstraintSetPtr_t constraint);
 
+        /// Register histogram so that each time a node is added to the roadmap,
+        /// it is also added to the histogram
+        void insertHistogram (const graph::HistogramPtr_t hist);
+
         /// Register the constraint graph to do statistics.
         void constraintGraph (const graph::GraphPtr_t& graph);
 

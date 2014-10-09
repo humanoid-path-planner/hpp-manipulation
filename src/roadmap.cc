@@ -55,7 +55,12 @@ namespace hpp {
 
     void Roadmap::statAddFoliation (ConstraintSetPtr_t constraint)
     {
-      histograms_.push_back (graph::HistogramPtr_t (new graph::LeafHistogram (constraint)));
+      insertHistogram (graph::HistogramPtr_t (new graph::LeafHistogram (constraint)));
+    }
+
+    void Roadmap::insertHistogram (const graph::HistogramPtr_t hist)
+    {
+      histograms_.push_back (hist);
     }
 
     void Roadmap::constraintGraph (const graph::GraphPtr_t& graph)
@@ -67,7 +72,7 @@ namespace hpp {
         else
           it++;
       }
-      histograms_.push_back (graph::HistogramPtr_t (new graph::NodeHistogram (graph)));
+      insertHistogram (graph::HistogramPtr_t (new graph::NodeHistogram (graph)));
     }
   } // namespace manipulation
 } // namespace hpp

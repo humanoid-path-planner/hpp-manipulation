@@ -71,8 +71,9 @@ namespace hpp {
 
       std::ostream& Edge::print (std::ostream& os) const
       {
-        os << "|   |   |-- " << (GraphComponent*) this
-          << " --> " << to_.lock ()->name () << std::endl;
+        os << "|   |   |-- ";
+        GraphComponent::print (os)
+          << " --> " << to_.lock ()->name ();
         return os;
       }
 
@@ -212,15 +213,17 @@ namespace hpp {
 
       std::ostream& WaypointEdge::print (std::ostream& os) const
       {
-        os << "|   |   |-- " << (GraphComponent*) this
-          << " (waypoint) --> " << to ()->name () << std::endl;
+        os << "|   |   |-- ";
+        GraphComponent::print (os)
+          << " (waypoint) --> " << to ()->name ();
         return os;
       }
 
       std::ostream& LevelSetEdge::print (std::ostream& os) const
       {
-        os << "|   |   |-- " << (GraphComponent*) this
-          << " (waypoint) --> " << to ()->name () << std::endl;
+        os << "|   |   |-- ";
+        GraphComponent::print (os)
+          << " (level set) --> " << to ()->name ();
         return os;
       }
 

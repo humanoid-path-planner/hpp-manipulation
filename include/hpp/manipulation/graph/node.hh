@@ -77,8 +77,6 @@ namespace hpp {
             return neighbors_;
           }
 
-          /// Print the object in a stream.
-          std::ostream& print (std::ostream& os) const;
 
           /// Constraint to project onto this node.
           ConstraintSetPtr_t configConstraint() const;
@@ -115,6 +113,9 @@ namespace hpp {
 
           /// Constructor
           Node();
+
+          /// Print the object in a stream.
+          std::ostream& print (std::ostream& os) const;
 
         private:
           /// List of possible motions from this state (i.e. the outgoing

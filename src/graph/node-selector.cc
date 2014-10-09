@@ -55,13 +55,14 @@ namespace hpp {
 
       EdgePtr_t NodeSelector::chooseEdge(const NodePtr_t& node) const
       {
-        const Neighbors_t neighbors = node->neighbors();
-        return neighbors ();
+        const Neighbors_t neighborPicker = node->neighbors();
+        return neighborPicker ();
       }
 
       std::ostream& NodeSelector::print (std::ostream& os) const
       {
-        os << "|-- " << (GraphComponent*)this << std::endl;
+        os << "|-- ";
+        GraphComponent::print (os) << std::endl;
         for (Nodes_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; it++)
           os << *(*it);

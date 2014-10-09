@@ -60,10 +60,11 @@ namespace hpp {
 
       std::ostream& Node::print (std::ostream& os) const
       {
-        os << "|   |-- " << (GraphComponent*)this << std::endl;
+        os << "|   |-- ";
+        GraphComponent::print (os) << std::endl;
         for (Neighbors_t::const_iterator it = neighbors_.begin();
             it != neighbors_.end(); it++)
-          os << *(it->second);
+          os << *(it->second) << " - " << it->first << std::endl;
         return os;
       }
 

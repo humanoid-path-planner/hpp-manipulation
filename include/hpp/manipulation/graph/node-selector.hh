@@ -42,9 +42,6 @@ namespace hpp {
           /// Select randomly an outgoing edge of the given node.
           virtual EdgePtr_t chooseEdge(const NodePtr_t& node) const;
 
-          /// Print the object in a stream.
-          std::ostream& print (std::ostream& os) const;
-
           /// Should never be called.
           void addNumericalConstraint (const core::DifferentiableFunctionPtr_t& /* function */)
           {
@@ -64,6 +61,9 @@ namespace hpp {
           /// Constructor
           NodeSelector ()
           {}
+
+          /// Print the object in a stream.
+          std::ostream& print (std::ostream& os) const;
 
         private:
           /// List of the states of one end-effector, ordered by priority.

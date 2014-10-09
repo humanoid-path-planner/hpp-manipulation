@@ -85,6 +85,10 @@ namespace hpp {
           /// A weak pointer to the parent graph.
           GraphWkPtr_t graph_;
 
+          /// Print the object in a stream.
+          virtual std::ostream& print (std::ostream& os) const;
+          friend std::ostream& operator<< (std::ostream&, const GraphComponent&);
+
         private:
           /// Keep track of the created components in order to retrieve them
           /// easily.
@@ -96,10 +100,6 @@ namespace hpp {
           GraphComponentWkPtr_t wkPtr_;
           /// ID of the component (index in components vector).
           int id_;
-
-          /// Print the object in a stream.
-          virtual std::ostream& print (std::ostream& os) const;
-          friend std::ostream& operator<< (std::ostream&, const GraphComponent&);
       };
 
       std::ostream& operator<< (std::ostream& os, const GraphComponent& graphComp);

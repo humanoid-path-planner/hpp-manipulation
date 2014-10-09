@@ -94,6 +94,9 @@ namespace hpp {
           /// Constructor
           Edge();
 
+          /// Print the object in a stream.
+          virtual std::ostream& print (std::ostream& os) const;
+
         private:
           typedef Cache < ConstraintSetPtr_t > Constraint_t;
 
@@ -121,9 +124,6 @@ namespace hpp {
           /// \return The initialized constraint.
           virtual ConstraintSetPtr_t pathConstraint() const;
 
-          /// Print the object in a stream.
-          virtual std::ostream& print (std::ostream& os) const;
-
           friend class Graph;
       }; // class Edge
 
@@ -145,6 +145,9 @@ namespace hpp {
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
               const NodeWkPtr_t& to);
 
+          /// Print the object in a stream.
+          virtual std::ostream& print (std::ostream& os) const;
+
         private:
           typedef std::pair < EdgePtr_t, NodePtr_t > Waypoint;
 
@@ -152,9 +155,6 @@ namespace hpp {
 
           Waypoint waypoint_;
           mutable Configuration_t config_;
-
-          /// Print the object in a stream.
-          virtual std::ostream& print (std::ostream& os) const;
       }; // class WaypointEdge
 
       /// Edge that find intersection of level set.

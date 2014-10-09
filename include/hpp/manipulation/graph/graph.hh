@@ -68,9 +68,6 @@ namespace hpp {
           /// \return The constraint.
           ConstraintSetPtr_t pathConstraint (const EdgePtr_t& edge);
 
-          /// Print the object in a stream.
-          std::ostream& print (std::ostream& os) const;
-
           /// Set maximal number of iterations
           void maxIterations (size_type iterations);
 
@@ -93,6 +90,9 @@ namespace hpp {
           /// Constructor
           Graph ()
           {}
+
+          /// Print the object in a stream.
+          std::ostream& print (std::ostream& os) const;
 
         private:
           /// This list contains a node selector for each end-effector.

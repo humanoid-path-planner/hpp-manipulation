@@ -74,7 +74,7 @@ namespace hpp {
 	os << "Handles:" << std::endl;
 	for (Handles_t::const_iterator it = handles_.begin ();
 	     it != handles_.end (); ++it) {
-	  (*it)->print (os); os << std::endl;
+          os << **it << std::endl;
 	}
 	return os;
       }

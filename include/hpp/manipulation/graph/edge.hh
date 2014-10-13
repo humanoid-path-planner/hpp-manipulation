@@ -178,7 +178,7 @@ namespace hpp {
 
           LeafHistogramPtr_t histogram () const;
 
-          void insertConfigConstraint (const DifferentiableFunctionPtr_t function, const InequalityPtr_t ineq);
+          void insertConfigConstraint (const DifferentiableFunctionPtr_t function, const EquationTypePtr_t ineq);
 
           void insertConfigConstraint (const LockedDofPtr_t lockedDof);
 

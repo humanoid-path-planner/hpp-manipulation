@@ -60,7 +60,7 @@ namespace hpp {
         assert (false);
       }
 
-      void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const InequalityPtr_t& ineq)
+      void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const EquationTypePtr_t& ineq)
       {
         numericalConstraints_.push_back(DiffFuncAndIneqPair_t(function,ineq));
       }

@@ -89,7 +89,7 @@ namespace hpp {
           }
 
           /// Add core::DifferentiableFunction to the component.
-          virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function, const InequalityPtr_t& ineq)
+          virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function, const EquationTypePtr_t& ineq)
           {
             numericalConstraintsForPath_.push_back (DiffFuncAndIneqPair_t(function,ineq));
           }

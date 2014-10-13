@@ -362,7 +362,7 @@ namespace hpp {
         return extraConstraints_->get ();
       }
 
-      void LevelSetEdge::insertConfigConstraint (const DifferentiableFunctionPtr_t function, const InequalityPtr_t ineq)
+      void LevelSetEdge::insertConfigConstraint (const DifferentiableFunctionPtr_t function, const EquationTypePtr_t ineq)
       {
         extraNumericalFunctions_.push_back (DiffFuncAndIneqPair_t (function, ineq));
       }

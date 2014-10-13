@@ -51,7 +51,7 @@ namespace hpp {
           virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function) __attribute__ ((deprecated));
 
           /// Add core::DifferentiableFunction to the component.
-          virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const InequalityPtr_t& ineq);
+          virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const EquationTypePtr_t& ineq);
 
           /// Add core::LockedDof constraint to the component.
           virtual void addLockedDofConstraint (const LockedDofPtr_t& constraint);

@@ -53,9 +53,9 @@ namespace hpp {
       typedef hpp::core::ConstraintSet ConstraintSet;
       typedef hpp::core::ConstraintSetPtr_t ConstraintSetPtr_t;
       typedef hpp::core::Equality Equality;
-      typedef hpp::core::InequalityPtr_t InequalityPtr_t;
+      typedef hpp::core::EquationTypePtr_t EquationTypePtr_t;
       typedef hpp::core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
-      typedef std::pair < DifferentiableFunctionPtr_t, InequalityPtr_t > DiffFuncAndIneqPair_t;
+      typedef std::pair < DifferentiableFunctionPtr_t, EquationTypePtr_t > DiffFuncAndIneqPair_t;
       typedef std::list < DiffFuncAndIneqPair_t > DifferentiableFunctions_t;
       typedef std::list < LockedDofPtr_t > LockedDofs_t;
 

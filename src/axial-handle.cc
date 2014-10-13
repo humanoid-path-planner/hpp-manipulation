@@ -38,6 +38,44 @@ namespace hpp {
 	(gripper->joint()->robot(), gripper->joint (), joint(),
 	 inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
     }
+
+    DifferentiableFunctionPtr_t AxialHandle::createGraspComplement
+    (const GripperPtr_t& gripper) const
+    {
+      using boost::assign::list_of;
+      std::vector <bool> mask = list_of (true)(false)(false);
+      Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
+      return RelativeOrientation::create
+	(gripper->joint()->robot(), gripper->joint (), joint(), transform.getRotation (), mask);
+    }
+
+    DifferentiableFunctionPtr_t AxialHandle::createPreGrasp
+    (const GripperPtr_t& gripper) const
+    {
+      using boost::assign::list_of;
+      std::vector <bool> mask = list_of (false)(true)(true)(false)(true)(true);
+      return RelativeTransformation::create
+	(gripper->joint()->robot(), gripper->joint (), joint(),
+	 inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
+    }
+
+    DifferentiableFunctionPtr_t AxialHandle::createPreGraspComplement
+      (const GripperPtr_t& gripper, const value_type& shift) const
+    {
+      //using boost::assign::list_of;
+      //std::vector <bool> mask = list_of (true)(false)(false)(true)(false)(false);
+      //Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
+      //transform.setTranslation (transform.getTranslation () + fcl::Vec3f (shift,0,0));
+      //return RelativeTransformation::create
+	//(gripper->joint()->robot(), gripper->joint (), joint(), transform, mask);
+      using boost::assign::list_of;
+      std::vector <bool> mask = list_of (true)(false)(false);
+      Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
+      fcl::Vec3f target = transform.getTranslation () + fcl::Vec3f (shift,0,0);
+      return RelativePosition::create
+        (gripper->joint()->robot(), gripper->joint (), joint(), target, fcl::Vec3f (0,0,0), mask);
+    }
+
     HandlePtr_t AxialHandle::clone () const
     {
       AxialHandlePtr_t self = weakPtr_.lock ();

@@ -35,8 +35,18 @@ namespace hpp {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(true);
       return RelativeTransformation::create
-	(gripper->joint()->robot(), gripper->joint (), joint(), inverse (localPosition()) *
-	 gripper->objectPositionInJoint (), mask);
+	(gripper->joint()->robot(), gripper->joint (), joint(),
+         inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
+    }
+
+    DifferentiableFunctionPtr_t Handle::createGraspComplement
+    (const GripperPtr_t& gripper) const
+    {
+      using boost::assign::list_of;
+      std::vector <bool> mask = list_of (false)(false)(false)(false)(false)(false);
+      return RelativeTransformation::create
+	(gripper->joint()->robot(), gripper->joint (), joint(),
+         inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
     }
 
     DifferentiableFunctionPtr_t Handle::createPreGrasp

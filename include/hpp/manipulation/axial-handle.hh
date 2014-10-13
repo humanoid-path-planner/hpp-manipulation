@@ -46,9 +46,8 @@ namespace hpp {
       virtual HandlePtr_t clone () const;
 
       /// Create constraint corresponding to a gripper grasping this object
-      /// \param robot the robot that grasps the handle,
       /// \param grasp object containing the grasp information
-      /// \return the constraint of relative position between the handle and
+      /// \return the constraint of relative transformation between the handle and
       ///         the gripper. The rotation around x is not constrained.
       virtual DifferentiableFunctionPtr_t createGrasp
       (const GripperPtr_t& gripper) const;

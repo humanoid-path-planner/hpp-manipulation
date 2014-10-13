@@ -33,10 +33,10 @@ namespace hpp {
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(true)(true)(false)(true)(true);
+      Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
       return RelativeTransformation::create
 	(gripper->joint()->robot(), gripper->joint (), joint(),
-	 inverse (localPosition()) *
-	 gripper->objectPositionInJoint (), mask);
+	 inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
     }
     HandlePtr_t AxialHandle::clone () const
     {
@@ -44,6 +44,7 @@ namespace hpp {
       return AxialHandle::create (self->name (), self->localPosition (),
 				  self->joint ());
     }
+
     std::ostream& AxialHandle::print (std::ostream& os) const
     {
       os << "name :" << name () << " (axial)" << std::endl;

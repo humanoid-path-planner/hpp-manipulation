@@ -49,7 +49,7 @@ namespace hpp {
 	(gripper->joint()->robot(), gripper->joint (), joint(), transform, mask);
     }
 
-    DifferentiableFunctionPtr_t Handle::createPreGraspOnLine
+    DifferentiableFunctionPtr_t Handle::createPreGraspComplement
     (const GripperPtr_t& gripper, const value_type& shift) const
     {
       using boost::assign::list_of;
@@ -74,10 +74,10 @@ namespace hpp {
       os << "joint :" << joint ()->name () << std::endl;
       return os;
     }
+
+    std::ostream& operator<< (std::ostream& os, const Handle& handle)
+    {
+      return handle.print (os);
+    }
   } // namespace manipulation
 } // namespace hpp
-std::ostream& operator<< (std::ostream& os,
-			  const hpp::manipulation::Handle& handle)
-{
-  return handle.print (os);
-}

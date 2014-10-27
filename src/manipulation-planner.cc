@@ -110,13 +110,13 @@ namespace hpp {
         addFailure (PROJECTION, edge);
         return false;
       }
-      core::SteeringMethodPtr_t sm (problem().steeringMethod());
-      core::PathPtr_t path = (*sm) (*q_near, qProj_);
-      if (!path) {
+      GraphSteeringMethodPtr_t sm = problem_.steeringMethod();
+      core::PathPtr_t path;
+      if (!edge->build (path, *q_near, qProj_, *(sm->distance ()))) {
         addFailure (STEERING_METHOD, edge);
         return false;
       }
-      core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
+      GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
       pathValidation->validate (path, false, validPath);
       if (validPath->length () == 0)
         addFailure (PATH_VALIDATION, edge);
@@ -140,7 +140,7 @@ namespace hpp {
       Reasons r = it->second;
       extendStatistics_.addFailure (r.get (t));
       hppDout (info, "Extension failed." << std::endl
-            << extendStatistics_);
+          << extendStatistics_);
     }
 
     inline void ManipulationPlanner::tryConnect (const core::Nodes_t nodes)

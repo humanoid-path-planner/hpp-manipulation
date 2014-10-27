@@ -18,16 +18,14 @@
 
 namespace hpp {
   namespace manipulation {
-    GraphPathValidationPtr_t GraphPathValidation::create (
-        const PathValidationPtr_t& pathValidation, const GraphPtr_t& graph)
+    GraphPathValidationPtr_t GraphPathValidation::create (const PathValidationPtr_t& pathValidation)
     {
-      GraphPathValidation* p = new GraphPathValidation (pathValidation, graph);
+      GraphPathValidation* p = new GraphPathValidation (pathValidation);
       return GraphPathValidationPtr_t (p);
     }
 
-    GraphPathValidation::GraphPathValidation (
-        const PathValidationPtr_t& pathValidation, const GraphPtr_t& graph) :
-      pathValidation_ (pathValidation), constraintGraph_ (graph)
+    GraphPathValidation::GraphPathValidation (const PathValidationPtr_t& pathValidation) :
+      pathValidation_ (pathValidation), constraintGraph_ ()
     {}
 
     bool GraphPathValidation::validate (
@@ -43,6 +41,7 @@ namespace hpp {
       PathPtr_t validSubPart;
       if (reverse) {
         // TODO: This has never been tested.
+        assert (!reverse && "This has never been tested with reverse path");
         for (int i = path->numberPaths () - 1; i >= 0; i--) {
           // We should stop at the first non valid subpath.
           if (!impl_validate (path->pathAtRank (i), true, validSubPart)) {
@@ -129,6 +128,11 @@ namespace hpp {
       }
       validPart = path->extract (std::make_pair (oldTmin,oldTmin));
       return false;
+    }
+
+    void GraphPathValidation::addObstacle (const hpp::core::CollisionObjectPtr_t& collisionObject)
+    {
+      pathValidation_->addObstacle (collisionObject);
     }
   } // namespace manipulation
 } // namespace hpp

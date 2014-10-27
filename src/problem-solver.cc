@@ -91,6 +91,8 @@ namespace hpp {
     {
       problem_ = problem;
       core::ProblemSolver::initializeProblem (problem_);
+      if (problem_->pathValidation ())
+        problem_->pathValidation ()->constraintGraph (constraintGraph_);
     }
 
     void ProblemSolver::constraintGraph (const graph::GraphPtr_t& graph)

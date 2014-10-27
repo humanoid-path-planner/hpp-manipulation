@@ -51,6 +51,8 @@ namespace hpp {
         }
         /// \}
 
+        const core::WeighedDistancePtr_t& distance () const;
+
       protected:
         virtual PathPtr_t impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 

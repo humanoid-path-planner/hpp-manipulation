@@ -36,17 +36,16 @@ namespace hpp {
         Problem (RobotPtr_t robot) : Parent (robot),
           graph_(), steeringMethod_ (new GraphSteeringMethod (robot))
         {
-          Parent::pathValidation (GraphPathValidation::create (Parent::pathValidation(), graph_));
-          steeringMethod (steeringMethod_);
+          Parent::steeringMethod (steeringMethod_);
         }
 
         /// Set the graph of constraints
         void constraintGraph (const graph::GraphPtr_t& graph)
         {
           graph_ = graph;
-          GraphPathValidationPtr_t gv = pathValidation();
-          if (gv) gv->constraintGraph(graph);
           steeringMethod_->constraintGraph (graph);
+          if (pathValidation ())
+            pathValidation ()->constraintGraph (graph);
         }
 
         /// Get the graph of constraints
@@ -61,12 +60,22 @@ namespace hpp {
           core::Problem::checkProblem ();
           if (!graph_)
             throw std::runtime_error ("No graph in the problem.");
+          if (!pathValidation ())
+            throw std::runtime_error ("No GraphPathValidation in the problem.");
+          if (!steeringMethod ())
+            throw std::runtime_error ("No GraphSteeringMethod in the problem.");
         }
 
         /// Get the path validation as a GraphPathValidation
-        GraphPathValidationPtr_t pathValidation ()
+        GraphPathValidationPtr_t pathValidation () const
         {
           return HPP_DYNAMIC_PTR_CAST (GraphPathValidation, Parent::pathValidation());
+        }
+
+        /// Get the steering method as a GraphSteeringMethod
+        GraphSteeringMethodPtr_t steeringMethod () const
+        {
+          return steeringMethod_;
         }
 
       private:

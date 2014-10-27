@@ -46,5 +46,10 @@ namespace hpp {
       }
       return PathPtr_t ();
     }
+
+    const core::WeighedDistancePtr_t& GraphSteeringMethod::distance () const
+    {
+      return distance_;
+    }
   } // namespace manipulation
 } // namespace hpp

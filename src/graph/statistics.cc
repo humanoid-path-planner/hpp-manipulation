@@ -219,24 +219,12 @@ namespace hpp {
           const core::ConnectedComponentPtr_t& cc) const
       {
         statistics::DiscreteDistribution < core::NodePtr_t > distrib;
-        typedef std::pair < core::NodePtr_t, unsigned int > Element;
-        std::list <Element> elemts;
-        unsigned int M = 0;
         for (const_iterator bin = begin(); bin != end (); bin++) {
           unsigned int w = bin->numberOfObsOutOfConnectedComponent (cc);
           if (w == 0)
             continue;
-          elemts.push_back (Element (bin->nodes ().front (), bin->numberOfObsOutOfConnectedComponent (cc)));
-          if (elemts.back ().second > M)
-            M = elemts.back ().second;
+          distrib.insert (bin->nodes ().front (), w);
         }
-        if (elemts.size () == 1)
-          distrib.insert (elemts.back ().first, elemts.back ().second);
-        else
-          while (!elemts.empty ()) {
-            distrib.insert (elemts.back ().first, M - elemts.back ().second);
-            elemts.pop_back ();
-          }
         return distrib;
       }
 

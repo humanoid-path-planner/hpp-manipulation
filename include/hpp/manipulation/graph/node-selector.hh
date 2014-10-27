@@ -54,6 +54,9 @@ namespace hpp {
             HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
           }
 
+          /// Print the object in a stream.
+          std::ostream& dotPrint (std::ostream& os) const;
+
         protected:
           /// Initialization of the object.
           void init (const NodeSelectorPtr_t& weak);

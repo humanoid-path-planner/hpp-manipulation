@@ -71,6 +71,9 @@ namespace hpp {
           /// Set the parent graph.
           void parentGraph(const GraphWkPtr_t& parent);
 
+          /// Print the component in DOT language.
+          virtual std::ostream& dotPrint (std::ostream& os) const;
+
         protected:
           /// Initialize the component
           void init (const GraphComponentWkPtr_t& weak);

@@ -83,6 +83,9 @@ namespace hpp {
           /// Get the robot.
           const RobotPtr_t& robot () const;
 
+          /// Print the component in DOT language.
+          virtual std::ostream& dotPrint (std::ostream& os) const;
+
         protected:
           /// Initialization of the object.
           void init (const GraphWkPtr_t& weak, RobotPtr_t robot);

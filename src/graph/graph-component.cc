@@ -55,6 +55,12 @@ namespace hpp {
         return os;
       }
 
+      std::ostream& GraphComponent::dotPrint (std::ostream& os) const
+      {
+        os << id ();
+        return os;
+      }
+
       void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t&)
       {
         assert (false);

@@ -78,6 +78,12 @@ namespace hpp {
         return os;
       }
 
+      std::ostream& Edge::dotPrint (std::ostream& os) const
+      {
+        os << from()->id () << " -> " << to()->id () << " [shape=onormal,label=\"" << name () << "\"];";
+        return os;
+      }
+
       ConstraintSetPtr_t Edge::configConstraint() const
       {
         if (!*configConstraints_) {
@@ -230,11 +236,23 @@ namespace hpp {
         return os;
       }
 
+      std::ostream& WaypointEdge::dotPrint (std::ostream& os) const
+      {
+        os << from()->id () << " -> " << to()->id () << " [shape=onormal,label=\"" << name () << "\"];";
+        return os;
+      }
+
       std::ostream& LevelSetEdge::print (std::ostream& os) const
       {
         os << "|   |   |-- ";
         GraphComponent::print (os)
           << " (level set) --> " << to ()->name ();
+        return os;
+      }
+
+      std::ostream& LevelSetEdge::dotPrint (std::ostream& os) const
+      {
+        os << from()->id () << " -> " << to()->id () << " [shape=onormal,label=\"" << name () << "\"];";
         return os;
       }
 

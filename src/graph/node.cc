@@ -58,6 +58,15 @@ namespace hpp {
         return configConstraint()->isSatisfied (config);
       }
 
+      std::ostream& Node::dotPrint (std::ostream& os) const
+      {
+        os << id () << " [label=\"" << name () << "\"];" << std::endl;
+        for (Neighbors_t::const_iterator it = neighbors_.begin();
+            it != neighbors_.end(); it++)
+          it->second->dotPrint (os) << std::endl;
+        return os;
+      }
+
       std::ostream& Node::print (std::ostream& os) const
       {
         os << "|   |-- ";

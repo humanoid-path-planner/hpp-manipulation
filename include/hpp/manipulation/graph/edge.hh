@@ -86,6 +86,10 @@ namespace hpp {
           {
             return isInNodeFrom_;
           }
+
+          /// Print the object in a stream.
+          virtual std::ostream& dotPrint (std::ostream& os) const;
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
@@ -144,6 +148,9 @@ namespace hpp {
 
           EdgePtr_t waypoint () const;
 
+          /// Print the object in a stream.
+          virtual std::ostream& dotPrint (std::ostream& os) const;
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
@@ -181,6 +188,9 @@ namespace hpp {
           void insertConfigConstraint (const DifferentiableFunctionPtr_t function, const EquationTypePtr_t ineq);
 
           void insertConfigConstraint (const LockedDofPtr_t lockedDof);
+
+          /// Print the object in a stream.
+          virtual std::ostream& dotPrint (std::ostream& os) const;
 
         protected:
           /// Initialization of the object.

@@ -108,6 +108,9 @@ namespace hpp {
             return numericalConstraintsForPath_;
           }
 
+          /// Print the object in a stream.
+          std::ostream& dotPrint (std::ostream& os) const;
+
         protected:
           /// Initialize the object.
           void init (const NodeWkPtr_t& self);

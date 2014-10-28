@@ -111,21 +111,6 @@ namespace hpp {
       // edge of the constraint graph. Two option are possible:
       // - Use the steering method to create a new path and validate it.
       // - Return a null path.
-      assert (!reverse && "This has never been tested with reverse path");
-      graph::Edges_t possibleEdges (constraintGraph_->getEdges (origNode, destNode));
-      // We check for all of them if both nodes are on the same leaf.
-      ConstraintSetPtr_t constraints;
-      while (!possibleEdges.empty ()) {
-        constraints = constraintGraph_->pathConstraint (possibleEdges.back());
-        constraints->offsetFromConfig(newPath (newTmin));
-        if (constraints->isSatisfied (newPath (newTmin))
-            && constraints->isSatisfied (newPath (newTmax))) {
-          pathNoCollision->constraints (constraints);
-          impl_validate (pathNoCollision, reverse, validPart);
-          return false;
-        }
-        possibleEdges.pop_back();
-      }
       validPart = path->extract (std::make_pair (oldTmin,oldTmin));
       return false;
     }

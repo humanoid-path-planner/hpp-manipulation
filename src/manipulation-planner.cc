@@ -120,8 +120,12 @@ namespace hpp {
       pathValidation->validate (path, false, validPath);
       if (validPath->length () == 0)
         addFailure (PATH_VALIDATION, edge);
-      else
+      else {
         extendStatistics_.addSuccess ();
+        hppDout (info, "Extension:" << std::endl
+            << extendStatistics_);
+        graph->getNode ((*validPath) (validPath->length ()));
+      }
       return true;
     }
 

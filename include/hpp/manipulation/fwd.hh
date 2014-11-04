@@ -23,6 +23,10 @@
 # include <map>
 # include <hpp/constraints/fwd.hh>
 
+namespace fcl {
+  class TriangleP;
+}
+
 namespace hpp {
   namespace manipulation {
     typedef model::Device Device;
@@ -92,6 +96,10 @@ namespace hpp {
     typedef boost::shared_ptr <Grasp_t> GraspPtr_t;
     typedef std::map <DifferentiableFunctionPtr_t, GraspPtr_t> GraspsMap_t;
     typedef std::map <std::string, LockedDofPtr_t> LockedDofConstraintMap_t;
+
+    typedef fcl::TriangleP Triangle;
+    typedef std::list <Triangle> TriangleList;
+    typedef std::map <std::string, TriangleList> TriangleMap;
   } // namespace manipulation
 } // namespace hpp
 

@@ -49,6 +49,21 @@ namespace hpp {
 	return shPtr;
       }
 
+      void addContactTriangle (std::string name, const TriangleList& t)
+      {
+        contacts_[name] = t;
+      }
+
+      TriangleList contactTriangles (std::string name)
+      {
+        return contacts_ [name];
+      }
+
+      const TriangleMap& contactTriangles () const
+      {
+        return contacts_;
+      }
+
       /// \name Object handles
       /// \{
 
@@ -90,6 +105,7 @@ namespace hpp {
     private:
       Handles_t handles_;
       ObjectWkPtr_t weakPtr_;
+      TriangleMap contacts_;
     }; // class Object
   } // namespace manipulation
 } // namespace hpp

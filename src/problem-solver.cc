@@ -179,5 +179,20 @@ namespace hpp {
       if (constraintGraph_) r->constraintGraph (constraintGraph_);
       roadmap (r);
     }
+
+    void ProblemSolver::addContactTriangles (const std::string name, const TriangleList triangles)
+    {
+      contactTriangles_ [name] = triangles;
+    }
+
+    TriangleList ProblemSolver::contactTriangles (const std::string name)
+    {
+      return contactTriangles_ [name];
+    }
+
+    const TriangleMap& ProblemSolver::contactTriangles () const
+    {
+      return contactTriangles_;
+    }
   } // namespace manipulation
 } // namespace hpp

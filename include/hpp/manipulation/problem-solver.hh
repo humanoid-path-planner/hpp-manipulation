@@ -161,6 +161,12 @@ namespace hpp {
 	return problem_;
       }
 
+      void addContactTriangles (const std::string name, const TriangleList triangles);
+
+      TriangleList contactTriangles (const std::string name);
+
+      const TriangleMap& contactTriangles () const;
+
     protected:
       void initializeProblem (ProblemPtr_t problem);
 
@@ -174,6 +180,7 @@ namespace hpp {
       RobotsandObjects_t robotsAndObjects_;
       GraspsMap_t graspsMap_;
       LockedDofConstraintMap_t lockedDofConstraintMap_;
+      TriangleMap contactTriangles_;
     }; // class ProblemSolver
   } // namespace manipulation
 } // namespace hpp

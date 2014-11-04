@@ -22,6 +22,7 @@
 
 # include <hpp/model/device.hh>
 # include <hpp/manipulation/handle.hh>
+# include <fcl/shape/geometric_shapes.h>
 
 namespace hpp {
   namespace manipulation {

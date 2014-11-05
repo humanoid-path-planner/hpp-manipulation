@@ -197,9 +197,12 @@ namespace hpp {
           return false;
         if (!waypoint_.first->build (pathToWaypoint, q1, config_, d))
           return false;
-        core::PathVectorPtr_t pv = core::PathVector::create (graph_.lock ()->robot ()->configSize ());
+        core::PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (core::PathVector, pathToWaypoint);
+        if (!pv) {
+          pv = core::PathVector::create (graph_.lock ()->robot ()->configSize ());
+          pv->appendPath (pathToWaypoint);
+        }
         path = pv;
-        pv->appendPath (pathToWaypoint);
 
         core::PathPtr_t end;
         if (!Edge::build (end, config_, q2, d))

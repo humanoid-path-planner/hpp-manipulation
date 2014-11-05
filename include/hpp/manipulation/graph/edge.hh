@@ -135,7 +135,24 @@ namespace hpp {
           friend class Graph;
       }; // class Edge
 
-      /// Edge with waypoint
+      /// Edge with waypoints
+      /// Waypoint are handled recursively, i.e. class WaypointEdge contains only a
+      /// Node and an Edge, comparatively to class Edge.
+      /// \note
+      ///   For instance, let's say, between the two nodes \f$N_f\f$ and \f$N_t\f$,
+      ///   two waypoints are required:
+      ///   \f$ N_f \xrightarrow{e_0} n_0 \xrightarrow{e_1} n_1 \xrightarrow{E} N_t\f$.
+      ///   The outmost WaypointEdg contains:
+      ///   \li from: \f$N_f\f$,
+      ///   \li to: \f$N_t\f$,
+      ///   \li constraints: those of edge \f$E\f$,
+      ///   \li waypoint: \f$(E_1, n_1)\f$.
+      ///
+      ///   where \f$E_1\f$ is an instance of class WaypointEdge containing:
+      ///   \li from: \f$N_f\f$,
+      ///   \li to: \f$n_1\f$,
+      ///   \li constraints: those of edge \f$e_1\f$,
+      ///   \li waypoint: \f$(e_0, n_0)\f$.
       class HPP_MANIPULATION_DLLAPI WaypointEdge : public Edge
       {
         public:

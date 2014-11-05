@@ -145,18 +145,6 @@ namespace hpp {
                itJoint != joints.end() ; itJoint++ ) {
           gripper->addDisabledCollision(jointMap_[*itJoint]);
         }
-        if ((*itGripper)->isParameterActive ())
-        {
-          JointVector_t innerJoints = (*itGripper)->innerJoints(),
-                        innerJointsNew;
-          for (model::JointVector_t::const_iterator itJoint = innerJoints.begin() ;
-              itJoint != innerJoints.end() ; itJoint++ ) {
-            innerJointsNew.push_back(jointMap_[*itJoint]);
-          }
-          gripper->innerJoints (innerJointsNew);
-          gripper->openConfig ((*itGripper)->openConfig ());
-          gripper->closedConfig ((*itGripper)->closedConfig ());
-        }
 	addGripper (gripper->name (), gripper);
       }
     }

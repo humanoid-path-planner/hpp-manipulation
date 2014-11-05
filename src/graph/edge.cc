@@ -246,9 +246,16 @@ namespace hpp {
         else return to ();
       }
 
-      EdgePtr_t WaypointEdge::waypoint () const
+      template <>
+      EdgePtr_t WaypointEdge::waypoint <Edge> () const
       {
         return waypoint_.first;
+      }
+
+      template <>
+      WaypointEdgePtr_t WaypointEdge::waypoint <WaypointEdge> () const
+      {
+        return HPP_DYNAMIC_PTR_CAST (WaypointEdge, waypoint_.first);
       }
 
       std::ostream& WaypointEdge::print (std::ostream& os) const

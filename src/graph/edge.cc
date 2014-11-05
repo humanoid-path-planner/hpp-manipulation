@@ -240,6 +240,12 @@ namespace hpp {
         config_ = Configuration_t(graph_.lock ()->robot ()->configSize ());
       }
 
+      NodePtr_t WaypointEdge::node () const
+      {
+        if (isInNodeFrom ()) return waypoint_.second;
+        else return to ();
+      }
+
       EdgePtr_t WaypointEdge::waypoint () const
       {
         return waypoint_.first;

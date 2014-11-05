@@ -75,7 +75,7 @@ namespace hpp {
           NodePtr_t from () const;
 
           /// Get the node in which path is.
-          NodePtr_t node () const;
+          virtual NodePtr_t node () const;
 
           void isInNodeFrom (bool iinf)
           {
@@ -175,6 +175,9 @@ namespace hpp {
           /// \note inner edges are named bname + "_e" + pos
           ///       inner nodes are named bname + "_n" + pos
           void createWaypoint (const unsigned int depth, const std::string& bname = "WaypointEdge");
+
+          /// Get the node in which path after the waypoint is.
+          NodePtr_t node () const;
 
         protected:
           /// Initialization of the object.

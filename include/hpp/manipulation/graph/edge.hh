@@ -168,6 +168,14 @@ namespace hpp {
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os) const;
 
+          /// Create inner waypoints.
+          /// \param depth the number of waypoints between from() and to()
+          ///              minus 1.
+          /// \param bname basename used for naming.
+          /// \note inner edges are named bname + "_e" + pos
+          ///       inner nodes are named bname + "_n" + pos
+          void createWaypoint (const unsigned int depth, const std::string& bname = "WaypointEdge");
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
@@ -178,8 +186,6 @@ namespace hpp {
 
         private:
           typedef std::pair < EdgePtr_t, NodePtr_t > Waypoint;
-
-          void createWaypoint ();
 
           Waypoint waypoint_;
           mutable Configuration_t config_;

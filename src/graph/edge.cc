@@ -14,9 +14,13 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include <sstream>
+
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/differentiable-function.hh>
+
+#include <hpp/util/pointer.hh>
 
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/edge.hh"
@@ -182,7 +186,6 @@ namespace hpp {
           const NodeWkPtr_t& to)
       {
         Edge::init (weak, graph, from, to);
-        createWaypoint ();
       }
 
       bool WaypointEdge::build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const
@@ -213,12 +216,26 @@ namespace hpp {
         return Edge::applyConstraints (qoffset, q);
       }
 
-      void WaypointEdge::createWaypoint ()
+      void WaypointEdge::createWaypoint (const unsigned d, const std::string& bname)
       {
         NodePtr_t node = Node::create ();
         node->parentGraph(graph_);
-        EdgePtr_t edge = Edge::create (graph_, from (), node);
-        edge->isInNodeFrom (isInNodeFrom ());
+        std::ostringstream ss;
+        ss << bname << "_n" << d;
+        node->name (ss.str());
+        EdgePtr_t edge;
+        if (d == 0) {
+          edge = Edge::create (graph_, from (), node);
+          edge->isInNodeFrom (isInNodeFrom ());
+        } else {
+          WaypointEdgePtr_t we = WaypointEdge::create (graph_, from (), node);
+          edge->isInNodeFrom (isInNodeFrom ());
+          we->createWaypoint (d-1, bname);
+          edge = we;
+        }
+        ss.str (std::string ()); ss.clear ();
+        ss << bname << "_e" << d;
+        edge->name (ss.str ());
         waypoint_ = Waypoint (edge, node);
         config_ = Configuration_t(graph_.lock ()->robot ()->configSize ());
       }

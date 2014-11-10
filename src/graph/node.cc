@@ -85,9 +85,10 @@ namespace hpp {
           ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj " + n, g->errorThreshold(), g->maxIterations());
-          g->insertNumericalConstraints (proj);
-          insertNumericalConstraints (proj);
-          constraint->addConstraint (proj);
+          // If at least one DifferentiableFunctionPtr_t was inserted, then add the projector.
+          if (g->insertNumericalConstraints (proj)
+              | insertNumericalConstraints (proj))
+            constraint->addConstraint (proj);
 
           g->insertLockedDofs (constraint);
           insertLockedDofs (constraint);

@@ -104,10 +104,11 @@ namespace hpp {
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-        g->insertNumericalConstraints (proj);
-        insertNumericalConstraints (proj);
-        to ()->insertNumericalConstraints (proj);
-        constraint->addConstraint (proj);
+        // If at least one DifferentiableFunctionPtr_t was inserted, the add the projector.
+        if (g->insertNumericalConstraints (proj)
+            | insertNumericalConstraints (proj)
+            | to ()->insertNumericalConstraints (proj))
+          constraint->addConstraint (proj);
 
         g->insertLockedDofs (constraint);
         insertLockedDofs (constraint);
@@ -131,10 +132,11 @@ namespace hpp {
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-        g->insertNumericalConstraints (proj);
-        insertNumericalConstraints (proj);
-        node ()->insertNumericalConstraintsForPath (proj);
-        constraint->addConstraint (proj);
+        // If at least one DifferentiableFunctionPtr_t was inserted, the add the projector.
+        if (g->insertNumericalConstraints (proj)
+            | insertNumericalConstraints (proj)
+            | node ()->insertNumericalConstraintsForPath (proj))
+          constraint->addConstraint (proj);
 
         g->insertLockedDofs (constraint);
         insertLockedDofs (constraint);
@@ -161,15 +163,19 @@ namespace hpp {
 
       bool Edge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
       {
-        configConstraint ()->offsetFromConfig (qoffset);
-        if (configConstraint ()->apply (q))
+        ConstraintSetPtr_t c = configConstraint ();
+        c->offsetFromConfig (qoffset);
+        ConfigProjectorPtr_t proj = c->configProjector ();
+        if (c->apply (q)) {
           return true;
-        typedef ::hpp::statistics::SuccessStatistics SuccessStatistics;
-        SuccessStatistics& ss = configConstraint ()->configProjector ()->statistics ();
-        if (ss.nbFailure () > ss.nbSuccess ()) {
-          hppDout (warning, configConstraint ()->name () << " fails often." << std::endl << ss);
-        } else {
-          hppDout (warning, configConstraint ()->name () << " succeeds at rate " << (double)(ss.nbSuccess ()) / ss.numberOfObservations () << ".");
+        }
+        if (proj) {
+          ::hpp::statistics::SuccessStatistics& ss = proj->statistics ();
+          if (ss.nbFailure () > ss.nbSuccess ()) {
+            hppDout (warning, c->name () << " fails often." << std::endl << ss);
+          } else {
+            hppDout (warning, c->name () << " succeeds at rate " << (double)(ss.nbSuccess ()) / ss.numberOfObservations () << ".");
+          }
         }
         return false;
       }
@@ -304,8 +310,8 @@ namespace hpp {
         ConstraintSetPtr_t cs = extraConfigConstraint ();
         cs->offsetFromConfig (q_offset);
 
-        if (cs->configProjector ()) {
-          const ConfigProjectorPtr_t cp = cs->configProjector ();
+        const ConfigProjectorPtr_t cp = cs->configProjector ();
+        if (cp) {
           vector_t offset = cp->offsetFromConfig (q_offset);
           size_t row = 0, nbRows = 0;
           for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
@@ -329,12 +335,13 @@ namespace hpp {
         // Eventually, do the projection.
         if (cs->apply (q))
           return true;
-        typedef ::hpp::statistics::SuccessStatistics SuccessStatistics;
-        SuccessStatistics& ss = cs->configProjector ()->statistics ();
-        if (ss.nbFailure () > ss.nbSuccess ()) {
-          hppDout (warning, configConstraint ()->name () << " fails often." << std::endl << ss);
-        } else {
-          hppDout (warning, configConstraint ()->name () << " succeeds at rate " << (double)(ss.nbSuccess ()) / ss.numberOfObservations () << ".");
+        if (cp) {
+          ::hpp::statistics::SuccessStatistics& ss = cp->statistics ();
+          if (ss.nbFailure () > ss.nbSuccess ()) {
+            hppDout (warning, cs->name () << " fails often." << std::endl << ss);
+          } else {
+            hppDout (warning, cs->name () << " succeeds at rate " << (double)(ss.nbSuccess ()) / ss.numberOfObservations () << ".");
+          }
         }
         return false;
       }
@@ -392,14 +399,15 @@ namespace hpp {
           ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-          g->insertNumericalConstraints (proj);
+          bool gHasDiffFunc = g->insertNumericalConstraints (proj);
           for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
               it != extraNumericalFunctions_.end (); it++) {
             proj->addConstraint (it->first, it->second);
           }
-          insertNumericalConstraints (proj);
-          to ()->insertNumericalConstraints (proj);
-          constraint->addConstraint (proj);
+          if (gHasDiffFunc | !extraNumericalFunctions_.empty ()
+              | insertNumericalConstraints (proj)
+              | to ()->insertNumericalConstraints (proj))
+            constraint->addConstraint (proj);
 
           g->insertLockedDofs (constraint);
           for (LockedDofs_t::const_iterator it = extraLockedDofs_.begin ();

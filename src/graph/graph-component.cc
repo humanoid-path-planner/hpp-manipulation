@@ -76,18 +76,20 @@ namespace hpp {
         lockedDofConstraints_.push_back (constraint);
       }
 
-      void GraphComponent::insertNumericalConstraints (ConfigProjectorPtr_t& proj) const
+      bool GraphComponent::insertNumericalConstraints (ConfigProjectorPtr_t& proj) const
       {
         for (DifferentiableFunctions_t::const_iterator it = numericalConstraints_.begin();
             it != numericalConstraints_.end(); it++)
           proj->addConstraint (it->first, it->second);
+        return !numericalConstraints_.empty ();
       }
 
-      void GraphComponent::insertLockedDofs (ConstraintSetPtr_t cs) const
+      bool GraphComponent::insertLockedDofs (ConstraintSetPtr_t cs) const
       {
         for (LockedDofs_t::const_iterator it = lockedDofConstraints_.begin();
             it != lockedDofConstraints_.end(); it++)
           cs->addConstraint (*it);
+        return !lockedDofConstraints_.empty ();
       }
 
       const DifferentiableFunctions_t& GraphComponent::numericalConstraints() const

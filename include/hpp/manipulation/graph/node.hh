@@ -95,11 +95,13 @@ namespace hpp {
           }
 
           /// Insert the numerical constraints in a ConfigProjector
-          void insertNumericalConstraintsForPath (ConfigProjectorPtr_t& proj) const
+          /// \return true is at least one DifferentiableFunctionPtr_t was inserted.
+          bool insertNumericalConstraintsForPath (ConfigProjectorPtr_t& proj) const
           {
             for (DifferentiableFunctions_t::const_iterator it = numericalConstraintsForPath_.begin();
                 it != numericalConstraintsForPath_.end(); it++)
               proj->addConstraint (it->first, it->second);
+            return !numericalConstraintsForPath_.empty ();
           }
 
           /// Get a reference to the DifferentiableFunctions_t

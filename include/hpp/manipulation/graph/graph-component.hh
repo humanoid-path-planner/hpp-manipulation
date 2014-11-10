@@ -57,10 +57,12 @@ namespace hpp {
           virtual void addLockedDofConstraint (const LockedDofPtr_t& constraint);
 
           /// Insert the numerical constraints in a ConfigProjector
-          void insertNumericalConstraints (ConfigProjectorPtr_t& proj) const;
+          /// \return true is at least one DifferentiableFunctionPtr_t was inserted.
+          bool insertNumericalConstraints (ConfigProjectorPtr_t& proj) const;
 
           /// Insert the LockedDof constraints in a ConstraintSet
-          void insertLockedDofs (ConstraintSetPtr_t cs) const;
+          /// \return true is at least one LockedDofPtr_t was inserted.
+          bool insertLockedDofs (ConstraintSetPtr_t cs) const;
 
           /// Get a reference to the DifferentiableFunctions_t
           const DifferentiableFunctions_t& numericalConstraints() const;

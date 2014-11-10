@@ -53,7 +53,7 @@ namespace hpp {
         return newEdge;
       }
 
-      bool Node::contains (const Configuration_t config)
+      bool Node::contains (ConfigurationIn_t config)
       {
         return configConstraint()->isSatisfied (config);
       }

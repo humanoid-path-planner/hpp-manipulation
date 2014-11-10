@@ -162,7 +162,7 @@ namespace hpp {
 
       std::ostream& LeafHistogram::print (std::ostream& os) const
       {
-        os << "Histogram constains ConstraintSet: "
+        os << "Histogram contains ConstraintSet: "
           << constraint_->name () << std::endl;
         return Parent::print (os);
       }
@@ -191,7 +191,7 @@ namespace hpp {
 
       std::ostream& NodeHistogram::print (std::ostream& os) const
       {
-        os << "Graph Node Histogram constains: " << std::endl;
+        os << "Graph Node Histogram contains: " << std::endl;
         return Parent::print (os);
       }
 

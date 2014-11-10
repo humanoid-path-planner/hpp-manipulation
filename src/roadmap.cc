@@ -41,8 +41,8 @@ namespace hpp {
 
     void Roadmap::push_node (const core::NodePtr_t& n)
     {
-      Parent::push_node (n);
       statInsert (n);
+      Parent::push_node (n);
     }
 
     void Roadmap::statInsert (const core::NodePtr_t& n)

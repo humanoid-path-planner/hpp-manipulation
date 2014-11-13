@@ -105,9 +105,10 @@ namespace hpp {
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
         // If at least one DifferentiableFunctionPtr_t was inserted, the add the projector.
-        if (g->insertNumericalConstraints (proj)
-            | insertNumericalConstraints (proj)
-            | to ()->insertNumericalConstraints (proj))
+        bool hasDiffFunc = g->insertNumericalConstraints (proj);
+        hasDiffFunc = insertNumericalConstraints (proj) || hasDiffFunc;
+        hasDiffFunc = to ()->insertNumericalConstraints (proj) || hasDiffFunc;
+        if (hasDiffFunc)
           constraint->addConstraint (proj);
 
         g->insertLockedDofs (constraint);
@@ -133,9 +134,10 @@ namespace hpp {
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
         // If at least one DifferentiableFunctionPtr_t was inserted, the add the projector.
-        if (g->insertNumericalConstraints (proj)
-            | insertNumericalConstraints (proj)
-            | node ()->insertNumericalConstraintsForPath (proj))
+        bool hasDiffFunc = g->insertNumericalConstraints (proj);
+        hasDiffFunc = insertNumericalConstraints (proj) || hasDiffFunc;
+        hasDiffFunc = node ()->insertNumericalConstraintsForPath (proj) || hasDiffFunc;
+        if (hasDiffFunc)
           constraint->addConstraint (proj);
 
         g->insertLockedDofs (constraint);
@@ -399,14 +401,15 @@ namespace hpp {
           ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-          bool gHasDiffFunc = g->insertNumericalConstraints (proj);
+          bool hasDiffFunc = g->insertNumericalConstraints (proj);
           for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
               it != extraNumericalFunctions_.end (); ++it) {
             proj->addConstraint (it->first, it->second);
           }
-          if (gHasDiffFunc | !extraNumericalFunctions_.empty ()
-              | insertNumericalConstraints (proj)
-              | to ()->insertNumericalConstraints (proj))
+          hasDiffFunc = !extraNumericalFunctions_.empty () || hasDiffFunc;
+          hasDiffFunc = insertNumericalConstraints (proj) || hasDiffFunc;
+          hasDiffFunc = to ()->insertNumericalConstraints (proj) || hasDiffFunc;
+          if (hasDiffFunc)
             constraint->addConstraint (proj);
 
           g->insertLockedDofs (constraint);

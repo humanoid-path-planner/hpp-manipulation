@@ -47,7 +47,7 @@ namespace hpp {
       NodePtr_t NodeSelector::getNode(const Configuration_t config) const
       {
         for (Nodes_t::const_iterator it = orderedStates_.begin();
-            orderedStates_.end() != it; it++)
+            orderedStates_.end() != it; ++it)
           if ((*it)->contains(config))
             return *it;
         throw std::logic_error ("A configuration has no node");
@@ -62,7 +62,7 @@ namespace hpp {
       std::ostream& NodeSelector::dotPrint (std::ostream& os) const
       {
         for (Nodes_t::const_iterator it = orderedStates_.begin();
-            orderedStates_.end() != it; it++)
+            orderedStates_.end() != it; ++it)
           (*it)->dotPrint (os);
         return os;
       }
@@ -72,7 +72,7 @@ namespace hpp {
         os << "|-- ";
         GraphComponent::print (os) << std::endl;
         for (Nodes_t::const_iterator it = orderedStates_.begin();
-            orderedStates_.end() != it; it++)
+            orderedStates_.end() != it; ++it)
           os << *(*it);
         return os;
       }

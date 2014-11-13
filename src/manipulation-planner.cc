@@ -64,7 +64,7 @@ namespace hpp {
       // Extend each connected component
       for (core::ConnectedComponents_t::const_iterator itcc =
           roadmap ()->connectedComponents ().begin ();
-          itcc != roadmap ()->connectedComponents ().end (); itcc++) {
+          itcc != roadmap ()->connectedComponents ().end (); ++itcc) {
         // Find the nearest neighbor.
         core::value_type distance;
         core::NodePtr_t near = roadmap ()->nearestNode (q_rand, *itcc, distance);
@@ -160,11 +160,11 @@ namespace hpp {
         connectSucceed = false;
         for (core::ConnectedComponents_t::const_iterator itcc =
             roadmap ()->connectedComponents ().begin ();
-            itcc != roadmap ()->connectedComponents ().end (); itcc++) {
+            itcc != roadmap ()->connectedComponents ().end (); ++itcc) {
           if (*itcc == (*itn1)->connectedComponent ())
             continue;
           for (core::Nodes_t::const_iterator itn2 = (*itcc)->nodes().begin ();
-              itn2 != (*itcc)->nodes ().end (); itn2 ++) {
+              itn2 != (*itcc)->nodes ().end (); ++itn2) {
             ConfigurationPtr_t q2 ((*itn2)->configuration ());
             assert (*q1 != *q2);
             path = (*sm) (*q1, *q2);

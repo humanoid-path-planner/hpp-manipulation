@@ -57,10 +57,10 @@ namespace hpp {
         NodesList_t l;
         bool found;
         for (RoadmapNodes_t::const_iterator itn = nodes_.begin ();
-            itn != nodes_.end (); itn++) {
+            itn != nodes_.end (); ++itn) {
           found = false;
           for (NodesList_t::iterator itc = l.begin ();
-              itc != l.end (); itc++) {
+              itc != l.end (); ++itc) {
             if ((*itn)->connectedComponent () == itc->front ()->connectedComponent ()) {
               itc->push_back (*itn);
               found = true;
@@ -72,7 +72,7 @@ namespace hpp {
           }
         }
         for (NodesList_t::iterator itc = l.begin ();
-            itc != l.end (); itc++)
+            itc != l.end (); ++itc)
           os << itc->front ()->connectedComponent () << " - " << itc->size () << ", ";
         return os << ").";
       }
@@ -122,10 +122,10 @@ namespace hpp {
         NodesList_t l;
         bool found;
         for (RoadmapNodes_t::const_iterator itn = roadmapNodes_.begin ();
-            itn != roadmapNodes_.end (); itn++) {
+            itn != roadmapNodes_.end (); ++itn) {
           found = false;
           for (NodesList_t::iterator itc = l.begin ();
-              itc != l.end (); itc++) {
+              itc != l.end (); ++itc) {
             if ((*itn)->connectedComponent () == itc->front ()->connectedComponent ()) {
               itc->push_back (*itn);
               found = true;
@@ -137,7 +137,7 @@ namespace hpp {
           }
         }
         for (NodesList_t::iterator itc = l.begin ();
-            itc != l.end (); itc++)
+            itc != l.end (); ++itc)
           os << itc->front ()->connectedComponent () << " - " << itc->size () << ", ";
         return os << ").";
       }
@@ -209,7 +209,7 @@ namespace hpp {
       {
         unsigned int count = 0;
         for (RoadmapNodes_t::const_iterator it = nodes_.begin ();
-            it != nodes_.end (); it++)
+            it != nodes_.end (); ++it)
           if ((*it)->connectedComponent () != cc)
             count++;
         return count;
@@ -219,7 +219,7 @@ namespace hpp {
           const core::ConnectedComponentPtr_t& cc) const
       {
         statistics::DiscreteDistribution < core::NodePtr_t > distrib;
-        for (const_iterator bin = begin(); bin != end (); bin++) {
+        for (const_iterator bin = begin(); bin != end (); ++bin) {
           unsigned int w = bin->numberOfObsOutOfConnectedComponent (cc);
           if (w == 0)
             continue;

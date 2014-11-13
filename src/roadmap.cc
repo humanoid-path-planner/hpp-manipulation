@@ -33,7 +33,7 @@ namespace hpp {
       Parent::clear ();
       Histograms newHistograms;
       Histograms::iterator it;
-      for (it = histograms_.begin(); it != histograms_.end(); it++) {
+      for (it = histograms_.begin(); it != histograms_.end(); ++it) {
         newHistograms.push_back ((*it)->clone ());
       }
       histograms_ = newHistograms;
@@ -48,7 +48,7 @@ namespace hpp {
     void Roadmap::statInsert (const core::NodePtr_t& n)
     {
       Histograms::iterator it;
-      for (it = histograms_.begin(); it != histograms_.end(); it++) {
+      for (it = histograms_.begin(); it != histograms_.end(); ++it) {
         (*it)->add (n);
       }
     }
@@ -70,7 +70,7 @@ namespace hpp {
         if (HPP_DYNAMIC_PTR_CAST (graph::NodeHistogram, *it))
           it = histograms_.erase (it);
         else
-          it++;
+          ++it;
       }
       insertHistogram (graph::HistogramPtr_t (new graph::NodeHistogram (graph)));
     }

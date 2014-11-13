@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE (GraphStructure)
   // Check that GraphComponent keeps track of all object properly.
   size_t index = 0;
   for (GraphComponents::iterator it = components.begin();
-      it != components.end(); it++) {
+      it != components.end(); ++it) {
     BOOST_CHECK_MESSAGE (*it == GraphComponent::get (index).lock(),
         "GraphComponent class do not track properly GraphComponents inherited objects");
     index++;

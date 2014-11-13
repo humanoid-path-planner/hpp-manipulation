@@ -77,11 +77,11 @@ namespace hpp {
     {
       std::vector<std::string> deviceNames;
       for ( Devices_t::iterator itDevice = robots_.begin() ; itDevice !=
-          robots_.end() ; itDevice++ ) {
+          robots_.end(); ++itDevice) {
         deviceNames.push_back((*itDevice)->name());
       }
       for ( Objects_t::iterator itObject = objects_.begin() ; itObject !=
-          objects_.end() ; itObject++ ) {
+          objects_.end(); ++itObject) {
         deviceNames.push_back((*itObject)->name());
       }
       return deviceNames;
@@ -142,7 +142,7 @@ namespace hpp {
         gripper->removeAllDisabledCollisions();
         JointVector_t joints = (*itGripper)->getDisabledCollisions();
         for (model::JointVector_t::const_iterator itJoint = joints.begin() ;
-               itJoint != joints.end() ; itJoint++ ) {
+               itJoint != joints.end(); ++itJoint) {
           gripper->addDisabledCollision(jointMap_[*itJoint]);
         }
 	addGripper (gripper->name (), gripper);
@@ -239,7 +239,7 @@ namespace hpp {
       JointVector_t joints = device->getJointVector ();
       // Cycle through all joint pairs
       for (JointVector_t::const_iterator it1 = joints.begin ();
-	   it1 != joints.end (); it1++) {
+	   it1 != joints.end (); ++it1) {
 	JointPtr_t joint1 = jointMap_[*it1];
         hpp::model::Body* body1 = joint1->linkedBody ();
 	  if (!body1) {
@@ -247,7 +247,7 @@ namespace hpp {
 		     " has no hpp::model::Body.");
 	  } else {
 	  for (JointVector_t::const_iterator it2 = getJointVector().begin ();
-	        *it2 != jointMap_[*(joints.begin())]; it2++) {
+	        *it2 != jointMap_[*(joints.begin())]; ++it2) {
 	    JointPtr_t joint2 = *it2;
             hpp::model::Body* body2 = joint2->linkedBody ();
             if (!body2) {

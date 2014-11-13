@@ -136,14 +136,14 @@ namespace hpp {
                                               "Default constraint set");
       GraspsMap_t graspsMap = grasps();
       for (GraspsMap_t::const_iterator itGrasp = graspsMap.begin();
-             itGrasp != graspsMap.end() ; itGrasp++) {
+             itGrasp != graspsMap.end(); ++itGrasp) {
         GraspPtr_t grasp = itGrasp->second;
         GripperPtr_t gripper = grasp->first;
         HandlePtr_t handle = grasp->second;
         JointPtr_t joint = handle->joint();
         model::JointVector_t joints = gripper->getDisabledCollisions();
         for (model::JointVector_t::iterator itJoint = joints.begin() ;
-               itJoint != joints.end() ; itJoint++ ) {
+               itJoint != joints.end(); ++itJoint) {
           robot()->addCollisionPairs(joint, *itJoint, hpp::model::COLLISION);
           robot()->addCollisionPairs(joint, *itJoint, hpp::model::DISTANCE);
         }
@@ -162,7 +162,7 @@ namespace hpp {
         JointPtr_t joint1 = handle->joint();
         model::JointVector_t joints = gripper->getDisabledCollisions();
         for (model::JointVector_t::iterator itJoint = joints.begin() ;
-               itJoint != joints.end() ; itJoint++ ) {
+               itJoint != joints.end(); ++itJoint++) {
           robot()->removeCollisionPairs(joint1, *itJoint,
                                         hpp::model::COLLISION);
           robot()->removeCollisionPairs(joint1, *itJoint,

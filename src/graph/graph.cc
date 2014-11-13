@@ -81,7 +81,7 @@ namespace hpp {
       {
         Edges_t edges;
         for (Neighbors_t::const_iterator it = from->neighbors ().begin ();
-            it != from->neighbors ().end (); it++) {
+            it != from->neighbors ().end (); ++it) {
           if (it->second->to () == to)
             edges.push_back (it->second);
         }

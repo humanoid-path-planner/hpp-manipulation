@@ -315,7 +315,7 @@ namespace hpp {
           vector_t offset = cp->offsetFromConfig (q_offset);
           size_t row = 0, nbRows = 0;
           for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
-              it != extraNumericalFunctions_.end (); it++) {
+              it != extraNumericalFunctions_.end (); ++it) {
             const core::DifferentiableFunction& f = *(it->first);
             nbRows = f.outputSize ();
             vector_t value = vector_t::Zero (nbRows);
@@ -328,7 +328,7 @@ namespace hpp {
           cp->offset (offset);
         }
         for (LockedDofs_t::const_iterator it = extraLockedDofs_.begin ();
-            it != extraLockedDofs_.end (); it++) {
+            it != extraLockedDofs_.end (); ++it) {
           (*it)->offsetFromConfig (levelsetTarget);
         }
 
@@ -371,14 +371,14 @@ namespace hpp {
         if (!extraNumericalFunctions_.empty ()) {
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
           for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
-              it != extraNumericalFunctions_.end (); it++) {
+              it != extraNumericalFunctions_.end (); ++it) {
             proj->addConstraint (it->first);
           }
           constraint->addConstraint (proj);
         }
 
         for (LockedDofs_t::const_iterator it = extraLockedDofs_.begin ();
-            it != extraLockedDofs_.end (); it++)
+            it != extraLockedDofs_.end (); ++it)
           constraint->addConstraint (*it);
 
         hist_ = graph::LeafHistogramPtr_t (new graph::LeafHistogram (constraint));
@@ -401,7 +401,7 @@ namespace hpp {
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
           bool gHasDiffFunc = g->insertNumericalConstraints (proj);
           for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
-              it != extraNumericalFunctions_.end (); it++) {
+              it != extraNumericalFunctions_.end (); ++it) {
             proj->addConstraint (it->first, it->second);
           }
           if (gHasDiffFunc | !extraNumericalFunctions_.empty ()
@@ -411,7 +411,7 @@ namespace hpp {
 
           g->insertLockedDofs (constraint);
           for (LockedDofs_t::const_iterator it = extraLockedDofs_.begin ();
-              it != extraLockedDofs_.end (); it++) {
+              it != extraLockedDofs_.end (); ++it) {
             constraint->addConstraint (*it);
           }
           insertLockedDofs (constraint);

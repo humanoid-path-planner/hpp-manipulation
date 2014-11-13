@@ -62,7 +62,7 @@ namespace hpp {
       {
         os << id () << " [label=\"" << name () << "\"];" << std::endl;
         for (Neighbors_t::const_iterator it = neighbors_.begin();
-            it != neighbors_.end(); it++)
+            it != neighbors_.end(); ++it)
           it->second->dotPrint (os) << std::endl;
         return os;
       }
@@ -72,7 +72,7 @@ namespace hpp {
         os << "|   |-- ";
         GraphComponent::print (os) << std::endl;
         for (Neighbors_t::const_iterator it = neighbors_.begin();
-            it != neighbors_.end(); it++)
+            it != neighbors_.end(); ++it)
           os << *(it->second) << " - " << it->first << std::endl;
         return os;
       }

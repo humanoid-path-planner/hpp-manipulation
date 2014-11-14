@@ -34,9 +34,9 @@ namespace hpp {
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(true);
-      return RelativeTransformation::create
-	(gripper->joint()->robot(), gripper->joint (), joint(),
-         inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
+      return RelativeTransformation::create ("Transformation_(1,1,1,1,1,1)_" + name () + "_" + gripper->name (),
+          gripper->joint()->robot(), gripper->joint (), joint(),
+          inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
     }
 
     DifferentiableFunctionPtr_t Handle::createGraspComplement
@@ -44,9 +44,9 @@ namespace hpp {
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (false)(false)(false)(false)(false)(false);
-      return RelativeTransformation::create
-	(gripper->joint()->robot(), gripper->joint (), joint(),
-         inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
+      return RelativeTransformation::create ("Transformation_(0,0,0,0,0,0)_" + name () + "_" + gripper->name (),
+      gripper->joint()->robot(), gripper->joint (), joint(),
+       inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
     }
 
     DifferentiableFunctionPtr_t Handle::createPreGrasp
@@ -55,8 +55,8 @@ namespace hpp {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (false)(true)(true)(true)(true)(true);
       Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
-      return RelativeTransformation::create
-	(gripper->joint()->robot(), gripper->joint (), joint(), transform, mask);
+      return RelativeTransformation::create ("Transformation_(0,1,1,1,1,1)_" + name () + "_" + gripper->name (),
+          gripper->joint()->robot(), gripper->joint (), joint(), transform, mask);
     }
 
     DifferentiableFunctionPtr_t Handle::createPreGraspComplement
@@ -66,15 +66,15 @@ namespace hpp {
       std::vector <bool> mask = list_of (true)(false)(false);
       Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
       fcl::Vec3f target = transform.getTranslation () + fcl::Vec3f (shift,0,0);
-      return RelativePosition::create
-        (gripper->joint()->robot(), gripper->joint (), joint(), target, fcl::Vec3f (0,0,0), mask);
+      return RelativePosition::create ("Position_(1,0,0)_" + name () + "_" + gripper->name (),
+          gripper->joint()->robot(), gripper->joint (), joint(), target, fcl::Vec3f (0,0,0), mask);
     }
 
     HandlePtr_t Handle::clone () const
     {
       HandlePtr_t self = weakPtr_.lock ();
       return Handle::create (self->name (), self->localPosition (),
-			     self->joint ());
+          self->joint ());
     }
 
     std::ostream& Handle::print (std::ostream& os) const

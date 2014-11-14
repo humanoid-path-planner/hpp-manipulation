@@ -34,9 +34,9 @@ namespace hpp {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(true)(true)(false)(true)(true);
       Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
-      return RelativeTransformation::create
-	(gripper->joint()->robot(), gripper->joint (), joint(),
-	 inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
+      return RelativeTransformation::create ("Transformation_(1,1,1,0,1,1)_" + name () + "_" + gripper->name (),
+          gripper->joint()->robot(), gripper->joint (), joint(),
+          inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
     }
 
     DifferentiableFunctionPtr_t AxialHandle::createGraspComplement
@@ -45,8 +45,8 @@ namespace hpp {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(false)(false);
       Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
-      return RelativeOrientation::create
-	(gripper->joint()->robot(), gripper->joint (), joint(), transform.getRotation (), mask);
+      return RelativeOrientation::create ("Orientation_(1,0,0)_" + name () + "_" + gripper->name (),
+          gripper->joint()->robot(), gripper->joint (), joint(), transform.getRotation (), mask);
     }
 
     DifferentiableFunctionPtr_t AxialHandle::createPreGrasp
@@ -54,9 +54,9 @@ namespace hpp {
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (false)(true)(true)(false)(true)(true);
-      return RelativeTransformation::create
-	(gripper->joint()->robot(), gripper->joint (), joint(),
-	 inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
+      return RelativeTransformation::create ("Transformation_(0,1,1,0,1,1)_" + name () + "_" + gripper->name (),
+          gripper->joint()->robot(), gripper->joint (), joint(),
+          inverse (localPosition()) * gripper->objectPositionInJoint (), mask);
     }
 
     DifferentiableFunctionPtr_t AxialHandle::createPreGraspComplement
@@ -72,8 +72,8 @@ namespace hpp {
       std::vector <bool> mask = list_of (true)(false)(false);
       Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
       fcl::Vec3f target = transform.getTranslation () + fcl::Vec3f (shift,0,0);
-      return RelativePosition::create
-        (gripper->joint()->robot(), gripper->joint (), joint(), target, fcl::Vec3f (0,0,0), mask);
+      return RelativePosition::create ("Position_(1,0,0)_" + name () + "_" + gripper->name (),
+          gripper->joint()->robot(), gripper->joint (), joint(), target, fcl::Vec3f (0,0,0), mask);
     }
 
     HandlePtr_t AxialHandle::clone () const

@@ -44,7 +44,7 @@ namespace hpp {
         return newNode;
       }
 
-      NodePtr_t NodeSelector::getNode(const Configuration_t config) const
+      NodePtr_t NodeSelector::getNode(ConfigurationIn_t config) const
       {
         for (Nodes_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)

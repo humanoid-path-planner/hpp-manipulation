@@ -37,7 +37,7 @@ namespace hpp {
           NodePtr_t createNode ();
 
           /// Returns the state of a configuration.
-          NodePtr_t getNode(const Configuration_t config) const;
+          NodePtr_t getNode(ConfigurationIn_t config) const;
 
           /// Select randomly an outgoing edge of the given node.
           virtual EdgePtr_t chooseEdge(const NodePtr_t& node) const;

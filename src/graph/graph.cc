@@ -72,7 +72,7 @@ namespace hpp {
         return robot_;
       }
 
-      NodePtr_t Graph::getNode (const Configuration_t config) const
+      NodePtr_t Graph::getNode (ConfigurationIn_t config) const
       {
         return nodeSelector_->getNode (config);
       }

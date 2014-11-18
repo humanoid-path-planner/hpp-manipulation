@@ -45,7 +45,7 @@ namespace hpp {
           NodeSelectorPtr_t createNodeSelector ();
 
           /// Returns the states of a configuration.
-          NodePtr_t getNode (const Configuration_t config) const;
+          NodePtr_t getNode (ConfigurationIn_t config) const;
 
           /// Get possible edges between two nodes.
           Edges_t getEdges (const NodePtr_t& from, const NodePtr_t& to) const;

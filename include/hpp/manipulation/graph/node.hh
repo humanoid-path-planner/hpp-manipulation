@@ -52,9 +52,10 @@ namespace hpp {
               = Edge::create);
 
           /// Check whether the configuration is in this state.
-          /// \return True if this state contains this configuration
-          /// \param config The configuration to be tested.
-          /// \note You should note use that to know in which states a
+          /// \code
+          ///   return configConstraint()->isSatisfied (config);
+          /// \endcode
+          /// \note You should not use this method to know in which states a
           /// configuration is. This only checks if the configuration satisfies
           /// the constraints. Instead, use the class NodeSelector.
           virtual bool contains (ConfigurationIn_t config);

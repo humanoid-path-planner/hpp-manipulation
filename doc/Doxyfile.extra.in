@@ -1,3 +1,14 @@
-TAGFILES	= @HPP_MODEL_DOXYGENDOCDIR@/hpp-model.doxytag = @HPP_MODEL_DOXYGENDOCDIR@/hpp-model.doxytag \
-		@HPP_CORE_DOXYGENDOCDIR@/hpp-core.doxytag = @HPP_CORE_DOXYGENDOCDIR@/hpp-core.doxytag \
-		@HPP_CONSTRAINTS_DOXYGENDOCDIR@/hpp-constraints.doxytag = @HPP_CONSTRAINTS_DOXYGENDOCDIR@/hpp-constraints.doxytag
+INPUT     = @CMAKE_SOURCE_DIR@/doc \
+            @CMAKE_SOURCE_DIR@/include \
+            @CMAKE_BINARY_DIR@/doc
+
+TAGFILES	= @HPP_MODEL_DOXYGENDOCDIR@/hpp-model.doxytag=@HPP_MODEL_DOXYGENDOCDIR@ \
+            @HPP_CORE_DOXYGENDOCDIR@/hpp-core.doxytag=@HPP_CORE_DOXYGENDOCDIR@ \
+            @HPP_CONSTRAINTS_DOXYGENDOCDIR@/hpp-constraints.doxytag=@HPP_CONSTRAINTS_DOXYGENDOCDIR@
+
+HTML_EXTRA_FILES = @CMAKE_SOURCE_DIR@/doc/ObjectManipulation_MasterThesis_JosephMirabel.pdf
+
+ALIASES   += Link{1}="\ref \1"
+ALIASES   += Link{2}="\ref \1 \"\2\""
+ALIASES   += LHPP{2}="\Link{hpp::\1::\2, \2}"
+ALIASES   += LModel{1}="\LHPP{model, \1}"

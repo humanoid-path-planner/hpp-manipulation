@@ -135,11 +135,19 @@ namespace hpp {
           friend class Graph;
       }; // class Edge
 
-      /// Edge with waypoints
-      /// Waypoint are handled recursively, i.e. class WaypointEdge contains only a
-      /// Node and an Edge, comparatively to class Edge.
+      /// Edge with waypoint.
+      /// Waypoints are handled recursively, i.e.\ class WaypointEdge contains only a
+      /// Node and an Edge, the second Edge being itself.
+      /// In this package, the Node in a WaypointEdge is semantically different from other Node
+      /// because it does not correspond to a state with different manipulation rules. It has
+      /// the same rules as another Node (either Edge::from() or Edge::to()).
+      ///
+      /// Semantically, a waypoint Node is fully part of the WaypointEdge. When a corresponding path
+      /// reaches it, no planning is required to know what to do next. To the contrary, when a path reaches
+      /// Edge::from() or Edge::to(), there may be several possibilities.
+      ///
       /// \note
-      ///   For instance, let's say, between the two nodes \f$N_f\f$ and \f$N_t\f$,
+      ///   Implementation details: let's say, between the two nodes \f$N_f\f$ and \f$N_t\f$,
       ///   two waypoints are required:
       ///   \f$ N_f \xrightarrow{e_0} n_0 \xrightarrow{e_1} n_1 \xrightarrow{E} N_t\f$.
       ///   The outmost WaypointEdg contains:

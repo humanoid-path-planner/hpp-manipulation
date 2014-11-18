@@ -1,0 +1,6 @@
+2014/11/18 - Release 1.0
+        * Manipulation planner based on RRT.
+        * A graph of constraint.
+        * graph::Edge has 3 implementations: Edge, WaypointEdge, LevelSetEdge
+        * WaypointEdge supports several waypoints.
+        * LevelSetEdge solves the zero-probability problem.

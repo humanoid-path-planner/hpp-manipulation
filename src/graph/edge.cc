@@ -202,6 +202,8 @@ namespace hpp {
       {
         assert (waypoint_.first);
         core::PathPtr_t pathToWaypoint;
+        // TO DO: Many times, this will be called rigth after WaypointEdge::applyConstraints so config_
+        // already satisfies the constraints.
         config_ = q2;
         if (!waypoint_.first->applyConstraints (q1, config_))
           return false;
@@ -226,7 +228,8 @@ namespace hpp {
         assert (waypoint_.first);
         if (!waypoint_.first->applyConstraints (qoffset, q))
           return false;
-        return Edge::applyConstraints (qoffset, q);
+        config_ = q;
+        return Edge::applyConstraints (config_, q);
       }
 
       void WaypointEdge::createWaypoint (const unsigned d, const std::string& bname)

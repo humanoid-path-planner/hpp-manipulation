@@ -24,6 +24,7 @@
 # include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
+# include "hpp/manipulation/graph/dot.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -74,7 +75,7 @@ namespace hpp {
           void parentGraph(const GraphWkPtr_t& parent);
 
           /// Print the component in DOT language.
-          virtual std::ostream& dotPrint (std::ostream& os) const;
+          virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
         protected:
           /// Initialize the component

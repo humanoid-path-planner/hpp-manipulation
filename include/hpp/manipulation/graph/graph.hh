@@ -84,7 +84,7 @@ namespace hpp {
           const RobotPtr_t& robot () const;
 
           /// Print the component in DOT language.
-          virtual std::ostream& dotPrint (std::ostream& os) const;
+          virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
         protected:
           /// Initialization of the object.

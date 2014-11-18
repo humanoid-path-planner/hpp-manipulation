@@ -88,7 +88,7 @@ namespace hpp {
           }
 
           /// Print the object in a stream.
-          virtual std::ostream& dotPrint (std::ostream& os) const;
+          virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
         protected:
           /// Initialization of the object.
@@ -169,7 +169,7 @@ namespace hpp {
           boost::shared_ptr <EdgeType> waypoint () const;
 
           /// Print the object in a stream.
-          virtual std::ostream& dotPrint (std::ostream& os) const;
+          virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
           /// Create inner waypoints.
           /// \param depth the number of waypoints between from() and to()
@@ -219,7 +219,7 @@ namespace hpp {
           void insertConfigConstraint (const LockedDofPtr_t lockedDof);
 
           /// Print the object in a stream.
-          virtual std::ostream& dotPrint (std::ostream& os) const;
+          virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
         protected:
           /// Initialization of the object.

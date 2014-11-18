@@ -55,7 +55,7 @@ namespace hpp {
         return os;
       }
 
-      std::ostream& GraphComponent::dotPrint (std::ostream& os) const
+      std::ostream& GraphComponent::dotPrint (std::ostream& os, dot::DrawingAttributes) const
       {
         os << id ();
         return os;

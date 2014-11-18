@@ -108,9 +108,9 @@ namespace hpp {
         return edge->pathConstraint ();
       }
 
-      std::ostream& Graph::dotPrint (std::ostream& os) const
+      std::ostream& Graph::dotPrint (std::ostream& os, dot::DrawingAttributes da) const
       {
-        os << "digraph " << id() << " {" << std::endl;
+        os << "digraph " << id() << " " << da << " {" << std::endl;
         nodeSelector_->dotPrint (os);
         os << "}" << std::endl;
         return os;

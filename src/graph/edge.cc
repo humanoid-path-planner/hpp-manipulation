@@ -82,9 +82,11 @@ namespace hpp {
         return os;
       }
 
-      std::ostream& Edge::dotPrint (std::ostream& os) const
+      std::ostream& Edge::dotPrint (std::ostream& os, dot::DrawingAttributes da) const
       {
-        os << from()->id () << " -> " << to()->id () << " [shape=onormal,label=\"" << name () << "\"];";
+        da.insertWithQuote ("label", name ());
+        da.insert ("shape", "onormal");
+        os << from()->id () << " -> " << to()->id () << " " << da << ";";
         return os;
       }
 
@@ -277,9 +279,19 @@ namespace hpp {
         return os;
       }
 
-      std::ostream& WaypointEdge::dotPrint (std::ostream& os) const
+      std::ostream& WaypointEdge::dotPrint (std::ostream& os, dot::DrawingAttributes da) const
       {
-        os << from()->id () << " -> " << to()->id () << " [shape=onormal,label=\"" << name () << "\"];";
+        // First print the waypoint node, then the first edge.
+        da ["style"]="dashed";
+        waypoint_.second->dotPrint (os, da);
+        da ["style"]="solid";
+        waypoint_.first->dotPrint (os, da) << std::endl;
+        da ["style"]="dotted";
+        da ["dir"] = "both";
+        da ["arrowtail"]="dot";
+        da.insert ("shape", "onormal");
+        da.insertWithQuote ("label", name());
+        os << waypoint_.second->id () << " -> " << to()->id () << " " << da << ";";
         return os;
       }
 
@@ -291,10 +303,11 @@ namespace hpp {
         return os;
       }
 
-      std::ostream& LevelSetEdge::dotPrint (std::ostream& os) const
+      std::ostream& LevelSetEdge::dotPrint (std::ostream& os, dot::DrawingAttributes da) const
       {
-        os << from()->id () << " -> " << to()->id () << " [shape=onormal,label=\"" << name () << "\"];";
-        return os;
+        da.insert ("shape", "onormal");
+        da.insert ("style", "dashed");
+        return Edge::dotPrint (os, da);
       }
 
       bool LevelSetEdge::applyConstraints (ConfigurationIn_t, ConfigurationOut_t) const

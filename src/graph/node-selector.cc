@@ -59,7 +59,7 @@ namespace hpp {
         return neighborPicker ();
       }
 
-      std::ostream& NodeSelector::dotPrint (std::ostream& os) const
+      std::ostream& NodeSelector::dotPrint (std::ostream& os, dot::DrawingAttributes) const
       {
         for (Nodes_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)

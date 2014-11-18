@@ -55,7 +55,7 @@ namespace hpp {
           }
 
           /// Print the object in a stream.
-          std::ostream& dotPrint (std::ostream& os) const;
+          std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
         protected:
           /// Initialization of the object.

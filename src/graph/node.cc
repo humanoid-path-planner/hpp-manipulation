@@ -58,12 +58,22 @@ namespace hpp {
         return configConstraint()->isSatisfied (config);
       }
 
-      std::ostream& Node::dotPrint (std::ostream& os) const
+      std::ostream& Node::dotPrint (std::ostream& os, dot::DrawingAttributes da) const
       {
-        os << id () << " [label=\"" << name () << "\"];" << std::endl;
+        da.insertWithQuote ("label", name ());
+        da.insert ("style","filled");
+        os << id () << " " << da << ";" << std::endl;
+
+        dot::DrawingAttributes dac;
+        std::vector <double> p = neighbors_.probabilities ();
+        size_t i = 0;
         for (Neighbors_t::const_iterator it = neighbors_.begin();
-            it != neighbors_.end(); ++it)
-          it->second->dotPrint (os) << std::endl;
+            it != neighbors_.end(); ++it) {
+          std::ostringstream oss; oss << (p[i] * 3 + 0.5);
+          dac ["penwidth"] = oss.str ();
+          i++;
+          it->second->dotPrint (os, dac) << std::endl;
+        }
         return os;
       }
 

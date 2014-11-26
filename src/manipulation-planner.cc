@@ -21,6 +21,8 @@
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/problem.hh"
+#include "hpp/manipulation/path-projector.hh"
+#include "hpp/manipulation/path-projector/dichotomy.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/graph/edge.hh"
 
@@ -116,6 +118,11 @@ namespace hpp {
         addFailure (STEERING_METHOD, edge);
         return false;
       }
+      core::PathPtr_t projPath;
+      if (!pathProjector_->apply (path, projPath)) {
+        addFailure (PATH_PROJECTION, edge);
+        if (!projPath || projPath->length () == 0) return false;
+      }
       GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
       pathValidation->validate (path, false, validPath);
       if (validPath->length () == 0)
@@ -136,7 +143,8 @@ namespace hpp {
         std::string edgeStr = "(" + edge->name () + ")";
         Reasons r (SuccessBin::createReason ("Projection for " + edgeStr),
                    SuccessBin::createReason ("SteeringMethod for " + edgeStr),
-                   SuccessBin::createReason ("PathValidation returned length 0 for " + edgeStr));
+                   SuccessBin::createReason ("PathValidation returned length 0 for " + edgeStr),
+                   SuccessBin::createReason ("Path could not be fully projected for " + edgeStr));
         failureReasons_.insert (EdgeReasonPair (edge, r));
         extendStatistics_.addFailure (r.get (t));
         return;
@@ -187,7 +195,7 @@ namespace hpp {
         const core::RoadmapPtr_t& roadmap) :
       core::PathPlanner (problem, roadmap),
       shooter_ (new core::BasicConfigurationShooter (problem.robot ())),
-      problem_ (problem),
+      problem_ (problem), pathProjector_ (new pathProjector::Dichotomy (problem_.distance (), 0.1)),
       qProj_ (problem.robot ()->configSize ())
     {}
 

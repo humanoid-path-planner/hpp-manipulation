@@ -85,14 +85,15 @@ namespace hpp {
         enum TypeOfFailure {
           PROJECTION,
           STEERING_METHOD,
-          PATH_VALIDATION
+          PATH_VALIDATION,
+          PATH_PROJECTION
         };
         struct Reasons {
           typedef ::hpp::statistics::SuccessBin::Reason Reason;
-          Reason projFailed, smFailed, pvFailed;
+          Reason projFailed, smFailed, pvFailed, pprojFailed;
 
-          Reasons (const Reason& proj, const Reason& sm, const Reason& pv) :
-            projFailed (proj), smFailed (sm), pvFailed (pv) {}
+          Reasons (const Reason& proj, const Reason& sm, const Reason& pv, const Reason& pp) :
+            projFailed (proj), smFailed (sm), pvFailed (pv), pprojFailed (pp) {}
           const Reason& get (TypeOfFailure t)
           {
             switch (t) {
@@ -102,6 +103,8 @@ namespace hpp {
                 return smFailed;
               case PATH_VALIDATION:
                 return pvFailed;
+              case PATH_PROJECTION:
+                return pprojFailed;
             }
             return ::hpp::statistics::SuccessBin::REASON_UNKNOWN;
           }
@@ -111,6 +114,8 @@ namespace hpp {
         EdgeReasonMap failureReasons_;
 
         void addFailure (TypeOfFailure t, const graph::EdgePtr_t& edge);
+
+        PathProjectorPtr_t pathProjector_;
 
         mutable Configuration_t qProj_;
     };

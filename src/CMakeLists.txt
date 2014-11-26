@@ -29,6 +29,9 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   graph-path-validation.cc
   graph-steering-method.cc
 
+  path-projector.cc
+  path-projector/dichotomy.cc
+
   graph/node.cc
   graph/edge.cc
   graph/graph.cc

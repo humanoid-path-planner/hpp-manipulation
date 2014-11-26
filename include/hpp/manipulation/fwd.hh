@@ -76,6 +76,11 @@ namespace hpp {
     typedef boost::shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
     HPP_PREDEF_CLASS (GraphSteeringMethod);
     typedef boost::shared_ptr < GraphSteeringMethod > GraphSteeringMethodPtr_t;
+    HPP_PREDEF_CLASS (PathProjector);
+    typedef PathProjector* PathProjectorPtr_t;
+    namespace pathProjector {
+      HPP_PREDEF_CLASS (Dichotomy);
+    }
 
     typedef std::vector <DevicePtr_t> Devices_t;
     typedef std::vector <ObjectPtr_t> Objects_t;

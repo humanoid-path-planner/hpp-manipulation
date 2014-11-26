@@ -57,6 +57,8 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/robot.hh
   include/hpp/manipulation/roadmap.hh
   include/hpp/manipulation/manipulation-planner.hh
+  include/hpp/manipulation/path-projector.hh
+  include/hpp/manipulation/path-projector/dichotomy.hh
   include/hpp/manipulation/graph-path-validation.hh
   include/hpp/manipulation/graph-steering-method.hh
   include/hpp/manipulation/graph/node.hh

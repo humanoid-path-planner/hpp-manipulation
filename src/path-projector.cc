@@ -54,7 +54,9 @@ namespace hpp {
           }
           res->appendPath (part);
         }
+        proj = res;
       }
+      assert (proj);
       return true;
     }
   } // namespace manipulation

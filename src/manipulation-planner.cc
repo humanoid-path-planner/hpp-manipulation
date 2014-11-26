@@ -124,7 +124,7 @@ namespace hpp {
         if (!projPath || projPath->length () == 0) return false;
       }
       GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
-      pathValidation->validate (path, false, validPath);
+      pathValidation->validate (projPath, false, validPath);
       if (validPath->length () == 0)
         addFailure (PATH_VALIDATION, edge);
       else {

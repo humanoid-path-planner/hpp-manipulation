@@ -23,6 +23,7 @@
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/path-projector.hh"
 #include "hpp/manipulation/path-projector/dichotomy.hh"
+#include "hpp/manipulation/path-projector/progressive.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/graph/edge.hh"
 
@@ -51,7 +52,6 @@ namespace hpp {
       }
       return false;
     }
-
 
     void ManipulationPlanner::oneStep ()
     {
@@ -120,8 +120,11 @@ namespace hpp {
       }
       core::PathPtr_t projPath;
       if (!pathProjector_->apply (path, projPath)) {
-        addFailure (PATH_PROJECTION, edge);
-        if (!projPath || projPath->length () == 0) return false;
+        if (!projPath || projPath->length () == 0) {
+          addFailure (PATH_PROJECTION_ZERO, edge);
+          return false;
+        }
+        addFailure (PATH_PROJECTION_SHORTER, edge);
       }
       GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
       pathValidation->validate (projPath, false, validPath);
@@ -140,19 +143,19 @@ namespace hpp {
     {
       EdgeReasonMap::iterator it = failureReasons_.find (edge);
       if (it == failureReasons_.end ()) {
-        std::string edgeStr = "(" + edge->name () + ")";
-        Reasons r (SuccessBin::createReason ("Projection for " + edgeStr),
-                   SuccessBin::createReason ("SteeringMethod for " + edgeStr),
-                   SuccessBin::createReason ("PathValidation returned length 0 for " + edgeStr),
-                   SuccessBin::createReason ("Path could not be fully projected for " + edgeStr));
+        std::string edgeStr = edge->name () + " - ";
+        Reasons r (SuccessBin::createReason (edgeStr + "Projection"),
+                   SuccessBin::createReason (edgeStr + "SteeringMethod"),
+                   SuccessBin::createReason (edgeStr + "PathValidation returned length 0"),
+                   SuccessBin::createReason (edgeStr + "Path could not be fully projected"),
+                   SuccessBin::createReason (edgeStr + "Path could not be projected"));
         failureReasons_.insert (EdgeReasonPair (edge, r));
         extendStatistics_.addFailure (r.get (t));
         return;
       }
       Reasons r = it->second;
       extendStatistics_.addFailure (r.get (t));
-      hppDout (info, "Extension failed." << std::endl
-          << extendStatistics_);
+      hppDout (info, "Extension failed." << std::endl << extendStatistics_);
     }
 
     inline void ManipulationPlanner::tryConnect (const core::Nodes_t nodes)
@@ -195,7 +198,7 @@ namespace hpp {
         const core::RoadmapPtr_t& roadmap) :
       core::PathPlanner (problem, roadmap),
       shooter_ (new core::BasicConfigurationShooter (problem.robot ())),
-      problem_ (problem), pathProjector_ (new pathProjector::Dichotomy (problem_.distance (), 0.1)),
+      problem_ (problem), pathProjector_ (new pathProjector::Progressive (problem_.distance (), 0.2)),
       qProj_ (problem.robot ()->configSize ())
     {}
 

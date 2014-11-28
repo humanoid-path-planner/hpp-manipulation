@@ -86,14 +86,15 @@ namespace hpp {
           PROJECTION,
           STEERING_METHOD,
           PATH_VALIDATION,
-          PATH_PROJECTION
+          PATH_PROJECTION_SHORTER,
+          PATH_PROJECTION_ZERO
         };
         struct Reasons {
           typedef ::hpp::statistics::SuccessBin::Reason Reason;
-          Reason projFailed, smFailed, pvFailed, pprojFailed;
+          Reason projFailed, smFailed, pvFailed, pprojShorter, pprojZero;
 
-          Reasons (const Reason& proj, const Reason& sm, const Reason& pv, const Reason& pp) :
-            projFailed (proj), smFailed (sm), pvFailed (pv), pprojFailed (pp) {}
+          Reasons (const Reason& proj, const Reason& sm, const Reason& pv, const Reason& pps, const Reason& ppz) :
+            projFailed (proj), smFailed (sm), pvFailed (pv), pprojShorter (pps), pprojZero (ppz) {}
           const Reason& get (TypeOfFailure t)
           {
             switch (t) {
@@ -103,8 +104,10 @@ namespace hpp {
                 return smFailed;
               case PATH_VALIDATION:
                 return pvFailed;
-              case PATH_PROJECTION:
-                return pprojFailed;
+              case PATH_PROJECTION_SHORTER:
+                return pprojShorter;
+              case PATH_PROJECTION_ZERO:
+                return pprojZero;
             }
             return ::hpp::statistics::SuccessBin::REASON_UNKNOWN;
           }

@@ -31,6 +31,7 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
 
   path-projector.cc
   path-projector/dichotomy.cc
+  path-projector/progressive.cc
 
   graph/node.cc
   graph/edge.cc

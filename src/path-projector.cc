@@ -38,26 +38,34 @@ namespace hpp {
     bool PathProjector::apply (const PathPtr_t path, PathPtr_t& proj) const
     {
       assert (path);
+      bool success = false;
       PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, path);
       if (!pv) {
         StraightPathPtr_t sp = HPP_DYNAMIC_PTR_CAST (StraightPath, path);
         if (!sp) throw std::invalid_argument ("Unknow inherited class of Path");
-        return impl_apply (sp, proj);
-      }
-      else {
+        success = impl_apply (sp, proj);
+      } else {
         PathVectorPtr_t res = PathVector::create (pv->outputSize());
         PathPtr_t part;
+        success = true;
         for (size_t i = 0; i < pv->numberPaths (); i++) {
           if (!apply (pv->pathAtRank (i), part)) {
-            if (part && part->length () > 0) res->appendPath (part);
-            return false;
+            // We add the path only if part is not NULL and:
+            // - either its length is not zero,
+            // - or it's not the first one.
+            if (part && (part->length () > 0 || i == 0)) res->appendPath (part);
+            success = false;
+            break;
           }
           res->appendPath (part);
         }
+        //if (res->numberPaths ()==0) proj = path.extract (std::make_pair ());
         proj = res;
       }
       assert (proj);
-      return true;
+      assert (((*proj)(proj->timeRange ().first) - (*path)(path->timeRange ().first)).isZero());
+      assert (!success || ((*proj)(proj->timeRange ().second) - (*path)(path->timeRange ().second)).isZero());
+      return success;
     }
   } // namespace manipulation
 } // namespace hpp

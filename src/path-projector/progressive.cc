@@ -61,20 +61,19 @@ namespace hpp {
           timeRange = toSplitRef.timeRange ();
           const Configuration_t& qb = toSplitRef (timeRange.first);
           curStep = step_;
+          curLength = std::numeric_limits <value_type>::max();
           bool stop = false;
           /// Find the good length.
           /// Here, it would be good to have an upper bound of the Hessian
           /// of the constraint.
           do {
-            toSplitRef (qi, curStep);
-            if (!constraints->apply (qi)) {
-              stop = true;
-              break;
-            }
-            curLength = d (qb, qi); 
             if (curStep < 0.02) {
               stop = true;
               break;
+            }
+            toSplitRef (qi, curStep);
+            if (constraints->apply (qi)) {
+              curLength = d (qb, qi);
             }
             curStep /= 2;
           } while (curLength > step_);

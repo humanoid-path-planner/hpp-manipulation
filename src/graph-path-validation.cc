@@ -32,7 +32,11 @@ namespace hpp {
           const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
     {
       assert (path);
-      return impl_validate (path, reverse, validPart);
+      bool success = impl_validate (path, reverse, validPart);
+      assert (constraintGraph_);
+      assert (constraintGraph_->getNode ((*validPart) (validPart->timeRange ().first)));
+      assert (constraintGraph_->getNode ((*validPart) (validPart->timeRange ().second)));
+      return success;
     }
 
     bool GraphPathValidation::impl_validate (
@@ -86,24 +90,25 @@ namespace hpp {
         return true;
       }
       const Path& newPath (*pathNoCollision);
-      value_type newTmin = pathNoCollision->timeRange ().first,
-                 newTmax = pathNoCollision->timeRange ().second,
-                 oldTmin = path->timeRange ().first,
-                 oldTmax = path->timeRange ().second;
-      graph::NodePtr_t origNode, destNode;
-      try {
-        origNode = constraintGraph_->getNode (newPath (newTmin));
-        destNode = constraintGraph_->getNode (newPath (newTmax));
+      const Path& oldPath (*path);
+      const core::interval_t& newTR = newPath.timeRange (),
+                              oldTR = oldPath.timeRange ();
+      Configuration_t q (newPath.outputSize());
+      if (!newPath (q, newTR.first))
+        throw std::logic_error ("Initial configuration of the valid part cannot be projected.");
+      const graph::NodePtr_t& origNode = constraintGraph_->getNode (q);
+      if (!newPath (q, newTR.second))
+        throw std::logic_error ("End configuration of the valid part cannot be projected.");
+      const graph::NodePtr_t& destNode = constraintGraph_->getNode (q);
+      if (!oldPath (q, oldTR.first))
+        throw std::logic_error ("Initial configuration of the path to be validated cannot be projected.");
+      const graph::NodePtr_t& oldOnode = constraintGraph_->getNode (q);
+      if (!oldPath (q, oldTR.second))
+        throw std::logic_error ("End configuration of the path to be validated cannot be projected.");
+      const graph::NodePtr_t& oldDnode = constraintGraph_->getNode (q);
 
-        if (origNode == constraintGraph_->getNode ((*path) (oldTmin))
-            && destNode == constraintGraph_->getNode ((*path) (oldTmax))) {
-          validPart = pathNoCollision;
-          return false;
-        }
-      } catch (std::logic_error& e) {
-        /// A configuration has no node, which may be because the path could not be projected.
-        /// Path should be considered invalid.
-        validPart = path->extract (std::make_pair (oldTmin,oldTmin));
+      if (origNode == oldOnode && destNode == oldDnode) {
+        validPart = pathNoCollision;
         return false;
       }
 
@@ -111,7 +116,7 @@ namespace hpp {
       // edge of the constraint graph. Two option are possible:
       // - Use the steering method to create a new path and validate it.
       // - Return a null path.
-      validPart = path->extract (std::make_pair (oldTmin,oldTmin));
+      validPart = path->extract (std::make_pair (oldTR.first,oldTR.first));
       return false;
     }
 

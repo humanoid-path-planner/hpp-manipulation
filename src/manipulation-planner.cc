@@ -104,6 +104,9 @@ namespace hpp {
       // Select next node in the constraint graph.
       const ConfigurationPtr_t q_near = n_near->configuration ();
       graph::NodePtr_t node = graph->getNode (*q_near);
+      if (node->neighbors ().totalWeight () == 0) {
+        return false;
+      }
       graph::EdgePtr_t edge = graph->chooseEdge (node);
       qProj_ = *q_rand;
       if (!edge->applyConstraints (n_near, qProj_)) {

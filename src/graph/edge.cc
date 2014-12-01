@@ -245,9 +245,9 @@ namespace hpp {
           edge->isInNodeFrom (isInNodeFrom ());
         } else {
           WaypointEdgePtr_t we = WaypointEdge::create (graph_, from (), node);
-          edge->isInNodeFrom (isInNodeFrom ());
           we->createWaypoint (d-1, bname);
           edge = we;
+          edge->isInNodeFrom (isInNodeFrom ());
         }
         ss.str (std::string ()); ss.clear ();
         ss << bname << "_e" << d;

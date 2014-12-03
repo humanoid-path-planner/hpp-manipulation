@@ -202,7 +202,7 @@ namespace hpp {
           typedef std::pair < EdgePtr_t, NodePtr_t > Waypoint;
 
           Waypoint waypoint_;
-          mutable Configuration_t config_;
+          mutable Configuration_t config_, result_;
       }; // class WaypointEdge
 
       /// Edge that find intersection of level set.

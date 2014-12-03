@@ -204,9 +204,9 @@ namespace hpp {
       {
         assert (waypoint_.first);
         core::PathPtr_t pathToWaypoint;
-        // TO DO: Many times, this will be called rigth after WaypointEdge::applyConstraints so config_
+        // Many times, this will be called rigth after WaypointEdge::applyConstraints so config_
         // already satisfies the constraints.
-        config_ = q2;
+        if (!result_.isApprox (q2)) config_ = q2;
         if (!waypoint_.first->applyConstraints (q1, config_))
           return false;
         if (!waypoint_.first->build (pathToWaypoint, q1, config_, d))
@@ -230,10 +230,12 @@ namespace hpp {
       bool WaypointEdge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
       {
         assert (waypoint_.first);
-        if (!waypoint_.first->applyConstraints (qoffset, q))
-          return false;
         config_ = q;
-        return Edge::applyConstraints (config_, q);
+        if (!waypoint_.first->applyConstraints (qoffset, config_))
+          return false;
+        bool success = Edge::applyConstraints (config_, q);
+        result_ = q;
+        return success;
       }
 
       void WaypointEdge::createWaypoint (const unsigned d, const std::string& bname)
@@ -258,6 +260,7 @@ namespace hpp {
         edge->name (ss.str ());
         waypoint_ = Waypoint (edge, node);
         config_ = Configuration_t(graph_.lock ()->robot ()->configSize ());
+        result_ = Configuration_t(graph_.lock ()->robot ()->configSize ());
       }
 
       NodePtr_t WaypointEdge::node () const

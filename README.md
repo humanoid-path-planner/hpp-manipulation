@@ -4,7 +4,7 @@ This package is part of the [HPP] software and extends the functionalities of hp
 It implements a solver for manipulation planning problems.
 
 ### Version
-1.0
+1.0.1
 
 ### Dependencies
 

@@ -20,7 +20,7 @@
 #ifndef HPP_MANIPULATION_HANDLE_HH
 # define HPP_MANIPULATION_HANDLE_HH
 
-# include <fcl/math/transform.h>
+# include <hpp/fcl/math/transform.h>
 # include <hpp/manipulation/config.hh>
 # include <hpp/manipulation/fwd.hh>
 

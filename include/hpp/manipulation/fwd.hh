@@ -21,7 +21,7 @@
 # define HPP_MANIPULATION_FWD_HH
 
 # include <map>
-# include <hpp/constraints/fwd.hh>
+# include <hpp/core/fwd.hh>
 
 namespace fcl {
   class TriangleP;

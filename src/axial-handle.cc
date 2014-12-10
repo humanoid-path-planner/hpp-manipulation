@@ -18,7 +18,7 @@
 // <http://www.gnu.org/licenses/>.
 
 #include <boost/assign/list_of.hpp>
-#include <fcl/math/transform.h>
+#include <hpp/fcl/math/transform.h>
 #include <hpp/model/joint.hh>
 #include <hpp/model/gripper.hh>
 #include <hpp/constraints/relative-transformation.hh>

@@ -211,7 +211,9 @@ namespace hpp {
           return false;
         core::PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (core::PathVector, pathToWaypoint);
         if (!pv) {
-          pv = core::PathVector::create (graph_.lock ()->robot ()->configSize ());
+          pv = core::PathVector::create
+	    (graph_.lock ()->robot ()->configSize (),
+	     graph_.lock ()->robot ()->numberDof ());
           pv->appendPath (pathToWaypoint);
         }
         path = pv;

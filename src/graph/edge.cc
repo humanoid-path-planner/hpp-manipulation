@@ -18,7 +18,7 @@
 
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
-#include <hpp/core/differentiable-function.hh>
+#include <hpp/constraints/differentiable-function.hh>
 
 #include <hpp/util/pointer.hh>
 

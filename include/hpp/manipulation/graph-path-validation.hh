@@ -49,6 +49,19 @@ namespace hpp {
         /// the encapsulated PathValidation::validate.
         bool validate (const PathPtr_t& path, bool reverse, PathPtr_t& validPart);
 
+	/// Call the GraphPathValidation::validate without validation report.
+	///
+	/// \param path the path to check for validity,
+	/// \param reverse if true check from the end,
+	/// \retval the extracted valid part of the path, pointer to path if
+	///         path is valid,
+	/// \retval report information about the validation process. unused in
+	///         this case,
+	/// \return whether the whole path is valid.
+	virtual bool validate (const PathPtr_t& path, bool reverse,
+			       PathPtr_t& validPart,
+			       ValidationReport& report);
+
         /// Set the encapsulated path validator.
         void innerValidation (const PathValidationPtr_t& pathValidation)
         {

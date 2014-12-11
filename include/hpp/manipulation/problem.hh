@@ -27,6 +27,9 @@
 
 namespace hpp {
   namespace manipulation {
+    /// \addtogroup path_planning
+    /// \{
+
     class HPP_MANIPULATION_DLLAPI Problem : public core::Problem
     {
       public:
@@ -83,7 +86,8 @@ namespace hpp {
         graph::GraphPtr_t graph_;
         /// Steering method
         GraphSteeringMethodPtr_t steeringMethod_;
-    };
+    }; // class Problem
+    /// \}
   } // namespace manipulation
 } // namespace hpp
 

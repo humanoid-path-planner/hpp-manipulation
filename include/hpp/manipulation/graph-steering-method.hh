@@ -28,6 +28,8 @@ namespace hpp {
   namespace manipulation {
     using core::SteeringMethod;
     using core::PathPtr_t;
+    /// \addtogroup steering_method
+    /// \{
 
     class HPP_MANIPULATION_DLLAPI GraphSteeringMethod : public SteeringMethod
     {
@@ -64,6 +66,7 @@ namespace hpp {
         /// Metric in configuration space.
         core::WeighedDistancePtr_t distance_;
     };
+    /// \}
   } // namespace manipulation
 } // namespace hpp
 

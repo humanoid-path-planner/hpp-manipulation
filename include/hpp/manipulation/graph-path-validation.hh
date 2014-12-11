@@ -36,6 +36,9 @@ namespace hpp {
     using hpp::core::PathVectorPtr_t;
     using graph::GraphPtr_t;
 
+    /// \addtogroup validation
+    /// \{
+
     /// Path validation for a constraint graph
     ///
     /// This class encapsulates another path validation class.
@@ -117,6 +120,7 @@ namespace hpp {
     {
       return GraphPathValidation::create (T::create (robot, stepSize));
     }
+    /// \}
   } // namespace manipulation
 } // namespace hpp
 

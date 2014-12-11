@@ -33,7 +33,11 @@
 
 namespace hpp {
   namespace manipulation {
-    class HPP_MANIPULATION_DLLAPI ManipulationPlanner : public hpp::core::PathPlanner
+    /// \addtogroup path_planning
+    /// \{
+
+    class HPP_MANIPULATION_DLLAPI ManipulationPlanner :
+      public hpp::core::PathPlanner
     {
       public:
         /// Create an instance and return a shared pointer to the instance
@@ -114,6 +118,7 @@ namespace hpp {
 
         mutable Configuration_t qProj_;
     };
+    /// \}
   } // namespace manipulation
 } // namespace hpp
 

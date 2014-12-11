@@ -25,6 +25,9 @@
 
 namespace hpp {
   namespace manipulation {
+    /// \addtogroup roadmap
+    /// \{
+
     /// Extension of hpp::core::Roadmap. It adds the ability of doing
     /// statistics on the graph
     class HPP_MANIPULATION_DLLAPI Roadmap : public core::Roadmap
@@ -64,6 +67,7 @@ namespace hpp {
         /// There should be one histogram per foliation.
         Histograms histograms_;
     };
+    /// \}
   } // namespace manipulation
 } // namespace hpp
 

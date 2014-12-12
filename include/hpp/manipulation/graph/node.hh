@@ -19,7 +19,7 @@
 
 # include <boost/function.hpp>
 
-#include <hpp/core/locked-dof.hh>
+#include <hpp/core/locked-joint.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
 
@@ -90,7 +90,7 @@ namespace hpp {
           }
 
           /// Add core::DifferentiableFunction to the component.
-          virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function, const EquationTypePtr_t& ineq)
+          virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq)
           {
             numericalConstraintsForPath_.push_back (DiffFuncAndIneqPair_t(function,ineq));
           }
@@ -101,7 +101,7 @@ namespace hpp {
           {
             for (DifferentiableFunctions_t::const_iterator it = numericalConstraintsForPath_.begin();
                 it != numericalConstraintsForPath_.end(); it++)
-              proj->addConstraint (it->first, it->second);
+              proj->addFunction (it->first, it->second);
             return !numericalConstraintsForPath_.empty ();
           }
 

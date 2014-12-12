@@ -49,7 +49,8 @@ namespace hpp {
           }
 
           /// Should never be called.
-          void addLockedDofConstraint (const core::LockedDof& /* constraint */)
+          void addLockedJointConstraint
+	    (const core::LockedJoint& /* constraint */)
           {
             HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
           }

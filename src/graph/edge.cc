@@ -151,7 +151,7 @@ namespace hpp {
       bool Edge::build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const
       {
         ConstraintSetPtr_t constraints = pathConstraint ();
-        constraints->offsetFromConfig(q1);
+        constraints->configProjector ()->rightHandSideFromConfig(q1);
         if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
           return false;
         }
@@ -165,22 +165,24 @@ namespace hpp {
         return applyConstraints (*(nnear->configuration ()), q);
       }
 
-      bool Edge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
+      bool Edge::applyConstraints (ConfigurationIn_t qoffset,
+				   ConfigurationOut_t q) const
       {
         ConstraintSetPtr_t c = configConstraint ();
-        c->offsetFromConfig (qoffset);
         ConfigProjectorPtr_t proj = c->configProjector ();
+        proj->rightHandSideFromConfig (qoffset);
         if (c->apply (q)) {
           return true;
         }
-        if (proj) {
-          ::hpp::statistics::SuccessStatistics& ss = proj->statistics ();
-          if (ss.nbFailure () > ss.nbSuccess ()) {
-            hppDout (warning, c->name () << " fails often." << std::endl << ss);
-          } else {
-            hppDout (warning, c->name () << " succeeds at rate " << (double)(ss.nbSuccess ()) / ss.numberOfObservations () << ".");
-          }
-        }
+	assert (proj);
+	::hpp::statistics::SuccessStatistics& ss = proj->statistics ();
+	if (ss.nbFailure () > ss.nbSuccess ()) {
+	  hppDout (warning, c->name () << " fails often." << std::endl << ss);
+	} else {
+	  hppDout (warning, c->name () << " succeeds at rate "
+		   << (double)(ss.nbSuccess ()) / ss.numberOfObservations ()
+		   << ".");
+	}
         return false;
       }
 
@@ -322,47 +324,48 @@ namespace hpp {
 
       bool LevelSetEdge::applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const
       {
+#if 0
         // First, get an offset from the histogram that is not in the same connected component.
         statistics::DiscreteDistribution < core::NodePtr_t > distrib = hist_->getDistribOutOfConnectedComponent (n_offset->connectedComponent ());
         const Configuration_t& levelsetTarget = *(distrib ()->configuration ()),
                                q_offset = *(n_offset->configuration ());
         // Then, set the offset.
         ConstraintSetPtr_t cs = extraConfigConstraint ();
-        cs->offsetFromConfig (q_offset);
-
         const ConfigProjectorPtr_t cp = cs->configProjector ();
-        if (cp) {
-          vector_t offset = cp->offsetFromConfig (q_offset);
-          size_t row = 0, nbRows = 0;
-          for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
-              it != extraNumericalFunctions_.end (); ++it) {
-            const core::DifferentiableFunction& f = *(it->first);
-            nbRows = f.outputSize ();
-            vector_t value = vector_t::Zero (nbRows);
-            if (f.isParametric ()) {
-              f (value, levelsetTarget);
-            }
-            offset.segment (row, nbRows) = value;
-            row += nbRows;
-          }
-          cp->offset (offset);
-        }
-        for (LockedDofs_t::const_iterator it = extraLockedDofs_.begin ();
-            it != extraLockedDofs_.end (); ++it) {
-          (*it)->offsetFromConfig (levelsetTarget);
+        assert (cp);
+	vector_t offset = cp->rightHandSideFromConfig (q_offset);
+	size_t row = 0, nbRows = 0;
+	for (DifferentiableFunctions_t::const_iterator it =
+	       extraNumericalFunctions_.begin ();
+	     it != extraNumericalFunctions_.end (); ++it) {
+	  const core::DifferentiableFunction& f = *(it->first);
+	  nbRows = f.outputSize ();
+	  vector_t value = vector_t::Zero (nbRows);
+	  // TODO: fix this function
+	  if (f.isParametric ()) {
+	    f (value, levelsetTarget);
+	  }
+	  offset.segment (row, nbRows) = value;
+	  row += nbRows;
+	}
+	cp->rightHandSide (offset);
+        for (LockedJoints_t::const_iterator it = extraLockedDofs_.begin ();
+	     it != extraLockedDofs_.end (); ++it) {
+          (*it)->valueFromFromConfig (levelsetTarget);
         }
 
         // Eventually, do the projection.
         if (cs->apply (q))
           return true;
-        if (cp) {
-          ::hpp::statistics::SuccessStatistics& ss = cp->statistics ();
-          if (ss.nbFailure () > ss.nbSuccess ()) {
-            hppDout (warning, cs->name () << " fails often." << std::endl << ss);
-          } else {
-            hppDout (warning, cs->name () << " succeeds at rate " << (double)(ss.nbSuccess ()) / ss.numberOfObservations () << ".");
-          }
-        }
+	::hpp::statistics::SuccessStatistics& ss = cp->statistics ();
+	if (ss.nbFailure () > ss.nbSuccess ()) {
+	  hppDout (warning, cs->name () << " fails often." << std::endl << ss);
+	} else {
+	  hppDout (warning, cs->name () << " succeeds at rate "
+		   << (double)(ss.nbSuccess ()) / ss.numberOfObservations ()
+		   << ".");
+	}
+#endif
         return false;
       }
 
@@ -392,12 +395,12 @@ namespace hpp {
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
           for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
               it != extraNumericalFunctions_.end (); ++it) {
-            proj->addConstraint (it->first);
+            proj->addFunction (it->first);
           }
           constraint->addConstraint (proj);
         }
 
-        for (LockedDofs_t::const_iterator it = extraLockedDofs_.begin ();
+        for (LockedJoints_t::const_iterator it = extraLockedDofs_.begin ();
             it != extraLockedDofs_.end (); ++it)
           constraint->addConstraint (*it);
 
@@ -422,7 +425,7 @@ namespace hpp {
           bool hasDiffFunc = g->insertNumericalConstraints (proj);
           for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
               it != extraNumericalFunctions_.end (); ++it) {
-            proj->addConstraint (it->first, it->second);
+            proj->addFunction (it->first, it->second);
           }
           hasDiffFunc = !extraNumericalFunctions_.empty () || hasDiffFunc;
           hasDiffFunc = insertNumericalConstraints (proj) || hasDiffFunc;
@@ -431,7 +434,7 @@ namespace hpp {
             constraint->addConstraint (proj);
 
           g->insertLockedDofs (constraint);
-          for (LockedDofs_t::const_iterator it = extraLockedDofs_.begin ();
+          for (LockedJoints_t::const_iterator it = extraLockedDofs_.begin ();
               it != extraLockedDofs_.end (); ++it) {
             constraint->addConstraint (*it);
           }
@@ -442,12 +445,12 @@ namespace hpp {
         return extraConstraints_->get ();
       }
 
-      void LevelSetEdge::insertConfigConstraint (const DifferentiableFunctionPtr_t function, const EquationTypePtr_t ineq)
+      void LevelSetEdge::insertConfigConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)
       {
         extraNumericalFunctions_.push_back (DiffFuncAndIneqPair_t (function, ineq));
       }
 
-      void LevelSetEdge::insertConfigConstraint (const LockedDofPtr_t lockedDof)
+      void LevelSetEdge::insertConfigConstraint (const LockedJointPtr_t lockedDof)
       {
         extraLockedDofs_.push_back (lockedDof);
       }

@@ -18,7 +18,7 @@
 
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
-#include <hpp/core/locked-dof.hh>
+#include <hpp/core/locked-joint.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -66,12 +66,13 @@ namespace hpp {
         assert (false);
       }
 
-      void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const EquationTypePtr_t& ineq)
+      void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq)
       {
         numericalConstraints_.push_back(DiffFuncAndIneqPair_t(function,ineq));
       }
 
-      void GraphComponent::addLockedDofConstraint (const LockedDofPtr_t& constraint)
+      void GraphComponent::addLockedJointConstraint
+      (const LockedJointPtr_t& constraint)
       {
         lockedDofConstraints_.push_back (constraint);
       }
@@ -80,13 +81,13 @@ namespace hpp {
       {
         for (DifferentiableFunctions_t::const_iterator it = numericalConstraints_.begin();
             it != numericalConstraints_.end(); ++it)
-          proj->addConstraint (it->first, it->second);
+          proj->addFunction (it->first, it->second);
         return !numericalConstraints_.empty ();
       }
 
       bool GraphComponent::insertLockedDofs (ConstraintSetPtr_t cs) const
       {
-        for (LockedDofs_t::const_iterator it = lockedDofConstraints_.begin();
+        for (LockedJoints_t::const_iterator it = lockedDofConstraints_.begin();
             it != lockedDofConstraints_.end(); ++it)
           cs->addConstraint (*it);
         return !lockedDofConstraints_.empty ();
@@ -97,7 +98,7 @@ namespace hpp {
         return numericalConstraints_;
       }
 
-      const LockedDofs_t& GraphComponent::lockedDofConstraints () const
+      const LockedJoints_t& GraphComponent::lockedDofConstraints () const
       {
         return lockedDofConstraints_;
       }

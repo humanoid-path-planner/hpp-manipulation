@@ -29,7 +29,7 @@ namespace hpp {
  and Edge::node(), to retrive this Node.
  Edge also contains two sets of \LHPP{core,Constraint}:
  \li Edge::configConstraint() returns a \LHPP{core,ConstraintSet} used to generate a configuration lying in Edge::to()
-     and respecting the offset (previsously set using hpp::core::Constraint::offsetFromConfig),
+     and respecting the rightHandSide (previsously set using hpp::core::ConfigProjector::leftHandSideFromConfig),
  \li Edge::pathConstraint() returns a \LHPP{core,ConstraintSet} to be inserted in \LHPP{core,Path} represented
      by this Edge.
  

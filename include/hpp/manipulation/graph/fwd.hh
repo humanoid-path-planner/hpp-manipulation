@@ -46,18 +46,18 @@ namespace hpp {
 
       typedef hpp::core::Constraint Constraint;
       typedef hpp::core::ConstraintPtr_t ConstraintPtr_t;
-      typedef hpp::core::LockedDof LockedDof;
-      typedef hpp::core::LockedDofPtr_t LockedDofPtr_t;
+      typedef hpp::core::LockedJoint LockedJoint;
+      typedef hpp::core::LockedJointPtr_t LockedJointPtr_t;
       typedef hpp::core::ConfigProjector ConfigProjector;
       typedef hpp::core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
       typedef hpp::core::ConstraintSet ConstraintSet;
       typedef hpp::core::ConstraintSetPtr_t ConstraintSetPtr_t;
       typedef hpp::core::Equality Equality;
-      typedef hpp::core::EquationTypePtr_t EquationTypePtr_t;
+      typedef hpp::core::ComparisonTypePtr_t ComparisonTypePtr_t;
       typedef hpp::core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
-      typedef std::pair < DifferentiableFunctionPtr_t, EquationTypePtr_t > DiffFuncAndIneqPair_t;
+      typedef std::pair < DifferentiableFunctionPtr_t, ComparisonTypePtr_t > DiffFuncAndIneqPair_t;
       typedef std::list < DiffFuncAndIneqPair_t > DifferentiableFunctions_t;
-      typedef std::list < LockedDofPtr_t > LockedDofs_t;
+      typedef std::list < LockedJointPtr_t > LockedJoints_t;
 
       class Histogram;
       class NodeHistogram;

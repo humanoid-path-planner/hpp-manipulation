@@ -193,8 +193,9 @@ namespace hpp {
       // Put an anchor joint as root joint
       model::ObjectFactory factory;
       Transform3f pos; pos.setIdentity ();
-      rootJoint (factory.createJointAnchor (pos));
-      rootJoint ()->name (name () + "/root");
+      JointPtr_t root = factory.createJointAnchor (pos);
+      root->name (name () + "/root");
+      rootJoint (root);
       size_type rankInConfiguration = 0;
       size_type rankInVelocity = 0;
       // Copy robot kinematic chains

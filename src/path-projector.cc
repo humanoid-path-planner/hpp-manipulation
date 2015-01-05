@@ -59,7 +59,6 @@ namespace hpp {
           }
           res->appendPath (part);
         }
-        //if (res->numberPaths ()==0) proj = path.extract (std::make_pair ());
         proj = res;
       }
       assert (proj);

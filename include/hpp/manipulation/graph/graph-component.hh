@@ -52,24 +52,25 @@ namespace hpp {
           virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function) __attribute__ ((deprecated));
 
           /// Add core::DifferentiableFunction to the component.
-          virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const EquationTypePtr_t& ineq);
+          virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq);
 
-          /// Add core::LockedDof constraint to the component.
-          virtual void addLockedDofConstraint (const LockedDofPtr_t& constraint);
+          /// Add core::LockedJoint constraint to the component.
+          virtual void addLockedJointConstraint
+	    (const LockedJointPtr_t& constraint);
 
           /// Insert the numerical constraints in a ConfigProjector
           /// \return true is at least one DifferentiableFunctionPtr_t was inserted.
           bool insertNumericalConstraints (ConfigProjectorPtr_t& proj) const;
 
-          /// Insert the LockedDof constraints in a ConstraintSet
-          /// \return true is at least one LockedDofPtr_t was inserted.
+          /// Insert the LockedJoint constraints in a ConstraintSet
+          /// \return true is at least one LockedJointPtr_t was inserted.
           bool insertLockedDofs (ConstraintSetPtr_t cs) const;
 
           /// Get a reference to the DifferentiableFunctions_t
           const DifferentiableFunctions_t& numericalConstraints() const;
 
-          /// Get a reference to the LockedDofs_t
-          const LockedDofs_t& lockedDofConstraints () const;
+          /// Get a reference to the LockedJoints_t
+          const LockedJoints_t& lockedDofConstraints () const;
 
           /// Set the parent graph.
           void parentGraph(const GraphWkPtr_t& parent);
@@ -86,8 +87,8 @@ namespace hpp {
 
           /// Stores the numerical constraints.
           DifferentiableFunctions_t numericalConstraints_;
-          /// List of LockedDof constraints
-          LockedDofs_t lockedDofConstraints_;
+          /// List of LockedJoint constraints
+          LockedJoints_t lockedDofConstraints_;
           /// A weak pointer to the parent graph.
           GraphWkPtr_t graph_;
 

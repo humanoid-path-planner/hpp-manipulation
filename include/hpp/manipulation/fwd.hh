@@ -87,8 +87,8 @@ namespace hpp {
     typedef std::map <JointConstPtr_t, JointPtr_t> JointMap_t;
     typedef core::Constraint Constraint;
     typedef core::ConstraintPtr_t ConstraintPtr_t;
-    typedef core::LockedDof LockedDof;
-    typedef core::LockedDofPtr_t LockedDofPtr_t;
+    typedef core::LockedJoint LockedJoint;
+    typedef core::LockedJointPtr_t LockedJointPtr_t;
     typedef core::ConfigProjector ConfigProjector;
     typedef core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
     typedef core::ConstraintSet ConstraintSet;
@@ -101,7 +101,7 @@ namespace hpp {
     typedef std::pair< GripperPtr_t, HandlePtr_t> Grasp_t;
     typedef boost::shared_ptr <Grasp_t> GraspPtr_t;
     typedef std::map <DifferentiableFunctionPtr_t, GraspPtr_t> GraspsMap_t;
-    typedef std::map <std::string, LockedDofPtr_t> LockedDofConstraintMap_t;
+    typedef std::map <std::string, LockedJointPtr_t> LockedDofConstraintMap_t;
 
     typedef fcl::TriangleP Triangle;
     typedef std::list <Triangle> TriangleList;

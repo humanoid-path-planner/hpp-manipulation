@@ -107,12 +107,12 @@ namespace hpp {
       return constraintGraph_;
     }
 
-    LockedDofPtr_t ProblemSolver::lockedDofConstraint (const std::string& name) const
+    LockedJointPtr_t ProblemSolver::lockedDofConstraint (const std::string& name) const
     {
       LockedDofConstraintMap_t::const_iterator it =
 	lockedDofConstraintMap_.find (name);
       if (it == lockedDofConstraintMap_.end ()) {
-	throw std::runtime_error ("No LockedDof constraint with this name");
+	throw std::runtime_error ("No LockedJoint constraint with this name");
       }
       return it->second;
     }
@@ -150,15 +150,16 @@ namespace hpp {
       }
     }
 
-    void ProblemSolver::addConstraintToConfigProjector (
-                          const std::string& constraintName,
-                          const DifferentiableFunctionPtr_t& constraint)
+    void ProblemSolver::addFunctionToConfigProjector
+    (const std::string& constraintName, const std::string& functionName)
     {
-      core::ProblemSolver::addConstraintToConfigProjector(constraintName,
-                                                          constraint);
-      if ( grasp(constraint) ) {
-        GripperPtr_t gripper = grasp(constraint)->first;
-        HandlePtr_t handle = grasp(constraint)->second;
+      core::ProblemSolver::addFunctionToConfigProjector (constraintName,
+                                                         functionName);
+      DifferentiableFunctionPtr_t constraint =
+	numericalConstraint (functionName);
+      if (GraspPtr_t g = grasp (constraint)) {
+        GripperPtr_t gripper = g->first;
+        HandlePtr_t handle = g->second;
         JointPtr_t joint1 = handle->joint();
         model::JointVector_t joints = gripper->getDisabledCollisions();
         for (model::JointVector_t::iterator itJoint = joints.begin() ;

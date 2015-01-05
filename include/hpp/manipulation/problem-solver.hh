@@ -21,6 +21,7 @@
 # include <map>
 # include <hpp/core/problem-solver.hh>
 # include <hpp/model/device.hh>
+# include "hpp/manipulation/deprecated.hh"
 # include "hpp/manipulation/object.hh"
 # include "hpp/manipulation/robot.hh"
 # include "hpp/manipulation/fwd.hh"
@@ -117,28 +118,32 @@ namespace hpp {
       /// return NULL if no grasp named graspName
       GraspPtr_t grasp(const DifferentiableFunctionPtr_t& constraint) const;
 
-      /// Add a LockedDof constraint to the map
+      /// Add a LockedJoint constraint to the map
       /// \param name key of the constraint as stored in an internal map.
       /// \param lockedDof the constraint to add.
-      void addLockedDofConstraint (const std::string& name,
-          const LockedDofPtr_t& lockedDof)
+      void addLockedJointConstraint (const std::string& name,
+				     const LockedJointPtr_t& lockedDof)
       {
 	lockedDofConstraintMap_ [name] = lockedDof;
       }
 
-      /// Get a LockedDof constraint by name
+      /// Get a LockedJoint constraint by name
       /// \param name key of the constraint as stored in an internal map.
-      LockedDofPtr_t lockedDofConstraint (const std::string& name) const;
+      LockedJointPtr_t lockedDofConstraint (const std::string& name) const;
 
       /// Reset constraint set and put back the disable collisions
       /// between gripper and handle
       virtual void resetConstraints ();
 
-      /// Add differentialFunction to the config projector
-      /// Build the config projector if not constructed
-      virtual void addConstraintToConfigProjector(
-                          const std::string& constraintName,
-                          const DifferentiableFunctionPtr_t& constraint);
+      /// Add differential function to the config projector
+      /// \param constraintName Name given to config projector if created by
+      ///        this method.
+      /// \param functionName name of the function as stored in internal map.
+      /// Build the config projector if not yet constructed.
+      /// If constraint is a graps, deactivate collision between gripper and
+      /// object.
+      virtual void addFunctionToConfigProjector
+	(const std::string& constraintName, const std::string& functionName);
 
       /// Build a composite robot from several robots and objects
       /// \param robotName Name of the composite robot,

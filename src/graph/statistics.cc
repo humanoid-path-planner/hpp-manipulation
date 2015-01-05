@@ -153,7 +153,14 @@ namespace hpp {
 
       void LeafHistogram::add (const core::NodePtr_t& n)
       {
-        iterator it = insert (LeafBin (constraint_->offsetFromConfig (*n->configuration ())));
+	iterator it;
+	if (constraint_->configProjector ()) {
+	  it = insert
+	    (LeafBin (constraint_->configProjector ()->rightHandSideFromConfig
+		      (*n->configuration ())));
+	} else {
+	  it = insert (LeafBin (vector_t (0)));
+	}
         it->push_back (n);
         if (numberOfObservations()%10 == 0) {
           hppDout (info, *this);

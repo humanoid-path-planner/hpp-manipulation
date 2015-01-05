@@ -1,6 +1,12 @@
 2014/12/03 - Release 1.1
         * Add projector for paths.
 
+2014/12/03 - Release 1.0.2
+        * Fix bug when projection using WaypointEdge
+
+2014/12/03 - Release 1.0.1
+        * Fix bug in WaypointEdge
+
 2014/11/18 - Release 1.0
         * Manipulation planner based on RRT.
         * A graph of constraint.

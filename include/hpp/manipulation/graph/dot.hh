@@ -19,16 +19,26 @@
 
 # include <ostream>
 # include <map>
+# include <list>
 
 namespace hpp {
   namespace manipulation {
     namespace graph {
       namespace dot {
+
         struct DrawingAttributes {
           typedef std::pair <std::string, std::string> Pair;
           typedef std::map <std::string, std::string> Map;
-          Map attr;
+          typedef std::list <std::string> TooltipLineVector;
 
+          static const std::string tooltipendl;
+          std::string separator, openSection, closeSection;
+          Map attr;
+          TooltipLineVector tooltip;
+
+          inline void addTooltipLine (const std::string& l) {
+            tooltip.push_back (l);
+          }
           inline void insertWithQuote (const std::string& K, const std::string& V) {
             attr.insert (Pair (K, "\"" + V + "\""));
           }
@@ -38,6 +48,9 @@ namespace hpp {
           std::string& operator [] (const std::string& K) {
             return attr [K];
           }
+          DrawingAttributes () :
+            separator (", "), openSection ("["), closeSection ("]"),
+            attr (), tooltip () {};
         };
 
         std::ostream& insertComments (std::ostream& os, const std::string& c);

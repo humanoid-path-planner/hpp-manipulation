@@ -18,6 +18,7 @@
 
 #include <hpp/core/straight-path.hh>
 #include <hpp/core/path-vector.hh>
+
 #include <hpp/constraints/differentiable-function.hh>
 
 #include <hpp/util/pointer.hh>
@@ -86,6 +87,8 @@ namespace hpp {
       {
         da.insertWithQuote ("label", name ());
         da.insert ("shape", "onormal");
+        da.addTooltipLine ("Edge constains:");
+        populateTooltip (da);
         os << from()->id () << " -> " << to()->id () << " " << da << ";";
         return os;
       }
@@ -297,6 +300,8 @@ namespace hpp {
         da ["arrowtail"]="dot";
         da.insert ("shape", "onormal");
         da.insertWithQuote ("label", name());
+        da.addTooltipLine ("Edge constains:");
+        populateTooltip (da);
         os << waypoint_.second->id () << " -> " << to()->id () << " " << da << ";";
         return os;
       }

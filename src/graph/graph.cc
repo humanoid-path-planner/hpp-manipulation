@@ -110,7 +110,12 @@ namespace hpp {
 
       std::ostream& Graph::dotPrint (std::ostream& os, dot::DrawingAttributes da) const
       {
-        os << "digraph " << id() << " " << da << " {" << std::endl;
+        da.separator = "; ";
+        da.openSection = "\n";
+        da.closeSection = ";\n";
+        da.addTooltipLine ("Graph contains:");
+        populateTooltip (da);
+        os << "digraph " << id() << " {" << da;
         nodeSelector_->dotPrint (os);
         os << "}" << std::endl;
         return os;

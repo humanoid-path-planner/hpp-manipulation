@@ -20,18 +20,29 @@ namespace hpp {
   namespace manipulation {
     namespace graph {
       namespace dot {
+        const std::string DrawingAttributes::tooltipendl = "&#10;";
+
         std::ostream& operator<< (std::ostream& os, const DrawingAttributes& da)
         {
-          if (da.attr.empty ()) return os;
-          os << "[";
+          os << da.openSection;
           size_t i = da.attr.size ();
           for (DrawingAttributes::Map::const_iterator it = da.attr.begin ();
               it != da.attr.end (); ++it) {
             os << it->first << "=" << it->second; 
             i--;
-            if (i > 0) os << ", ";
+            if (i > 0) os << da.separator;
           }
-          return os << "]";
+          if (!da.attr.empty ()) os << da.separator;
+          os << "tooltip=\"";
+          i = da.tooltip.size ();
+          for (DrawingAttributes::TooltipLineVector::const_iterator
+              it = da.tooltip.begin (); it != da.tooltip.end (); ++it ) {
+            os << *it;
+            i--;
+            if (i > 0) os << DrawingAttributes::tooltipendl;
+          }
+          os << "\"";
+          return os << da.closeSection;
         }
 
         std::ostream& insertComments (std::ostream& os, const std::string& c)

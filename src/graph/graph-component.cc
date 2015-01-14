@@ -20,6 +20,8 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/locked-joint.hh>
 
+#include <hpp/constraints/differentiable-function.hh>
+
 namespace hpp {
   namespace manipulation {
     namespace graph {
@@ -119,6 +121,18 @@ namespace hpp {
           const hpp::manipulation::graph::GraphComponent& graphComp)
       {
         return graphComp.print (os);
+      }
+
+      void GraphComponent::populateTooltip (dot::DrawingAttributes& da) const
+      {
+        for (NumericalConstraints_t::const_iterator it = numericalConstraints_.begin ();
+            it != numericalConstraints_.end (); ++it) {
+          da.addTooltipLine ("- " + (*it)->function ().name ());
+        }
+        for (LockedJoints_t::const_iterator it = lockedJoints_.begin ();
+            it != lockedJoints_.end (); ++it) {
+          da.addTooltipLine ("- " + (*it)->jointName ());
+        }
       }
     } // namespace graph
   } // namespace manipulation

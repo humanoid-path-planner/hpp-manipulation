@@ -106,16 +106,14 @@ namespace hpp {
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-        // If at least one DifferentiableFunctionPtr_t was inserted, the add the projector.
-        bool hasDiffFunc = g->insertNumericalConstraints (proj);
-        hasDiffFunc = insertNumericalConstraints (proj) || hasDiffFunc;
-        hasDiffFunc = to ()->insertNumericalConstraints (proj) || hasDiffFunc;
-        if (hasDiffFunc)
-          constraint->addConstraint (proj);
+        g->insertNumericalConstraints (proj);
+        insertNumericalConstraints (proj);
+        to ()->insertNumericalConstraints (proj);
+        constraint->addConstraint (proj);
 
-        g->insertLockedDofs (constraint);
-        insertLockedDofs (constraint);
-        to ()->insertLockedDofs (constraint);
+        g->insertLockedJoints (proj);
+        insertLockedJoints (proj);
+        to ()->insertLockedJoints (proj);
         return constraint;
       }
 
@@ -135,16 +133,14 @@ namespace hpp {
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-        // If at least one DifferentiableFunctionPtr_t was inserted, the add the projector.
-        bool hasDiffFunc = g->insertNumericalConstraints (proj);
-        hasDiffFunc = insertNumericalConstraints (proj) || hasDiffFunc;
-        hasDiffFunc = node ()->insertNumericalConstraintsForPath (proj) || hasDiffFunc;
-        if (hasDiffFunc)
-          constraint->addConstraint (proj);
+        g->insertNumericalConstraints (proj);
+        insertNumericalConstraints (proj);
+        node ()->insertNumericalConstraintsForPath (proj);
+        constraint->addConstraint (proj);
 
-        g->insertLockedDofs (constraint);
-        insertLockedDofs (constraint);
-        node ()->insertLockedDofs (constraint);
+        g->insertLockedJoints (proj);
+        insertLockedJoints (proj);
+        node ()->insertLockedJoints (proj);
         return constraint;
       }
 
@@ -327,7 +323,6 @@ namespace hpp {
 
       bool LevelSetEdge::applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const
       {
-#if 0
         // First, get an offset from the histogram that is not in the same connected component.
         statistics::DiscreteDistribution < core::NodePtr_t > distrib = hist_->getDistribOutOfConnectedComponent (n_offset->connectedComponent ());
         const Configuration_t& levelsetTarget = *(distrib ()->configuration ()),
@@ -338,23 +333,23 @@ namespace hpp {
         assert (cp);
 	vector_t offset = cp->rightHandSideFromConfig (q_offset);
 	size_t row = 0, nbRows = 0;
-	for (DifferentiableFunctions_t::const_iterator it =
-	       extraNumericalFunctions_.begin ();
-	     it != extraNumericalFunctions_.end (); ++it) {
-	  const core::DifferentiableFunction& f = *(it->first);
+	for (NumericalConstraints_t::const_iterator it =
+	       extraNumericalConstraints_.begin ();
+	     it != extraNumericalConstraints_.end (); ++it) {
+	  const core::DifferentiableFunction& f = (*it)->function ();
 	  nbRows = f.outputSize ();
 	  vector_t value = vector_t::Zero (nbRows);
 	  // TODO: fix this function
-	  if (f.isParametric ()) {
+	  if (!(*it)->comparisonType ()->constantRightHandSide ()) {
 	    f (value, levelsetTarget);
+            offset.segment (row, nbRows) = value;
+            row += nbRows;
 	  }
-	  offset.segment (row, nbRows) = value;
-	  row += nbRows;
 	}
 	cp->rightHandSide (offset);
-        for (LockedJoints_t::const_iterator it = extraLockedDofs_.begin ();
-	     it != extraLockedDofs_.end (); ++it) {
-          (*it)->valueFromFromConfig (levelsetTarget);
+        for (LockedJoints_t::const_iterator it = extraLockedJoints_.begin ();
+	     it != extraLockedJoints_.end (); ++it) {
+          (*it)->rightHandSideFromConfig (levelsetTarget);
         }
 
         // Eventually, do the projection.
@@ -368,7 +363,6 @@ namespace hpp {
 		   << (double)(ss.nbSuccess ()) / ss.numberOfObservations ()
 		   << ".");
 	}
-#endif
         return false;
       }
 
@@ -394,18 +388,17 @@ namespace hpp {
         /// The order is important here for the offset.
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
-        if (!extraNumericalFunctions_.empty ()) {
-          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-          for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
-              it != extraNumericalFunctions_.end (); ++it) {
-            proj->addFunction (it->first);
-          }
-          constraint->addConstraint (proj);
+        ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+        for (NumericalConstraints_t::const_iterator it = extraNumericalConstraints_.begin ();
+            it != extraNumericalConstraints_.end (); ++it) {
+          proj->add (*it);
         }
 
-        for (LockedJoints_t::const_iterator it = extraLockedDofs_.begin ();
-            it != extraLockedDofs_.end (); ++it)
-          constraint->addConstraint (*it);
+        for (LockedJoints_t::const_iterator it = extraLockedJoints_.begin ();
+            it != extraLockedJoints_.end (); ++it)
+          proj->add (*it);
+
+        constraint->addConstraint (proj);
 
         hist_ = graph::LeafHistogramPtr_t (new graph::LeafHistogram (constraint));
       }
@@ -425,37 +418,41 @@ namespace hpp {
           ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-          bool hasDiffFunc = g->insertNumericalConstraints (proj);
-          for (DifferentiableFunctions_t::const_iterator it = extraNumericalFunctions_.begin ();
-              it != extraNumericalFunctions_.end (); ++it) {
-            proj->addFunction (it->first, it->second);
+          g->insertNumericalConstraints (proj);
+          for (NumericalConstraints_t::const_iterator it = extraNumericalConstraints_.begin ();
+              it != extraNumericalConstraints_.end (); ++it) {
+            proj->add (*it);
           }
-          hasDiffFunc = !extraNumericalFunctions_.empty () || hasDiffFunc;
-          hasDiffFunc = insertNumericalConstraints (proj) || hasDiffFunc;
-          hasDiffFunc = to ()->insertNumericalConstraints (proj) || hasDiffFunc;
-          if (hasDiffFunc)
-            constraint->addConstraint (proj);
+          !extraNumericalConstraints_.empty ();
+          insertNumericalConstraints (proj);
+          to ()->insertNumericalConstraints (proj);
+          constraint->addConstraint (proj);
 
-          g->insertLockedDofs (constraint);
-          for (LockedJoints_t::const_iterator it = extraLockedDofs_.begin ();
-              it != extraLockedDofs_.end (); ++it) {
-            constraint->addConstraint (*it);
+          g->insertLockedJoints (proj);
+          for (LockedJoints_t::const_iterator it = extraLockedJoints_.begin ();
+              it != extraLockedJoints_.end (); ++it) {
+            proj->add (*it);
           }
-          insertLockedDofs (constraint);
-          to ()->insertLockedDofs (constraint);
+          insertLockedJoints (proj);
+          to ()->insertLockedJoints (proj);
           extraConstraints_->set (constraint);
         }
         return extraConstraints_->get ();
       }
 
-      void LevelSetEdge::insertConfigConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)
+      void LevelSetEdge::insertConfigConstraint (const NumericalConstraintPtr_t& nm)
       {
-        extraNumericalFunctions_.push_back (DiffFuncAndIneqPair_t (function, ineq));
+        extraNumericalConstraints_.push_back (nm);
       }
 
-      void LevelSetEdge::insertConfigConstraint (const LockedJointPtr_t lockedDof)
+      void LevelSetEdge::insertConfigConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)
       {
-        extraLockedDofs_.push_back (lockedDof);
+        insertConfigConstraint (NumericalConstraint::create (function, ineq));
+      }
+
+      void LevelSetEdge::insertConfigConstraint (const LockedJointPtr_t lockedJoint)
+      {
+        extraLockedJoints_.push_back (lockedJoint);
       }
 
       LevelSetEdge::LevelSetEdge (): extraConstraints_ (new Constraint_t()) {}

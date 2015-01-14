@@ -17,6 +17,7 @@
 #include "hpp/manipulation/path-projector/progressive.hh"
 
 #include <hpp/core/path-vector.hh>
+#include <hpp/core/config-projector.hh>
 
 #include <limits>
 #include <queue>
@@ -32,15 +33,16 @@ namespace hpp {
       bool Progressive::impl_apply (const StraightPathPtr_t path, PathPtr_t& projection) const
       {
         ConstraintSetPtr_t constraints = path->constraints ();
+        const ConfigProjectorPtr_t& cp = constraints->configProjector ();
         const StraightPath& sp = *path;
         core::interval_t timeRange = sp.timeRange ();
         const Configuration_t& q1 = sp(timeRange.first);
         const Configuration_t& q2 = sp(timeRange.second);
-        constraints->offsetFromConfig(q1);
+        if (cp) cp->rightHandSideFromConfig(q1);
         if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
           return false;
         }
-        if (!constraints->configProjector ()) {
+        if (!cp) {
           projection = path;
           return true;
         }
@@ -95,7 +97,7 @@ namespace hpp {
             projection->constraints (constraints);
             break;
           default:
-            core::PathVectorPtr_t pv = core::PathVector::create (sp.device ()->configSize ());
+            core::PathVectorPtr_t pv = core::PathVector::create (sp.outputSize (), sp.outputDerivativeSize ());
             qi = q1;
             while (!paths.empty ()) {
               assert ((qi - (*paths.front ())(paths.front ()->timeRange().first)).isZero ());

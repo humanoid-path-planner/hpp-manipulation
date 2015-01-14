@@ -61,46 +61,46 @@ namespace hpp {
         return os;
       }
 
-      void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t&)
+      void GraphComponent::addNumericalConstraint (const NumericalConstraintPtr_t& nm)
       {
-        assert (false);
+        numericalConstraints_.push_back(nm);
       }
 
       void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq)
       {
-        numericalConstraints_.push_back(DiffFuncAndIneqPair_t(function,ineq));
+        addNumericalConstraint (NumericalConstraint::create (function,ineq));
       }
 
       void GraphComponent::addLockedJointConstraint
       (const LockedJointPtr_t& constraint)
       {
-        lockedDofConstraints_.push_back (constraint);
+        lockedJoints_.push_back (constraint);
       }
 
       bool GraphComponent::insertNumericalConstraints (ConfigProjectorPtr_t& proj) const
       {
-        for (DifferentiableFunctions_t::const_iterator it = numericalConstraints_.begin();
+        for (NumericalConstraints_t::const_iterator it = numericalConstraints_.begin();
             it != numericalConstraints_.end(); ++it)
-          proj->addFunction (it->first, it->second);
+          proj->add (*it);
         return !numericalConstraints_.empty ();
       }
 
-      bool GraphComponent::insertLockedDofs (ConstraintSetPtr_t cs) const
+      bool GraphComponent::insertLockedJoints (ConfigProjectorPtr_t& cp) const
       {
-        for (LockedJoints_t::const_iterator it = lockedDofConstraints_.begin();
-            it != lockedDofConstraints_.end(); ++it)
-          cs->addConstraint (*it);
-        return !lockedDofConstraints_.empty ();
+        for (LockedJoints_t::const_iterator it = lockedJoints_.begin();
+            it != lockedJoints_.end(); ++it)
+          cp->add (*it);
+        return !lockedJoints_.empty ();
       }
 
-      const DifferentiableFunctions_t& GraphComponent::numericalConstraints() const
+      const NumericalConstraints_t& GraphComponent::numericalConstraints() const
       {
         return numericalConstraints_;
       }
 
-      const LockedJoints_t& GraphComponent::lockedDofConstraints () const
+      const LockedJoints_t& GraphComponent::lockedJoints () const
       {
-        return lockedDofConstraints_;
+        return lockedJoints_;
       }
 
       void GraphComponent::parentGraph(const GraphWkPtr_t& parent)

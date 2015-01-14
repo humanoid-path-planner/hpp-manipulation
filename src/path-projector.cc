@@ -45,7 +45,7 @@ namespace hpp {
         if (!sp) throw std::invalid_argument ("Unknow inherited class of Path");
         success = impl_apply (sp, proj);
       } else {
-        PathVectorPtr_t res = PathVector::create (pv->outputSize());
+        PathVectorPtr_t res = PathVector::create (pv->outputSize (), pv->outputDerivativeSize ());
         PathPtr_t part;
         success = true;
         for (size_t i = 0; i < pv->numberPaths (); i++) {

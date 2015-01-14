@@ -22,6 +22,7 @@
 # include <hpp/util/exception.hh>
 
 # include "hpp/manipulation/config.hh"
+# include "hpp/manipulation/deprecated.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
 # include "hpp/manipulation/graph/dot.hh"
@@ -48,29 +49,31 @@ namespace hpp {
           /// Return the component id.
           int id () const;
 
-          /// Add core::DifferentiableFunction to the component.
-          virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function) __attribute__ ((deprecated));
+          /// Add core::NumericalConstraint to the component.
+          virtual void addNumericalConstraint (const NumericalConstraintPtr_t& numConstraint);
 
           /// Add core::DifferentiableFunction to the component.
-          virtual void addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq);
+          virtual void addNumericalConstraint
+            (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq)
+            HPP_MANIPULATION_DEPRECATED;
 
           /// Add core::LockedJoint constraint to the component.
           virtual void addLockedJointConstraint
 	    (const LockedJointPtr_t& constraint);
 
           /// Insert the numerical constraints in a ConfigProjector
-          /// \return true is at least one DifferentiableFunctionPtr_t was inserted.
+          /// \return true is at least one NumericalConstraintPtr_t was inserted.
           bool insertNumericalConstraints (ConfigProjectorPtr_t& proj) const;
 
           /// Insert the LockedJoint constraints in a ConstraintSet
           /// \return true is at least one LockedJointPtr_t was inserted.
-          bool insertLockedDofs (ConstraintSetPtr_t cs) const;
+          bool insertLockedJoints (ConfigProjectorPtr_t& cs) const;
 
-          /// Get a reference to the DifferentiableFunctions_t
-          const DifferentiableFunctions_t& numericalConstraints() const;
+          /// Get a reference to the NumericalConstraints_t
+          const NumericalConstraints_t& numericalConstraints() const;
 
           /// Get a reference to the LockedJoints_t
-          const LockedJoints_t& lockedDofConstraints () const;
+          const LockedJoints_t& lockedJoints () const;
 
           /// Set the parent graph.
           void parentGraph(const GraphWkPtr_t& parent);
@@ -86,9 +89,9 @@ namespace hpp {
           {}
 
           /// Stores the numerical constraints.
-          DifferentiableFunctions_t numericalConstraints_;
+          NumericalConstraints_t numericalConstraints_;
           /// List of LockedJoint constraints
-          LockedJoints_t lockedDofConstraints_;
+          LockedJoints_t lockedJoints_;
           /// A weak pointer to the parent graph.
           GraphWkPtr_t graph_;
 

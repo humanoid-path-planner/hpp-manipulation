@@ -95,14 +95,12 @@ namespace hpp {
           ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj " + n, g->errorThreshold(), g->maxIterations());
-          // If at least one DifferentiableFunctionPtr_t was inserted, then add the projector.
-          bool hasDiffFunc = g->insertNumericalConstraints (proj);
-          hasDiffFunc = insertNumericalConstraints (proj) || hasDiffFunc;
-          if (hasDiffFunc)
-            constraint->addConstraint (proj);
+          g->insertNumericalConstraints (proj);
+          insertNumericalConstraints (proj);
+          constraint->addConstraint (proj);
 
-          g->insertLockedDofs (constraint);
-          insertLockedDofs (constraint);
+          g->insertLockedJoints (proj);
+          insertLockedJoints (proj);
           configConstraints_->set (constraint);
         }
         return configConstraints_->get ();

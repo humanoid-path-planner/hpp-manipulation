@@ -24,6 +24,7 @@
 #include <hpp/core/config-projector.hh>
 
 #include "hpp/manipulation/config.hh"
+#include "hpp/manipulation/deprecated.hh"
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/fwd.hh"
 #include "hpp/manipulation/graph/edge.hh"
@@ -83,30 +84,31 @@ namespace hpp {
           /// Constraint to project onto this node.
           ConstraintSetPtr_t configConstraint() const;
 
-          /// Add core::DifferentiableFunction to the component.
-          virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function)
+          /// Add core::NumericalConstraint to the component.
+          virtual void addNumericalConstraintForPath (const NumericalConstraintPtr_t& nm)
           {
-            numericalConstraintsForPath_.push_back (DiffFuncAndIneqPair_t(function,Equality::create()));
+            numericalConstraintsForPath_.push_back (nm);
           }
 
           /// Add core::DifferentiableFunction to the component.
           virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq)
+            HPP_MANIPULATION_DEPRECATED
           {
-            numericalConstraintsForPath_.push_back (DiffFuncAndIneqPair_t(function,ineq));
+            numericalConstraintsForPath_.push_back (NumericalConstraint::create (function,ineq));
           }
 
           /// Insert the numerical constraints in a ConfigProjector
-          /// \return true is at least one DifferentiableFunctionPtr_t was inserted.
+          /// \return true is at least one NumericalConstraintPtr_t was inserted.
           bool insertNumericalConstraintsForPath (ConfigProjectorPtr_t& proj) const
           {
-            for (DifferentiableFunctions_t::const_iterator it = numericalConstraintsForPath_.begin();
+            for (NumericalConstraints_t::const_iterator it = numericalConstraintsForPath_.begin();
                 it != numericalConstraintsForPath_.end(); it++)
-              proj->addFunction (it->first, it->second);
+              proj->add (*it);
             return !numericalConstraintsForPath_.empty ();
           }
 
-          /// Get a reference to the DifferentiableFunctions_t
-          const DifferentiableFunctions_t& numericalConstraintsForPath () const
+          /// Get a reference to the NumericalConstraints_t
+          const NumericalConstraints_t& numericalConstraintsForPath () const
           {
             return numericalConstraintsForPath_;
           }
@@ -134,7 +136,7 @@ namespace hpp {
           Constraint_t* configConstraints_;
 
           /// Stores the numerical constraints for path.
-          DifferentiableFunctions_t numericalConstraintsForPath_;
+          NumericalConstraints_t numericalConstraintsForPath_;
 
           /// A selector that will implement the selection of the next state.
           NodeSelectorWkPtr_t selector_;

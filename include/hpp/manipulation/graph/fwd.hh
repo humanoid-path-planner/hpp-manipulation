@@ -55,8 +55,7 @@ namespace hpp {
       typedef hpp::core::Equality Equality;
       typedef hpp::core::ComparisonTypePtr_t ComparisonTypePtr_t;
       typedef hpp::core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
-      typedef std::pair < DifferentiableFunctionPtr_t, ComparisonTypePtr_t > DiffFuncAndIneqPair_t;
-      typedef std::list < DiffFuncAndIneqPair_t > DifferentiableFunctions_t;
+      typedef std::list < NumericalConstraintPtr_t > NumericalConstraints_t;
       typedef std::list < LockedJointPtr_t > LockedJoints_t;
 
       class Histogram;

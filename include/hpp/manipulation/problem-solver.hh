@@ -39,7 +39,7 @@ namespace hpp {
       {
       }
       ProblemSolver () : core::ProblemSolver (), robot_ (),
-	robotsAndObjects_ (), graspsMap_(), lockedDofConstraintMap_()
+	robotsAndObjects_ (), graspsMap_(), lockedJointMap_()
 	{
 	}
       /// Set robot
@@ -120,16 +120,16 @@ namespace hpp {
 
       /// Add a LockedJoint constraint to the map
       /// \param name key of the constraint as stored in an internal map.
-      /// \param lockedDof the constraint to add.
-      void addLockedJointConstraint (const std::string& name,
-				     const LockedJointPtr_t& lockedDof)
+      /// \param lockedJoint the constraint to add.
+      void addLockedJoint (const std::string& name,
+          LockedJointPtr_t& lockedJoint)
       {
-	lockedDofConstraintMap_ [name] = lockedDof;
+        lockedJointMap_ [name] = lockedJoint;
       }
 
       /// Get a LockedJoint constraint by name
       /// \param name key of the constraint as stored in an internal map.
-      LockedJointPtr_t lockedDofConstraint (const std::string& name) const;
+      LockedJointPtr_t lockedJoint (const std::string& name) const;
 
       /// Reset constraint set and put back the disable collisions
       /// between gripper and handle
@@ -143,7 +143,7 @@ namespace hpp {
       /// If constraint is a graps, deactivate collision between gripper and
       /// object.
       virtual void addFunctionToConfigProjector
-	(const std::string& constraintName, const std::string& functionName);
+        (const std::string& constraintName, const std::string& functionName);
 
       /// Build a composite robot from several robots and objects
       /// \param robotName Name of the composite robot,
@@ -184,7 +184,7 @@ namespace hpp {
       /// Map of single robots to store before building a composite robot.
       RobotsandObjects_t robotsAndObjects_;
       GraspsMap_t graspsMap_;
-      LockedDofConstraintMap_t lockedDofConstraintMap_;
+      LockedJointMap_t lockedJointMap_;
       TriangleMap contactTriangles_;
     }; // class ProblemSolver
   } // namespace manipulation

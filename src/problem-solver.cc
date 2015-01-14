@@ -107,11 +107,10 @@ namespace hpp {
       return constraintGraph_;
     }
 
-    LockedJointPtr_t ProblemSolver::lockedDofConstraint (const std::string& name) const
+    LockedJointPtr_t ProblemSolver::lockedJoint (const std::string& name) const
     {
-      LockedDofConstraintMap_t::const_iterator it =
-	lockedDofConstraintMap_.find (name);
-      if (it == lockedDofConstraintMap_.end ()) {
+      LockedJointMap_t::const_iterator it = lockedJointMap_.find (name);
+      if (it == lockedJointMap_.end ()) {
 	throw std::runtime_error ("No LockedJoint constraint with this name");
       }
       return it->second;

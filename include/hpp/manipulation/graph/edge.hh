@@ -222,9 +222,11 @@ namespace hpp {
 
           LeafHistogramPtr_t histogram () const;
 
-          void insertConfigConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq);
+          void insertConfigConstraint (const NumericalConstraintPtr_t& nm);
 
-          void insertConfigConstraint (const LockedJointPtr_t lockedDof);
+          void insertConfigConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq) __attribute__ ((deprecated));
+
+          void insertConfigConstraint (const LockedJointPtr_t lockedJoint);
 
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
@@ -246,11 +248,11 @@ namespace hpp {
           Constraint_t* extraConstraints_;
           virtual ConstraintSetPtr_t extraConfigConstraint () const;
 
-          /// Extra DifferentiableFunctions_t
-          DifferentiableFunctions_t extraNumericalFunctions_;
+          /// Extra NumericalConstraints_t
+          NumericalConstraints_t extraNumericalConstraints_;
 
           /// Extra LockedJoints_t
-          LockedJoints_t extraLockedDofs_;
+          LockedJoints_t extraLockedJoints_;
 
           /// This histogram will be used to find a good level set.
           LeafHistogramPtr_t hist_;

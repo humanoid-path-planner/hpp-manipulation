@@ -14,9 +14,9 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/util/pointer.hh>
-
 #include "hpp/manipulation/roadmap.hh"
+
+#include <hpp/util/pointer.hh>
 
 namespace hpp {
   namespace manipulation {

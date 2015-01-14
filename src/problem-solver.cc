@@ -15,9 +15,13 @@
 // hpp-manipulation-corba.  If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "hpp/manipulation/problem-solver.hh"
+
 #include <hpp/util/pointer.hh>
 #include <hpp/util/debug.hh>
+
 #include <hpp/model/gripper.hh>
+
 #include <hpp/core/roadmap.hh>
 
 #include "hpp/manipulation/object.hh"
@@ -26,8 +30,6 @@
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap.hh"
-
-#include "hpp/manipulation/problem-solver.hh"
 
 namespace hpp {
   namespace manipulation {

@@ -14,6 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include "hpp/manipulation/graph/edge.hh"
+
 #include <sstream>
 
 #include <hpp/core/straight-path.hh>
@@ -24,7 +26,6 @@
 #include <hpp/util/pointer.hh>
 
 #include "hpp/manipulation/robot.hh"
-#include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/statistics.hh"
 
 namespace hpp {

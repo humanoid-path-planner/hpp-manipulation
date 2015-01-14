@@ -14,13 +14,14 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include "hpp/manipulation/graph/graph.hh"
+
 #include <hpp/util/assertion.hh>
 
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/node-selector.hh"
 #include "hpp/manipulation/graph/node.hh"
 #include "hpp/manipulation/graph/edge.hh"
-#include "hpp/manipulation/graph/graph.hh"
 
 namespace hpp {
   namespace manipulation {

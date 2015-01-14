@@ -17,12 +17,14 @@
 // hpp-manipulation. If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include "hpp/manipulation/handle.hh"
+
 #include <hpp/util/debug.hh>
+
 #include <hpp/model/gripper.hh>
 #include <hpp/model/object-factory.hh>
 
 #include "hpp/manipulation/fwd.hh"
-#include "hpp/manipulation/handle.hh"
 #include "hpp/manipulation/object.hh"
 #include "hpp/manipulation/robot.hh"
 

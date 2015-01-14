@@ -14,11 +14,11 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include "hpp/manipulation/path-projector.hh"
+
 #include <hpp/util/pointer.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/distance.hh>
-
-#include "hpp/manipulation/path-projector.hh"
 
 namespace hpp {
   namespace manipulation {

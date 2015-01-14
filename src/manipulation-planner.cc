@@ -14,7 +14,10 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include "hpp/manipulation/manipulation-planner.hh"
+
 #include <hpp/util/assertion.hh>
+
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/connected-component.hh>
 
@@ -24,7 +27,6 @@
 #include "hpp/manipulation/path-projector.hh"
 #include "hpp/manipulation/path-projector/dichotomy.hh"
 #include "hpp/manipulation/path-projector/progressive.hh"
-#include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/graph/edge.hh"
 
 namespace hpp {

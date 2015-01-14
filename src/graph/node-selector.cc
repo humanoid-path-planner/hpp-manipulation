@@ -14,9 +14,9 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include <cstdlib>
-
 #include "hpp/manipulation/graph/node-selector.hh"
+
+#include <cstdlib>
 
 namespace hpp {
   namespace manipulation {

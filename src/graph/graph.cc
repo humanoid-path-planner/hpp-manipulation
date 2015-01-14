@@ -114,8 +114,9 @@ namespace hpp {
         da.separator = "; ";
         da.openSection = "\n";
         da.closeSection = ";\n";
-        da.addTooltipLine ("Graph contains:");
-        populateTooltip (da);
+        dot::Tooltip tp; tp.addLine ("Graph constains:");
+        populateTooltip (tp);
+        da.insertWithQuote ("tooltip", tp.toStr());
         os << "digraph " << id() << " {" << da;
         nodeSelector_->dotPrint (os);
         os << "}" << std::endl;

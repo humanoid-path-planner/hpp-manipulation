@@ -123,15 +123,15 @@ namespace hpp {
         return graphComp.print (os);
       }
 
-      void GraphComponent::populateTooltip (dot::DrawingAttributes& da) const
+      void GraphComponent::populateTooltip (dot::Tooltip& tp) const
       {
         for (NumericalConstraints_t::const_iterator it = numericalConstraints_.begin ();
             it != numericalConstraints_.end (); ++it) {
-          da.addTooltipLine ("- " + (*it)->function ().name ());
+          tp.addLine ("- " + (*it)->function ().name ());
         }
         for (LockedJoints_t::const_iterator it = lockedJoints_.begin ();
             it != lockedJoints_.end (); ++it) {
-          da.addTooltipLine ("- " + (*it)->jointName ());
+          tp.addLine ("- " + (*it)->jointName ());
         }
       }
     } // namespace graph

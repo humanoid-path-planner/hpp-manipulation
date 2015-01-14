@@ -88,8 +88,10 @@ namespace hpp {
       {
         da.insertWithQuote ("label", name ());
         da.insert ("shape", "onormal");
-        da.addTooltipLine ("Edge constains:");
-        populateTooltip (da);
+        dot::Tooltip tp; tp.addLine ("Edge constains:");
+        populateTooltip (tp);
+        da.insertWithQuote ("tooltip", tp.toStr());
+        da.insertWithQuote ("labeltooltip", tp.toStr());
         os << from()->id () << " -> " << to()->id () << " " << da << ";";
         return os;
       }
@@ -301,8 +303,10 @@ namespace hpp {
         da ["arrowtail"]="dot";
         da.insert ("shape", "onormal");
         da.insertWithQuote ("label", name());
-        da.addTooltipLine ("Edge constains:");
-        populateTooltip (da);
+        dot::Tooltip tp; tp.addLine ("Edge constains:");
+        populateTooltip (tp);
+        da.insertWithQuote ("tooltip", tp.toStr());
+        da.insertWithQuote ("labeltooltip", tp.toStr());
         os << waypoint_.second->id () << " -> " << to()->id () << " " << da << ";";
         return os;
       }

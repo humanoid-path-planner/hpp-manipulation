@@ -100,7 +100,7 @@ namespace hpp {
           friend std::ostream& operator<< (std::ostream&, const GraphComponent&);
 
           /// Populate DrawingAttributes tooltip
-          virtual void populateTooltip (dot::DrawingAttributes& da) const;
+          virtual void populateTooltip (dot::Tooltip& tp) const;
 
         private:
           /// Keep track of the created components in order to retrieve them

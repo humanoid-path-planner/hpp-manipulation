@@ -63,8 +63,9 @@ namespace hpp {
       {
         da.insertWithQuote ("label", name ());
         da.insert ("style","filled");
-        da.addTooltipLine ("Node contains:");
-        populateTooltip (da);
+        dot::Tooltip tp; tp.addLine ("Node contains:");
+        populateTooltip (tp);
+        da.insertWithQuote ("tooltip", tp.toStr());
         os << id () << " " << da << ";" << std::endl;
 
         dot::DrawingAttributes dac;

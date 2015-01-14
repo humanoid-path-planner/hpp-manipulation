@@ -18,6 +18,7 @@
 # define HPP_MANIPULATION_GRAPH_DOT_HH
 
 # include <ostream>
+# include <sstream>
 # include <map>
 # include <list>
 
@@ -29,16 +30,10 @@ namespace hpp {
         struct DrawingAttributes {
           typedef std::pair <std::string, std::string> Pair;
           typedef std::map <std::string, std::string> Map;
-          typedef std::list <std::string> TooltipLineVector;
 
-          static const std::string tooltipendl;
           std::string separator, openSection, closeSection;
           Map attr;
-          TooltipLineVector tooltip;
 
-          inline void addTooltipLine (const std::string& l) {
-            tooltip.push_back (l);
-          }
           inline void insertWithQuote (const std::string& K, const std::string& V) {
             attr.insert (Pair (K, "\"" + V + "\""));
           }
@@ -50,7 +45,29 @@ namespace hpp {
           }
           DrawingAttributes () :
             separator (", "), openSection ("["), closeSection ("]"),
-            attr (), tooltip () {};
+            attr () {};
+        };
+
+        struct Tooltip {
+          static const std::string tooltipendl;
+          typedef std::list <std::string> TooltipLineVector;
+          TooltipLineVector v;
+
+          Tooltip () : v() {};
+          inline std::string toStr () const {
+            std::stringstream ss;
+            size_t i = v.size ();
+            for (TooltipLineVector::const_iterator
+                it = v.begin (); it != v.end (); ++it ) {
+              ss << *it;
+              i--;
+              if (i > 0) ss << tooltipendl;
+            }
+            return ss.str ();
+          }
+          inline void addLine (const std::string& l) {
+            v.push_back (l);
+          }
         };
 
         std::ostream& insertComments (std::ostream& os, const std::string& c);

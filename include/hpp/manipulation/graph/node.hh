@@ -126,6 +126,8 @@ namespace hpp {
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;
 
+          virtual void populateTooltip (dot::Tooltip& tp) const;
+
         private:
           /// List of possible motions from this state (i.e. the outgoing
           /// vertices).

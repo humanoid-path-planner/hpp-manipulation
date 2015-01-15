@@ -16,6 +16,8 @@
 
 #include "hpp/manipulation/graph/node.hh"
 
+#include <hpp/constraints/differentiable-function.hh>
+
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/graph.hh"
@@ -79,6 +81,17 @@ namespace hpp {
           it->second->dotPrint (os, dac) << std::endl;
         }
         return os;
+      }
+
+      void Node::populateTooltip (dot::Tooltip& tp) const
+      {
+        GraphComponent::populateTooltip (tp);
+        tp.addLine ("");
+        tp.addLine ("Numerical constraints for paths are:");
+        for (NumericalConstraints_t::const_iterator it = numericalConstraintsForPath_.begin ();
+            it != numericalConstraintsForPath_.end (); ++it) {
+          tp.addLine ("- " + (*it)->function ().name ());
+        }
       }
 
       std::ostream& Node::print (std::ostream& os) const

@@ -123,6 +123,7 @@ namespace hpp {
         addFailure (STEERING_METHOD, edge);
         return false;
       }
+      //core::PathPtr_t projPath = path;
       core::PathPtr_t projPath;
       if (!pathProjector_->apply (path, projPath)) {
         if (!projPath || projPath->length () == 0) {
@@ -167,7 +168,7 @@ namespace hpp {
     {
       const core::SteeringMethodPtr_t& sm (problem ().steeringMethod ());
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
-      core::PathPtr_t path, validPath;
+      core::PathPtr_t path, projPath, validPath;
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       bool connectSucceed = false;
       for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
@@ -184,10 +185,12 @@ namespace hpp {
             ConfigurationPtr_t q2 ((*itn2)->configuration ());
             assert (*q1 != *q2);
             path = (*sm) (*q1, *q2);
-            if (path && pathValidation->validate (path, false, validPath)) {
-              roadmap ()->addEdge (*itn1, *itn2, path);
-              core::interval_t timeRange = path->timeRange ();
-              roadmap ()->addEdge (*itn2, *itn1, path->extract
+            if (!path) continue;
+            if (!pathProjector_->apply (path, projPath)) continue;
+            if (pathValidation->validate (projPath, false, validPath)) {
+              roadmap ()->addEdge (*itn1, *itn2, projPath);
+              core::interval_t timeRange = projPath->timeRange ();
+              roadmap ()->addEdge (*itn2, *itn1, projPath->extract
                   (core::interval_t (timeRange.second,
                                      timeRange.first)));
               connectSucceed = true;

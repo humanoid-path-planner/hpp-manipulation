@@ -14,7 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/manipulation/path-projector/progressive.hh>
+#include <hpp/core/path-projector/progressive.hh>
 
 #define ARM_LENGTH 1
 #define FOREARM_LENGTH 1
@@ -67,7 +67,8 @@ using hpp::core::ConfigProjectorPtr_t;
 
 using boost::assign::list_of;
 
-using hpp::manipulation::pathProjector::Progressive;
+using hpp::core::pathProjector::ProgressivePtr_t;
+using hpp::core::pathProjector::Progressive;
 
 static matrix3_t identity () { matrix3_t R; R.setIdentity (); return R;}
 
@@ -173,7 +174,8 @@ int main (int , char**) {
   cs->addConstraint (proj);
   WeighedDistancePtr_t dist = WeighedDistance::create (r, list_of (1)(1));
   const WeighedDistance& d = *dist;
-  Progressive pp (dist, 0.1);
+  ProgressivePtr_t pp_ptr = Progressive::create (dist, 0.1);
+  Progressive pp = *pp_ptr;
 
   Configuration_t qinit (2), qgoal (2);
   qinit[0] =  M_PI / 3; qinit[1] = -M_PI / 3;

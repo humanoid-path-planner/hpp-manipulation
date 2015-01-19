@@ -122,8 +122,6 @@ namespace hpp {
 
         void addFailure (TypeOfFailure t, const graph::EdgePtr_t& edge);
 
-        PathProjectorPtr_t pathProjector_;
-
         mutable Configuration_t qProj_;
     };
     /// \}

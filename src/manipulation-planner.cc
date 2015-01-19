@@ -20,13 +20,11 @@
 
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/connected-component.hh>
+#include "hpp/core/path-projector.hh"
 
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/problem.hh"
-#include "hpp/manipulation/path-projector.hh"
-#include "hpp/manipulation/path-projector/dichotomy.hh"
-#include "hpp/manipulation/path-projector/progressive.hh"
 #include "hpp/manipulation/graph/edge.hh"
 
 namespace hpp {
@@ -105,6 +103,7 @@ namespace hpp {
         core::PathPtr_t& validPath)
     {
       graph::GraphPtr_t graph = problem_.constraintGraph ();
+      PathProjectorPtr_t pathProjector = problem_.pathProjector ();
       // Select next node in the constraint graph.
       const ConfigurationPtr_t q_near = n_near->configuration ();
       graph::NodePtr_t node = graph->getNode (*q_near);
@@ -123,15 +122,16 @@ namespace hpp {
         addFailure (STEERING_METHOD, edge);
         return false;
       }
-      //core::PathPtr_t projPath = path;
       core::PathPtr_t projPath;
-      if (!pathProjector_->apply (path, projPath)) {
-        if (!projPath || projPath->length () == 0) {
-          addFailure (PATH_PROJECTION_ZERO, edge);
-          return false;
+      if (pathProjector) {
+        if (!pathProjector->apply (path, projPath)) {
+          if (!projPath || projPath->length () == 0) {
+            addFailure (PATH_PROJECTION_ZERO, edge);
+            return false;
+          }
+          addFailure (PATH_PROJECTION_SHORTER, edge);
         }
-        addFailure (PATH_PROJECTION_SHORTER, edge);
-      }
+      } else projPath = path;
       GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
       pathValidation->validate (projPath, false, validPath);
       if (validPath->length () == 0)
@@ -168,6 +168,7 @@ namespace hpp {
     {
       const core::SteeringMethodPtr_t& sm (problem ().steeringMethod ());
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
+      PathProjectorPtr_t pathProjector (problem().pathProjector ());
       core::PathPtr_t path, projPath, validPath;
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       bool connectSucceed = false;
@@ -186,7 +187,9 @@ namespace hpp {
             assert (*q1 != *q2);
             path = (*sm) (*q1, *q2);
             if (!path) continue;
-            if (!pathProjector_->apply (path, projPath)) continue;
+            if (pathProjector) {
+              if (!pathProjector->apply (path, projPath)) continue;
+            } else projPath = path;
             if (pathValidation->validate (projPath, false, validPath)) {
               roadmap ()->addEdge (*itn1, *itn2, projPath);
               core::interval_t timeRange = projPath->timeRange ();
@@ -206,8 +209,7 @@ namespace hpp {
         const core::RoadmapPtr_t& roadmap) :
       core::PathPlanner (problem, roadmap),
       shooter_ (new core::BasicConfigurationShooter (problem.robot ())),
-      problem_ (problem), pathProjector_ (new pathProjector::Progressive (problem_.distance (), 0.2)),
-      qProj_ (problem.robot ()->configSize ())
+      problem_ (problem), qProj_ (problem.robot ()->configSize ())
     {}
 
     void ManipulationPlanner::init (const ManipulationPlannerWkPtr_t& weak)

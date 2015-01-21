@@ -63,9 +63,11 @@ namespace hpp {
         return os;
       }
 
-      void GraphComponent::addNumericalConstraint (const NumericalConstraintPtr_t& nm)
+      void GraphComponent::addNumericalConstraint (const NumericalConstraintPtr_t& nm,
+          const SizeIntervals_t& passiveDofs)
       {
         numericalConstraints_.push_back(nm);
+        passiveDofs_.push_back (passiveDofs);
       }
 
       void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq)
@@ -81,9 +83,13 @@ namespace hpp {
 
       bool GraphComponent::insertNumericalConstraints (ConfigProjectorPtr_t& proj) const
       {
+        IntervalsContainer_t::const_iterator itpdof = passiveDofs_.begin ();
         for (NumericalConstraints_t::const_iterator it = numericalConstraints_.begin();
-            it != numericalConstraints_.end(); ++it)
-          proj->add (*it);
+            it != numericalConstraints_.end(); ++it) {
+          proj->add (*it, *itpdof);
+          ++itpdof;
+        }
+        assert (itpdof == passiveDofs_.end ());
         return !numericalConstraints_.empty ();
       }
 

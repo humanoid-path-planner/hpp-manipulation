@@ -222,7 +222,8 @@ namespace hpp {
 
           LeafHistogramPtr_t histogram () const;
 
-          void insertConfigConstraint (const NumericalConstraintPtr_t& nm);
+          void insertConfigConstraint (const NumericalConstraintPtr_t& nm,
+              const SizeIntervals_t& passiveDofs = SizeIntervals_t ());
 
           void insertConfigConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq) __attribute__ ((deprecated));
 
@@ -250,6 +251,7 @@ namespace hpp {
 
           /// Extra NumericalConstraints_t
           NumericalConstraints_t extraNumericalConstraints_;
+          IntervalsContainer_t extraPassiveDofs_;
 
           /// Extra LockedJoints_t
           LockedJoints_t extraLockedJoints_;

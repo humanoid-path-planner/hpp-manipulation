@@ -85,9 +85,11 @@ namespace hpp {
           ConstraintSetPtr_t configConstraint() const;
 
           /// Add core::NumericalConstraint to the component.
-          virtual void addNumericalConstraintForPath (const NumericalConstraintPtr_t& nm)
+          virtual void addNumericalConstraintForPath (const NumericalConstraintPtr_t& nm,
+              const SizeIntervals_t& passiveDofs = SizeIntervals_t ())
           {
             numericalConstraintsForPath_.push_back (nm);
+            passiveDofsForPath_.push_back (passiveDofs);
           }
 
           /// Add core::DifferentiableFunction to the component.
@@ -139,6 +141,7 @@ namespace hpp {
 
           /// Stores the numerical constraints for path.
           NumericalConstraints_t numericalConstraintsForPath_;
+          IntervalsContainer_t passiveDofsForPath_;
 
           /// A selector that will implement the selection of the next state.
           NodeSelectorWkPtr_t selector_;

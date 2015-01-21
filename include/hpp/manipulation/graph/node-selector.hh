@@ -43,7 +43,9 @@ namespace hpp {
           virtual EdgePtr_t chooseEdge(const NodePtr_t& node) const;
 
           /// Should never be called.
-          void addNumericalConstraint (const core::NumericalConstraintPtr_t& /* function */)
+          void addNumericalConstraint (
+              const core::NumericalConstraintPtr_t& /* function */,
+              const SizeIntervals_t& /* passiveDofs */ = SizeIntervals_t ())
           {
             HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
           }

@@ -429,10 +429,13 @@ namespace hpp {
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
           g->insertNumericalConstraints (proj);
+          IntervalsContainer_t::const_iterator itpdof = extraPassiveDofs_.begin ();
           for (NumericalConstraints_t::const_iterator it = extraNumericalConstraints_.begin ();
               it != extraNumericalConstraints_.end (); ++it) {
-            proj->add (*it);
+            proj->add (*it, *itpdof);
+            ++itpdof;
           }
+          assert (itpdof == extraPassiveDofs_.end ());
           !extraNumericalConstraints_.empty ();
           insertNumericalConstraints (proj);
           to ()->insertNumericalConstraints (proj);
@@ -450,9 +453,11 @@ namespace hpp {
         return extraConstraints_->get ();
       }
 
-      void LevelSetEdge::insertConfigConstraint (const NumericalConstraintPtr_t& nm)
+      void LevelSetEdge::insertConfigConstraint (const NumericalConstraintPtr_t& nm,
+              const SizeIntervals_t& passiveDofs)
       {
         extraNumericalConstraints_.push_back (nm);
+        extraPassiveDofs_.push_back (passiveDofs);
       }
 
       void LevelSetEdge::insertConfigConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)

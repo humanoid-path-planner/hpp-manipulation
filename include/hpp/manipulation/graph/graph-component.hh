@@ -50,7 +50,11 @@ namespace hpp {
           int id () const;
 
           /// Add core::NumericalConstraint to the component.
-          virtual void addNumericalConstraint (const NumericalConstraintPtr_t& numConstraint);
+          /// \param passiveDofs see ConfigProjector::addNumericalConstraint
+          //         for more information.
+          virtual void addNumericalConstraint (
+              const NumericalConstraintPtr_t& numConstraint,
+              const SizeIntervals_t& passiveDofs = SizeIntervals_t ());
 
           /// Add core::DifferentiableFunction to the component.
           virtual void addNumericalConstraint
@@ -90,6 +94,8 @@ namespace hpp {
 
           /// Stores the numerical constraints.
           NumericalConstraints_t numericalConstraints_;
+          /// Stores the passive dofs for each numerical constraints.
+          std::vector <SizeIntervals_t> passiveDofs_;
           /// List of LockedJoint constraints
           LockedJoints_t lockedJoints_;
           /// A weak pointer to the parent graph.

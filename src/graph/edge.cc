@@ -326,6 +326,21 @@ namespace hpp {
         return Edge::dotPrint (os, da);
       }
 
+      void LevelSetEdge::populateTooltip (dot::Tooltip& tp) const
+      {
+        GraphComponent::populateTooltip (tp);
+        tp.addLine ("");
+        tp.addLine ("Extra numerical constraints are:");
+        for (NumericalConstraints_t::const_iterator it = extraNumericalConstraints_.begin ();
+            it != extraNumericalConstraints_.end (); ++it) {
+          tp.addLine ("- " + (*it)->function ().name ());
+        }
+        for (LockedJoints_t::const_iterator it = extraLockedJoints_.begin ();
+            it != extraLockedJoints_.end (); ++it) {
+          tp.addLine ("- " + (*it)->jointName ());
+        }
+      }
+
       bool LevelSetEdge::applyConstraints (ConfigurationIn_t, ConfigurationOut_t) const
       {
         throw std::logic_error ("I need to know which connected component we wish to use.");

@@ -242,6 +242,9 @@ namespace hpp {
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
 
+          /// Populate DrawingAttributes tooltip
+          virtual void populateTooltip (dot::Tooltip& tp) const;
+
         private:
           typedef Cache < ConstraintSetPtr_t > Constraint_t;
 

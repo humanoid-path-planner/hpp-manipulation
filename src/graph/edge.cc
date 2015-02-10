@@ -404,9 +404,11 @@ namespace hpp {
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+        IntervalsContainer_t::const_iterator itpdof = extraPassiveDofs_.begin ();
         for (NumericalConstraints_t::const_iterator it = extraNumericalConstraints_.begin ();
             it != extraNumericalConstraints_.end (); ++it) {
-          proj->add (*it);
+          proj->add (*it, *itpdof);
+          ++itpdof;
         }
 
         for (LockedJoints_t::const_iterator it = extraLockedJoints_.begin ();

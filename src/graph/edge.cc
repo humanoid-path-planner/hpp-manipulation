@@ -341,26 +341,17 @@ namespace hpp {
         ConstraintSetPtr_t cs = extraConfigConstraint ();
         const ConfigProjectorPtr_t cp = cs->configProjector ();
         assert (cp);
-	vector_t offset = cp->rightHandSideFromConfig (q_offset);
-	size_t row = 0, nbRows = 0;
+	cp->rightHandSideFromConfig (q_offset);
 	for (NumericalConstraints_t::const_iterator it =
 	       extraNumericalConstraints_.begin ();
 	     it != extraNumericalConstraints_.end (); ++it) {
-	  const core::DifferentiableFunction& f = (*it)->function ();
-	  nbRows = f.outputSize ();
-	  vector_t value = vector_t::Zero (nbRows);
-	  // TODO: fix this function
-	  if (!(*it)->comparisonType ()->constantRightHandSide ()) {
-	    f (value, levelsetTarget);
-            offset.segment (row, nbRows) = value;
-            row += nbRows;
-	  }
-	}
-	cp->rightHandSide (offset);
+          (*it)->rightHandSideFromConfig (levelsetTarget);
+        }
         for (LockedJoints_t::const_iterator it = extraLockedJoints_.begin ();
 	     it != extraLockedJoints_.end (); ++it) {
           (*it)->rightHandSideFromConfig (levelsetTarget);
         }
+	cp->updateRightHandSide ();
 
         // Eventually, do the projection.
         if (cs->apply (q))

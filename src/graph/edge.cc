@@ -401,7 +401,6 @@ namespace hpp {
         std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();
 
-        /// The order is important here for the offset.
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
@@ -430,7 +429,6 @@ namespace hpp {
           std::string n = "(" + name () + "_extra)";
           GraphPtr_t g = graph_.lock ();
 
-          /// The order is important here for the offset.
           ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
           ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
@@ -442,7 +440,6 @@ namespace hpp {
             ++itpdof;
           }
           assert (itpdof == extraPassiveDofs_.end ());
-          !extraNumericalConstraints_.empty ();
           insertNumericalConstraints (proj);
           to ()->insertNumericalConstraints (proj);
           constraint->addConstraint (proj);

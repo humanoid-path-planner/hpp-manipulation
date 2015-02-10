@@ -103,9 +103,13 @@ namespace hpp {
           /// \return true is at least one NumericalConstraintPtr_t was inserted.
           bool insertNumericalConstraintsForPath (ConfigProjectorPtr_t& proj) const
           {
+            assert (numericalConstraintsForPath_.size () == passiveDofsForPath_.size ());
+            IntervalsContainer_t::const_iterator itpdofs = passiveDofsForPath_.begin ();
             for (NumericalConstraints_t::const_iterator it = numericalConstraintsForPath_.begin();
-                it != numericalConstraintsForPath_.end(); it++)
-              proj->add (*it);
+                it != numericalConstraintsForPath_.end(); it++) {
+              proj->add (*it, *itpdofs);
+              itpdofs++;
+            }
             return !numericalConstraintsForPath_.empty ();
           }
 

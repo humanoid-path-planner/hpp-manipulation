@@ -46,7 +46,7 @@ namespace hpp {
       Names_t::const_iterator itName = robotNames.begin ();
       for (;
 	   itName != robotNames.end (); ++itName) {
-	const DevicePtr_t& rob (robotsAndObjects_ [*itName]);
+	const model::DevicePtr_t& rob (robotsAndObjects_ [*itName]);
 	ObjectPtr_t object = HPP_DYNAMIC_PTR_CAST (Object, rob);
 	if (object) {
 	  objects.push_back (object);
@@ -59,7 +59,7 @@ namespace hpp {
       hppDout (info, *composite);
     }
 
-    DevicePtr_t ProblemSolver::robot (const std::string& name) const
+    model::DevicePtr_t ProblemSolver::robot (const std::string& name) const
     {
       RobotsandObjects_t::const_iterator it =
 	robotsAndObjects_.find (name);

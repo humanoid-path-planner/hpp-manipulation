@@ -1,5 +1,5 @@
 // Copyright (c) 2014 CNRS
-// Author: Florent Lamiraux
+// Author: Florent Lamiraux, Joseph Mirabel
 //
 // This file is part of hpp-manipulation-corba.
 // hpp-manipulation-corba is free software: you can redistribute it
@@ -44,7 +44,7 @@ namespace hpp {
 	}
       /// Set robot
       /// Check that robot is of type hpp::manipulation::Robot
-      virtual void robot (const DevicePtr_t& robot)
+      virtual void robot (const model::DevicePtr_t& robot)
       {
 	robot_ = HPP_DYNAMIC_PTR_CAST (Robot, robot);
 	assert (robot_);
@@ -57,7 +57,7 @@ namespace hpp {
       /// Add a single robot before building a composite robot
       /// \param name key of the robot as stored in an internal map.
       /// \param robot robot that is stored.
-      void addRobot (const std::string& name, const DevicePtr_t& robot)
+      void addRobot (const std::string& name, const model::DevicePtr_t& robot)
       {
 	robotsAndObjects_ [name] = robot;
       }
@@ -79,7 +79,7 @@ namespace hpp {
       /// Get robot with given name
       ///
       /// throw if no robot is registered with this name.
-      DevicePtr_t robot (const std::string& name) const;
+      model::DevicePtr_t robot (const std::string& name) const;
 
       /// Get object with given name
       ///
@@ -176,7 +176,7 @@ namespace hpp {
       void initializeProblem (ProblemPtr_t problem);
 
     private:
-      typedef std::map <const std::string, DevicePtr_t> RobotsandObjects_t;
+      typedef std::map <const std::string, model::DevicePtr_t> RobotsandObjects_t;
       RobotPtr_t robot_;
       /// The pointer should point to the same object as core::Problem.
       ProblemPtr_t problem_;

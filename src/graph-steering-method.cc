@@ -23,7 +23,7 @@
 
 namespace hpp {
   namespace manipulation {
-    GraphSteeringMethod::GraphSteeringMethod (const DevicePtr_t& robot) :
+    GraphSteeringMethod::GraphSteeringMethod (const model::DevicePtr_t& robot) :
           SteeringMethod (), robot_ (robot),
           distance_ (core::WeighedDistance::create (robot))
     {

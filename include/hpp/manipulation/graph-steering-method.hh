@@ -38,7 +38,7 @@ namespace hpp {
     {
       public:
         /// Constructor
-        GraphSteeringMethod (const DevicePtr_t& robot);
+        GraphSteeringMethod (const model::DevicePtr_t& robot);
 
         /// \name Graph of constraints applicable to the robot.
         /// \{

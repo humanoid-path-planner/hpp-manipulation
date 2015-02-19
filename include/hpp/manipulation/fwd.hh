@@ -1,6 +1,6 @@
 ///
 /// Copyright (c) 2014 CNRS
-/// Authors: Florent Lamiraux
+/// Authors: Florent Lamiraux, Joseph Mirabel
 ///
 ///
 // This file is part of hpp-manipulation.
@@ -28,9 +28,13 @@ namespace fcl {
 }
 
 namespace hpp {
+  namespace model {
+    typedef boost::shared_ptr <const Device> DeviceConstPtr_t;
+  }
+
   namespace manipulation {
-    typedef model::Device Device;
-    typedef model::DevicePtr_t DevicePtr_t;
+    HPP_PREDEF_CLASS (Device);
+    typedef boost::shared_ptr <Device> DevicePtr_t;
     typedef boost::shared_ptr <const Device> DeviceConstPtr_t;
     typedef model::Joint Joint;
     typedef model::JointPtr_t JointPtr_t;
@@ -78,7 +82,7 @@ namespace hpp {
     typedef boost::shared_ptr < GraphSteeringMethod > GraphSteeringMethodPtr_t;
     typedef core::PathProjectorPtr_t PathProjectorPtr_t;
 
-    typedef std::vector <DevicePtr_t> Devices_t;
+    typedef std::vector <model::DevicePtr_t> Devices_t;
     typedef std::vector <ObjectPtr_t> Objects_t;
     typedef std::map <JointConstPtr_t, JointPtr_t> JointMap_t;
     typedef core::Constraint Constraint;

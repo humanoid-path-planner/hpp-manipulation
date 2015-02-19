@@ -126,14 +126,14 @@ namespace hpp {
     }
 
     void Robot::copyDevice(const JointPtr_t& rootJoint,
-			   const DeviceConstPtr_t& device)
+			   const model::DeviceConstPtr_t& device)
     {
       copyKinematicChain (rootJoint, device->rootJoint ());
       copyGrippers (device);
       addCollisions(device);
     }
 
-    void Robot::copyGrippers (const DeviceConstPtr_t& device)
+    void Robot::copyGrippers (const model::DeviceConstPtr_t& device)
     {
       for (model::Grippers_t::const_iterator itGripper =
 	     device->grippers ().begin ();
@@ -160,14 +160,14 @@ namespace hpp {
       return shPtr;
     }
 
-    ConfigurationIn_t Robot::configuration (const DevicePtr_t& robotOrObject,
+    ConfigurationIn_t Robot::configuration (const model::DevicePtr_t& robotOrObject,
 					    ConfigurationIn_t fullConfig)
     {
       return fullConfig.segment (rankInConfiguration_ [robotOrObject],
 				 robotOrObject->configSize ());
     }
 
-    vectorIn_t Robot::velocity (const DevicePtr_t& robotOrObject,
+    vectorIn_t Robot::velocity (const model::DevicePtr_t& robotOrObject,
 				vectorIn_t fullVelocity)
     {
       return fullVelocity.segment (rankInVelocity_ [robotOrObject],
@@ -237,7 +237,7 @@ namespace hpp {
       updateDistances ();
     }
 
-    void Robot::addCollisions (const DeviceConstPtr_t& device)
+    void Robot::addCollisions (const model::DeviceConstPtr_t& device)
     {
       JointVector_t joints = device->getJointVector ();
       // Cycle through all joint pairs

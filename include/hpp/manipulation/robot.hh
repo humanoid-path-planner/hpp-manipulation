@@ -32,10 +32,10 @@ namespace hpp {
     /// As a deriving from class hpp::core::Device, objects of this class
     /// store a kinematic chain that contains a copy of the robot and objects
     /// given as arguments to the constructor.
-    class HPP_MANIPULATION_DLLAPI Robot : public Device
+    class HPP_MANIPULATION_DLLAPI Robot : public model::Device
     {
     public:
-      typedef Device parent_t;
+      typedef model::Device parent_t;
       /// Constructor
       /// \param name of the new instance,
       /// \param robot Robots that manipulate objects,
@@ -48,14 +48,14 @@ namespace hpp {
       /// \param robotOrObject robot or object,
       /// \param fullConfig configuration of the full kinematic chain,
       /// \return configuration of robot or object
-      ConfigurationIn_t configuration (const DevicePtr_t& robotOrObject,
+      ConfigurationIn_t configuration (const model::DevicePtr_t& robotOrObject,
 				       ConfigurationIn_t fullConfig);
 
       /// Get velocity of robot or object
       /// \param robotOrObject robot or object,
       /// \param fullVelocity velocity of the full kinematic chain,
       /// \return velocity of robot or object
-      vectorIn_t velocity (const DevicePtr_t& robotOrObject,
+      vectorIn_t velocity (const model::DevicePtr_t& robotOrObject,
 			   vectorIn_t fullVelocity);
 
       /// Get robot manipulating objects
@@ -103,7 +103,7 @@ namespace hpp {
       /// the kinematic chain of robots and objects.
       void init (const RobotWkPtr_t& self);
     private:
-      typedef std::map <DevicePtr_t, size_type> RankMap_t;
+      typedef std::map <model::DevicePtr_t, size_type> RankMap_t;
       typedef std::map <std::string, HandlePtr_t> Handles_t;
       typedef std::map <std::string, GripperPtr_t> Grippers_t;
       /// Build the kinematic chain composed of the robot and of the manipulated
@@ -119,12 +119,12 @@ namespace hpp {
       void copyHandles (const ObjectConstPtr_t& object);
       /// Copy Device including kinematic chain.
       void copyDevice (const JointPtr_t& rootJoint,
-                       const DeviceConstPtr_t& device);
+                       const model::DeviceConstPtr_t& device);
       /// Copy grippers of the device into composite robot.
-      void copyGrippers (const DeviceConstPtr_t& device);
+      void copyGrippers (const model::DeviceConstPtr_t& device);
 
       /// Add Collision pairs between the robots
-      void addCollisions(const DeviceConstPtr_t& device);
+      void addCollisions(const model::DeviceConstPtr_t& device);
 
       Devices_t robots_;
       /// Set of objects

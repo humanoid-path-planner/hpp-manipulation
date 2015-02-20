@@ -23,7 +23,7 @@
 #include "hpp/core/path-projector.hh"
 
 #include "hpp/manipulation/graph/statistics.hh"
-#include "hpp/manipulation/robot.hh"
+#include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/graph/edge.hh"
 
@@ -55,7 +55,7 @@ namespace hpp {
 
     void ManipulationPlanner::oneStep ()
     {
-      RobotPtr_t robot = HPP_DYNAMIC_PTR_CAST(Robot, problem ().robot ());
+      DevicePtr_t robot = HPP_DYNAMIC_PTR_CAST(Device, problem ().robot ());
       HPP_ASSERT(robot);
       core::Nodes_t newNodes;
       core::PathPtr_t path;

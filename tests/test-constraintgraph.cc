@@ -24,7 +24,7 @@
 #include "hpp/manipulation/graph/node-selector.hh"
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/graph/edge.hh"
-#include "hpp/manipulation/robot.hh"
+#include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 
@@ -36,7 +36,7 @@ using namespace ::hpp::manipulation::graph;
 typedef std::vector <GraphComponentPtr_t> GraphComponents;
 
 namespace hpp_test {
-  RobotPtr_t robot;
+  DevicePtr_t robot;
 
   Configuration_t q1, q2;
 
@@ -54,15 +54,13 @@ namespace hpp_test {
   {
     if (ur5) {
 #ifdef TEST_UR5
-      DevicePtr_t dev = Device::create ("test-ur5");
-      hpp::model::urdf::loadUrdfModel (dev, "anchor", "ur_description", "ur5_robot");
-      Devices_t devs; devs.push_back (dev);
-      robot = Robot::create ("test-robot", devs, Objects_t());
+      robot = Device::create ("test-robot");
+      hpp::model::urdf::loadUrdfModel (robot, "anchor", "ur_description", "ur5_robot");
 #else // TEST_UR5
       BOOST_ERROR ("Set TEST_UR5 in cmake to activate this.");
 #endif // TEST_UR5
     } else {
-      robot = Robot::create ("test-robot", Devices_t() , Objects_t());
+      robot = Device::create ("test-robot");
     }
     graph_ = Graph::create (robot); components.push_back(graph_);
     graph_->maxIterations (20);

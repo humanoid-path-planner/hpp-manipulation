@@ -18,7 +18,6 @@
 
 #include <hpp/util/assertion.hh>
 
-#include "hpp/manipulation/robot.hh"
 #include "hpp/manipulation/graph/node-selector.hh"
 #include "hpp/manipulation/graph/node.hh"
 #include "hpp/manipulation/graph/edge.hh"
@@ -26,7 +25,7 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      GraphPtr_t Graph::create(RobotPtr_t robot)
+      GraphPtr_t Graph::create(DevicePtr_t robot)
       {
         Graph* ptr = new Graph;
         GraphPtr_t shPtr (ptr);
@@ -34,7 +33,7 @@ namespace hpp {
         return shPtr;
       }
 
-      void Graph::init (const GraphWkPtr_t& weak, RobotPtr_t robot)
+      void Graph::init (const GraphWkPtr_t& weak, DevicePtr_t robot)
       {
         GraphComponent::init (weak);
         robot_ = robot;
@@ -68,7 +67,7 @@ namespace hpp {
         return errorThreshold_;
       }
 
-      const RobotPtr_t& Graph::robot () const
+      const DevicePtr_t& Graph::robot () const
       {
         return robot_;
       }

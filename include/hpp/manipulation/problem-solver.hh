@@ -19,173 +19,135 @@
 # define HPP_MANIPULATION_PROBLEM_SOLVER_HH
 
 # include <map>
-# include <hpp/core/problem-solver.hh>
 # include <hpp/model/device.hh>
-# include "hpp/manipulation/deprecated.hh"
-# include "hpp/manipulation/object.hh"
-# include "hpp/manipulation/robot.hh"
+# include <hpp/core/problem-solver.hh>
 # include "hpp/manipulation/fwd.hh"
+# include "hpp/manipulation/deprecated.hh"
+# include "hpp/manipulation/device.hh"
+# include "hpp/manipulation/container.hh"
 # include "hpp/manipulation/graph/fwd.hh"
 
 namespace hpp {
   namespace manipulation {
-    class HPP_MANIPULATION_DLLAPI ProblemSolver : public core::ProblemSolver
+    class HPP_MANIPULATION_DLLAPI ProblemSolver : public core::ProblemSolver,
+    public Container <LockedJointPtr_t>, public Container <TriangleList>
     {
-    public:
-      typedef core::ProblemSolver parent_t;
-      typedef std::vector <std::string> Names_t;
-      /// Destructor
-      virtual ~ProblemSolver ()
-      {
-      }
-      ProblemSolver () : core::ProblemSolver (), robot_ (),
-	robotsAndObjects_ (), graspsMap_(), lockedJointMap_()
-	{
-	}
-      /// Set robot
-      /// Check that robot is of type hpp::manipulation::Robot
-      virtual void robot (const model::DevicePtr_t& robot)
-      {
-	robot_ = HPP_DYNAMIC_PTR_CAST (Robot, robot);
-	assert (robot_);
-	parent_t::robot (robot);
-      }
+      public:
+        typedef core::ProblemSolver parent_t;
+        typedef std::vector <std::string> Names_t;
 
-      /// \name Robots and objects access
-      /// \{
+        /// Destructor
+        virtual ~ProblemSolver ()
+        {}
 
-      /// Add a single robot before building a composite robot
-      /// \param name key of the robot as stored in an internal map.
-      /// \param robot robot that is stored.
-      void addRobot (const std::string& name, const model::DevicePtr_t& robot)
-      {
-	robotsAndObjects_ [name] = robot;
-      }
+        ProblemSolver () :
+          core::ProblemSolver (), robot_ (), graspsMap_()
+        {
+        }
 
-      /// Add an object before building a composite robot
-      /// \param name key of the robot as stored in an internal map.
-      /// \param object object that is stored.
-      void addObject (const std::string& name, const ObjectPtr_t& object)
-      {
-	robotsAndObjects_ [name] = object;
-      }
+        /// Set robot
+        /// Check that robot is of type hpp::manipulation::Device
+        virtual void robot (const DevicePtr_t& robot)
+        {
+          robot_ = HPP_DYNAMIC_PTR_CAST (Device, robot);
+          assert (robot_);
+          parent_t::robot (robot);
+        }
 
-      /// Get robot
-      const RobotPtr_t& robot () const
-      {
-	return robot_;
-      }
+        /// Get robot
+        const DevicePtr_t& robot () const
+        {
+          return robot_;
+        }
 
-      /// Get robot with given name
-      ///
-      /// throw if no robot is registered with this name.
-      model::DevicePtr_t robot (const std::string& name) const;
+        /// \name Constraint graph
+        /// \{
 
-      /// Get object with given name
-      ///
-      /// throw if no object is registered with this name.
-      ObjectPtr_t object (const std::string& name) const;
-      /// \}
+        /// Set the constraint graph
+        void constraintGraph (const graph::GraphPtr_t& graph);
 
-      /// \name Constraint graph
-      /// \{
+        /// Get the constraint graph
+        graph::GraphPtr_t constraintGraph () const;
+        /// \}
 
-      /// Set the constraint graph
-      void constraintGraph (const graph::GraphPtr_t& graph);
+        /// Add grasp
+        void addGrasp( const DifferentiableFunctionPtr_t& constraint,
+            const model::GripperPtr_t& gripper,
+            const HandlePtr_t& handle)
+        {
+          Grasp_t* ptr = new Grasp_t (gripper, handle);
+          GraspPtr_t shPtr (ptr);
+          graspsMap_[constraint] = shPtr;
+        }
 
-      /// Get the constraint graph
-      graph::GraphPtr_t constraintGraph () const;
-      /// \}
+        /// get grapsMap
+        GraspsMap_t& grasps()
+        {
+          return graspsMap_;
+        }
 
-      /// Add grasp
-      void addGrasp( const DifferentiableFunctionPtr_t& constraint,
-                     const model::GripperPtr_t& gripper,
-                     const HandlePtr_t& handle)
-      {
-        Grasp_t* ptr = new Grasp_t (gripper, handle);
-	GraspPtr_t shPtr (ptr);
-        graspsMap_[constraint] = shPtr;
-      }
+        /// get graps by name
+        ///
+        /// return NULL if no grasp named graspName
+        GraspPtr_t grasp(const DifferentiableFunctionPtr_t& constraint) const;
 
-      /// get grapsMap
-      GraspsMap_t& grasps()
-      {
-        return graspsMap_;
-      }
+        /// Reset constraint set and put back the disable collisions
+        /// between gripper and handle
+        virtual void resetConstraints ();
 
-      /// get graps by name
-      ///
-      /// return NULL if no grasp named graspName
-      GraspPtr_t grasp(const DifferentiableFunctionPtr_t& constraint) const;
+        /// Add differential function to the config projector
+        /// \param constraintName Name given to config projector if created by
+        ///        this method.
+        /// \param functionName name of the function as stored in internal map.
+        /// Build the config projector if not yet constructed.
+        /// If constraint is a graps, deactivate collision between gripper and
+        /// object.
+        virtual void addFunctionToConfigProjector
+          (const std::string& constraintName, const std::string& functionName);
 
-      /// Add a LockedJoint constraint to the map
-      /// \param name key of the constraint as stored in an internal map.
-      /// \param lockedJoint the constraint to add.
-      void addLockedJoint (const std::string& name,
-          LockedJointPtr_t& lockedJoint)
-      {
-        lockedJointMap_ [name] = lockedJoint;
-      }
+        /// Create a new problem.
+        virtual void resetProblem ();
 
-      /// Get a LockedJoint constraint by name
-      /// \param name key of the constraint as stored in an internal map.
-      LockedJointPtr_t lockedJoint (const std::string& name) const;
+        /// Create a new Roadmap
+        virtual void resetRoadmap ();
 
-      /// Reset constraint set and put back the disable collisions
-      /// between gripper and handle
-      virtual void resetConstraints ();
+        /// Get pointer to problem
+        ProblemPtr_t problem () const
+        {
+          return problem_;
+        }
 
-      /// Add differential function to the config projector
-      /// \param constraintName Name given to config projector if created by
-      ///        this method.
-      /// \param functionName name of the function as stored in internal map.
-      /// Build the config projector if not yet constructed.
-      /// If constraint is a graps, deactivate collision between gripper and
-      /// object.
-      virtual void addFunctionToConfigProjector
-        (const std::string& constraintName, const std::string& functionName);
+        /// Get an element of a container
+        template <typename Element>
+          const Element& get (const std::string& name) const
+        {
+          return Container <Element>::get (name);
+        }
 
-      /// Build a composite robot from several robots and objects
-      /// \param robotName Name of the composite robot,
-      /// \param robotNames Names of the robots stored internally that have
-      ///        been added by method addRobot.
-      ///
-      /// Objects are detected by dynamic cast.
-      void buildCompositeRobot (const std::string& robotName,
-				const Names_t& robotNames);
+        /// Add an element to a container
+        template <typename Element>
+          void add (const std::string& name, const Element& element)
+        {
+          Container <Element>::add (name, element);
+        }
 
-      /// Create a new problem.
-      virtual void resetProblem ();
+        /// Get the underlying map of a container
+        template <typename Element>
+          const typename Container<Element>::ElementMap_t& getAll () const
+        {
+          return Container <Element>::getAll ();
+        }
 
-      /// Create a new Roadmap
-      virtual void resetRoadmap ();
+      protected:
+        void initializeProblem (ProblemPtr_t problem);
 
-      /// Get pointer to problem
-      ProblemPtr_t problem () const
-      {
-	return problem_;
-      }
+      private:
+        DevicePtr_t robot_;
+        /// The pointer should point to the same object as core::Problem.
+        ProblemPtr_t problem_;
+        graph::GraphPtr_t constraintGraph_;
 
-      void addContactTriangles (const std::string name, const TriangleList triangles);
-
-      TriangleList contactTriangles (const std::string name);
-
-      const TriangleMap& contactTriangles () const;
-
-    protected:
-      void initializeProblem (ProblemPtr_t problem);
-
-    private:
-      typedef std::map <const std::string, model::DevicePtr_t> RobotsandObjects_t;
-      RobotPtr_t robot_;
-      /// The pointer should point to the same object as core::Problem.
-      ProblemPtr_t problem_;
-      graph::GraphPtr_t constraintGraph_;
-      /// Map of single robots to store before building a composite robot.
-      RobotsandObjects_t robotsAndObjects_;
-      GraspsMap_t graspsMap_;
-      LockedJointMap_t lockedJointMap_;
-      TriangleMap contactTriangles_;
+        GraspsMap_t graspsMap_;
     }; // class ProblemSolver
   } // namespace manipulation
 } // namespace hpp

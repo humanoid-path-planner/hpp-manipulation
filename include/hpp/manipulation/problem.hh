@@ -19,7 +19,7 @@
 
 # include <hpp/core/problem.hh>
 
-# include "hpp/manipulation/robot.hh"
+# include "hpp/manipulation/device.hh"
 # include "hpp/manipulation/graph/graph.hh"
 # include "hpp/manipulation/graph-path-validation.hh"
 # include "hpp/manipulation/graph-steering-method.hh"
@@ -36,7 +36,7 @@ namespace hpp {
         typedef core::Problem Parent;
 
         /// Constructor
-        Problem (RobotPtr_t robot) : Parent (robot),
+        Problem (DevicePtr_t robot) : Parent (robot),
           graph_(), steeringMethod_ (new GraphSteeringMethod (robot))
         {
           Parent::steeringMethod (steeringMethod_);

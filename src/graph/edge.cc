@@ -25,7 +25,7 @@
 
 #include <hpp/util/pointer.hh>
 
-#include "hpp/manipulation/robot.hh"
+#include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/graph/statistics.hh"
 
 namespace hpp {

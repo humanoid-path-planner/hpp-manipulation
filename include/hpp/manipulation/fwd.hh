@@ -65,8 +65,6 @@ namespace hpp {
     typedef constraints::RelativeTransformation RelativeTransformation;
     typedef constraints::RelativeTransformationPtr_t
     RelativeTransformationPtr_t;
-    HPP_PREDEF_CLASS (Robot);
-    typedef boost::shared_ptr <Robot> RobotPtr_t;
     typedef model::value_type value_type;
     typedef model::size_type size_type;
     typedef model::Transform3f Transform3f;
@@ -103,11 +101,9 @@ namespace hpp {
     typedef std::pair< GripperPtr_t, HandlePtr_t> Grasp_t;
     typedef boost::shared_ptr <Grasp_t> GraspPtr_t;
     typedef std::map <DifferentiableFunctionPtr_t, GraspPtr_t> GraspsMap_t;
-    typedef std::map <std::string, LockedJointPtr_t> LockedJointMap_t;
 
     typedef fcl::TriangleP Triangle;
     typedef std::list <Triangle> TriangleList;
-    typedef std::map <std::string, TriangleList> TriangleMap;
   } // namespace manipulation
 } // namespace hpp
 

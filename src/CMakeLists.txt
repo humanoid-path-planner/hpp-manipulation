@@ -24,7 +24,6 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   handle.cc
   manipulation-planner.cc
   problem-solver.cc
-  robot.cc
   roadmap.cc
   graph-path-validation.cc
   graph-steering-method.cc

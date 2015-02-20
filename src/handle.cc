@@ -29,8 +29,6 @@
 #include <hpp/constraints/relative-position.hh>
 #include <hpp/constraints/relative-transformation.hh>
 
-#include <hpp/manipulation/robot.hh>
-
 namespace hpp {
   namespace manipulation {
 

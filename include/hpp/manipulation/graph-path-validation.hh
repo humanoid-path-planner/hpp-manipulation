@@ -93,9 +93,12 @@ namespace hpp {
         /// \param pathValidation a PathValidation that is responsible for collision
         //         checking.
         //  \param graph A pointer to the constraint graph.
-        static GraphPathValidationPtr_t create (const PathValidationPtr_t& pathValidation);
+        static GraphPathValidationPtr_t create (
+            const PathValidationPtr_t& pathValidation);
 
-        template <typename T> static GraphPathValidationPtr_t create (const DevicePtr_t& robot, const value_type& stepSize);
+        template <typename T>
+          static GraphPathValidationPtr_t create (
+              const model::DevicePtr_t& robot, const value_type& stepSize);
 
         void addObstacle (const hpp::core::CollisionObjectPtr_t&);
 
@@ -129,7 +132,7 @@ namespace hpp {
 
     template <typename T>
       GraphPathValidationPtr_t GraphPathValidation::create
-      (const DevicePtr_t& robot, const value_type& stepSize)
+      (const model::DevicePtr_t& robot, const value_type& stepSize)
     {
       return GraphPathValidation::create (T::create (robot, stepSize));
     }

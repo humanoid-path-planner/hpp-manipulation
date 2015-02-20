@@ -24,8 +24,8 @@
 
 #include <hpp/core/roadmap.hh>
 
-#include "hpp/manipulation/object.hh"
-#include "hpp/manipulation/robot.hh"
+#include "hpp/manipulation/device.hh"
+#include "hpp/manipulation/handle.hh"
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/problem.hh"
@@ -33,53 +33,9 @@
 
 namespace hpp {
   namespace manipulation {
-    std::ostream& operator<< (std::ostream& os, const Robot& robot)
+    std::ostream& operator<< (std::ostream& os, const Device& robot)
     {
       return robot.print (os);
-    }
-
-    void ProblemSolver::buildCompositeRobot (const std::string& robotName,
-					     const Names_t& robotNames)
-    {
-      Devices_t robots;
-      Objects_t objects;
-      Names_t::const_iterator itName = robotNames.begin ();
-      for (;
-	   itName != robotNames.end (); ++itName) {
-	const model::DevicePtr_t& rob (robotsAndObjects_ [*itName]);
-	ObjectPtr_t object = HPP_DYNAMIC_PTR_CAST (Object, rob);
-	if (object) {
-	  objects.push_back (object);
-	} else {
-	  robots.push_back (rob);
-	}
-      }
-      RobotPtr_t composite (Robot::create (robotName, robots, objects));
-      robot (composite);
-      hppDout (info, *composite);
-    }
-
-    model::DevicePtr_t ProblemSolver::robot (const std::string& name) const
-    {
-      RobotsandObjects_t::const_iterator it =
-	robotsAndObjects_.find (name);
-      if (it == robotsAndObjects_.end ()) {
-	throw std::runtime_error ("No robot nor object with this name");
-      }
-      return it->second;
-    }
-
-    ObjectPtr_t ProblemSolver::object (const std::string& name) const
-    {
-      RobotsandObjects_t::const_iterator it = robotsAndObjects_.find (name);
-      if (it == robotsAndObjects_.end ()) {
-	throw std::runtime_error ("No robot nor object with this name");
-      }
-      ObjectPtr_t object = HPP_DYNAMIC_PTR_CAST (Object, it->second);
-      if (!object) {
-	throw std::runtime_error (name + std::string (" is not an object"));
-      }
-      return object;
     }
 
     void ProblemSolver::resetProblem ()
@@ -107,15 +63,6 @@ namespace hpp {
     graph::GraphPtr_t ProblemSolver::constraintGraph () const
     {
       return constraintGraph_;
-    }
-
-    LockedJointPtr_t ProblemSolver::lockedJoint (const std::string& name) const
-    {
-      LockedJointMap_t::const_iterator it = lockedJointMap_.find (name);
-      if (it == lockedJointMap_.end ()) {
-	throw std::runtime_error ("No LockedJoint constraint with this name");
-      }
-      return it->second;
     }
 
     GraspPtr_t ProblemSolver::grasp (
@@ -180,21 +127,6 @@ namespace hpp {
       RoadmapPtr_t r (Roadmap::create (problem ()->distance (), problem ()->robot ()));
       if (constraintGraph_) r->constraintGraph (constraintGraph_);
       roadmap (r);
-    }
-
-    void ProblemSolver::addContactTriangles (const std::string name, const TriangleList triangles)
-    {
-      contactTriangles_ [name] = triangles;
-    }
-
-    TriangleList ProblemSolver::contactTriangles (const std::string name)
-    {
-      return contactTriangles_ [name];
-    }
-
-    const TriangleMap& ProblemSolver::contactTriangles () const
-    {
-      return contactTriangles_;
     }
   } // namespace manipulation
 } // namespace hpp

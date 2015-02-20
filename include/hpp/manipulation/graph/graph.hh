@@ -39,7 +39,7 @@ namespace hpp {
       {
         public:
           /// Create a new Graph.
-          static GraphPtr_t create(RobotPtr_t robot);
+          static GraphPtr_t create(DevicePtr_t robot);
 
           /// Create and insert a NodeSelector inside the graph.
           NodeSelectorPtr_t createNodeSelector ();
@@ -81,14 +81,14 @@ namespace hpp {
           value_type errorThreshold () const;
 
           /// Get the robot.
-          const RobotPtr_t& robot () const;
+          const DevicePtr_t& robot () const;
 
           /// Print the component in DOT language.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
         protected:
           /// Initialization of the object.
-          void init (const GraphWkPtr_t& weak, RobotPtr_t robot);
+          void init (const GraphWkPtr_t& weak, DevicePtr_t robot);
 
           /// Constructor
           Graph ()
@@ -106,7 +106,7 @@ namespace hpp {
           ConstraintPtr_t constraints_;
 
           /// Keep a pointer to the composite robot.
-          RobotPtr_t robot_;
+          DevicePtr_t robot_;
 
           /// Weak pointer to itself.
           GraphWkPtr_t wkPtr_;

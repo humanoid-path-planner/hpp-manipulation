@@ -18,7 +18,7 @@
 
 #include <hpp/constraints/differentiable-function.hh>
 
-#include "hpp/manipulation/robot.hh"
+#include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/graph.hh"
 
@@ -109,9 +109,9 @@ namespace hpp {
         if (!*configConstraints_) {
           std::string n = "(" + name () + ")";
           GraphPtr_t g = graph_.lock ();
-          ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+          ConstraintSetPtr_t constraint = ConstraintSet::create ((const model::DevicePtr_t&)g->robot (), "Set " + n);
 
-          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj " + n, g->errorThreshold(), g->maxIterations());
+          ConfigProjectorPtr_t proj = ConfigProjector::create((const model::DevicePtr_t&)g->robot(), "proj " + n, g->errorThreshold(), g->maxIterations());
           g->insertNumericalConstraints (proj);
           insertNumericalConstraints (proj);
           constraint->addConstraint (proj);

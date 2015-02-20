@@ -52,10 +52,8 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/container.hh
   include/hpp/manipulation/axial-handle.hh
   include/hpp/manipulation/handle.hh
-  include/hpp/manipulation/object.hh
   include/hpp/manipulation/problem.hh
   include/hpp/manipulation/problem-solver.hh
-  include/hpp/manipulation/robot.hh
   include/hpp/manipulation/device.hh
   include/hpp/manipulation/roadmap.hh
   include/hpp/manipulation/manipulation-planner.hh

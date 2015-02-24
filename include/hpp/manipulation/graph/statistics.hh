@@ -40,7 +40,7 @@ namespace hpp {
           typedef ::hpp::statistics::Bin Parent;
           typedef std::list <core::NodePtr_t> RoadmapNodes_t;
 
-          LeafBin(const vector_t& v);
+          LeafBin(const vector_t& v, value_type* threshold_);
 
           void push_back(const core::NodePtr_t& n);
 
@@ -60,6 +60,8 @@ namespace hpp {
           vector_t value_;
 
           RoadmapNodes_t nodes_;
+
+          value_type* thr_;
 
           std::ostream& printValue (std::ostream& os) const;
       };
@@ -124,6 +126,9 @@ namespace hpp {
         private:
           /// The constraint that creates the foliation.
           ConstraintSetPtr_t constraint_;
+
+          /// Threshold used for equality between offset values.
+          value_type threshold_;
       };
 
       class HPP_MANIPULATION_DLLLOCAL NodeHistogram : public ::hpp::statistics::Statistics < NodeBin >

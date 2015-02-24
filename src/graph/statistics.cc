@@ -19,8 +19,8 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      LeafBin::LeafBin(const vector_t& v):
-        value_(v), nodes_()
+      LeafBin::LeafBin(const vector_t& v, value_type* thr):
+        value_(v), nodes_(), thr_ (thr)
       {}
 
       void LeafBin::push_back(const core::NodePtr_t& n)
@@ -33,7 +33,7 @@ namespace hpp {
         const vector_t& v = rhs.value ();
         assert (value_.size() == v.size());
         for (int p = 0; p < value_.size(); p++) {
-          if (value_[p] != v[p])
+          if (std::abs (value_[p] - v[p]) >= *thr_)
             return value_[p] < v[p];
         }
         return false;
@@ -41,7 +41,13 @@ namespace hpp {
 
       bool LeafBin::operator==(const LeafBin& rhs) const
       {
-        return value_ == rhs.value();
+        const vector_t& v = rhs.value ();
+        assert (value_.size() == v.size());
+        for (int p = 0; p < value_.size(); p++) {
+          if (std::abs (value_[p] - v[p]) >= *thr_)
+            return false;
+        }
+        return true;
       }
 
       const vector_t& LeafBin::value () const
@@ -148,8 +154,13 @@ namespace hpp {
       }
 
       LeafHistogram::LeafHistogram (const ConstraintSetPtr_t& constraint) :
-        constraint_ (constraint)
-      {}
+        constraint_ (constraint), threshold_ (0)
+      {
+        ConfigProjectorPtr_t p = constraint_->configProjector ();
+        if (p) {
+          threshold_ = p->errorThreshold () / sqrt(p->rightHandSide ().size ());
+        }
+      }
 
       void LeafHistogram::add (const core::NodePtr_t& n)
       {
@@ -157,9 +168,10 @@ namespace hpp {
 	if (constraint_->configProjector ()) {
 	  it = insert
 	    (LeafBin (constraint_->configProjector ()->rightHandSideFromConfig
-		      (*n->configuration ())));
+		      (*n->configuration ()),
+                      &threshold_));
 	} else {
-	  it = insert (LeafBin (vector_t (0)));
+	  it = insert (LeafBin (vector_t (0), &threshold_));
 	}
         it->push_back (n);
         if (numberOfObservations()%10 == 0) {

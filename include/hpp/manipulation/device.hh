@@ -63,6 +63,9 @@ namespace hpp {
           return os;
         }
 
+        /// \name Accessors to container elements
+        /// \{
+
         /// Get an element of a container
         template <typename Element>
           const Element& get (const std::string& name) const
@@ -84,13 +87,34 @@ namespace hpp {
           Container <Element>::add (name, element);
         }
 
+        /// \}
+
+        /// \name Collisions
+        /// \{
+
+        /// Cache joint vector
+        void prepareInsertRobot ()
+        {
+          didPrepare_ = true;
+          jointCache_ = getJointVector ();
+        }
+
+        /// Add collisions
+        /// between the joint vector cache initialized by prepareInsertRobot()
+        /// add the current Robot.
+        /// When creating a robot from several URDF files, this enables
+        /// collisions between joints from different files.
+        void didInsertRobot ();
+
+        /// \}
+
       protected:
         /// Constructor
         /// \param name of the new instance,
         /// \param robot Robots that manipulate objects,
         /// \param objects Set of objects manipulated by the robot.
         Device (const std::string& name) :
-          Parent_t (name)
+          Parent_t (name), jointCache_ (), didPrepare_ (false)
         {}
 
         void init (const DeviceWkPtr_t& self)
@@ -101,6 +125,9 @@ namespace hpp {
 
       private:
         DeviceWkPtr_t self_;
+
+        model::JointVector_t jointCache_;
+        bool didPrepare_;
     }; // class Device
   } // namespace manipulation
 } // namespace hpp

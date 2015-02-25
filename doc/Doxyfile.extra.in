@@ -4,7 +4,8 @@ INPUT     = @CMAKE_SOURCE_DIR@/doc \
 
 TAGFILES	= @HPP_MODEL_DOXYGENDOCDIR@/hpp-model.doxytag=@HPP_MODEL_DOXYGENDOCDIR@ \
             @HPP_CORE_DOXYGENDOCDIR@/hpp-core.doxytag=@HPP_CORE_DOXYGENDOCDIR@ \
-            @HPP_CONSTRAINTS_DOXYGENDOCDIR@/hpp-constraints.doxytag=@HPP_CONSTRAINTS_DOXYGENDOCDIR@
+            @HPP_CONSTRAINTS_DOXYGENDOCDIR@/hpp-constraints.doxytag=@HPP_CONSTRAINTS_DOXYGENDOCDIR@ \
+            @HPP_MANIPULATION_URDF_DOXYGENDOCDIR@/hpp-manipulation-urdf.doxytag=@HPP_MANIPULATION_URDF_DOXYGENDOCDIR@
 
 HTML_EXTRA_FILES = @CMAKE_SOURCE_DIR@/doc/ObjectManipulation_MasterThesis_JosephMirabel.pdf
 

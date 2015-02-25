@@ -25,10 +25,11 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      /// Description of the constraint graph
+      /// Description of the constraint graph.
+      ///
       /// This class contains a graph representing a robot with several
       /// end-effectors.
-      /// 
+      ///
       /// One must make sure not to create loop with shared pointers.
       /// To ensure that, the classes are defined as follow:
       /// - A Graph owns (i.e. has a shared pointer to) the NodeSelector s

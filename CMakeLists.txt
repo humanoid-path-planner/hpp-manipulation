@@ -41,12 +41,18 @@ SET (TEST_UR5 FALSE CACHE BOOL "Activate tests using ur5")
 SEARCH_FOR_BOOST()
 ADD_DOC_DEPENDENCY(hpp-model >= 3.0.0)
 ADD_DOC_DEPENDENCY(hpp-manipulation-urdf)
+ADD_DOC_DEPENDENCY(hpp-fcl)
 ADD_REQUIRED_DEPENDENCY(hpp-core >= 3.0.0)
 ADD_REQUIRED_DEPENDENCY(hpp-constraints >= 3.0.0)
 ADD_REQUIRED_DEPENDENCY(hpp-statistics >= 0.1)
 IF (TEST_UR5)
   ADD_REQUIRED_DEPENDENCY(hpp-model-urdf >= 3.0.0)
 ENDIF ()
+
+CONFIGURE_FILE (${CMAKE_SOURCE_DIR}/doc/main.hh.in
+  ${CMAKE_BINARY_DIR}/doc/main.hh
+  @ONLY
+  )
 
 SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/fwd.hh

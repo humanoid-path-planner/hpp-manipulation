@@ -21,7 +21,6 @@
 # define HPP_MANIPULATION_DEVICE_HH
 
 # include <hpp/model/humanoid-robot.hh>
-# include <hpp/fcl/shape/geometric_shapes.h>
 
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/config.hh"
@@ -33,6 +32,8 @@ namespace hpp {
     ///
     /// As a deriving class of hpp::model::HumanoidRobot,
     /// it is compatible with hpp::model::urdf::loadHumanoidRobot
+    ///
+    /// This class also contains model::Gripper, Handle and \ref TriangleList
     class HPP_MANIPULATION_DLLAPI Device : public model::HumanoidRobot,
       public Container <HandlePtr_t>, public Container <model::GripperPtr_t>,
       public Container <TriangleList>
@@ -64,6 +65,8 @@ namespace hpp {
         }
 
         /// \name Accessors to container elements
+        /// Contained elements are of type model::Gripper, Handle and
+        /// \ref TriangleList
         /// \{
 
         /// Get an element of a container

@@ -1,8 +1,8 @@
-///
-/// Copyright (c) 2014 CNRS
-/// Authors: Florent Lamiraux, Joseph Mirabel
-///
-///
+//
+// Copyright (c) 2014 CNRS
+// Authors: Florent Lamiraux, Joseph Mirabel
+//
+//
 // This file is part of hpp-manipulation.
 // hpp-manipulation is free software: you can redistribute it
 // and/or modify it under the terms of the GNU Lesser General Public
@@ -22,16 +22,9 @@
 
 # include <map>
 # include <hpp/core/fwd.hh>
-
-namespace fcl {
-  class TriangleP;
-}
+# include <hpp/fcl/shape/geometric_shapes.h>
 
 namespace hpp {
-  namespace model {
-    typedef boost::shared_ptr <const Device> DeviceConstPtr_t;
-  }
-
   namespace manipulation {
     HPP_PREDEF_CLASS (Device);
     typedef boost::shared_ptr <Device> DevicePtr_t;
@@ -97,7 +90,7 @@ namespace hpp {
     typedef core::ConfigurationShooter ConfigurationShooter;
     typedef core::ConfigurationShooterPtr_t ConfigurationShooterPtr_t;
     typedef core::ValidationReport ValidationReport;
-    
+
     typedef std::pair< GripperPtr_t, HandlePtr_t> Grasp_t;
     typedef boost::shared_ptr <Grasp_t> GraspPtr_t;
     typedef std::map <DifferentiableFunctionPtr_t, GraspPtr_t> GraspsMap_t;

@@ -13,8 +13,8 @@ namespace hpp {
  \li Graph: A graph of constraints defining the rules of a manipulation
  problem.
 
- To build a Device, have a look at the package \ref hpp_manipulation_urdf
- "hpp-manipulation-urdf".
+ To build a Device, have a look at the package <a
+ href="@HPP_MANIPULATION_URDF_DOXYGENDOCDIR@/index.html">hpp-manipulation-urdf</a>.
  ManipulationPlanner implements a RRT-based algorithm to solve manipulation
  planning problems.
 

@@ -40,7 +40,6 @@ SET (TEST_UR5 FALSE CACHE BOOL "Activate tests using ur5")
 
 SEARCH_FOR_BOOST()
 ADD_DOC_DEPENDENCY(hpp-model >= 3.0.0)
-ADD_DOC_DEPENDENCY(hpp-manipulation-urdf)
 ADD_DOC_DEPENDENCY(hpp-fcl)
 ADD_REQUIRED_DEPENDENCY(hpp-core >= 3.0.0)
 ADD_REQUIRED_DEPENDENCY(hpp-constraints >= 3.0.0)

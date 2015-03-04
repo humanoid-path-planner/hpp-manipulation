@@ -52,6 +52,9 @@ namespace hpp {
           C c_;
       };
 
+      /// \addtogroup constraint_graph
+      /// \{
+
       /// Abstract class representing representing the link between two nodes.
       class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent
       {
@@ -262,6 +265,8 @@ namespace hpp {
           /// This histogram will be used to find a good level set.
           LeafHistogramPtr_t hist_;
       }; // class LevelSetEdge
+
+      /// \}
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

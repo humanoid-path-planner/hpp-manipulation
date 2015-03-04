@@ -32,6 +32,11 @@ namespace hpp {
     namespace graph {
       HPP_MAKE_EXCEPTION ( HPP_MANIPULATION_DLLAPI, Bad_function_call );
 
+      /// \defgroup constraint_graph Constraint Graph
+
+      /// \addtogroup constraint_graph
+      /// \{
+
       /// Define common methods of the graph components.
       class HPP_MANIPULATION_DLLAPI GraphComponent
       {
@@ -122,6 +127,8 @@ namespace hpp {
       };
 
       std::ostream& operator<< (std::ostream& os, const GraphComponent& graphComp);
+
+      /// \}
     } // namespace graph
   } // namespace manipulation
 

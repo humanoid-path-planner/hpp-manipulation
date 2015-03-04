@@ -33,6 +33,9 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      /// \addtogroup constraint_graph
+      /// \{
+
       /// State of an end-effector.
       ///
       /// Nodes of the graph of constraints. There is one
@@ -153,6 +156,8 @@ namespace hpp {
           /// Weak pointer to itself.
           NodeWkPtr_t wkPtr_;
       }; // class Node
+
+      /// \}
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

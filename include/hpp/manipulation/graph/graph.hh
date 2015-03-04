@@ -25,6 +25,9 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      /// \addtogroup constraint_graph
+      /// \{
+
       /// Description of the constraint graph.
       ///
       /// This class contains a graph representing a robot with several
@@ -125,6 +128,8 @@ namespace hpp {
           value_type errorThreshold_;
           size_type maxIterations_;
       }; // Class Graph
+
+      /// \}
     } // namespace graph
   } // namespace manipulation
 

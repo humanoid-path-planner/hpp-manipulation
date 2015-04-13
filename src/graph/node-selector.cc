@@ -14,6 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include <hpp/model/configuration.hh>
 #include "hpp/manipulation/graph/node-selector.hh"
 
 #include <cstdlib>
@@ -47,10 +48,13 @@ namespace hpp {
       NodePtr_t NodeSelector::getNode(ConfigurationIn_t config) const
       {
         for (Nodes_t::const_iterator it = orderedStates_.begin();
-            orderedStates_.end() != it; ++it)
+	     orderedStates_.end() != it; ++it) {
           if ((*it)->contains(config))
             return *it;
-        throw std::logic_error ("A configuration has no node");
+	}
+	std::stringstream oss;
+	oss << "A configuration has no node:" << model::displayConfig (config);
+	throw std::logic_error (oss.str ());
       }
 
       EdgePtr_t NodeSelector::chooseEdge(const NodePtr_t& node) const

@@ -41,7 +41,7 @@ namespace hpp {
         {}
 
         ProblemSolver () :
-          core::ProblemSolver (), robot_ (), graspsMap_()
+          core::ProblemSolver (), robot_ (), problem_ (0x0), graspsMap_()
         {
         }
 

@@ -157,8 +157,8 @@ namespace hpp {
         if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
           return false;
         }
-        path = core::StraightPath::create (graph_.lock ()->robot (), q1, q2, d (q1, q2));
-        path->constraints (constraints);
+        path = core::StraightPath::create (graph_.lock ()->robot (), q1, q2,
+					   d (q1, q2), constraints);
         return true;
       }
 

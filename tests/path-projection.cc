@@ -191,7 +191,7 @@ int main (int , char**) {
   std::string n = "direct_path";
   hpp_test::pythonscript::pathToVar (out, *sp, n);
   hpp_test::pythonscript::plot (out, n);
-  sp->constraints (cs);
+  sp = HPP_STATIC_PTR_CAST (StraightPath, sp->copy (cs));
   n = "naive_projection";
   hpp_test::pythonscript::pathToVar (out, *sp, n);
   hpp_test::pythonscript::plot (out, n);

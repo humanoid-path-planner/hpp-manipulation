@@ -15,6 +15,7 @@
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/path-projector/progressive.hh>
+#include <hpp/core/numerical-constraint.hh>
 
 #define ARM_LENGTH 1
 #define FOREARM_LENGTH 1
@@ -64,6 +65,7 @@ using hpp::core::ConstraintSet;
 using hpp::core::ConstraintSetPtr_t;
 using hpp::core::ConfigProjector;
 using hpp::core::ConfigProjectorPtr_t;
+using hpp::core::NumericalConstraint;
 
 using boost::assign::list_of;
 
@@ -170,7 +172,7 @@ int main (int , char**) {
   PositionPtr_t c = Position::create (r, ee, origin, target, identity (), list_of (false)(true)(false));
   ConstraintSetPtr_t cs = ConstraintSet::create (r, "test-cs");
   ConfigProjectorPtr_t proj = ConfigProjector::create (r, "test", 1e-4, 20);
-  proj->addConstraint (c);
+  proj->add (NumericalConstraint::create (c));
   cs->addConstraint (proj);
   WeighedDistancePtr_t dist = WeighedDistance::create (r, list_of (1)(1));
   const WeighedDistance& d = *dist;

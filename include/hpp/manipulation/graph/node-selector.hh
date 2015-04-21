@@ -31,10 +31,10 @@ namespace hpp {
       {
         public:
           /// Create a new NodeSelector.
-          static NodeSelectorPtr_t create();
+          static NodeSelectorPtr_t create(const std::string& name);
 
           /// Create an empty node
-          NodePtr_t createNode ();
+          NodePtr_t createNode (const std::string& name);
 
           /// Returns the state of a configuration.
           NodePtr_t getNode(ConfigurationIn_t config) const;
@@ -65,7 +65,7 @@ namespace hpp {
           void init (const NodeSelectorPtr_t& weak);
 
           /// Constructor
-          NodeSelector ()
+          NodeSelector (const std::string& name) : GraphComponent (name)
           {}
 
           /// Print the object in a stream.

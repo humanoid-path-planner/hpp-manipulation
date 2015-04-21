@@ -25,7 +25,8 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      Node::Node () : configConstraints_ (new Constraint_t())
+      Node::Node (const std::string& name) :
+	GraphComponent (name), configConstraints_ (new Constraint_t())
       {}
 
       Node::~Node ()
@@ -33,9 +34,9 @@ namespace hpp {
         if (configConstraints_) delete configConstraints_;
       }
 
-      NodePtr_t Node::create ()
+      NodePtr_t Node::create (const std::string& name)
       {
-        Node* node = new Node;
+        Node* node = new Node (name);
         NodePtr_t shPtr(node);
         shPtr->init(shPtr);
         return shPtr;
@@ -47,10 +48,11 @@ namespace hpp {
         wkPtr_ = weak;
       }
 
-      EdgePtr_t Node::linkTo(const NodePtr_t& to, const Weight_t& w, const bool& isInNodeFrom,
-          boost::function < EdgePtr_t (const GraphWkPtr_t&, const NodeWkPtr_t&, const NodeWkPtr_t&) > create)
+      EdgePtr_t Node::linkTo(const std::string& name, const NodePtr_t& to,
+			     const Weight_t& w, const bool& isInNodeFrom,
+			     EdgeFactory create)
       {
-        EdgePtr_t newEdge = create(graph_, wkPtr_, to);
+        EdgePtr_t newEdge = create(name, graph_, wkPtr_, to);
         neighbors_.insert (newEdge, w);
         newEdge->isInNodeFrom (isInNodeFrom);
         return newEdge;

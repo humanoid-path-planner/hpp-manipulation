@@ -45,7 +45,7 @@ namespace hpp {
           const std::string& name() const;
 
           /// Set the component name.
-          void name(const std::string& name);
+          void name(const std::string& name) HPP_MANIPULATION_DEPRECATED;
 
           /// Get the component by its ID. The validity of the GraphComponent
           /// is not checked.
@@ -94,7 +94,7 @@ namespace hpp {
           /// Initialize the component
           void init (const GraphComponentWkPtr_t& weak);
 
-          GraphComponent() : id_(-1)
+          GraphComponent(const std::string& name) : name_ (name), id_(-1)
           {}
 
           /// Stores the numerical constraints.

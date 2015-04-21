@@ -62,16 +62,17 @@ namespace hpp_test {
     } else {
       robot = Device::create ("test-robot");
     }
-    graph_ = Graph::create (robot); components.push_back(graph_);
+    graph_ = Graph::create ("manpulation-graph", robot);
+    components.push_back(graph_);
     graph_->maxIterations (20);
     graph_->errorThreshold (1e-4);
-    ns = graph_->createNodeSelector(); components.push_back(ns);
-    n1 = ns->createNode (); components.push_back(n1);
-    n2 = ns->createNode (); components.push_back(n2);
-    e11 = n1->linkTo (n1); components.push_back(e11);
-    e21 = n2->linkTo (n1); components.push_back(e21);
-    e12 = n1->linkTo (n2); components.push_back(e12);
-    e22 = n2->linkTo (n2); components.push_back(e22);
+    ns = graph_->createNodeSelector("node-selector"); components.push_back(ns);
+    n1 = ns->createNode ("node 1"); components.push_back(n1);
+    n2 = ns->createNode ("node 2"); components.push_back(n2);
+    e11 = n1->linkTo ("edge 11", n1); components.push_back(e11);
+    e21 = n2->linkTo ("edge 21", n1); components.push_back(e21);
+    e12 = n1->linkTo ("edge 12", n2); components.push_back(e12);
+    e22 = n2->linkTo ("edge 22", n2); components.push_back(e22);
 
     q1 = Configuration_t::Zero(6);
     q2 = Configuration_t::Zero(6);

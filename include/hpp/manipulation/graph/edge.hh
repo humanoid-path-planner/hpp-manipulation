@@ -63,7 +63,10 @@ namespace hpp {
           ~Edge ();
 
           /// Create a new empty Edge.
-          static EdgePtr_t create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to);
+          static EdgePtr_t create (const std::string& name,
+				   const GraphWkPtr_t& graph,
+				   const NodeWkPtr_t& from,
+				   const NodeWkPtr_t& to);
 
           virtual bool applyConstraints (core::NodePtr_t nnear, ConfigurationOut_t q) const;
 
@@ -99,7 +102,7 @@ namespace hpp {
               const NodeWkPtr_t& to);
 
           /// Constructor
-          Edge();
+          Edge (const std::string& name);
 
           /// Constraint to project onto the same leaf as config.
           /// \return The initialized projector.
@@ -168,7 +171,10 @@ namespace hpp {
       {
         public:
           /// Create a new WaypointEdge.
-          static WaypointEdgePtr_t create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to);
+	static WaypointEdgePtr_t create (const std::string& name,
+					 const GraphWkPtr_t& graph,
+					 const NodeWkPtr_t& from,
+					 const NodeWkPtr_t& to);
 
           virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
 
@@ -194,6 +200,9 @@ namespace hpp {
           NodePtr_t node () const;
 
         protected:
+	  WaypointEdge (const std::string& name) : Edge (name)
+	    {
+	    }
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
               const NodeWkPtr_t& to);
@@ -215,7 +224,10 @@ namespace hpp {
           ~LevelSetEdge ();
 
           /// Create a new LevelSetEdge.
-          static LevelSetEdgePtr_t create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to);
+          static LevelSetEdgePtr_t create (const std::string& name,
+					   const GraphWkPtr_t& graph,
+					   const NodeWkPtr_t& from,
+					   const NodeWkPtr_t& to);
 
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
@@ -240,7 +252,7 @@ namespace hpp {
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
               const NodeWkPtr_t& to);
 
-          LevelSetEdge ();
+	  LevelSetEdge (const std::string& name);
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;

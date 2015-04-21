@@ -31,8 +31,9 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      Edge::Edge () : pathConstraints_ (new Constraint_t()),
-      configConstraints_ (new Constraint_t())
+      Edge::Edge (const std::string& name) :
+	GraphComponent (name), pathConstraints_ (new Constraint_t()),
+	configConstraints_ (new Constraint_t())
       {}
 
       Edge::~Edge ()
@@ -57,9 +58,11 @@ namespace hpp {
         else return to ();
       }
 
-      EdgePtr_t Edge::create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to)
+      EdgePtr_t Edge::create (const std::string& name,
+			      const GraphWkPtr_t& graph,
+			      const NodeWkPtr_t& from, const NodeWkPtr_t& to)
       {
-        Edge* ptr = new Edge;
+        Edge* ptr = new Edge (name);
         EdgePtr_t shPtr (ptr);
         ptr->init(shPtr, graph, from, to);
         return shPtr;
@@ -188,9 +191,11 @@ namespace hpp {
         return false;
       }
 
-      WaypointEdgePtr_t WaypointEdge::create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to)
+      WaypointEdgePtr_t WaypointEdge::create
+      (const std::string& name, const GraphWkPtr_t& graph,
+       const NodeWkPtr_t& from, const NodeWkPtr_t& to)
       {
-        WaypointEdge* ptr = new WaypointEdge;
+        WaypointEdge* ptr = new WaypointEdge (name);
         WaypointEdgePtr_t shPtr (ptr);
         ptr->init(shPtr, graph, from, to);
         return shPtr;
@@ -242,24 +247,23 @@ namespace hpp {
 
       void WaypointEdge::createWaypoint (const unsigned d, const std::string& bname)
       {
-        NodePtr_t node = Node::create ();
-        node->parentGraph(graph_);
         std::ostringstream ss;
         ss << bname << "_n" << d;
-        node->name (ss.str());
+        NodePtr_t node = Node::create (ss.str());
+        node->parentGraph(graph_);
         EdgePtr_t edge;
+        ss.str (std::string ()); ss.clear ();
+        ss << bname << "_e" << d;
         if (d == 0) {
-          edge = Edge::create (graph_, from (), node);
+          edge = Edge::create (ss.str (), graph_, from (), node);
           edge->isInNodeFrom (isInNodeFrom ());
         } else {
-          WaypointEdgePtr_t we = WaypointEdge::create (graph_, from (), node);
+          WaypointEdgePtr_t we = WaypointEdge::create (ss.str (), graph_,
+						       from (), node);
           we->createWaypoint (d-1, bname);
           edge = we;
           edge->isInNodeFrom (isInNodeFrom ());
         }
-        ss.str (std::string ()); ss.clear ();
-        ss << bname << "_e" << d;
-        edge->name (ss.str ());
         waypoint_ = Waypoint (edge, node);
         config_ = Configuration_t(graph_.lock ()->robot ()->configSize ());
         result_ = Configuration_t(graph_.lock ()->robot ()->configSize ());
@@ -388,9 +392,11 @@ namespace hpp {
         Edge::init (weak, graph, from, to);
       }
 
-      LevelSetEdgePtr_t LevelSetEdge::create (const GraphWkPtr_t& graph, const NodeWkPtr_t& from, const NodeWkPtr_t& to)
+      LevelSetEdgePtr_t LevelSetEdge::create
+      (const std::string& name, const GraphWkPtr_t& graph,
+       const NodeWkPtr_t& from, const NodeWkPtr_t& to)
       {
-        LevelSetEdge* ptr = new LevelSetEdge;
+        LevelSetEdge* ptr = new LevelSetEdge (name);
         LevelSetEdgePtr_t shPtr (ptr);
         ptr->init(shPtr, graph, from, to);
         return shPtr;
@@ -475,7 +481,10 @@ namespace hpp {
         extraLockedJoints_.push_back (lockedJoint);
       }
 
-      LevelSetEdge::LevelSetEdge (): extraConstraints_ (new Constraint_t()) {}
+      LevelSetEdge::LevelSetEdge (const std::string& name) :
+	Edge (name), extraConstraints_ (new Constraint_t())
+      {
+      }
 
       LevelSetEdge::~LevelSetEdge ()
       {

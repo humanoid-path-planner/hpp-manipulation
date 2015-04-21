@@ -43,10 +43,10 @@ namespace hpp {
       {
         public:
           /// Create a new Graph.
-          static GraphPtr_t create(DevicePtr_t robot);
+	static GraphPtr_t create(const std::string& name, DevicePtr_t robot);
 
           /// Create and insert a NodeSelector inside the graph.
-          NodeSelectorPtr_t createNodeSelector ();
+          NodeSelectorPtr_t createNodeSelector (const std::string& name);
 
           /// Returns the states of a configuration.
           NodePtr_t getNode (ConfigurationIn_t config) const;
@@ -107,7 +107,7 @@ namespace hpp {
           void init (const GraphWkPtr_t& weak, DevicePtr_t robot);
 
           /// Constructor
-          Graph ()
+          Graph (const std::string& name) : GraphComponent (name)
           {}
 
           /// Print the object in a stream.

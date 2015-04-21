@@ -43,17 +43,21 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI Node : public GraphComponent
       {
         public:
+	typedef boost::function < EdgePtr_t
+				  (const std::string&, const GraphWkPtr_t&,
+				   const NodeWkPtr_t&, const NodeWkPtr_t&) >
+	EdgeFactory;
           /// Destructor
           ~Node ();
 
           /// Create a new node.
-          static NodePtr_t create ();
+          static NodePtr_t create (const std::string& name);
 
           /// Create a link from this node to the given node.
-          EdgePtr_t linkTo(const NodePtr_t& to, const Weight_t& w = 1,
-              const bool& isInNodeFrom = false,
-              boost::function < EdgePtr_t (const GraphWkPtr_t&, const NodeWkPtr_t&, const NodeWkPtr_t&) > create
-              = Edge::create);
+          EdgePtr_t linkTo (const std::string& name, const NodePtr_t& to,
+			    const Weight_t& w = 1,
+			    const bool& isInNodeFrom = false,
+			    EdgeFactory create = Edge::create);
 
           /// Check whether the configuration is in this state.
           /// \code
@@ -130,7 +134,7 @@ namespace hpp {
           void init (const NodeWkPtr_t& self);
 
           /// Constructor
-          Node();
+          Node(const std::string& name);
 
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;

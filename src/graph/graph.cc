@@ -25,9 +25,9 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      GraphPtr_t Graph::create(DevicePtr_t robot)
+      GraphPtr_t Graph::create(const std::string& name, DevicePtr_t robot)
       {
-        Graph* ptr = new Graph;
+        Graph* ptr = new Graph (name);
         GraphPtr_t shPtr (ptr);
         ptr->init (shPtr, robot);
         return shPtr;
@@ -40,9 +40,9 @@ namespace hpp {
         wkPtr_ = weak;
       }
 
-      NodeSelectorPtr_t Graph::createNodeSelector()
+      NodeSelectorPtr_t Graph::createNodeSelector (const std::string& name)
       {
-        nodeSelector_ = NodeSelector::create();
+        nodeSelector_ = NodeSelector::create (name);
         nodeSelector_->parentGraph (wkPtr_);
         return nodeSelector_;
       }

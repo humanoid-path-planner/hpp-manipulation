@@ -67,6 +67,18 @@ namespace hpp {
           /// \return The constraint.
           ConstraintSetPtr_t configConstraint (const EdgePtr_t& edge);
 
+	  /// Get error of a config with respect to a node constraint
+	  ///
+	  /// \param config Configuration,
+	  /// \param node node containing the constraint to check config against
+	  /// \retval error the error of the node constraint for the
+	  ///         configuration
+	  /// \return whether the configuration belongs to the node.
+	  /// Call method core::ConstraintSet::isSatisfied for the node
+	  /// constraints.
+	  bool getConfigErrorForNode (ConfigurationIn_t config,
+				      const NodePtr_t& node, vector_t& error);
+
           /// Constraint to project a path.
           /// \param edge a list of edges defining the foliation.
           /// \return The constraint.

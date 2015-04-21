@@ -98,6 +98,12 @@ namespace hpp {
         return node->configConstraint ();
       }
 
+      bool Graph::getConfigErrorForNode (ConfigurationIn_t config,
+					 const NodePtr_t& node, vector_t& error)
+      {
+	return configConstraint (node)->isSatisfied (config, error);
+      }
+
       ConstraintSetPtr_t Graph::configConstraint (const EdgePtr_t& edge)
       {
         return edge->configConstraint ();

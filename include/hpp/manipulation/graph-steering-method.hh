@@ -37,9 +37,17 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI GraphSteeringMethod : public SteeringMethod
     {
       public:
-        /// Constructor
-        GraphSteeringMethod (const model::DevicePtr_t& robot);
+      /// Create instance and return shared pointer
+      static GraphSteeringMethodPtr_t create (const model::DevicePtr_t& robot);
 
+      /// Create copy and return shared pointer
+      static GraphSteeringMethodPtr_t createCopy
+	(const GraphSteeringMethodPtr_t& other);
+	/// Copy instance and return shared pointer
+	virtual core::SteeringMethodPtr_t copy () const
+	{
+	  return createCopy (weak_.lock ());
+	}
         /// \name Graph of constraints applicable to the robot.
         /// \{
 
@@ -59,7 +67,19 @@ namespace hpp {
         const core::WeighedDistancePtr_t& distance () const;
 
       protected:
+        /// Constructor
+        GraphSteeringMethod (const model::DevicePtr_t& robot);
+
+        /// Copy constructor
+        GraphSteeringMethod (const GraphSteeringMethod&);
+
         virtual PathPtr_t impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+
+	void init (GraphSteeringMethodWkPtr_t weak)
+	{
+	  core::SteeringMethod::init (weak);
+	  weak_ = weak;
+	}
 
       private:
         /// A pointer to the graph of constraint.
@@ -68,6 +88,8 @@ namespace hpp {
         core::DeviceWkPtr_t robot_;
         /// Metric in configuration space.
         core::WeighedDistancePtr_t distance_;
+	/// Weak pointer to itself
+	GraphSteeringMethodWkPtr_t weak_;
     };
     /// \}
   } // namespace manipulation

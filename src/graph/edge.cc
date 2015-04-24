@@ -18,7 +18,7 @@
 
 #include <sstream>
 
-#include <hpp/core/straight-path.hh>
+#include <hpp/core/steering-method.hh>
 #include <hpp/core/path-vector.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
@@ -31,9 +31,11 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      Edge::Edge (const std::string& name) :
+      Edge::Edge (const std::string& name,
+		  const core::SteeringMethodPtr_t& steeringMethod) :
 	GraphComponent (name), pathConstraints_ (new Constraint_t()),
-	configConstraints_ (new Constraint_t())
+	configConstraints_ (new Constraint_t()),
+	steeringMethod_ (steeringMethod->copy ())
       {}
 
       Edge::~Edge ()
@@ -59,10 +61,11 @@ namespace hpp {
       }
 
       EdgePtr_t Edge::create (const std::string& name,
+			      const core::SteeringMethodPtr_t& steeringMethod,
 			      const GraphWkPtr_t& graph,
 			      const NodeWkPtr_t& from, const NodeWkPtr_t& to)
       {
-        Edge* ptr = new Edge (name);
+        Edge* ptr = new Edge (name, steeringMethod);
         EdgePtr_t shPtr (ptr);
         ptr->init(shPtr, graph, from, to);
         return shPtr;
@@ -129,7 +132,9 @@ namespace hpp {
       ConstraintSetPtr_t Edge::pathConstraint() const
       {
         if (!*pathConstraints_) {
-          pathConstraints_->set (buildPathConstraint ());
+	  ConstraintSetPtr_t pathConstraints (buildPathConstraint ());
+          pathConstraints_->set (pathConstraints);
+	  steeringMethod_->constraints (pathConstraints);
         }
         return pathConstraints_->get ();
       }
@@ -153,15 +158,16 @@ namespace hpp {
         return constraint;
       }
 
-      bool Edge::build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const
+      bool Edge::build (core::PathPtr_t& path, ConfigurationIn_t q1,
+			ConfigurationIn_t q2, const core::WeighedDistance& d)
+	const
       {
         ConstraintSetPtr_t constraints = pathConstraint ();
         constraints->configProjector ()->rightHandSideFromConfig(q1);
         if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
           return false;
         }
-        path = core::StraightPath::create (graph_.lock ()->robot (), q1, q2,
-					   d (q1, q2), constraints);
+	path = (*steeringMethod_) (q1, q2);
         return true;
       }
 
@@ -192,10 +198,11 @@ namespace hpp {
       }
 
       WaypointEdgePtr_t WaypointEdge::create
-      (const std::string& name, const GraphWkPtr_t& graph,
-       const NodeWkPtr_t& from, const NodeWkPtr_t& to)
+      (const std::string& name, const core::SteeringMethodPtr_t& steeringMethod,
+       const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+       const NodeWkPtr_t& to)
       {
-        WaypointEdge* ptr = new WaypointEdge (name);
+        WaypointEdge* ptr = new WaypointEdge (name, steeringMethod);
         WaypointEdgePtr_t shPtr (ptr);
         ptr->init(shPtr, graph, from, to);
         return shPtr;
@@ -255,11 +262,12 @@ namespace hpp {
         ss.str (std::string ()); ss.clear ();
         ss << bname << "_e" << d;
         if (d == 0) {
-          edge = Edge::create (ss.str (), graph_, from (), node);
+          edge = Edge::create (ss.str (), steeringMethod (), graph_, from (),
+			       node);
           edge->isInNodeFrom (isInNodeFrom ());
         } else {
-          WaypointEdgePtr_t we = WaypointEdge::create (ss.str (), graph_,
-						       from (), node);
+          WaypointEdgePtr_t we = WaypointEdge::create
+	    (ss.str (), steeringMethod (), graph_, from (), node);
           we->createWaypoint (d-1, bname);
           edge = we;
           edge->isInNodeFrom (isInNodeFrom ());
@@ -393,10 +401,11 @@ namespace hpp {
       }
 
       LevelSetEdgePtr_t LevelSetEdge::create
-      (const std::string& name, const GraphWkPtr_t& graph,
-       const NodeWkPtr_t& from, const NodeWkPtr_t& to)
+      (const std::string& name, const core::SteeringMethodPtr_t& steeringMethod,
+       const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+       const NodeWkPtr_t& to)
       {
-        LevelSetEdge* ptr = new LevelSetEdge (name);
+        LevelSetEdge* ptr = new LevelSetEdge (name, steeringMethod);
         LevelSetEdgePtr_t shPtr (ptr);
         ptr->init(shPtr, graph, from, to);
         return shPtr;
@@ -481,8 +490,10 @@ namespace hpp {
         extraLockedJoints_.push_back (lockedJoint);
       }
 
-      LevelSetEdge::LevelSetEdge (const std::string& name) :
-	Edge (name), extraConstraints_ (new Constraint_t())
+      LevelSetEdge::LevelSetEdge
+      (const std::string& name,
+       const core::SteeringMethodPtr_t& steeringMethod) :
+	Edge (name, steeringMethod), extraConstraints_ (new Constraint_t())
       {
       }
 

@@ -63,10 +63,12 @@ namespace hpp {
           ~Edge ();
 
           /// Create a new empty Edge.
-          static EdgePtr_t create (const std::string& name,
-				   const GraphWkPtr_t& graph,
-				   const NodeWkPtr_t& from,
-				   const NodeWkPtr_t& to);
+          static EdgePtr_t create
+	    (const std::string& name,
+	     const core::SteeringMethodPtr_t& steeringMethod,
+	     const GraphWkPtr_t& graph,
+	     const NodeWkPtr_t& from,
+	     const NodeWkPtr_t& to);
 
           virtual bool applyConstraints (core::NodePtr_t nnear, ConfigurationOut_t q) const;
 
@@ -92,7 +94,11 @@ namespace hpp {
           {
             return isInNodeFrom_;
           }
-
+	  /// Get steering method associated to the edge.
+	  const core::SteeringMethodPtr_t& steeringMethod () const
+	  {
+	    return steeringMethod_;
+	  }
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
@@ -102,7 +108,8 @@ namespace hpp {
               const NodeWkPtr_t& to);
 
           /// Constructor
-          Edge (const std::string& name);
+          Edge (const std::string& name,
+		const core::SteeringMethodPtr_t& steeringMethod);
 
           /// Constraint to project onto the same leaf as config.
           /// \return The initialized projector.
@@ -134,6 +141,9 @@ namespace hpp {
 
           /// True if this path is in node from, False if in node to
           bool isInNodeFrom_;
+
+	  /// Steering method used to create paths associated to the edge
+	  core::SteeringMethodPtr_t steeringMethod_;
 
           /// Weak pointer to itself.
           EdgeWkPtr_t wkPtr_;
@@ -171,10 +181,11 @@ namespace hpp {
       {
         public:
           /// Create a new WaypointEdge.
-	static WaypointEdgePtr_t create (const std::string& name,
-					 const GraphWkPtr_t& graph,
-					 const NodeWkPtr_t& from,
-					 const NodeWkPtr_t& to);
+	static WaypointEdgePtr_t create
+	  (const std::string& name,
+	   const core::SteeringMethodPtr_t& steeringMethod,
+	   const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+	   const NodeWkPtr_t& to);
 
           virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
 
@@ -200,7 +211,9 @@ namespace hpp {
           NodePtr_t node () const;
 
         protected:
-	  WaypointEdge (const std::string& name) : Edge (name)
+	  WaypointEdge (const std::string& name,
+			const core::SteeringMethodPtr_t& steeringMethod) :
+	    Edge (name, steeringMethod)
 	    {
 	    }
           /// Initialization of the object.
@@ -224,10 +237,11 @@ namespace hpp {
           ~LevelSetEdge ();
 
           /// Create a new LevelSetEdge.
-          static LevelSetEdgePtr_t create (const std::string& name,
-					   const GraphWkPtr_t& graph,
-					   const NodeWkPtr_t& from,
-					   const NodeWkPtr_t& to);
+          static LevelSetEdgePtr_t create
+	    (const std::string& name,
+	     const core::SteeringMethodPtr_t& steeringMethod,
+	     const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+	     const NodeWkPtr_t& to);
 
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
@@ -252,7 +266,8 @@ namespace hpp {
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
               const NodeWkPtr_t& to);
 
-	  LevelSetEdge (const std::string& name);
+	  LevelSetEdge (const std::string& name,
+			const core::SteeringMethodPtr_t& steeringMethod);
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;

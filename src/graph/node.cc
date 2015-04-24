@@ -52,7 +52,8 @@ namespace hpp {
 			     const Weight_t& w, const bool& isInNodeFrom,
 			     EdgeFactory create)
       {
-        EdgePtr_t newEdge = create(name, graph_, wkPtr_, to);
+        EdgePtr_t newEdge = create(name, graph_.lock ()->steeringMethod (),
+				   graph_, wkPtr_, to);
         neighbors_.insert (newEdge, w);
         newEdge->isInNodeFrom (isInNodeFrom);
         return newEdge;

@@ -37,7 +37,7 @@ namespace hpp {
 
         /// Constructor
         Problem (DevicePtr_t robot) : Parent (robot),
-          graph_(), steeringMethod_ (new GraphSteeringMethod (robot))
+          graph_(), steeringMethod_ (GraphSteeringMethod::create (robot))
         {
           Parent::steeringMethod (steeringMethod_);
         }

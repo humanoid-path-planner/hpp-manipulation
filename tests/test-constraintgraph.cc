@@ -17,6 +17,8 @@
 #include <hpp/util/pointer.hh>
 #include <hpp/model/urdf/util.hh>
 
+#include <hpp/core/steering-method-straight.hh>
+
 #include <hpp/constraints/position.hh>
 #include <hpp/constraints/relative-com.hh>
 
@@ -32,6 +34,8 @@
 
 using namespace ::hpp::manipulation;
 using namespace ::hpp::manipulation::graph;
+using hpp::core::SteeringMethodStraight;
+using hpp::core::SteeringMethodPtr_t;
 
 typedef std::vector <GraphComponentPtr_t> GraphComponents;
 
@@ -62,7 +66,8 @@ namespace hpp_test {
     } else {
       robot = Device::create ("test-robot");
     }
-    graph_ = Graph::create ("manpulation-graph", robot);
+    SteeringMethodPtr_t sm (SteeringMethodStraight::create (robot));
+    graph_ = Graph::create ("manpulation-graph", robot, sm);
     components.push_back(graph_);
     graph_->maxIterations (20);
     graph_->errorThreshold (1e-4);

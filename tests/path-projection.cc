@@ -15,6 +15,7 @@
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/core/path-projector/progressive.hh>
+#include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/numerical-constraint.hh>
 
 #define ARM_LENGTH 1
@@ -61,6 +62,8 @@ using hpp::core::Path;
 using hpp::core::PathPtr_t;
 using hpp::core::WeighedDistance;
 using hpp::core::WeighedDistancePtr_t;
+using hpp::core::SteeringMethodStraight;
+using hpp::core::SteeringMethodPtr_t;
 using hpp::core::ConstraintSet;
 using hpp::core::ConstraintSetPtr_t;
 using hpp::core::ConfigProjector;
@@ -175,8 +178,9 @@ int main (int , char**) {
   proj->add (NumericalConstraint::create (c));
   cs->addConstraint (proj);
   WeighedDistancePtr_t dist = WeighedDistance::create (r, list_of (1)(1));
+  SteeringMethodPtr_t sm (SteeringMethodStraight::create (r, dist));
   const WeighedDistance& d = *dist;
-  ProgressivePtr_t pp_ptr = Progressive::create (dist, 0.1);
+  ProgressivePtr_t pp_ptr = Progressive::create (dist, sm, 0.1);
   Progressive pp = *pp_ptr;
 
   Configuration_t qinit (2), qgoal (2);

@@ -44,7 +44,9 @@ namespace hpp {
       {
         public:
 	typedef boost::function < EdgePtr_t
-				  (const std::string&, const GraphWkPtr_t&,
+				  (const std::string&,
+				   const core::SteeringMethodPtr_t&,
+				   const GraphWkPtr_t&,
 				   const NodeWkPtr_t&, const NodeWkPtr_t&) >
 	EdgeFactory;
           /// Destructor

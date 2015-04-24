@@ -25,9 +25,10 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      GraphPtr_t Graph::create(const std::string& name, DevicePtr_t robot)
+      GraphPtr_t Graph::create(const std::string& name, DevicePtr_t robot,
+			       const core::SteeringMethodPtr_t& sm)
       {
-        Graph* ptr = new Graph (name);
+        Graph* ptr = new Graph (name, sm);
         GraphPtr_t shPtr (ptr);
         ptr->init (shPtr, robot);
         return shPtr;
@@ -70,6 +71,11 @@ namespace hpp {
       const DevicePtr_t& Graph::robot () const
       {
         return robot_;
+      }
+
+      const core::SteeringMethodPtr_t& Graph::steeringMethod () const
+      {
+	return steeringMethod_;
       }
 
       NodePtr_t Graph::getNode (ConfigurationIn_t config) const

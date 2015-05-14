@@ -158,7 +158,8 @@ namespace hpp {
       {
         ConfigProjectorPtr_t p = constraint_->configProjector ();
         if (p) {
-          threshold_ = p->errorThreshold () / sqrt(p->rightHandSide ().size ());
+          threshold_ = p->errorThreshold () /
+	    sqrt((double)p->rightHandSide ().size ());
         }
       }
 
@@ -171,7 +172,7 @@ namespace hpp {
 		      (*n->configuration ()),
                       &threshold_));
 	} else {
-	  it = insert (LeafBin (vector_t (0), &threshold_));
+	  it = insert (LeafBin (vector_t (), &threshold_));
 	}
         it->push_back (n);
         if (numberOfObservations()%10 == 0) {

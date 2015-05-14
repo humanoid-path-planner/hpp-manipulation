@@ -49,10 +49,10 @@ namespace hpp {
 
           /// Get the component by its ID. The validity of the GraphComponent
           /// is not checked.
-          static GraphComponentWkPtr_t get(int id);
+          static GraphComponentWkPtr_t get(std::size_t id);
 
           /// Return the component id.
-          int id () const;
+	  std::size_t id () const;
 
           /// Add core::NumericalConstraint to the component.
           /// \param passiveDofs see ConfigProjector::addNumericalConstraint
@@ -123,7 +123,7 @@ namespace hpp {
           /// Weak pointer to itself.
           GraphComponentWkPtr_t wkPtr_;
           /// ID of the component (index in components vector).
-          int id_;
+	  std::size_t id_;
       };
 
       std::ostream& operator<< (std::ostream& os, const GraphComponent& graphComp);

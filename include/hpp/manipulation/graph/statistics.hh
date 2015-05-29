@@ -102,7 +102,42 @@ namespace hpp {
           virtual void clear () = 0;
       };
 
-      class HPP_MANIPULATION_DLLLOCAL LeafHistogram : public ::hpp::statistics::Statistics < LeafBin >
+      /// This class represents a foliation of a submanifold of the configuration
+      /// space.
+      /// Such a foliation is defined by the two following functions:
+      /// \li a condition $f$ such that the submanifold is
+      ///                     $\mathcal{M}= \left{q \in \mathbb{C} | f(q)=0 \right}$
+      /// \li a parametrizer $g$ such that the leaf of this foliation is a level
+      ///      set of $g$.
+      class HPP_MANIPULATION_DLLAPI Foliation
+      {
+        public:
+          /// Whether the configuration is the submanifold $\mathcal{M}$
+          bool contains (ConfigurationIn_t q) const;
+          /// Whether the configuration is the submanifold $\mathcal{M}$
+          vector_t parameter (ConfigurationIn_t q) const;
+
+          void condition (const ConfigProjectorPtr_t c);
+          ConfigProjectorPtr_t condition () const;
+          void parametrizer (const ConfigProjectorPtr_t p);
+          ConfigProjectorPtr_t parametrizer () const;
+
+        private:
+          // condition_ contains the constraints defining the submanifold
+          // containing all the leaf.
+          // parametrizer_ contains the constraints providing a parametrization
+          // of the foliation.
+          //struct {
+          //  NumericalConstraints_t nc;
+            // This should be not be used as we are never resolving equations.
+            // We are only testing if they are equations are true or false.
+            // IntervalsContainer_t pdofs;
+          //  LockedJoints_t lj;
+          //} condition_, parametrizer_;
+          ConfigProjectorPtr_t condition_, parametrizer_;
+      };
+
+      class HPP_MANIPULATION_DLLAPI LeafHistogram : public ::hpp::statistics::Statistics < LeafBin >
                                                       , public Histogram
       {
         public:

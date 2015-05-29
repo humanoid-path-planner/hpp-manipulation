@@ -266,6 +266,39 @@ namespace hpp {
       {
         return nodes_;
       }
+
+      bool Foliation::contains (ConfigurationIn_t q) const
+      {
+        return condition_->isSatisfied (q);
+      }
+
+      vector_t Foliation::parameter (ConfigurationIn_t q) const
+      {
+        if (!condition_->isSatisfied (q)) {
+          hppDout (error, "Configuration not in the foliation");
+        }
+        return parametrizer_->rightHandSideFromConfig (q);
+      }
+
+      ConfigProjectorPtr_t Foliation::condition () const
+      {
+        return condition_;
+      }
+
+      void Foliation::condition (const ConfigProjectorPtr_t c)
+      {
+        condition_ = c;
+      }
+
+      ConfigProjectorPtr_t Foliation::parametrizer () const
+      {
+        return parametrizer_;
+      }
+
+      void Foliation::parametrizer (const ConfigProjectorPtr_t p)
+      {
+        parametrizer_ = p;
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

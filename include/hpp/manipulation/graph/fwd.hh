@@ -57,7 +57,8 @@ namespace hpp {
       typedef hpp::core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
       typedef hpp::core::SizeIntervals_t SizeIntervals_t;
       typedef std::vector <SizeIntervals_t> IntervalsContainer_t;
-      typedef std::list < LockedJointPtr_t > LockedJoints_t;
+      typedef hpp::core::NumericalConstraints_t NumericalConstraints_t;
+      typedef hpp::core::LockedJoints_t LockedJoints_t;
 
       class Histogram;
       class NodeHistogram;

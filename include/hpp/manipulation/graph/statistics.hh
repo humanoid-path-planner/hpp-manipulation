@@ -142,17 +142,13 @@ namespace hpp {
       {
         public:
           typedef ::hpp::statistics::Statistics < LeafBin > Parent;
-          /// Constructor
-          /// \param constraint The constraint that create the foliation being
-          ///        studied.
-          LeafHistogram (const ConstraintSetPtr_t& constraint);
+
+          static LeafHistogramPtr_t create (const Foliation f);
 
           /// Insert an occurence of a value in the histogram
           void add (const RoadmapNodePtr_t& n);
 
           std::ostream& print (std::ostream& os) const;
-
-          const ConstraintSetPtr_t& constraint () const;
 
           virtual HistogramPtr_t clone () const;
 
@@ -163,9 +159,19 @@ namespace hpp {
 
           void clear () { Parent::clear(); }
 
+          const Foliation& foliation () const {
+            return f_;
+          }
+
+        protected:
+          /// Constructor
+          /// \param node defines the submanifold containing the foliation.
+          /// \param constraint The constraint that create the foliation being
+          ///        studied.
+          LeafHistogram (const Foliation f);
+
         private:
-          /// The constraint that creates the foliation.
-          ConstraintSetPtr_t constraint_;
+          Foliation f_;
 
           /// Threshold used for equality between offset values.
           value_type threshold_;

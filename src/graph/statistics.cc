@@ -155,10 +155,15 @@ namespace hpp {
         return os << "NodeBin (" << node_->name () << ")";
       }
 
-      LeafHistogram::LeafHistogram (const ConstraintSetPtr_t& constraint) :
-        constraint_ (constraint), threshold_ (0)
+      LeafHistogramPtr_t LeafHistogram::create (const Foliation f)
       {
-        ConfigProjectorPtr_t p = constraint_->configProjector ();
+        return LeafHistogramPtr_t (new LeafHistogram (f));
+      }
+
+      LeafHistogram::LeafHistogram (const Foliation f) :
+        f_ (f), threshold_ (0)
+      {
+        ConfigProjectorPtr_t p = f_.parametrizer ();
         if (p) {
           threshold_ = p->errorThreshold () /
 	    sqrt((double)p->rightHandSide ().size ());
@@ -167,15 +172,9 @@ namespace hpp {
 
       void LeafHistogram::add (const RoadmapNodePtr_t& n)
       {
-	iterator it;
-	if (constraint_->configProjector ()) {
-	  it = insert
-	    (LeafBin (constraint_->configProjector ()->rightHandSideFromConfig
-		      (*n->configuration ()),
-                      &threshold_));
-	} else {
-	  it = insert (LeafBin (vector_t (), &threshold_));
-	}
+        if (!f_.contains (*n->configuration())) return;
+	iterator it = insert (LeafBin (f_.parameter (*n->configuration()),
+                              &threshold_));
         it->push_back (n);
         if (numberOfObservations()%10 == 0) {
           hppDout (info, *this);
@@ -184,19 +183,13 @@ namespace hpp {
 
       std::ostream& LeafHistogram::print (std::ostream& os) const
       {
-        os << "Histogram contains ConstraintSet: "
-          << constraint_->name () << std::endl;
+        os << "Leaf Histogram of foliation " << f_.condition()->name() << std::endl;
         return Parent::print (os);
-      }
-
-      const ConstraintSetPtr_t& LeafHistogram::constraint () const
-      {
-        return constraint_;
       }
 
       HistogramPtr_t LeafHistogram::clone () const
       {
-        return HistogramPtr_t (new LeafHistogram (constraint_));
+        return HistogramPtr_t (new LeafHistogram (f_));
       }
 
       NodeHistogram::NodeHistogram (const graph::GraphPtr_t& graph) :

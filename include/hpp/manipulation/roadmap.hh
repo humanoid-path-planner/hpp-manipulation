@@ -39,9 +39,6 @@ namespace hpp {
         /// Return a shared pointer to a new instance
         static RoadmapPtr_t create (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot);
 
-        /// Add a ConstraintSet that creates a foliation.
-        void statAddFoliation (ConstraintSetPtr_t constraint);
-
         /// Register histogram so that each time a node is added to the roadmap,
         /// it is also added to the histogram
         void insertHistogram (const graph::HistogramPtr_t hist);

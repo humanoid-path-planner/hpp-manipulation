@@ -58,11 +58,6 @@ namespace hpp {
       }
     }
 
-    void Roadmap::statAddFoliation (ConstraintSetPtr_t constraint)
-    {
-      insertHistogram (graph::HistogramPtr_t (new graph::LeafHistogram (constraint)));
-    }
-
     void Roadmap::insertHistogram (const graph::HistogramPtr_t hist)
     {
       histograms_.push_back (hist);

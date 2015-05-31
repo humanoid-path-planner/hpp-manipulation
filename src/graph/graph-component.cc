@@ -111,6 +111,11 @@ namespace hpp {
         return numericalConstraints_;
       }
 
+      const std::vector <SizeIntervals_t>& GraphComponent::passiveDofs() const
+      {
+        return passiveDofs_;
+      }
+
       const LockedJoints_t& GraphComponent::lockedJoints () const
       {
         return lockedJoints_;

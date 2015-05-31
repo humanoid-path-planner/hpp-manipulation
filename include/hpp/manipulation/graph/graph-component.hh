@@ -85,6 +85,9 @@ namespace hpp {
           /// Get a reference to the NumericalConstraints_t
           const NumericalConstraints_t& numericalConstraints() const;
 
+          /// Get a reference to the NumericalConstraints_t
+          const std::vector <SizeIntervals_t>& passiveDofs() const;
+
           /// Get a reference to the LockedJoints_t
           const LockedJoints_t& lockedJoints () const;
 

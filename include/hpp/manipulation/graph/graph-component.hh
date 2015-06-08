@@ -41,15 +41,18 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI GraphComponent
       {
         public:
+          /// Get the component by its ID. The validity of the GraphComponent
+          /// is not checked.
+          static GraphComponentWkPtr_t get(int id);
+
+          /// The list of elements
+          static const std::vector < GraphComponentWkPtr_t >& components ();
+
           /// Get the component name.
           const std::string& name() const;
 
           /// Set the component name.
           void name(const std::string& name) HPP_MANIPULATION_DEPRECATED;
-
-          /// Get the component by its ID. The validity of the GraphComponent
-          /// is not checked.
-          static GraphComponentWkPtr_t get(std::size_t id);
 
           /// Return the component id.
 	  std::size_t id () const;
@@ -116,7 +119,7 @@ namespace hpp {
         private:
           /// Keep track of the created components in order to retrieve them
           /// easily.
-          static std::vector < GraphComponentWkPtr_t > components;
+          static std::vector < GraphComponentWkPtr_t > components_;
 
           /// Name of the component.
           std::string name_;

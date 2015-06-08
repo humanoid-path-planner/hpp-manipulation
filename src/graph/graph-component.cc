@@ -25,7 +25,7 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      std::vector < GraphComponentWkPtr_t > GraphComponent::components = std::vector < GraphComponentWkPtr_t >();
+      std::vector < GraphComponentWkPtr_t > GraphComponent::components_ = std::vector < GraphComponentWkPtr_t >();
 
       const std::string& GraphComponent::name() const
       {
@@ -40,13 +40,19 @@ namespace hpp {
       GraphComponentWkPtr_t GraphComponent::get(std::size_t id)
       {
 # ifdef HPP_DEBUG
-        if (id < 0 || id >= components.size())
+        if (id < 0 || id >= (int)components_.size())
           throw std::out_of_range ("ID out of range.");
 # endif // HPP_DEBUG
-        return components[id];
+        return components_[id];
       }
 
-      std::size_t GraphComponent::id () const
+      const std::vector <GraphComponentWkPtr_t>& GraphComponent::components ()
+      {
+        return components_;
+      }
+
+
+      int GraphComponent::id () const
       {
         return id_;
       }
@@ -119,8 +125,8 @@ namespace hpp {
       void GraphComponent::init (const GraphComponentWkPtr_t& weak)
       {
         wkPtr_ = weak;
-        id_ = components.size();
-        components.push_back (wkPtr_);
+        id_ = components_.size();
+        components_.push_back (wkPtr_);
       }
 
       std::ostream& operator<< (std::ostream& os,

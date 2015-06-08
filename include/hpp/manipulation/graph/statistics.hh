@@ -34,7 +34,7 @@ namespace hpp {
     namespace graph {
       /// This class is used to do statistics on the roadmap.
       /// It keeps a track of which leaves of a foliation have been visited.
-      class HPP_MANIPULATION_DLLLOCAL LeafBin : public ::hpp::statistics::Bin
+      class HPP_MANIPULATION_DLLAPI LeafBin : public ::hpp::statistics::Bin
       {
         public :
           typedef ::hpp::statistics::Bin Parent;

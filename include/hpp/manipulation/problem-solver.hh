@@ -139,7 +139,7 @@ namespace hpp {
         }
 
       protected:
-        void initializeProblem (ProblemPtr_t problem);
+        virtual void initializeProblem (ProblemPtr_t problem);
 
       private:
         DevicePtr_t robot_;

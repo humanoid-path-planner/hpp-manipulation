@@ -208,7 +208,7 @@ namespace hpp {
     ManipulationPlanner::ManipulationPlanner (const Problem& problem,
         const core::RoadmapPtr_t& roadmap) :
       core::PathPlanner (problem, roadmap),
-      shooter_ (new core::BasicConfigurationShooter (problem.robot ())),
+      shooter_ (problem.configurationShooter()),
       problem_ (problem), qProj_ (problem.robot ()->configSize ())
     {}
 

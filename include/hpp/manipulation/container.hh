@@ -39,7 +39,7 @@ namespace hpp {
         const Element& get (const Key& name) const
         {
           typename ElementMap_t::const_iterator it = map_.find (name);
-          if (it == map_.end ()) return Element ();
+          if (it == map_.end ()) return default_;
           return it->second;
         }
 
@@ -78,6 +78,8 @@ namespace hpp {
 
       private:
         ElementMap_t map_;
+	/// Element returned by method get when key does not belong to map.
+	Element default_;
     }; // class Container
   } // namespace manipulation
 } // namespace hpp

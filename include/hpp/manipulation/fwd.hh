@@ -90,6 +90,7 @@ namespace hpp {
     typedef core::ConfigurationShooter ConfigurationShooter;
     typedef core::ConfigurationShooterPtr_t ConfigurationShooterPtr_t;
     typedef core::ValidationReport ValidationReport;
+    typedef core::PathValidationReportPtr_t PathValidationReportPtr_t;
 
     typedef std::pair< GripperPtr_t, HandlePtr_t> Grasp_t;
     typedef boost::shared_ptr <Grasp_t> GraspPtr_t;

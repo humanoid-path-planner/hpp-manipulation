@@ -133,7 +133,8 @@ namespace hpp {
         }
       } else projPath = path;
       GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
-      pathValidation->validate (projPath, false, validPath);
+      PathValidationReportPtr_t report;
+      pathValidation->validate (projPath, false, validPath, report);
       if (validPath->length () == 0)
         addFailure (PATH_VALIDATION, edge);
       else {
@@ -190,7 +191,8 @@ namespace hpp {
             if (pathProjector) {
               if (!pathProjector->apply (path, projPath)) continue;
             } else projPath = path;
-            if (pathValidation->validate (projPath, false, validPath)) {
+	    PathValidationReportPtr_t report;
+            if (pathValidation->validate (projPath, false, validPath, report)) {
               roadmap ()->addEdge (*itn1, *itn2, projPath);
               core::interval_t timeRange = projPath->timeRange ();
               roadmap ()->addEdge (*itn2, *itn1, projPath->extract

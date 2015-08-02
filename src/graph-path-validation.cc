@@ -47,6 +47,14 @@ namespace hpp {
       return impl_validate (path, reverse, validPart);
     }
 
+    bool GraphPathValidation::validate (const PathPtr_t& path, bool reverse,
+					PathPtr_t& validPart,
+					PathValidationReportPtr_t&)
+    {
+      assert (path);
+      return impl_validate (path, reverse, validPart);
+    }
+
     bool GraphPathValidation::impl_validate (
         const PathVectorPtr_t& path, bool reverse, PathPtr_t& validPart)
     {
@@ -95,7 +103,8 @@ namespace hpp {
         return impl_validate (pathVector, reverse, validPart);
 
       PathPtr_t pathNoCollision;
-      if (pathValidation_->validate (path, reverse, pathNoCollision)) {
+      PathValidationReportPtr_t report;
+      if (pathValidation_->validate (path, reverse, pathNoCollision, report)) {
         validPart = path;
         return true;
       }

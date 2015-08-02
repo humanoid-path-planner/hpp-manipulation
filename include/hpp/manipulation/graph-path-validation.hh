@@ -50,7 +50,10 @@ namespace hpp {
       public:
         /// Check that the path is valid regarding the constraint graph and call
         /// the encapsulated PathValidation::validate.
-        bool validate (const PathPtr_t& path, bool reverse, PathPtr_t& validPart);
+        /// \deprecated Use the method that takes as input a reference to a
+        /// ValidationReportPtr_t instead.
+        bool validate (const PathPtr_t& path, bool reverse,
+		       PathPtr_t& validPart) HPP_MANIPULATION_DEPRECATED;
 
 	/// Call the GraphPathValidation::validate without validation report.
 	///
@@ -61,9 +64,27 @@ namespace hpp {
 	/// \retval report information about the validation process. unused in
 	///         this case,
 	/// \return whether the whole path is valid.
+        /// \deprecated Use the method that takes as input a reference to a
+        /// ValidationReportPtr_t instead.
 	virtual bool validate (const PathPtr_t& path, bool reverse,
 			       PathPtr_t& validPart,
-			       ValidationReport& report);
+			       ValidationReport& report)
+	  HPP_MANIPULATION_DEPRECATED;
+
+	/// Check that path is valid regarding the constraint graph.
+	///
+	/// \param path the path to check for validity,
+	/// \param reverse if true check from the end,
+	/// \retval the extracted valid part of the path, pointer to path if
+	///         path is valid,
+	/// \retval report information about the validation process. unused in
+	///         this case,
+	/// \return whether the whole path is valid.
+        ///
+        /// \notice Call the encapsulated PathValidation::validate.
+	virtual bool validate (const PathPtr_t& path, bool reverse,
+			       PathPtr_t& validPart,
+			       PathValidationReportPtr_t& report);
 
         /// Set the encapsulated path validator.
         void innerValidation (const PathValidationPtr_t& pathValidation)

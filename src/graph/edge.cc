@@ -159,7 +159,7 @@ namespace hpp {
       }
 
       bool Edge::build (core::PathPtr_t& path, ConfigurationIn_t q1,
-			ConfigurationIn_t q2, const core::WeighedDistance& d)
+			ConfigurationIn_t q2, const core::WeighedDistance&)
 	const
       {
         ConstraintSetPtr_t constraints = pathConstraint ();
@@ -191,7 +191,8 @@ namespace hpp {
 	  hppDout (warning, c->name () << " fails often." << std::endl << ss);
 	} else {
 	  hppDout (warning, c->name () << " succeeds at rate "
-		   << (double)(ss.nbSuccess ()) / ss.numberOfObservations ()
+		   << (value_type)(ss.nbSuccess ()) /
+		   (value_type) ss.numberOfObservations ()
 		   << ".");
 	}
         return false;
@@ -388,7 +389,8 @@ namespace hpp {
 	  hppDout (warning, cs->name () << " fails often." << std::endl << ss);
 	} else {
 	  hppDout (warning, cs->name () << " succeeds at rate "
-		   << (double)(ss.nbSuccess ()) / ss.numberOfObservations ()
+		   << (value_type)(ss.nbSuccess ()) /
+		   (value_type) ss.numberOfObservations ()
 		   << ".");
 	}
         return false;

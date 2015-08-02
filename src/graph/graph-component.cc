@@ -40,7 +40,7 @@ namespace hpp {
       GraphComponentWkPtr_t GraphComponent::get(std::size_t id)
       {
 # ifdef HPP_DEBUG
-        if (id < 0 || id >= (int)components_.size())
+        if (id >= components_.size())
           throw std::out_of_range ("ID out of range.");
 # endif // HPP_DEBUG
         return components_[id];

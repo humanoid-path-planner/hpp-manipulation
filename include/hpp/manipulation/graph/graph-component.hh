@@ -43,7 +43,7 @@ namespace hpp {
         public:
           /// Get the component by its ID. The validity of the GraphComponent
           /// is not checked.
-          static GraphComponentWkPtr_t get(int id);
+          static GraphComponentWkPtr_t get(std::size_t id);
 
           /// The list of elements
           static const std::vector < GraphComponentWkPtr_t >& components ();

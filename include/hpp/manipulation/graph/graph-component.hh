@@ -52,6 +52,7 @@ namespace hpp {
           const std::string& name() const;
 
           /// Set the component name.
+	  /// \deprecated The name given at construction cannot be modified.
           void name(const std::string& name) HPP_MANIPULATION_DEPRECATED;
 
           /// Return the component id.

@@ -45,6 +45,8 @@ namespace hpp {
         {
         }
 
+        static ProblemSolverPtr_t create ();
+
         /// Set robot
         /// Check that robot is of type hpp::manipulation::Device
         virtual void robot (const DevicePtr_t& robot)

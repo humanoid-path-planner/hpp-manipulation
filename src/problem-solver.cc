@@ -38,6 +38,11 @@ namespace hpp {
       return robot.print (os);
     }
 
+    ProblemSolverPtr_t ProblemSolver::create ()
+    {
+      return ProblemSolverPtr_t (new ProblemSolver ());
+    }
+
     void ProblemSolver::resetProblem ()
     {
       if (problem_)

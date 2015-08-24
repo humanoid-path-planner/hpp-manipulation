@@ -34,6 +34,7 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   graph/graph.cc
   graph/graph-component.cc
   graph/node-selector.cc
+  graph/guided-node-selector.cc
   graph/statistics.cc
 
   graph/dot.cc

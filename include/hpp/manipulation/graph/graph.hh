@@ -52,6 +52,12 @@ namespace hpp {
           /// Create and insert a NodeSelector inside the graph.
           NodeSelectorPtr_t createNodeSelector (const std::string& name);
 
+          /// Set the nodeSelector
+          /// \warning This should be done before adding nodes to the node
+          /// selector otherwise the pointer to the parent graph will NOT be
+          /// valid.
+          void nodeSelector (NodeSelectorPtr_t ns);
+
           /// Returns the states of a configuration.
           NodePtr_t getNode (ConfigurationIn_t config) const;
 

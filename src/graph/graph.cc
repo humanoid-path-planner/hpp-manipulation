@@ -48,6 +48,12 @@ namespace hpp {
         return nodeSelector_;
       }
 
+      void Graph::nodeSelector (NodeSelectorPtr_t ns)
+      {
+        nodeSelector_ = ns;
+        nodeSelector_->parentGraph (wkPtr_);
+      }
+
       void Graph::maxIterations (size_type iterations)
       {
         maxIterations_ = iterations;

@@ -14,6 +14,8 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#include <hpp/core/node.hh>
+
 #include <hpp/model/configuration.hh>
 #include "hpp/manipulation/graph/node-selector.hh"
 
@@ -57,9 +59,13 @@ namespace hpp {
 	throw std::logic_error (oss.str ());
       }
 
-      EdgePtr_t NodeSelector::chooseEdge(const NodePtr_t& node) const
+      EdgePtr_t NodeSelector::chooseEdge(const core::NodePtr_t& from) const
       {
+        NodePtr_t node = getNode (*from->configuration ());
         const Neighbors_t neighborPicker = node->neighbors();
+        if (neighborPicker.totalWeight () == 0) {
+          return EdgePtr_t ();
+        }
         return neighborPicker ();
       }
 

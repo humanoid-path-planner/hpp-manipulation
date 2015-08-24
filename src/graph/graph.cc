@@ -94,9 +94,9 @@ namespace hpp {
         return edges;
       }
 
-      EdgePtr_t Graph::chooseEdge (const NodePtr_t& node) const
+      EdgePtr_t Graph::chooseEdge (const core::NodePtr_t& from) const
       {
-        return nodeSelector_->chooseEdge (node);
+        return nodeSelector_->chooseEdge (from);
       }
 
       ConstraintSetPtr_t Graph::configConstraint (const NodePtr_t& node)

@@ -40,7 +40,7 @@ namespace hpp {
           NodePtr_t getNode(ConfigurationIn_t config) const;
 
           /// Select randomly an outgoing edge of the given node.
-          virtual EdgePtr_t chooseEdge(const NodePtr_t& node) const;
+          virtual EdgePtr_t chooseEdge(const core::NodePtr_t& from) const;
 
           /// Should never be called.
           void addNumericalConstraint (
@@ -58,7 +58,7 @@ namespace hpp {
           }
 
           /// Print the object in a stream.
-          std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
+          virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
         protected:
           /// Initialization of the object.
@@ -69,12 +69,12 @@ namespace hpp {
           {}
 
           /// Print the object in a stream.
-          std::ostream& print (std::ostream& os) const;
+          virtual std::ostream& print (std::ostream& os) const;
 
-        private:
           /// List of the states of one end-effector, ordered by priority.
           Nodes_t orderedStates_;
 
+        private:
           /// Weak pointer to itself.
           NodeSelectorPtr_t wkPtr_;
       }; // Class NodeSelector

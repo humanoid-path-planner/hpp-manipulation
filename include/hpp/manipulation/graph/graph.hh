@@ -59,7 +59,7 @@ namespace hpp {
           Edges_t getEdges (const NodePtr_t& from, const NodePtr_t& to) const;
 
           /// Select randomly outgoing edge of the given node.
-          EdgePtr_t chooseEdge(const NodePtr_t& node) const;
+          EdgePtr_t chooseEdge(const core::NodePtr_t& node) const;
 
           /// Constraint to project onto the Node.
           /// \param the Node_t on which to project.

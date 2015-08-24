@@ -113,8 +113,6 @@ BOOST_AUTO_TEST_CASE (GraphStructure)
   Configuration_t cfg;
   NodePtr_t node = graph_->getNode (cfg);
   BOOST_CHECK (node == n1);
-  EdgePtr_t edge = graph_->chooseEdge (node);
-  BOOST_CHECK (edge->from() == n1);
 }
 
 #ifdef TEST_UR5

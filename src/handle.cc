@@ -63,6 +63,18 @@ namespace hpp {
     }
 
     DifferentiableFunctionPtr_t Handle::createPreGraspComplement
+    (const GripperPtr_t& gripper) const
+    {
+      using boost::assign::list_of;
+      std::vector <bool> mask = list_of (true)(false)(false);
+      Transform3f transform = inverse (localPosition()) * gripper->objectPositionInJoint ();
+      fcl::Vec3f target = transform.getTranslation ()
+        + fcl::Vec3f (clearance () + gripper->clearance (),0,0);
+      return RelativePosition::create ("Position_(1,0,0)_" + name () + "_" + gripper->name (),
+          gripper->joint()->robot(), gripper->joint (), joint(), target, fcl::Vec3f (0,0,0), mask);
+    }
+
+    DifferentiableFunctionPtr_t Handle::createPreGraspComplement
     (const GripperPtr_t& gripper, const value_type& shift) const
     {
       using boost::assign::list_of;

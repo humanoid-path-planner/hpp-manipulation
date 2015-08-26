@@ -124,6 +124,24 @@ namespace hpp {
         return handle->createGrasp(gripper);
       }
 
+      /// Get the clearance
+      ///
+      /// The clearance is a distance, from the center of the gripper and along
+      /// the x-aixs, that "ensures" an object being at that distance is not
+      /// colliding with this gripper.
+      /// It also gives an order of magnitude of the size of the gripper.
+      value_type clearance () const
+      {
+        return clearance_;
+      }
+
+      /// Set the clearance
+      /// \sa clearance()
+      void clearance (const value_type& clearance)
+      {
+        clearance_ = clearance;
+      }
+
     protected:
       /// Constructor
       /// \param robot the robot that grasps the handle,
@@ -133,7 +151,8 @@ namespace hpp {
       Handle (const std::string& name, const Transform3f& localPosition,
 	      const JointPtr_t& joint) : name_ (name),
 					 localPosition_ (localPosition),
-					 joint_ (joint), weakPtr_ ()
+					 joint_ (joint), clearance_ (0),
+                                         weakPtr_ ()
       {
       }
       void init (HandleWkPtr_t weakPtr)
@@ -149,6 +168,8 @@ namespace hpp {
       Transform3f localPosition_;
       /// Joint to which the handle is linked.
       JointPtr_t joint_;
+      /// Clearance
+      value_type clearance_;
       /// Weak pointer to itself
       HandleWkPtr_t weakPtr_;
 

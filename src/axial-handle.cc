@@ -66,31 +66,14 @@ namespace hpp {
     }
 
     DifferentiableFunctionPtr_t AxialHandle::createPreGraspComplement
-    (const GripperPtr_t& gripper) const
+      (const GripperPtr_t& gripper, const value_type& shift) const
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(false)(false)(false)(true)
 	(false);
       Transform3f transform (gripper->objectPositionInJoint ().getRotation (),
 			     gripper->objectPositionInJoint ().getTranslation ()
-			     + fcl::Vec3f (gripper->clearance () +
-					   clearance (),0,0));
-      return RelativeTransformation::create
-	("Transformation_(1,0,0,0,0,0)_" + name () + "_" + gripper->name (),
-	 gripper->joint()->robot(), gripper->joint (), joint (),
-	 transform, localPosition(), mask);
-    }
-
-    DifferentiableFunctionPtr_t AxialHandle::createPreGraspComplement
-    (const GripperPtr_t& gripper, const value_type& shift) const
-    {
-      using boost::assign::list_of;
-      std::vector <bool> mask = list_of (true)(false)(false)(false)(true)
-	(false);
-      Transform3f transform (gripper->objectPositionInJoint ().getRotation (),
-			     gripper->objectPositionInJoint ().getTranslation ()
-			     + fcl::Vec3f (gripper->clearance () +
-					   clearance () + shift,0,0));
+			     + fcl::Vec3f (shift,0,0));
       return RelativeTransformation::create
 	("Transformation_(1,0,0,0,0,0)_" + name () + "_" + gripper->name (),
 	 gripper->joint()->robot(), gripper->joint (), joint (),

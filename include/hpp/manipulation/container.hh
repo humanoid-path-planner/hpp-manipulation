@@ -71,6 +71,16 @@ namespace hpp {
           return os;
         }
 
+        /// Print object in a stream
+        std::ostream& printPointer (std::ostream& os) const
+        {
+          for (typename ElementMap_t::const_iterator it = map_.begin ();
+              it != map_.end (); ++it) {
+            os << it->first << " : " << *(it->second) << std::endl;
+          }
+          return os;
+        }
+
       protected:
         /// Constructor
         Container () : map_ ()

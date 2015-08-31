@@ -52,17 +52,7 @@ namespace hpp {
         }
 
         /// Print object in a stream
-        virtual std::ostream& print (std::ostream& os) const
-        {
-          Parent_t::print (os);
-          // print handles
-          os << "Handles:" << std::endl;
-          Container <HandlePtr_t>::print (os);
-          // print grippers
-          os << "Grippers:" << std::endl;
-          Container <model::GripperPtr_t>::print (os);
-          return os;
-        }
+        virtual std::ostream& print (std::ostream& os) const;
 
         /// \name Accessors to container elements
         /// Contained elements are of type model::Gripper, Handle and

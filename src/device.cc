@@ -17,7 +17,9 @@
 // hpp-manipulation. If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/model/gripper.hh>
 #include <hpp/manipulation/device.hh>
+#include <hpp/manipulation/handle.hh>
 
 #include <hpp/model/joint.hh>
 
@@ -49,5 +51,17 @@ namespace hpp {
           }
           jointCache_.clear ();
         }
+    std::ostream& Device::print (std::ostream& os) const
+    {
+      Parent_t::print (os);
+      // print handles
+      os << "Handles:" << std::endl;
+      Container <HandlePtr_t>::printPointer (os);
+      // print grippers
+      os << "Grippers:" << std::endl;
+      Container <model::GripperPtr_t>::printPointer (os);
+      return os;
+    }
+
   } // namespace manipulation
 } // namespace hpp

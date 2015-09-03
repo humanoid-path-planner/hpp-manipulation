@@ -39,6 +39,12 @@ namespace hpp {
           /// Returns the state of a configuration.
           NodePtr_t getNode(ConfigurationIn_t config) const;
 
+          /// Returns a list of all the nodes
+          const Nodes_t& getNodes () const
+          {
+            return orderedStates_;
+          }
+
           /// Select randomly an outgoing edge of the given node.
           virtual EdgePtr_t chooseEdge(const core::NodePtr_t& from) const;
 

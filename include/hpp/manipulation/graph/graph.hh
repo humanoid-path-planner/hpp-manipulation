@@ -58,6 +58,12 @@ namespace hpp {
           /// valid.
           void nodeSelector (NodeSelectorPtr_t ns);
 
+          /// Get the nodeSelector
+          NodeSelectorPtr_t nodeSelector () const
+          {
+            return nodeSelector_;
+          }
+
           /// Returns the states of a configuration.
           NodePtr_t getNode (ConfigurationIn_t config) const;
 

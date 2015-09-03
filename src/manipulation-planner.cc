@@ -66,6 +66,9 @@ namespace hpp {
     {
       DevicePtr_t robot = HPP_DYNAMIC_PTR_CAST(Device, problem ().robot ());
       HPP_ASSERT(robot);
+      const graph::Nodes_t& graphNodes = problem_.constraintGraph ()
+        ->nodeSelector ()->getNodes ();
+      graph::Nodes_t::const_iterator itNode;
       core::Nodes_t newNodes;
       core::PathPtr_t path;
 
@@ -78,25 +81,28 @@ namespace hpp {
           itcc != roadmap ()->connectedComponents ().end (); ++itcc) {
         // Find the nearest neighbor.
         core::value_type distance;
-        core::NodePtr_t near = roadmap ()->nearestNode (q_rand, *itcc, distance);
+        for (itNode = graphNodes.begin (); itNode != graphNodes.end (); ++itNode) {
+          core::NodePtr_t near = roadmap_->nearestNode (q_rand, *itcc, *itNode, distance);
+          if (!near) continue;
 
-        bool pathIsValid = extend (near, q_rand, path);
-        // Insert new path to q_near in roadmap
-        if (pathIsValid) {
-          value_type t_final = path->timeRange ().second;
-          if (t_final != path->timeRange ().first) {
-            ConfigurationPtr_t q_new (new Configuration_t
-                ((*path) (t_final)));
-            if (!belongs (q_new, newNodes)) {
-              newNodes.push_back (roadmap ()->addNodeAndEdges
-                  (near, q_new, path));
-            } else {
-              core::NodePtr_t newNode = roadmap ()->addNode (q_new);
-              roadmap ()->addEdge (near, newNode, path);
-              core::interval_t timeRange = path->timeRange ();
-              roadmap ()->addEdge (newNode, near, path->extract
-                  (core::interval_t (timeRange.second ,
-                                     timeRange.first)));
+          bool pathIsValid = extend (near, q_rand, path);
+          // Insert new path to q_near in roadmap
+          if (pathIsValid) {
+            value_type t_final = path->timeRange ().second;
+            if (t_final != path->timeRange ().first) {
+              ConfigurationPtr_t q_new (new Configuration_t
+                  ((*path) (t_final)));
+              if (!belongs (q_new, newNodes)) {
+                newNodes.push_back (roadmap ()->addNodeAndEdges
+                    (near, q_new, path));
+              } else {
+                core::NodePtr_t newNode = roadmap ()->addNode (q_new);
+                roadmap ()->addEdge (near, newNode, path);
+                core::interval_t timeRange = path->timeRange ();
+                roadmap ()->addEdge (newNode, near, path->extract
+                    (core::interval_t (timeRange.second ,
+                                       timeRange.first)));
+              }
             }
           }
         }

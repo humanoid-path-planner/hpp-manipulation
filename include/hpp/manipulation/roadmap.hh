@@ -21,6 +21,7 @@
 # include <hpp/core/constraint-set.hh>
 
 # include "hpp/manipulation/fwd.hh"
+# include "hpp/manipulation/graph/fwd.hh"
 # include "hpp/manipulation/graph/statistics.hh"
 
 namespace hpp {
@@ -54,6 +55,13 @@ namespace hpp {
         /// Catch event 'New node added'
         void push_node (const core::NodePtr_t& n);
 
+        /// Get the nearest neighbor in a given graph::Node and in a given
+        /// core::ConnectedComponent.
+        core::NodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
+            const ConnectedComponentPtr_t& connectedComponent,
+            const graph::NodePtr_t& node,
+            value_type& minDistance) const;
+
       protected:
         /// Register a new configuration.
         void statInsert (const core::NodePtr_t& n);
@@ -66,6 +74,7 @@ namespace hpp {
         /// Keep track of the leaf that are explored.
         /// There should be one histogram per foliation.
         Histograms histograms_;
+        graph::GraphPtr_t graph_;
     };
     /// \}
   } // namespace manipulation

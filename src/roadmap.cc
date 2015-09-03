@@ -17,6 +17,7 @@
 #include "hpp/manipulation/roadmap.hh"
 
 #include <hpp/util/pointer.hh>
+#include <hpp/core/connected-component.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -65,6 +66,7 @@ namespace hpp {
 
     void Roadmap::constraintGraph (const graph::GraphPtr_t& graph)
     {
+      graph_ = graph;
       Histograms::iterator it = histograms_.begin();
       for (; it != histograms_.end();) {
         if (HPP_DYNAMIC_PTR_CAST (graph::NodeHistogram, *it))
@@ -73,6 +75,28 @@ namespace hpp {
           ++it;
       }
       insertHistogram (graph::HistogramPtr_t (new graph::NodeHistogram (graph)));
+    }
+
+    core::NodePtr_t Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
+        const ConnectedComponentPtr_t& connectedComponent,
+        const graph::NodePtr_t& node,
+        value_type& minDistance) const
+    {
+      core::NodePtr_t result = NULL;
+      minDistance = std::numeric_limits <value_type>::infinity ();
+      for (core::Nodes_t::const_iterator itNode =
+          connectedComponent->nodes ().begin ();
+          itNode != connectedComponent->nodes ().end (); ++itNode) {
+        if (graph_->getNode (*(*itNode)->configuration ()) != node)
+          continue;
+        value_type d = (*distance()) (*(*itNode)->configuration (),
+            *configuration);
+        if (d < minDistance) {
+          minDistance = d;
+          result = *itNode;
+        }
+      }
+      return result;
     }
   } // namespace manipulation
 } // namespace hpp

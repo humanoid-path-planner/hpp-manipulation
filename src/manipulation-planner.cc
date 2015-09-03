@@ -16,6 +16,7 @@
 
 #include "hpp/manipulation/manipulation-planner.hh"
 
+#include <hpp/util/pointer.hh>
 #include <hpp/util/assertion.hh>
 
 #include <hpp/core/path-validation.hh>
@@ -25,7 +26,9 @@
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/problem.hh"
+#include "hpp/manipulation/roadmap.hh"
 #include "hpp/manipulation/graph/edge.hh"
+#include "hpp/manipulation/graph/node-selector.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -33,10 +36,16 @@ namespace hpp {
         const core::RoadmapPtr_t& roadmap)
     {
       ManipulationPlanner* ptr;
+      core::RoadmapPtr_t r2 = roadmap;
+      RoadmapPtr_t r;
       try {
         const Problem& p = dynamic_cast < const Problem& > (problem);
-        ptr = new ManipulationPlanner (p, roadmap);
+        RoadmapPtr_t r = HPP_DYNAMIC_PTR_CAST (Roadmap, r2);
+        ptr = new ManipulationPlanner (p, r);
       } catch (std::exception&) {
+        if (!r)
+          throw std::invalid_argument ("The roadmap must be of type hpp::manipulation::Roadmap.");
+        else
         throw std::invalid_argument ("The problem must be of type hpp::manipulation::Problem.");
       }
       ManipulationPlannerPtr_t shPtr (ptr);
@@ -207,10 +216,11 @@ namespace hpp {
     }
 
     ManipulationPlanner::ManipulationPlanner (const Problem& problem,
-        const core::RoadmapPtr_t& roadmap) :
+        const RoadmapPtr_t& roadmap) :
       core::PathPlanner (problem, roadmap),
       shooter_ (problem.configurationShooter()),
-      problem_ (problem), qProj_ (problem.robot ()->configSize ())
+      problem_ (problem), roadmap_ (roadmap),
+      qProj_ (problem.robot ()->configSize ())
     {}
 
     void ManipulationPlanner::init (const ManipulationPlannerWkPtr_t& weak)

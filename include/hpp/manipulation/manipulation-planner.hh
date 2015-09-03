@@ -63,7 +63,7 @@ namespace hpp {
       protected:
         /// Protected constructor
         ManipulationPlanner (const Problem& problem,
-            const core::RoadmapPtr_t& roadmap);
+            const RoadmapPtr_t& roadmap);
 
         /// Store weak pointer to itself
         void init (const ManipulationPlannerWkPtr_t& weak);
@@ -76,6 +76,8 @@ namespace hpp {
         ConfigurationShooterPtr_t shooter_;
         /// Pointer to the problem
         const Problem& problem_;
+        /// Pointer to the roadmap
+        RoadmapPtr_t roadmap_;
         /// weak pointer to itself
         ManipulationPlannerWkPtr_t weakPtr_;
 

@@ -89,6 +89,11 @@ namespace hpp {
         return nodeSelector_->getNode (config);
       }
 
+      NodePtr_t Graph::getNode(RoadmapNodePtr_t coreNode) const
+      {
+        return nodeSelector_->getNode (coreNode);
+      }
+
       Edges_t Graph::getEdges (const NodePtr_t& from, const NodePtr_t& to) const
       {
         Edges_t edges;
@@ -100,7 +105,7 @@ namespace hpp {
         return edges;
       }
 
-      EdgePtr_t Graph::chooseEdge (const core::NodePtr_t& from) const
+      EdgePtr_t Graph::chooseEdge (RoadmapNodePtr_t from) const
       {
         return nodeSelector_->chooseEdge (from);
       }

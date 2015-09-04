@@ -22,6 +22,7 @@
 
 #include "../astar.hh"
 #include "hpp/manipulation/roadmap.hh"
+#include "hpp/manipulation/roadmap-node.hh"
 
 #include <cstdlib>
 
@@ -48,13 +49,13 @@ namespace hpp {
         nodeList_ = nodeList;
       }
 
-      EdgePtr_t GuidedNodeSelector::chooseEdge(const core::NodePtr_t& from) const
+      EdgePtr_t GuidedNodeSelector::chooseEdge(RoadmapNodePtr_t from) const
       {
         if (nodeList_.empty ()) return NodeSelector::chooseEdge (from);
         Astar::Nodes_t list;
         bool reverse = false;
         if (from->connectedComponent () == roadmap_->initNode ()->connectedComponent ()) {
-          Astar alg (roadmap_->distance (), wkPtr_.lock(), roadmap_->initNode ());
+          Astar alg (roadmap_->distance (), wkPtr_.lock(), static_cast <RoadmapNodePtr_t> (roadmap_->initNode ()));
           list = alg.solution (from);
         } else {
           core::Nodes_t::const_iterator itg = roadmap_->goalNodes ().begin ();
@@ -68,7 +69,7 @@ namespace hpp {
           }
           reverse = true;
           Astar alg (roadmap_->distance (), wkPtr_.lock(), from);
-          list = alg.solution (*itg);
+          list = alg.solution (static_cast <RoadmapNodePtr_t> (*itg));
         }
         std::unique (list.begin(), list.end ());
         // Check if the beginning of nodeList is list
@@ -86,7 +87,7 @@ namespace hpp {
               }
               ++it1;
             } while (++it2 != itEnd2);
-            NodePtr_t node = getNode (*from->configuration ());
+            NodePtr_t node = getNode (from);
             HPP_ASSERT (node == list.front ());
             const Neighbors_t& n = node->neighbors();
             /// You stay in the same node
@@ -110,7 +111,7 @@ namespace hpp {
               }
               ++it1;
             } while (++it2 != itEnd2);
-            NodePtr_t node = getNode (*from->configuration ());
+            NodePtr_t node = getNode (from);
             HPP_ASSERT (node == list.back ());
             const Neighbors_t& n = node->neighbors();
             for (Neighbors_t::const_iterator it = n.begin (); it != n.end (); ++it)

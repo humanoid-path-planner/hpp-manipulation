@@ -39,6 +39,9 @@ namespace hpp {
           /// Returns the state of a configuration.
           NodePtr_t getNode(ConfigurationIn_t config) const;
 
+          /// Returns the state of a roadmap node
+          NodePtr_t getNode(RoadmapNodePtr_t node) const;
+
           /// Returns a list of all the nodes
           const Nodes_t& getNodes () const
           {
@@ -46,7 +49,7 @@ namespace hpp {
           }
 
           /// Select randomly an outgoing edge of the given node.
-          virtual EdgePtr_t chooseEdge(const core::NodePtr_t& from) const;
+          virtual EdgePtr_t chooseEdge(RoadmapNodePtr_t from) const;
 
           /// Should never be called.
           void addNumericalConstraint (

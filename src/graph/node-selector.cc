@@ -17,6 +17,7 @@
 #include <hpp/core/node.hh>
 
 #include <hpp/model/configuration.hh>
+#include "hpp/manipulation/roadmap-node.hh"
 #include "hpp/manipulation/graph/node-selector.hh"
 
 #include <cstdlib>
@@ -59,9 +60,29 @@ namespace hpp {
 	throw std::logic_error (oss.str ());
       }
 
-      EdgePtr_t NodeSelector::chooseEdge(const core::NodePtr_t& from) const
+      NodePtr_t NodeSelector::getNode(RoadmapNodePtr_t node) const
       {
-        NodePtr_t node = getNode (*from->configuration ());
+        NodePtr_t n;
+        switch (node->cachingSystem ()) {
+          case RoadmapNode::CACHE_UP_TO_DATE:
+            n = node->graphNode ();
+            break;
+          case RoadmapNode::CACHE_DISABLED:
+          case RoadmapNode::CACHE_NEED_UPDATE:
+            n = getNode (*(node->configuration ()));
+            node->graphNode (n);
+            break;
+          default:
+            n = getNode (*(node->configuration ()));
+            hppDout (error, "Unimplemented caching system.");
+            break;
+        }
+        return n;
+      }
+
+      EdgePtr_t NodeSelector::chooseEdge(RoadmapNodePtr_t from) const
+      {
+        NodePtr_t node = getNode (from);
         const Neighbors_t neighborPicker = node->neighbors();
         if (neighborPicker.totalWeight () == 0) {
           return EdgePtr_t ();

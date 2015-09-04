@@ -35,7 +35,7 @@ namespace hpp {
           void setNodeList (const Nodes_t& nodeList);
 
           /// Select randomly an outgoing edge of the given node.
-          virtual EdgePtr_t chooseEdge(const core::NodePtr_t& from) const;
+          virtual EdgePtr_t chooseEdge(RoadmapNodePtr_t from) const;
 
           /// Print the object in a stream.
           std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;

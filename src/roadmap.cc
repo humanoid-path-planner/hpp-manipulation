@@ -19,6 +19,8 @@
 #include <hpp/util/pointer.hh>
 #include <hpp/core/connected-component.hh>
 
+#include <hpp/manipulation/roadmap-node.hh>
+
 namespace hpp {
   namespace manipulation {
     Roadmap::Roadmap (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot) :
@@ -77,7 +79,7 @@ namespace hpp {
       insertHistogram (graph::HistogramPtr_t (new graph::NodeHistogram (graph)));
     }
 
-    core::NodePtr_t Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
+    RoadmapNodePtr_t Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
         const ConnectedComponentPtr_t& connectedComponent,
         const graph::NodePtr_t& node,
         value_type& minDistance) const
@@ -96,7 +98,7 @@ namespace hpp {
           result = *itNode;
         }
       }
-      return result;
+      return static_cast <RoadmapNode*> (result);
     }
 
     core::NodePtr_t Roadmap::createNode (const ConfigurationPtr_t& q) const

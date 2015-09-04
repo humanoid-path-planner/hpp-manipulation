@@ -27,6 +27,7 @@
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap.hh"
+#include "hpp/manipulation/roadmap-node.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/node-selector.hh"
 
@@ -82,7 +83,7 @@ namespace hpp {
         // Find the nearest neighbor.
         core::value_type distance;
         for (itNode = graphNodes.begin (); itNode != graphNodes.end (); ++itNode) {
-          core::NodePtr_t near = roadmap_->nearestNode (q_rand, *itcc, *itNode, distance);
+          RoadmapNodePtr_t near = roadmap_->nearestNode (q_rand, *itcc, *itNode, distance);
           if (!near) continue;
 
           bool pathIsValid = extend (near, q_rand, path);
@@ -113,7 +114,7 @@ namespace hpp {
     }
 
     bool ManipulationPlanner::extend(
-        const core::NodePtr_t& n_near,
+        RoadmapNodePtr_t n_near,
         const ConfigurationPtr_t& q_rand,
         core::PathPtr_t& validPath)
     {

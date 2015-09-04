@@ -33,11 +33,10 @@
 #include <boost/test/unit_test.hpp>
 
 using namespace ::hpp::manipulation;
-using namespace ::hpp::manipulation::graph;
 using hpp::core::SteeringMethodStraight;
 using hpp::core::SteeringMethodPtr_t;
 
-typedef std::vector <GraphComponentPtr_t> GraphComponents;
+typedef std::vector <graph::GraphComponentPtr_t> GraphComponents;
 
 namespace hpp_test {
   DevicePtr_t robot;
@@ -45,14 +44,14 @@ namespace hpp_test {
   Configuration_t q1, q2;
 
   GraphComponents components;
-  GraphPtr_t graph_;
-  NodeSelectorPtr_t ns;
-  NodePtr_t n1;
-  NodePtr_t n2;
-  EdgePtr_t e11;
-  EdgePtr_t e21;
-  EdgePtr_t e12;
-  EdgePtr_t e22;
+  graph::GraphPtr_t graph_;
+  graph::NodeSelectorPtr_t ns;
+  graph::NodePtr_t n1;
+  graph::NodePtr_t n2;
+  graph::EdgePtr_t e11;
+  graph::EdgePtr_t e21;
+  graph::EdgePtr_t e12;
+  graph::EdgePtr_t e22;
 
   void initialize (bool ur5)
   {
@@ -67,7 +66,7 @@ namespace hpp_test {
       robot = Device::create ("test-robot");
     }
     SteeringMethodPtr_t sm (SteeringMethodStraight::create (robot));
-    graph_ = Graph::create ("manpulation-graph", robot, sm);
+    graph_ = graph::Graph::create ("manpulation-graph", robot, sm);
     components.push_back(graph_);
     graph_->maxIterations (20);
     graph_->errorThreshold (1e-4);
@@ -96,14 +95,14 @@ BOOST_AUTO_TEST_CASE (GraphStructure)
   size_t index = 0;
   for (GraphComponents::iterator it = components.begin();
       it != components.end(); ++it) {
-    BOOST_CHECK_MESSAGE (*it == GraphComponent::get (index).lock(),
+    BOOST_CHECK_MESSAGE (*it == graph::GraphComponent::get (index).lock(),
         "GraphComponent class do not track properly GraphComponents inherited objects");
     index++;
   }
 
   // Test function Graph::getEdge
-  NodePtr_t from(n1), to(n2);
-  Edges_t checkPossibleEdges,
+  graph::NodePtr_t from(n1), to(n2);
+  graph::Edges_t checkPossibleEdges,
           possibleEdges = graph_->getEdges (from, to);
   checkPossibleEdges.push_back (e12);
   for (size_t j = 0; j < possibleEdges.size(); j++)
@@ -111,7 +110,7 @@ BOOST_AUTO_TEST_CASE (GraphStructure)
         "Possible edge j = " << j);
 
   Configuration_t cfg;
-  NodePtr_t node = graph_->getNode (cfg);
+  graph::NodePtr_t node = graph_->getNode (cfg);
   BOOST_CHECK (node == n1);
 }
 
@@ -160,8 +159,8 @@ BOOST_AUTO_TEST_CASE (PathValidationTest)
   BOOST_CHECK ( constraintn2->isSatisfied (q2));
   PathPtr_t p = (*pb->steeringMethod ())(ConfigurationIn_t(q1),ConfigurationIn_t(q2)),
             validp;
-  NodePtr_t nq1 = graph_->getNode (q1);
-  NodePtr_t nq2 = graph_->getNode (q2);
+  graph::NodePtr_t nq1 = graph_->getNode (q1);
+  graph::NodePtr_t nq2 = graph_->getNode (q2);
   BOOST_CHECK (nq1 == n1);
   BOOST_CHECK (nq2 == n2);
   GraphPathValidationPtr_t pv = pb->pathValidation ();

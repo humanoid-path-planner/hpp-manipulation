@@ -51,6 +51,8 @@ namespace hpp {
     typedef Problem* ProblemPtr_t;
     HPP_PREDEF_CLASS (Roadmap);
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
+    HPP_PREDEF_CLASS (RoadmapNode);
+    typedef RoadmapNode* RoadmapNodePtr_t;
     typedef constraints::RelativeOrientation RelativeOrientation;
     typedef constraints::RelativePosition RelativePosition;
     typedef constraints::RelativeOrientationPtr_t RelativeOrientationPtr_t;

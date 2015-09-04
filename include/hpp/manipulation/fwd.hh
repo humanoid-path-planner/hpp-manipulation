@@ -92,6 +92,7 @@ namespace hpp {
     typedef core::ValidationReport ValidationReport;
     typedef core::PathValidationReportPtr_t PathValidationReportPtr_t;
 
+    typedef std::list < NumericalConstraintPtr_t > NumericalConstraints_t;
     typedef std::pair< GripperPtr_t, HandlePtr_t> Grasp_t;
     typedef boost::shared_ptr <Grasp_t> GraspPtr_t;
     typedef std::map <DifferentiableFunctionPtr_t, GraspPtr_t> GraspsMap_t;

@@ -98,5 +98,10 @@ namespace hpp {
       }
       return result;
     }
+
+    core::NodePtr_t Roadmap::createNode (const ConfigurationPtr_t& q) const
+    {
+      return RoadmapNodePtr_t (new RoadmapNode (q));
+    }
   } // namespace manipulation
 } // namespace hpp

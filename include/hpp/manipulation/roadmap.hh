@@ -69,6 +69,9 @@ namespace hpp {
         /// Constructor
         Roadmap (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot);
 
+        /// Node factory
+        core::NodePtr_t createNode (const ConfigurationPtr_t& config) const;
+
       private:
         typedef std::list < graph::HistogramPtr_t > Histograms;
         /// Keep track of the leaf that are explored.

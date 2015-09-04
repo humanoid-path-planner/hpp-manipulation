@@ -66,6 +66,7 @@ namespace hpp {
           RoadmapNodePtr_t node = to;
           Nodes_t nodes;
 
+          nodes.push_front (selector_->getNode (to));
           while (node) {
             Parent_t::const_iterator itNode = parent_.find (node);
             if (itNode != parent_.end ()) {
@@ -76,6 +77,8 @@ namespace hpp {
           }
           // We may want to clean it a little
           // std::unique (nodes.begin(), nodes.end ());
+
+          nodes.push_front (selector_->getNode (from_));
           return nodes;
         }
         return Nodes_t();

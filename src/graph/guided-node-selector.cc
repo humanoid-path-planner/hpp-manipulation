@@ -71,7 +71,7 @@ namespace hpp {
           Astar alg (roadmap_->distance (), wkPtr_.lock(), from);
           list = alg.solution (static_cast <RoadmapNodePtr_t> (*itg));
         }
-        std::unique (list.begin(), list.end ());
+        list.erase (std::unique (list.begin(), list.end ()), list.end ());
         // Check if the beginning of nodeList is list
         if (list.size() <= nodeList_.size()) {
           Neighbors_t nn;
@@ -94,10 +94,11 @@ namespace hpp {
             for (Neighbors_t::const_iterator it = n.begin (); it != n.end (); ++it)
               if (it->second->to () == node)
                 nn.insert (it->second, it->first);
-            const Neighbors_t& n1 = (*it1)->neighbors ();
             /// Go from node it1 to node
-            for (Neighbors_t::const_iterator it = n1.begin (); it != n1.end (); ++it)
-              if (it->second->to () == node)
+            // The path will be build from node. So we must find an edge from
+            // node to it1, that will be reversely 
+            for (Neighbors_t::const_iterator it = n.begin (); it != n.end (); ++it)
+              if (it->second->to () == *it1)
                 nn.insert (it->second, it->first);
           } else {
             Nodes_t::const_iterator it1 = nodeList_.begin ();

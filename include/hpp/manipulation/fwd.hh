@@ -100,7 +100,8 @@ namespace hpp {
     typedef std::map <DifferentiableFunctionPtr_t, GraspPtr_t> GraspsMap_t;
 
     typedef fcl::TriangleP Triangle;
-    typedef std::list <Triangle> TriangleList;
+    typedef std::pair <JointPtr_t, Triangle> JointAndTriangle_t;
+    typedef std::list <JointAndTriangle_t> JointAndTriangles_t;
   } // namespace manipulation
 } // namespace hpp
 

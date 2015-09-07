@@ -33,10 +33,10 @@ namespace hpp {
     /// As a deriving class of hpp::model::HumanoidRobot,
     /// it is compatible with hpp::model::urdf::loadHumanoidRobot
     ///
-    /// This class also contains model::Gripper, Handle and \ref TriangleList
+    /// This class also contains model::Gripper, Handle and \ref JointAndTriangles_t
     class HPP_MANIPULATION_DLLAPI Device : public model::HumanoidRobot,
       public Container <HandlePtr_t>, public Container <model::GripperPtr_t>,
-      public Container <TriangleList>
+      public Container <JointAndTriangles_t>
     {
       public:
         typedef model::HumanoidRobot Parent_t;
@@ -56,7 +56,7 @@ namespace hpp {
 
         /// \name Accessors to container elements
         /// Contained elements are of type model::Gripper, Handle and
-        /// \ref TriangleList
+        /// \ref JointAndTriangles_t
         /// \{
 
         /// Get an element of a container

@@ -362,7 +362,7 @@ namespace hpp {
       bool LevelSetEdge::applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const
       {
         // First, get an offset from the histogram that is not in the same connected component.
-        statistics::DiscreteDistribution < core::NodePtr_t > distrib = hist_->getDistribOutOfConnectedComponent (n_offset->connectedComponent ());
+        statistics::DiscreteDistribution < RoadmapNodePtr_t > distrib = hist_->getDistribOutOfConnectedComponent (n_offset->connectedComponent ());
         const Configuration_t& levelsetTarget = *(distrib ()->configuration ()),
                                q_offset = *(n_offset->configuration ());
         // Then, set the offset.

@@ -20,7 +20,6 @@
 
 # include <hpp/util/debug.hh>
 
-# include <hpp/core/node.hh>
 # include <hpp/core/constraint-set.hh>
 # include <hpp/statistics/bin.hh>
 
@@ -28,6 +27,7 @@
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/graph.hh"
 # include "hpp/manipulation/graph/node.hh"
+# include <hpp/manipulation/roadmap-node.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -38,11 +38,11 @@ namespace hpp {
       {
         public :
           typedef ::hpp::statistics::Bin Parent;
-          typedef std::list <core::NodePtr_t> RoadmapNodes_t;
+          typedef std::list <RoadmapNodePtr_t> RoadmapNodes_t;
 
           LeafBin(const vector_t& v, value_type* threshold_);
 
-          void push_back(const core::NodePtr_t& n);
+          void push_back(const RoadmapNodePtr_t& n);
 
           bool operator<(const LeafBin& rhs) const;
 
@@ -74,7 +74,7 @@ namespace hpp {
           typedef ::hpp::statistics::Bin Parent;
           NodeBin(const NodePtr_t& n);
 
-          void push_back(const core::NodePtr_t& n);
+          void push_back(const RoadmapNodePtr_t& n);
 
           bool operator<(const NodeBin& rhs) const;
 
@@ -87,7 +87,7 @@ namespace hpp {
         private:
           NodePtr_t node_;
 
-          typedef std::list <core::NodePtr_t> RoadmapNodes_t;
+          typedef std::list <RoadmapNodePtr_t> RoadmapNodes_t;
           RoadmapNodes_t roadmapNodes_;
 
           std::ostream& printValue (std::ostream& os) const;
@@ -96,7 +96,7 @@ namespace hpp {
       class HPP_MANIPULATION_DLLLOCAL Histogram
       {
         public:
-          virtual void add (const core::NodePtr_t& node) = 0;
+          virtual void add (const RoadmapNodePtr_t& node) = 0;
 
           virtual HistogramPtr_t clone () const = 0;
       };
@@ -112,7 +112,7 @@ namespace hpp {
           LeafHistogram (const ConstraintSetPtr_t& constraint);
 
           /// Insert an occurence of a value in the histogram
-          void add (const core::NodePtr_t& n);
+          void add (const RoadmapNodePtr_t& n);
 
           std::ostream& print (std::ostream& os) const;
 
@@ -120,7 +120,7 @@ namespace hpp {
 
           virtual HistogramPtr_t clone () const;
 
-          statistics::DiscreteDistribution < core::NodePtr_t > getDistribOutOfConnectedComponent (
+          statistics::DiscreteDistribution < RoadmapNodePtr_t > getDistribOutOfConnectedComponent (
               const core::ConnectedComponentPtr_t& cc) const;
 
         private:
@@ -142,7 +142,7 @@ namespace hpp {
           NodeHistogram (const graph::GraphPtr_t& graph);
 
           /// Insert an occurence of a value in the histogram
-          void add (const core::NodePtr_t& n);
+          void add (const RoadmapNodePtr_t& n);
 
           std::ostream& print (std::ostream& os) const;
 

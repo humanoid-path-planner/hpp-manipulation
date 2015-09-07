@@ -23,7 +23,7 @@ namespace hpp {
         value_(v), nodes_(), thr_ (thr)
       {}
 
-      void LeafBin::push_back(const core::NodePtr_t& n)
+      void LeafBin::push_back(const RoadmapNodePtr_t& n)
       {
         nodes_.push_back(n);
       }
@@ -100,7 +100,7 @@ namespace hpp {
         node_(n), roadmapNodes_()
       {}
 
-      void NodeBin::push_back(const core::NodePtr_t& n)
+      void NodeBin::push_back(const RoadmapNodePtr_t& n)
       {
         roadmapNodes_.push_back(n);
       }
@@ -163,7 +163,7 @@ namespace hpp {
         }
       }
 
-      void LeafHistogram::add (const core::NodePtr_t& n)
+      void LeafHistogram::add (const RoadmapNodePtr_t& n)
       {
 	iterator it;
 	if (constraint_->configProjector ()) {
@@ -200,9 +200,9 @@ namespace hpp {
       NodeHistogram::NodeHistogram (const graph::GraphPtr_t& graph) :
         graph_ (graph) {}
 
-      void NodeHistogram::add (const core::NodePtr_t& n)
+      void NodeHistogram::add (const RoadmapNodePtr_t& n)
       {
-        iterator it = insert (NodeBin (graph_->getNode (*n->configuration ())));
+        iterator it = insert (NodeBin (graph_->getNode (n)));
         it->push_back (n);
         if (numberOfObservations()%10 == 0) {
           hppDout (info, *this);
@@ -235,10 +235,10 @@ namespace hpp {
         return count;
       }
 
-      statistics::DiscreteDistribution < core::NodePtr_t > LeafHistogram::getDistribOutOfConnectedComponent (
+      statistics::DiscreteDistribution < RoadmapNodePtr_t > LeafHistogram::getDistribOutOfConnectedComponent (
           const core::ConnectedComponentPtr_t& cc) const
       {
-        statistics::DiscreteDistribution < core::NodePtr_t > distrib;
+        statistics::DiscreteDistribution < RoadmapNodePtr_t > distrib;
         for (const_iterator bin = begin(); bin != end (); ++bin) {
           unsigned int w = bin->numberOfObsOutOfConnectedComponent (cc);
           if (w == 0)

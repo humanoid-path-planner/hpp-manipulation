@@ -44,11 +44,11 @@ namespace hpp {
 
     void Roadmap::push_node (const core::NodePtr_t& n)
     {
-      statInsert (n);
+      statInsert (static_cast <RoadmapNodePtr_t> (n));
       Parent::push_node (n);
     }
 
-    void Roadmap::statInsert (const core::NodePtr_t& n)
+    void Roadmap::statInsert (const RoadmapNodePtr_t& n)
     {
       Histograms::iterator it;
       for (it = histograms_.begin(); it != histograms_.end(); ++it) {
@@ -89,7 +89,7 @@ namespace hpp {
       for (core::Nodes_t::const_iterator itNode =
           connectedComponent->nodes ().begin ();
           itNode != connectedComponent->nodes ().end (); ++itNode) {
-        if (graph_->getNode (*(*itNode)->configuration ()) != node)
+        if (graph_->getNode (static_cast <RoadmapNodePtr_t> (*itNode)) != node)
           continue;
         value_type d = (*distance()) (*(*itNode)->configuration (),
             *configuration);

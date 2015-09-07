@@ -64,7 +64,7 @@ namespace hpp {
 
       protected:
         /// Register a new configuration.
-        void statInsert (const core::NodePtr_t& n);
+        void statInsert (const RoadmapNodePtr_t& n);
 
         /// Constructor
         Roadmap (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot);

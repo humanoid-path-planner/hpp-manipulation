@@ -30,18 +30,6 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI RoadmapNode : public core::Node
     {
       public:
-        enum CachingSystem {
-          /// The caching system is disabled. The graph::Node containing this
-          /// node can be obtained by checking the constraints.
-          CACHE_DISABLED,
-          /// The chaching system is enabled and up to date.
-          CACHE_UP_TO_DATE,
-          /// The chaching system is enabled but the cache is not up to date.
-          CACHE_NEED_UPDATE
-        };
-
-        static CachingSystem defaultCachingSystem;
-
         RoadmapNode (const ConfigurationPtr_t& configuration) :
           core::Node (configuration),
           cacheSystem_ (defaultCachingSystem),
@@ -55,6 +43,22 @@ namespace hpp {
           node_ ()
         {}
 
+        /// \name Cache system
+        /// \{
+
+        enum CachingSystem {
+          /// The caching system is disabled. The graph::Node containing this
+          /// node can be obtained by checking the constraints.
+          CACHE_DISABLED,
+          /// The chaching system is enabled and up to date.
+          CACHE_UP_TO_DATE,
+          /// The chaching system is enabled but the cache is not up to date.
+          CACHE_NEED_UPDATE
+        };
+
+        static CachingSystem defaultCachingSystem;
+
+        /// Get the caching system being used.
         CachingSystem cachingSystem () const
         {
           return cacheSystem_;
@@ -72,6 +76,8 @@ namespace hpp {
           if (cacheSystem_ != CACHE_DISABLED) cacheSystem_ = CACHE_UP_TO_DATE;
           node_ = node;
         }
+
+        /// \}
 
       private:
         CachingSystem cacheSystem_;

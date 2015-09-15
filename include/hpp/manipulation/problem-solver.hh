@@ -40,10 +40,7 @@ namespace hpp {
         virtual ~ProblemSolver ()
         {}
 
-        ProblemSolver () :
-          core::ProblemSolver (), robot_ (), problem_ (0x0), graspsMap_()
-        {
-        }
+        ProblemSolver ();
 
         static ProblemSolverPtr_t create ();
 

@@ -23,6 +23,7 @@
 #include <hpp/model/gripper.hh>
 
 #include <hpp/core/roadmap.hh>
+#include <hpp/core/discretized-collision-checking.hh>
 
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/handle.hh"
@@ -30,12 +31,23 @@
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap.hh"
+#include "hpp/manipulation/graph-path-validation.hh"
 
 namespace hpp {
   namespace manipulation {
     std::ostream& operator<< (std::ostream& os, const Device& robot)
     {
       return robot.print (os);
+    }
+
+    ProblemSolver::ProblemSolver () :
+      core::ProblemSolver (), robot_ (), problem_ (0x0), graspsMap_()
+    {
+      addPathPlannerType ("M-RRT", ManipulationPlanner::create);
+      addPathValidationType ("Graph-discretized",
+          GraphPathValidation::create <core::DiscretizedCollisionChecking>);
+      pathPlannerType ("M-RRT");
+      pathValidationType ("Graph-discretized", 0.05);
     }
 
     ProblemSolverPtr_t ProblemSolver::create ()

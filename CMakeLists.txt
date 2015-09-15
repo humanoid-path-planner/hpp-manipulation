@@ -34,6 +34,10 @@ SET (HPP_DEBUG FALSE CACHE BOOL "trigger hpp-util debug output")
 IF (HPP_DEBUG)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_DEBUG")
 ENDIF()
+SET (HPP_BENCHMARK FALSE CACHE BOOL "trigger hpp-util benchmarking output")
+IF (HPP_BENCHMARK)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_ENABLE_BENCHMARK")
+ENDIF()
 
 # Activate test using UR5 if requested
 SET (TEST_UR5 FALSE CACHE BOOL "Activate tests using ur5")

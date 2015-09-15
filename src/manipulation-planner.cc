@@ -17,6 +17,7 @@
 #include "hpp/manipulation/manipulation-planner.hh"
 
 #include <hpp/util/pointer.hh>
+#include "hpp/util/timer.hh"
 #include <hpp/util/assertion.hh>
 
 #include <hpp/core/path-validation.hh>
@@ -33,6 +34,18 @@
 
 namespace hpp {
   namespace manipulation {
+    namespace {
+      HPP_DEFINE_TIMECOUNTER(oneStep);
+      HPP_DEFINE_TIMECOUNTER(extend);
+      HPP_DEFINE_TIMECOUNTER(tryConnect);
+      /// extend steps
+      HPP_DEFINE_TIMECOUNTER(chooseEdge);
+      HPP_DEFINE_TIMECOUNTER(applyConstraints);
+      HPP_DEFINE_TIMECOUNTER(buildPath);
+      HPP_DEFINE_TIMECOUNTER(projectPath);
+      HPP_DEFINE_TIMECOUNTER(validatePath);
+    }
+
     ManipulationPlannerPtr_t ManipulationPlanner::create (const core::Problem& problem,
         const core::RoadmapPtr_t& roadmap)
     {
@@ -65,6 +78,7 @@ namespace hpp {
 
     void ManipulationPlanner::oneStep ()
     {
+      HPP_START_TIMECOUNTER(oneStep);
       DevicePtr_t robot = HPP_DYNAMIC_PTR_CAST(Device, problem ().robot ());
       HPP_ASSERT(robot);
       const graph::Nodes_t& graphNodes = problem_.constraintGraph ()
@@ -86,7 +100,10 @@ namespace hpp {
           RoadmapNodePtr_t near = roadmap_->nearestNode (q_rand, *itcc, *itNode, distance);
           if (!near) continue;
 
+          HPP_START_TIMECOUNTER(extend);
           bool pathIsValid = extend (near, q_rand, path);
+          HPP_STOP_TIMECOUNTER(extend);
+          HPP_DISPLAY_LAST_TIMECOUNTER(extend);
           // Insert new path to q_near in roadmap
           if (pathIsValid) {
             value_type t_final = path->timeRange ().second;
@@ -110,7 +127,20 @@ namespace hpp {
       }
 
       // Try to connect the new nodes together
+      HPP_START_TIMECOUNTER(tryConnect);
       tryConnect (newNodes);
+      HPP_STOP_TIMECOUNTER(tryConnect);
+      HPP_STOP_TIMECOUNTER(oneStep);
+      HPP_DISPLAY_LAST_TIMECOUNTER(oneStep);
+      HPP_DISPLAY_LAST_TIMECOUNTER(tryConnect);
+      HPP_DISPLAY_TIMECOUNTER(oneStep);
+      HPP_DISPLAY_TIMECOUNTER(extend);
+      HPP_DISPLAY_TIMECOUNTER(tryConnect);
+      HPP_DISPLAY_TIMECOUNTER(chooseEdge);
+      HPP_DISPLAY_TIMECOUNTER(applyConstraints);
+      HPP_DISPLAY_TIMECOUNTER(buildPath);
+      HPP_DISPLAY_TIMECOUNTER(projectPath);
+      HPP_DISPLAY_TIMECOUNTER(validatePath);
     }
 
     bool ManipulationPlanner::extend(
@@ -122,34 +152,47 @@ namespace hpp {
       PathProjectorPtr_t pathProjector = problem_.pathProjector ();
       // Select next node in the constraint graph.
       const ConfigurationPtr_t q_near = n_near->configuration ();
+      HPP_START_TIMECOUNTER (chooseEdge);
       graph::EdgePtr_t edge = graph->chooseEdge (n_near);
+      HPP_STOP_TIMECOUNTER (chooseEdge);
       if (!edge) {
         return false;
       }
       qProj_ = *q_rand;
+      HPP_START_TIMECOUNTER (applyConstraints);
       if (!edge->applyConstraints (n_near, qProj_)) {
+        HPP_STOP_TIMECOUNTER (applyConstraints);
         addFailure (PROJECTION, edge);
         return false;
       }
+      HPP_STOP_TIMECOUNTER (applyConstraints);
       GraphSteeringMethodPtr_t sm = problem_.steeringMethod();
       core::PathPtr_t path;
+      HPP_START_TIMECOUNTER (buildPath);
       if (!edge->build (path, *q_near, qProj_, *(sm->distance ()))) {
+        HPP_STOP_TIMECOUNTER (buildPath);
         addFailure (STEERING_METHOD, edge);
         return false;
       }
+      HPP_STOP_TIMECOUNTER (buildPath);
       core::PathPtr_t projPath;
       if (pathProjector) {
+        HPP_START_TIMECOUNTER (projectPath);
         if (!pathProjector->apply (path, projPath)) {
           if (!projPath || projPath->length () == 0) {
+            HPP_STOP_TIMECOUNTER (projectPath);
             addFailure (PATH_PROJECTION_ZERO, edge);
             return false;
           }
           addFailure (PATH_PROJECTION_SHORTER, edge);
         }
+        HPP_STOP_TIMECOUNTER (projectPath);
       } else projPath = path;
       GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
       PathValidationReportPtr_t report;
+      HPP_START_TIMECOUNTER (validatePath);
       pathValidation->validate (projPath, false, validPath, report);
+      HPP_STOP_TIMECOUNTER (validatePath);
       if (validPath->length () == 0)
         addFailure (PATH_VALIDATION, edge);
       else {

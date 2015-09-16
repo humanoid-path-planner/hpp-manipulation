@@ -112,7 +112,7 @@ namespace hpp {
           /// Set error threshold
           void errorThreshold (const value_type& threshold);
 
-          /// Get errorimal number of threshold in config projector
+          /// Get error threshold in config projector
           value_type errorThreshold () const;
 
           /// Get the robot.

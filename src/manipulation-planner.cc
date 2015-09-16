@@ -199,7 +199,6 @@ namespace hpp {
         extendStatistics_.addSuccess ();
         hppDout (info, "Extension:" << std::endl
             << extendStatistics_);
-        graph->getNode ((*validPath) (validPath->length ()));
       }
       return true;
     }

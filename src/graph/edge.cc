@@ -27,6 +27,7 @@
 
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/graph/statistics.hh"
+#include "hpp/manipulation/constraint-set.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -126,6 +127,8 @@ namespace hpp {
         g->insertLockedJoints (proj);
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
+
+        constraint->edge (wkPtr_.lock ());
         return constraint;
       }
 
@@ -155,6 +158,8 @@ namespace hpp {
         g->insertLockedJoints (proj);
         insertLockedJoints (proj);
         node ()->insertLockedJoints (proj);
+
+        constraint->edge (wkPtr_.lock ());
         return constraint;
       }
 
@@ -209,10 +214,11 @@ namespace hpp {
         return shPtr;
       }
 
-      void WaypointEdge::init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+      void WaypointEdge::init (const WaypointEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
           const NodeWkPtr_t& to)
       {
         Edge::init (weak, graph, from, to);
+        wkPtr_ = weak;
       }
 
       bool WaypointEdge::build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const
@@ -396,10 +402,11 @@ namespace hpp {
         return false;
       }
 
-      void LevelSetEdge::init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+      void LevelSetEdge::init (const LevelSetEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
           const NodeWkPtr_t& to)
       {
         Edge::init (weak, graph, from, to);
+        wkPtr_ = weak;
       }
 
       LevelSetEdgePtr_t LevelSetEdge::create
@@ -433,6 +440,7 @@ namespace hpp {
           proj->add (*it);
 
         constraint->addConstraint (proj);
+        constraint->edge (wkPtr_.lock ());
 
         hist_ = graph::LeafHistogramPtr_t (new graph::LeafHistogram (constraint));
       }
@@ -470,6 +478,8 @@ namespace hpp {
           }
           insertLockedJoints (proj);
           to ()->insertLockedJoints (proj);
+
+          constraint->edge (wkPtr_.lock ());
           extraConstraints_->set (constraint);
         }
         return extraConstraints_->get ();

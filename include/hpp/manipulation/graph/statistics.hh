@@ -20,7 +20,6 @@
 
 # include <hpp/util/debug.hh>
 
-# include <hpp/core/constraint-set.hh>
 # include <hpp/statistics/bin.hh>
 
 # include "hpp/manipulation/config.hh"

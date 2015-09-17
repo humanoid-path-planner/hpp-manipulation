@@ -18,6 +18,7 @@
 
 #include <hpp/util/assertion.hh>
 
+#include <hpp/manipulation/constraint-set.hh>
 #include "hpp/manipulation/graph/node-selector.hh"
 #include "hpp/manipulation/graph/node.hh"
 #include "hpp/manipulation/graph/edge.hh"

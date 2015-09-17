@@ -31,6 +31,7 @@
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap.hh"
+#include "hpp/manipulation/constraint-set.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 
 namespace hpp {

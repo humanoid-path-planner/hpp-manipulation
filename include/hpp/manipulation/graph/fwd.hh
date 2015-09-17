@@ -52,8 +52,6 @@ namespace hpp {
       typedef hpp::core::LockedJointPtr_t LockedJointPtr_t;
       typedef hpp::core::ConfigProjector ConfigProjector;
       typedef hpp::core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
-      typedef hpp::core::ConstraintSet ConstraintSet;
-      typedef hpp::core::ConstraintSetPtr_t ConstraintSetPtr_t;
       typedef hpp::core::Equality Equality;
       typedef hpp::core::ComparisonTypePtr_t ComparisonTypePtr_t;
       typedef hpp::core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;

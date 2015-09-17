@@ -217,7 +217,7 @@ namespace hpp {
 	    {
 	    }
           /// Initialization of the object.
-          void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+          void init (const WaypointEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
               const NodeWkPtr_t& to);
 
           /// Print the object in a stream.
@@ -228,6 +228,8 @@ namespace hpp {
 
           Waypoint waypoint_;
           mutable Configuration_t config_, result_;
+
+          WaypointEdgeWkPtr_t wkPtr_;
       }; // class WaypointEdge
 
       /// Edge that find intersection of level set.
@@ -263,7 +265,7 @@ namespace hpp {
 
         protected:
           /// Initialization of the object.
-          void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
+          void init (const LevelSetEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
               const NodeWkPtr_t& to);
 
 	  LevelSetEdge (const std::string& name,
@@ -291,6 +293,8 @@ namespace hpp {
 
           /// This histogram will be used to find a good level set.
           LeafHistogramPtr_t hist_;
+
+          LevelSetEdgeWkPtr_t wkPtr_;
       }; // class LevelSetEdge
 
       /// \}

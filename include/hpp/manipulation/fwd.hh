@@ -86,8 +86,8 @@ namespace hpp {
     typedef core::NumericalConstraintPtr_t NumericalConstraintPtr_t;
     typedef core::ConfigProjector ConfigProjector;
     typedef core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
-    typedef core::ConstraintSet ConstraintSet;
-    typedef core::ConstraintSetPtr_t ConstraintSetPtr_t;
+    HPP_PREDEF_CLASS (ConstraintSet);
+    typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
     typedef core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
     typedef core::ConfigurationShooter ConfigurationShooter;
     typedef core::ConfigurationShooterPtr_t ConfigurationShooterPtr_t;

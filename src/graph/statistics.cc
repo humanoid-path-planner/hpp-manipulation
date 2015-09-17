@@ -16,6 +16,8 @@
 
 #include "hpp/manipulation/graph/statistics.hh"
 
+#include "hpp/manipulation/constraint-set.hh"
+
 namespace hpp {
   namespace manipulation {
     namespace graph {

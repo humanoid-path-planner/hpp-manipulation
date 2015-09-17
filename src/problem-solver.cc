@@ -22,7 +22,7 @@
 
 #include <hpp/model/gripper.hh>
 
-#include <hpp/core/roadmap.hh>
+#include <hpp/core/random-shortcut.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 
 #include "hpp/manipulation/device.hh"
@@ -32,6 +32,7 @@
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap.hh"
 #include "hpp/manipulation/constraint-set.hh"
+#include "hpp/manipulation/graph-optimizer.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 
 namespace hpp {
@@ -47,6 +48,8 @@ namespace hpp {
       addPathPlannerType ("M-RRT", ManipulationPlanner::create);
       addPathValidationType ("Graph-discretized",
           GraphPathValidation::create <core::DiscretizedCollisionChecking>);
+      addPathOptimizerType ("Graph-RandomShortcut",
+          GraphOptimizer <core::RandomShortcut>::create);
       pathPlannerType ("M-RRT");
       pathValidationType ("Graph-discretized", 0.05);
     }

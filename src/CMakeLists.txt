@@ -30,6 +30,7 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   device.cc
   graph-path-validation.cc
   graph-steering-method.cc
+  graph-optimizer.cc
 
   graph/node.cc
   graph/edge.cc

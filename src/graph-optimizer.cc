@@ -18,5 +18,49 @@
 
 namespace hpp {
   namespace manipulation {
+    PathVectorPtr_t GraphOptimizer::optimize (const PathVectorPtr_t& path)
+    {
+      PathVectorPtr_t opted = PathVector::create
+        (path->outputSize(), path->outputDerivativeSize()),
+        expanded = PathVector::create
+          (path->outputSize(), path->outputDerivativeSize()),
+        toConcat;
+      unpack (path, expanded);
+      ConstraintSetPtr_t c;
+      for (std::size_t i_s = 0; i_s < expanded->numberPaths ();) {
+        PathVectorPtr_t toOpt = PathVector::create (
+            path->outputSize(), path->outputDerivativeSize()); 
+        PathPtr_t current = expanded->pathAtRank (i_s);
+        toOpt->appendPath (current);
+        graph::EdgePtr_t edge;
+        c = HPP_DYNAMIC_PTR_CAST (ConstraintSet, current->constraints ());
+        if (c) edge = c->edge ();
+        std::size_t i_e = i_s + 1;
+        for (; i_e < expanded->numberPaths (); ++i_e) {
+          current = expanded->pathAtRank (i_e);
+          c = HPP_DYNAMIC_PTR_CAST (ConstraintSet, current->constraints ());
+          if (!c && edge) break;
+          if (c && edge != c->edge ()) break;
+          toOpt->appendPath (current);
+        }
+        toConcat = pathOptimizer_->optimize (toOpt);
+        i_s = i_e;
+        opted->concatenate (*toConcat);
+      }
+      return opted;
+    }
+
+    void GraphOptimizer::unpack (PathVectorPtr_t in, PathVectorPtr_t out)
+    {
+      for (size_t i = 0; i != in->numberPaths (); i++) {
+        PathPtr_t current = in->pathAtRank (i);
+        PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, current);
+        if (pv) {
+          unpack (pv, out);
+        } else {
+          out->appendPath (current);
+        }
+      }
+    }
   } // namespace manipulation
 } // namespace hpp

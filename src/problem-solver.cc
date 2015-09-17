@@ -49,7 +49,7 @@ namespace hpp {
       addPathValidationType ("Graph-discretized",
           GraphPathValidation::create <core::DiscretizedCollisionChecking>);
       addPathOptimizerType ("Graph-RandomShortcut",
-          GraphOptimizer <core::RandomShortcut>::create);
+          GraphOptimizer::create <core::RandomShortcut>);
       pathPlannerType ("M-RRT");
       pathValidationType ("Graph-discretized", 0.05);
     }

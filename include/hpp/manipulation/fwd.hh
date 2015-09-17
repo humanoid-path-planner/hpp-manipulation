@@ -73,6 +73,10 @@ namespace hpp {
     typedef boost::shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
     HPP_PREDEF_CLASS (GraphSteeringMethod);
     typedef boost::shared_ptr < GraphSteeringMethod > GraphSteeringMethodPtr_t;
+    typedef core::PathOptimizer PathOptimizer;
+    typedef core::PathOptimizerPtr_t PathOptimizerPtr_t;
+    HPP_PREDEF_CLASS (GraphOptimizer);
+    typedef boost::shared_ptr < GraphOptimizer > GraphOptimizerPtr_t;
     typedef core::PathProjectorPtr_t PathProjectorPtr_t;
 
     typedef std::vector <model::DevicePtr_t> Devices_t;

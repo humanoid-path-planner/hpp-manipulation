@@ -93,6 +93,14 @@ namespace hpp {
         /// return NULL if no grasp named graspName
         GraspPtr_t grasp(const DifferentiableFunctionPtr_t& constraint) const;
 
+	/// Create placement constraint
+	/// \param name name of the first constraint
+	/// 
+	void createPlacementConstraint (const std::string& name,
+					const std::string& jointName,
+					const std::string& triangleName,
+					const std::string& envContactName);
+
         /// Reset constraint set and put back the disable collisions
         /// between gripper and handle
         virtual void resetConstraints ();

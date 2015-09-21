@@ -22,7 +22,8 @@
 
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/connected-component.hh>
-#include "hpp/core/path-projector.hh"
+#include <hpp/core/path-projector.hh>
+#include <hpp/core/projection-error.hh>
 
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/device.hh"
@@ -191,7 +192,13 @@ namespace hpp {
       GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
       PathValidationReportPtr_t report;
       HPP_START_TIMECOUNTER (validatePath);
-      pathValidation->validate (projPath, false, validPath, report);
+      try {
+        pathValidation->validate (projPath, false, validPath, report);
+      } catch (const core::projection_error& e) {
+        hppDout (error, e.what ());
+        addFailure (PATH_VALIDATION, edge);
+        return false;
+      }
       HPP_STOP_TIMECOUNTER (validatePath);
       if (validPath->length () == 0)
         addFailure (PATH_VALIDATION, edge);

@@ -24,6 +24,7 @@
 
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/path-optimization/partial-shortcut.hh>
 
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/handle.hh"
@@ -38,6 +39,13 @@
 
 namespace hpp {
   namespace manipulation {
+    namespace {
+      struct PartialShortcutTrait :
+        core::pathOptimization::PartialShortcutTrait {
+          static bool removeLockedJoints () { return false; }
+      };
+    }
+
     std::ostream& operator<< (std::ostream& os, const Device& robot)
     {
       return robot.print (os);
@@ -51,6 +59,10 @@ namespace hpp {
           GraphPathValidation::create <core::DiscretizedCollisionChecking>);
       addPathOptimizerType ("Graph-RandomShortcut",
           GraphOptimizer::create <core::RandomShortcut>);
+      addPathOptimizerType ("PartialShortcut", core::pathOptimization::
+          PartialShortcut::createWithTrait <PartialShortcutTrait>);
+      addPathOptimizerType ("Graph-PartialShortcut",
+          GraphOptimizer::create <core::pathOptimization::PartialShortcut>);
       pathPlannerType ("M-RRT");
       pathValidationType ("Graph-discretized", 0.05);
     }

@@ -22,6 +22,7 @@
 # include <hpp/core/path-vector.hh>
 # include <hpp/core/path-optimizer.hh>
 # include <hpp/core/problem.hh>
+# include <hpp/core/problem-solver.hh>
 
 # include <hpp/manipulation/fwd.hh>
 # include <hpp/manipulation/graph/fwd.hh>
@@ -46,6 +47,8 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI GraphOptimizer : public PathOptimizer
     {
       public:
+        typedef core::ProblemSolver::PathOptimizerBuilder_t PathOptimizerBuilder_t;
+
         template <typename InnerPathOptimizer_t>
           static GraphOptimizerPtr_t create (const core::Problem& problem);
 
@@ -59,11 +62,13 @@ namespace hpp {
 
       protected:
         /// Constructor
-        GraphOptimizer (const core::Problem& problem, PathOptimizerPtr_t inner) :
-          PathOptimizer (problem), pathOptimizer_ (inner)
+        GraphOptimizer (const core::Problem& problem, PathOptimizerBuilder_t factory) :
+          PathOptimizer (problem), factory_ (factory), pathOptimizer_ ()
         {}
 
       private:
+        PathOptimizerBuilder_t factory_;
+
         /// The encapsulated PathOptimizer
         PathOptimizerPtr_t pathOptimizer_;
 
@@ -80,7 +85,7 @@ namespace hpp {
       (const core::Problem& problem)
     {
       return GraphOptimizerPtr_t (
-          new GraphOptimizer (problem, InnerPathOptimizer_t::create (problem))
+          new GraphOptimizer (problem, InnerPathOptimizer_t::create)
           );
     }
 

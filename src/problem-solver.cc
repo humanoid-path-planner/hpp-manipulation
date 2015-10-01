@@ -34,6 +34,7 @@
 #include "hpp/manipulation/constraint-set.hh"
 #include "hpp/manipulation/graph-optimizer.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
+#include "hpp/manipulation/graph-node-optimizer.hh"
 
 namespace hpp {
   namespace manipulation {

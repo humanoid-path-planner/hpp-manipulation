@@ -77,6 +77,8 @@ namespace hpp {
     typedef core::PathOptimizerPtr_t PathOptimizerPtr_t;
     HPP_PREDEF_CLASS (GraphOptimizer);
     typedef boost::shared_ptr < GraphOptimizer > GraphOptimizerPtr_t;
+    HPP_PREDEF_CLASS (GraphNodeOptimizer);
+    typedef boost::shared_ptr < GraphNodeOptimizer > GraphNodeOptimizerPtr_t;
     typedef core::PathProjectorPtr_t PathProjectorPtr_t;
 
     typedef std::vector <model::DevicePtr_t> Devices_t;

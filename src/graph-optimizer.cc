@@ -18,6 +18,8 @@
 
 #include <hpp/core/steering-method-straight.hh>
 
+#include <hpp/manipulation/graph/edge.hh>
+
 namespace hpp {
   namespace manipulation {
     PathVectorPtr_t GraphOptimizer::optimize (const PathVectorPtr_t& path)
@@ -51,7 +53,7 @@ namespace hpp {
           current = expanded->pathAtRank (i_e);
           c = HPP_DYNAMIC_PTR_CAST (ConstraintSet, current->constraints ());
           if (!c && edge) break;
-          if (c && edge != c->edge ()) break;
+          if (c && edge->node() != c->edge ()->node()) break;
           toOpt->appendPath (current);
         }
         pathOptimizer_ = factory_ (this->problem ());

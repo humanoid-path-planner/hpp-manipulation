@@ -36,6 +36,7 @@
 #include "hpp/manipulation/graph-optimizer.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph-node-optimizer.hh"
+#include "hpp/manipulation/path-optimization/config-optimization.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -63,6 +64,9 @@ namespace hpp {
           PartialShortcut::createWithTraits <PartialShortcutTraits>);
       addPathOptimizerType ("Graph-PartialShortcut",
           GraphOptimizer::create <core::pathOptimization::PartialShortcut>);
+      addPathOptimizerType ("ConfigOptimization",
+          core::pathOptimization::ConfigOptimization::createWithTraits
+          <pathOptimization::ConfigOptimizationTraits>);
       pathPlannerType ("M-RRT");
       pathValidationType ("Graph-discretized", 0.05);
     }

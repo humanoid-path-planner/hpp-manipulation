@@ -41,6 +41,8 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   graph/statistics.cc
 
   graph/dot.cc
+
+  path-optimization/config-optimization.cc
 )
 
 PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-core)

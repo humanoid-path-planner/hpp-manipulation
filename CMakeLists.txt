@@ -81,6 +81,8 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/graph/graph-component.hh
   include/hpp/manipulation/graph/fwd.hh
   include/hpp/manipulation/graph/dot.hh
+
+  include/hpp/manipulation/path-optimization/config-optimization.hh
   )
 
 # Add dependency toward hpp-model library in pkg-config file.

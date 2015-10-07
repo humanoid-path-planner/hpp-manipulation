@@ -117,6 +117,11 @@ namespace hpp {
         return lockedJoints_;
       }
 
+      GraphPtr_t GraphComponent::parentGraph() const
+      {
+        return graph_.lock ();
+      }
+
       void GraphComponent::parentGraph(const GraphWkPtr_t& parent)
       {
         graph_ = parent;

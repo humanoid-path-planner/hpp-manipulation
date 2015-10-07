@@ -102,6 +102,10 @@ namespace hpp {
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
+          /// Constraint to project onto the same leaf as config.
+          /// \return The initialized projector.
+          ConstraintSetPtr_t configConstraint() const;
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
@@ -110,10 +114,6 @@ namespace hpp {
           /// Constructor
           Edge (const std::string& name,
 		const core::SteeringMethodPtr_t& steeringMethod);
-
-          /// Constraint to project onto the same leaf as config.
-          /// \return The initialized projector.
-          ConstraintSetPtr_t configConstraint() const;
 
           /// Constraint to project a path.
           /// \return The initialized constraint.

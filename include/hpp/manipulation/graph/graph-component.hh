@@ -91,6 +91,9 @@ namespace hpp {
           /// Set the parent graph.
           void parentGraph(const GraphWkPtr_t& parent);
 
+          /// Set the parent graph.
+          GraphPtr_t parentGraph() const;
+
           /// Print the component in DOT language.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 

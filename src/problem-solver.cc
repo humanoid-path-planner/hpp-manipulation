@@ -40,8 +40,8 @@
 namespace hpp {
   namespace manipulation {
     namespace {
-      struct PartialShortcutTrait :
-        core::pathOptimization::PartialShortcutTrait {
+      struct PartialShortcutTraits :
+        core::pathOptimization::PartialShortcutTraits {
           static bool removeLockedJoints () { return false; }
       };
     }
@@ -60,7 +60,7 @@ namespace hpp {
       addPathOptimizerType ("Graph-RandomShortcut",
           GraphOptimizer::create <core::RandomShortcut>);
       addPathOptimizerType ("PartialShortcut", core::pathOptimization::
-          PartialShortcut::createWithTrait <PartialShortcutTrait>);
+          PartialShortcut::createWithTraits <PartialShortcutTraits>);
       addPathOptimizerType ("Graph-PartialShortcut",
           GraphOptimizer::create <core::pathOptimization::PartialShortcut>);
       pathPlannerType ("M-RRT");

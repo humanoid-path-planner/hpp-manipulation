@@ -34,8 +34,8 @@ namespace hpp {
       assert (path);
       bool success = impl_validate (path, reverse, validPart);
       assert (constraintGraph_);
-      assert (constraintGraph_->getNode ((*validPart) (validPart->timeRange ().first)));
-      assert (constraintGraph_->getNode ((*validPart) (validPart->timeRange ().second)));
+      assert (constraintGraph_->getNode (validPart->initial ()));
+      assert (constraintGraph_->getNode (validPart->end     ()));
       return success;
     }
 

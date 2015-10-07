@@ -99,6 +99,7 @@ namespace hpp {
 	  {
 	    return steeringMethod_;
 	  }
+
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 

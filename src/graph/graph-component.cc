@@ -51,7 +51,6 @@ namespace hpp {
         return components_;
       }
 
-
       std::size_t GraphComponent::id () const
       {
         return id_;

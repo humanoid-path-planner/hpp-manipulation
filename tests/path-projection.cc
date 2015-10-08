@@ -132,11 +132,12 @@ namespace hpp_test {
   std::ostream& printpath (std::ostream& os, const Path& p)
   {
     value_type t = p.timeRange ().first;
+    bool noWarning;
     while (t < p.timeRange().second) {
-      print (os, p (t)) << ",";
+      print (os, p (t, noWarning)) << ",";
       t += STEP_PATH;
     }
-    return print (os, p (p.timeRange ().second));
+    return print (os, p (p.timeRange ().second, noWarning));
   }
 
   namespace pythonscript {

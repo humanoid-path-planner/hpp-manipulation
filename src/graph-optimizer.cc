@@ -16,22 +16,12 @@
 
 #include <hpp/manipulation/graph-optimizer.hh>
 
-#include <hpp/core/steering-method-straight.hh>
-
 #include <hpp/manipulation/graph/edge.hh>
 
 namespace hpp {
   namespace manipulation {
     PathVectorPtr_t GraphOptimizer::optimize (const PathVectorPtr_t& path)
     {
-      core::Problem& p = const_cast <core::Problem&> (this->problem ());
-      core::SteeringMethodPtr_t sm = p.steeringMethod ();
-
-      core::ConstraintSetPtr_t oldC = p.constraints ();
-      core::SteeringMethodStraightPtr_t smS = core::SteeringMethodStraight::
-        create (p.robot ());
-      p.steeringMethod (smS);
-
       PathVectorPtr_t opted = PathVector::create
         (path->outputSize(), path->outputDerivativeSize()),
         expanded = PathVector::create
@@ -46,7 +36,6 @@ namespace hpp {
         toOpt->appendPath (current);
         graph::EdgePtr_t edge;
         c = HPP_DYNAMIC_PTR_CAST (ConstraintSet, current->constraints ());
-        p.constraints(c);
         if (c) edge = c->edge ();
         std::size_t i_e = i_s + 1;
         for (; i_e < expanded->numberPaths (); ++i_e) {
@@ -61,8 +50,6 @@ namespace hpp {
         i_s = i_e;
         opted->concatenate (*toConcat);
       }
-      p.steeringMethod (sm);
-      p.constraints (oldC);
       pathOptimizer_.reset ();
       return opted;
     }

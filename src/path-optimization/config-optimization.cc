@@ -42,13 +42,17 @@ namespace hpp {
                          n2 = graph->getNode (after->initial ()),
                          n3 = graph->getNode (after->end ());
         /// Find if path were computed from init or goal config
+        /// There is a nasty case: when build a path fails partially, then you
+        /// end up where the edge->to() do not correspond to the node of
+        /// path->end(). In that case, path->end () should be in edge->node().
+        /// (obviously, in this case, we have edge->isInNodeFrom_ = true)
         assert ((n0 == setB->edge()->from () && n1 == setB->edge()->to ())
                 || (n1 == setB->edge()->from () && n0 == setB->edge()->to ()));
         assert ((n2 == setA->edge()->from () && n3 == setA->edge()->to ())
                 || (n3 == setA->edge()->from () && n2 == setA->edge()->to ()));
-        bool reverseB =
+        bool reverseB = (n0 != n1) &&
           (n1 == setB->edge()->from () && n0 == setB->edge()->to ());
-        bool reverseA =
+        bool reverseA = (n2 != n3) &&
           (n3 == setA->edge()->from () && n2 == setA->edge()->to ());
 
         reverse = reverseB;
@@ -71,10 +75,10 @@ namespace hpp {
         vector_t rhsB = p->rightHandSideFromConfig (before->initial ());
 
         setA->edge()->insertNumericalConstraints (p);
-        if (nodeB_Eq_nodeA)
+        if (!nodeB_Eq_nodeA)
           setA->edge()->node()->insertNumericalConstraints (p);
         setA->edge()->insertLockedJoints (p);
-        if (nodeB_Eq_nodeA)
+        if (!nodeB_Eq_nodeA)
           setA->edge()->node()->insertLockedJoints (p);
 
         p->rightHandSideFromConfig (before->end ());

@@ -24,6 +24,7 @@
 
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 
 #include "hpp/manipulation/device.hh"
@@ -65,8 +66,10 @@ namespace hpp {
       core::ProblemSolver (), robot_ (), problem_ (0x0), graspsMap_()
     {
       addPathPlannerType ("M-RRT", ManipulationPlanner::create);
-      addPathValidationType ("Graph-discretized",
+      addPathValidationType ("Graph-Discretized",
           GraphPathValidation::create <core::DiscretizedCollisionChecking>);
+      addPathValidationType ("Graph-Progressive", GraphPathValidation::create <
+          core::continuousCollisionChecking::Progressive >);
       addPathOptimizerType ("Graph-RandomShortcut",
           GraphOptimizer::create <core::RandomShortcut>);
       addPathOptimizerType ("PartialShortcut", core::pathOptimization::
@@ -82,7 +85,7 @@ namespace hpp {
             <pathOptimization::ConfigOptimizationTraits>
             >);
       pathPlannerType ("M-RRT");
-      pathValidationType ("Graph-discretized", 0.05);
+      pathValidationType ("Graph-Discretized", 0.05);
     }
 
     ProblemSolverPtr_t ProblemSolver::create ()

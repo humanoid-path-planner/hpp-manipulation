@@ -28,6 +28,8 @@ namespace hpp {
     {
       public:
         typedef std::map <Key, Element> ElementMap_t;
+        typedef Key Key_t;
+        typedef Element Element_t;
 
         /// Add an element
         void add (const Key& name, const Element& element)
@@ -52,6 +54,16 @@ namespace hpp {
           for (typename ElementMap_t::const_iterator it = map_.begin ();
               it != map_.end (); ++it)
             l.push_back (it->second);
+          return l;
+        }
+
+        template <typename ReturnType>
+        ReturnType getKeys () const
+        {
+          ReturnType l;
+          for (typename ElementMap_t::const_iterator it = map_.cbegin ();
+              it != map_.cend (); ++it)
+            l.push_back (it->first);
           return l;
         }
 

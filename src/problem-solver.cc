@@ -45,6 +45,15 @@ namespace hpp {
         core::pathOptimization::PartialShortcutTraits {
           static bool removeLockedJoints () { return false; }
       };
+
+      template <typename InnerConfigOptimizationTraits>
+        struct GraphConfigOptimizationTraits {
+          static core::PathOptimizerPtr_t create (const core::Problem& problem)
+          {
+            return core::pathOptimization::ConfigOptimization::
+              createWithTraits <InnerConfigOptimizationTraits> (problem);
+          }
+        };
     }
 
     std::ostream& operator<< (std::ostream& os, const Device& robot)
@@ -67,6 +76,11 @@ namespace hpp {
       addPathOptimizerType ("ConfigOptimization",
           core::pathOptimization::ConfigOptimization::createWithTraits
           <pathOptimization::ConfigOptimizationTraits>);
+      addPathOptimizerType ("Graph-ConfigOptimization",
+          GraphOptimizer::create <
+          GraphConfigOptimizationTraits
+            <pathOptimization::ConfigOptimizationTraits>
+            >);
       pathPlannerType ("M-RRT");
       pathValidationType ("Graph-discretized", 0.05);
     }

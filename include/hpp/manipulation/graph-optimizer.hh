@@ -49,7 +49,7 @@ namespace hpp {
       public:
         typedef core::ProblemSolver::PathOptimizerBuilder_t PathOptimizerBuilder_t;
 
-        template <typename InnerPathOptimizer_t>
+        template <typename TraitsOrInnerType>
           static GraphOptimizerPtr_t create (const core::Problem& problem);
 
         virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
@@ -80,12 +80,12 @@ namespace hpp {
     /// \}
 
     /// Member function definition
-    template <typename InnerPathOptimizer_t>
+    template <typename TraitsOrInnerType>
       GraphOptimizerPtr_t GraphOptimizer::create
       (const core::Problem& problem)
     {
       return GraphOptimizerPtr_t (
-          new GraphOptimizer (problem, InnerPathOptimizer_t::create)
+          new GraphOptimizer (problem, TraitsOrInnerType::create)
           );
     }
 

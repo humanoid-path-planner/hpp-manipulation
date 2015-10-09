@@ -100,6 +100,15 @@ namespace hpp {
 	    return steeringMethod_;
 	  }
 
+          /// Get direction of the path compare to the edge
+          /// \return true is reverse
+          virtual bool direction (const core::PathPtr_t& path) const;
+
+          /// Populate a ConfigProjector with constraints required to generate
+          /// a path at the intersection of two edges.
+          virtual bool intersectionConstraint (const EdgePtr_t& other,
+              ConfigProjectorPtr_t projector) const;
+
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
@@ -187,6 +196,8 @@ namespace hpp {
 	   const core::SteeringMethodPtr_t& steeringMethod,
 	   const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
 	   const NodeWkPtr_t& to);
+
+          virtual bool direction (const core::PathPtr_t& path) const;
 
           virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
 

@@ -61,6 +61,60 @@ namespace hpp {
         else return to ();
       }
 
+      bool Edge::direction (const core::PathPtr_t& path) const
+      {
+        Configuration_t q0 = path->initial (),
+                        q1 = path->end ();
+        const bool src_contains_q0 = from()->contains (q0);
+        const bool dst_contains_q0 = to  ()->contains (q0);
+        const bool src_contains_q1 = from()->contains (q1);
+        const bool dst_contains_q1 = to  ()->contains (q1);
+        assert ((src_contains_q0 && dst_contains_q1)
+             || (src_contains_q1 && dst_contains_q0));
+        /// true if reverse
+        return !dst_contains_q1;
+      }
+
+      bool WaypointEdge::direction (const core::PathPtr_t& path) const
+      {
+        Configuration_t q0 = path->initial (),
+                        q1 = path->end ();
+        const bool src_contains_q0 = waypoint_.second->contains (q0);
+        const bool dst_contains_q0 = to  ()->contains (q0);
+        const bool src_contains_q1 = waypoint_.second->contains (q1);
+        const bool dst_contains_q1 = to  ()->contains (q1);
+        assert ((src_contains_q0 && dst_contains_q1)
+             || (src_contains_q1 && dst_contains_q0));
+        /// true if reverse
+        return !dst_contains_q1;
+      }
+
+      bool Edge::intersectionConstraint (const EdgePtr_t& other,
+          ConfigProjectorPtr_t proj) const
+      {
+        GraphPtr_t g = graph_.lock ();
+        
+        g->insertNumericalConstraints (proj);
+        insertNumericalConstraints (proj);
+        node ()->insertNumericalConstraints (proj);
+
+        g->insertLockedJoints (proj);
+        insertLockedJoints (proj);
+        node ()->insertLockedJoints (proj);
+
+        if (wkPtr_.lock() == other) // No intersection to be computed.
+          return false;
+
+        bool nodeB_Eq_nodeA = (node() == other->node());
+
+        other->insertNumericalConstraints (proj);
+        if (!nodeB_Eq_nodeA) other->node()->insertNumericalConstraints (proj);
+        other->insertLockedJoints (proj);
+        if (!nodeB_Eq_nodeA) other->node()->insertLockedJoints (proj);
+
+        return true;
+      }
+
       EdgePtr_t Edge::create (const std::string& name,
 			      const core::SteeringMethodPtr_t& steeringMethod,
 			      const GraphWkPtr_t& graph,

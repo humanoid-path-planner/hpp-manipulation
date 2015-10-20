@@ -28,56 +28,76 @@
 
 #include <hpp/constraints/relative-transformation.hh>
 
+#include <hpp/core/numerical-constraint.hh>
+
 namespace hpp {
   namespace manipulation {
 
-    DifferentiableFunctionPtr_t AxialHandle::createGrasp
+    NumericalConstraintPtr_t AxialHandle::createGrasp
     (const GripperPtr_t& gripper) const
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(false);
-      return RelativeTransformation::create
-	("Transformation_(1,1,1,1,1,1)_" + name () + "_" + gripper->name (),
-	 gripper->joint()->robot(), gripper->joint (), joint (),
-	 gripper->objectPositionInJoint (), localPosition(), mask);
+      return NumericalConstraintPtr_t
+	(NumericalConstraint::create (RelativeTransformation::create
+				      ("Transformation_(1,1,1,1,1,1)_" + name ()
+				       + "_" + gripper->name (),
+				       gripper->joint()->robot(),
+				       gripper->joint (), joint (),
+				       gripper->objectPositionInJoint (),
+				       localPosition(), mask)));
     }
 
-    DifferentiableFunctionPtr_t AxialHandle::createGraspComplement
+    NumericalConstraintPtr_t AxialHandle::createGraspComplement
     (const GripperPtr_t& gripper) const
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (false)(false)(false)(false)(true)
 	(false);
-      return RelativeTransformation::create
-	("Transformation_(0,0,0,0,0,0)_" + name () + "_" + gripper->name (),
-	 gripper->joint()->robot(), gripper->joint (), joint (),
-	 gripper->objectPositionInJoint (), localPosition(), mask);
+      return NumericalConstraintPtr_t
+	(NumericalConstraint::create (RelativeTransformation::create
+				      ("Transformation_(0,0,0,0,0,0)_" + name ()
+				       + "_" + gripper->name (),
+				       gripper->joint()->robot(),
+				       gripper->joint (), joint (),
+				       gripper->objectPositionInJoint (),
+				       localPosition(), mask)));
     }
 
-    DifferentiableFunctionPtr_t AxialHandle::createPreGrasp
+    NumericalConstraintPtr_t AxialHandle::createPreGrasp
     (const GripperPtr_t& gripper) const
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (false)(true)(true)(true)(true)(false);
-      return RelativeTransformation::create
-	("Transformation_(0,1,1,1,1,1)_" + name () + "_" + gripper->name (),
-	 gripper->joint()->robot(), gripper->joint (), joint (),
-	 gripper->objectPositionInJoint (), localPosition(), mask);
+      return NumericalConstraintPtr_t
+	(NumericalConstraint::create (RelativeTransformation::create
+				      ("Transformation_(0,1,1,1,1,1)_" + name ()
+				       + "_" + gripper->name (),
+				       gripper->joint()->robot(),
+				       gripper->joint (), joint (),
+				       gripper->objectPositionInJoint (),
+				       localPosition(), mask)));
     }
 
-    DifferentiableFunctionPtr_t AxialHandle::createPreGraspComplement
-      (const GripperPtr_t& gripper, const value_type& shift) const
+    NumericalConstraintPtr_t AxialHandle::createPreGraspComplement
+    (const GripperPtr_t& gripper, const value_type& shift,
+     const value_type& width) const
     {
       using boost::assign::list_of;
+      using core::DoubleInequality;
       std::vector <bool> mask = list_of (true)(false)(false)(false)(true)
 	(false);
       Transform3f transform (gripper->objectPositionInJoint ().getRotation (),
 			     gripper->objectPositionInJoint ().getTranslation ()
 			     + fcl::Vec3f (shift,0,0));
-      return RelativeTransformation::create
-	("Transformation_(1,0,0,0,0,0)_" + name () + "_" + gripper->name (),
-	 gripper->joint()->robot(), gripper->joint (), joint (),
-	 transform, localPosition(), mask);
+      return NumericalConstraintPtr_t
+	(NumericalConstraint::create (RelativeTransformation::create
+				      ("Transformation_(1,0,0,0,0,0)_" + name ()
+				       + "_" + gripper->name (),
+				       gripper->joint()->robot(),
+				       gripper->joint (), joint (),
+				       transform, localPosition(), mask),
+				      DoubleInequality::create (width)));
     }
 
     HandlePtr_t AxialHandle::clone () const

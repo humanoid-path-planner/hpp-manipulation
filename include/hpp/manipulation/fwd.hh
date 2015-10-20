@@ -101,6 +101,12 @@ namespace hpp {
     typedef core::ConfigurationShooterPtr_t ConfigurationShooterPtr_t;
     typedef core::ValidationReport ValidationReport;
     typedef core::PathValidationReportPtr_t PathValidationReportPtr_t;
+    typedef core::matrix_t matrix_t;
+    typedef core::matrixIn_t matrixIn_t;
+    typedef core::matrixOut_t matrixOut_t;
+    typedef core::size_type size_type;
+    typedef core::value_type value_type;
+    typedef core::vector3_t vector3_t;
 
     typedef std::list < NumericalConstraintPtr_t > NumericalConstraints_t;
     typedef std::pair< GripperPtr_t, HandlePtr_t> Grasp_t;

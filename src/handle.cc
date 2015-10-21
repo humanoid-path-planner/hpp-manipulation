@@ -32,6 +32,8 @@
 #include <hpp/constraints/relative-position.hh>
 #include <hpp/constraints/relative-transformation.hh>
 
+#include <hpp/core/numerical-constraint.hh>
+
 namespace hpp {
   namespace manipulation {
 
@@ -188,7 +190,7 @@ namespace hpp {
       mutable Eigen::Matrix<value_type, 3, 3> GOcross_;
     }; // class ObjectPositionWrtRobot
 
-    DifferentiableFunctionPtr_t Handle::createGrasp
+    NumericalConstraintPtr_t Handle::createGrasp
     (const GripperPtr_t& gripper) const
     {
       using boost::assign::list_of;
@@ -209,48 +211,66 @@ namespace hpp {
 	   outputVelocity);
       }
       std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(true);
-      return RelativeTransformation::create
-	("Transformation_(1,1,1,1,1,1)_" + name () + "_" + gripper->name (),
-	 gripper->joint()->robot(), gripper->joint (), joint (),
-	 gripper->objectPositionInJoint (), localPosition(), mask);
+      return NumericalConstraintPtr_t
+	(NumericalConstraint::create (RelativeTransformation::create
+				      ("Transformation_(1,1,1,1,1,1)_" + name ()
+				       + "_" + gripper->name (),
+				       gripper->joint()->robot(),
+				       gripper->joint (), joint (),
+				       gripper->objectPositionInJoint (),
+				       localPosition(), mask)));
     }
 
-    DifferentiableFunctionPtr_t Handle::createGraspComplement
+    NumericalConstraintPtr_t Handle::createGraspComplement
     (const GripperPtr_t& gripper) const
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (false)(false)(false)(false)(false)
 	(false);
-      return RelativeTransformation::create
-	("Transformation_(0,0,0,0,0,0)_" + name () + "_" + gripper->name (),
-	 gripper->joint()->robot(), gripper->joint (), joint (),
-	 gripper->objectPositionInJoint (), localPosition(), mask);
+      return NumericalConstraintPtr_t
+	(NumericalConstraint::create (RelativeTransformation::create
+				      ("Transformation_(0,0,0,0,0,0)_" + name ()
+				       + "_" + gripper->name (),
+				       gripper->joint()->robot(),
+				       gripper->joint (), joint (),
+				       gripper->objectPositionInJoint (),
+				       localPosition(), mask)));
     }
 
-    DifferentiableFunctionPtr_t Handle::createPreGrasp
+    NumericalConstraintPtr_t Handle::createPreGrasp
     (const GripperPtr_t& gripper) const
     {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (false)(true)(true)(true)(true)(true);
-      return RelativeTransformation::create
-	("Transformation_(0,1,1,1,1,1)_" + name () + "_" + gripper->name (),
-	 gripper->joint()->robot(), gripper->joint (), joint (),
-	 gripper->objectPositionInJoint (), localPosition(), mask);
+      return NumericalConstraintPtr_t
+	(NumericalConstraint::create (RelativeTransformation::create
+				      ("Transformation_(0,1,1,1,1,1)_" + name ()
+				       + "_" + gripper->name (),
+				       gripper->joint()->robot(),
+				       gripper->joint (), joint (),
+				       gripper->objectPositionInJoint (),
+				       localPosition(), mask)));
     }
 
-    DifferentiableFunctionPtr_t Handle::createPreGraspComplement
-    (const GripperPtr_t& gripper, const value_type& shift) const
+    NumericalConstraintPtr_t Handle::createPreGraspComplement
+    (const GripperPtr_t& gripper, const value_type& shift,
+     const value_type& width) const
     {
       using boost::assign::list_of;
+      using core::DoubleInequality;
       std::vector <bool> mask = list_of (true)(false)(false)(false)(false)
 	(false);
       Transform3f transform (gripper->objectPositionInJoint ().getRotation (),
 			     gripper->objectPositionInJoint ().getTranslation ()
 			     + fcl::Vec3f (shift,0,0));
-      return RelativeTransformation::create
-	("Transformation_(1,0,0,0,0,0)_" + name () + "_" + gripper->name (),
-	 gripper->joint()->robot(), gripper->joint (), joint (),
-	 transform, localPosition(), mask);
+      return NumericalConstraintPtr_t
+	(NumericalConstraint::create (RelativeTransformation::create
+				      ("Transformation_(1,0,0,0,0,0)_" + name ()
+				       + "_" + gripper->name (),
+				       gripper->joint()->robot(),
+				       gripper->joint (), joint (),
+				       transform, localPosition(), mask),
+				      DoubleInequality::create (width)));
     }
 
     HandlePtr_t Handle::clone () const

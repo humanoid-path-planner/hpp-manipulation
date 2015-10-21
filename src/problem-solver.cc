@@ -123,8 +123,8 @@ namespace hpp {
       return constraintGraph_;
     }
 
-    GraspPtr_t ProblemSolver::grasp (
-                      const DifferentiableFunctionPtr_t& constraint) const
+    GraspPtr_t ProblemSolver::grasp
+    (const NumericalConstraintPtr_t& constraint) const
     {
       GraspsMap_t::const_iterator it =
 	graspsMap_.find (constraint);
@@ -169,9 +169,10 @@ namespace hpp {
 	constraints.first->addFloor (ConvexShape (it->second, it->first));
       }
 
-      addNumericalConstraint (name, constraints.first);
-      addNumericalConstraint (complementName, constraints.second);
-      comparisonType (complementName, core::Equality::create ());
+      addNumericalConstraint (name, NumericalConstraint::create
+			      (constraints.first));
+      addNumericalConstraint (complementName, NumericalConstraint::create
+			      (constraints.second, core::Equality::create ()));
     }
 
 
@@ -201,8 +202,7 @@ namespace hpp {
     {
       core::ProblemSolver::addFunctionToConfigProjector (constraintName,
                                                          functionName);
-      DifferentiableFunctionPtr_t constraint =
-	numericalConstraint (functionName);
+      NumericalConstraintPtr_t constraint (numericalConstraint (functionName));
       if (GraspPtr_t g = grasp (constraint)) {
         GripperPtr_t gripper = g->first;
         HandlePtr_t handle = g->second;

@@ -30,7 +30,7 @@
 namespace hpp {
   namespace manipulation {
     class HPP_MANIPULATION_DLLAPI ProblemSolver : public core::ProblemSolver,
-    public Container <LockedJointPtr_t>, public Container <JointAndTriangles_t>
+    public Container <LockedJointPtr_t>, public Container <JointAndShapes_t>
     {
       public:
         typedef core::ProblemSolver parent_t;

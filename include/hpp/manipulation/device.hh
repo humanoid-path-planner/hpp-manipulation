@@ -36,7 +36,7 @@ namespace hpp {
     /// This class also contains model::Gripper, Handle and \ref JointAndTriangles_t
     class HPP_MANIPULATION_DLLAPI Device : public model::HumanoidRobot,
       public Container <HandlePtr_t>, public Container <model::GripperPtr_t>,
-      public Container <JointAndTriangles_t>
+      public Container <JointAndShapes_t>
     {
       public:
         typedef model::HumanoidRobot Parent_t;

@@ -109,8 +109,9 @@ namespace hpp {
           if (pathIsValid) {
             value_type t_final = path->timeRange ().second;
             if (t_final != path->timeRange ().first) {
+	      bool success;
               ConfigurationPtr_t q_new (new Configuration_t
-                  ((*path) (t_final)));
+					((*path) (t_final, success)));
               if (!belongs (q_new, newNodes)) {
                 newNodes.push_back (roadmap ()->addNodeAndEdges
                     (near, q_new, path));

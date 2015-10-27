@@ -22,10 +22,13 @@
 
 #include <hpp/model/gripper.hh>
 
+#include <hpp/constraints/static-stability.hh>
+
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/discretized-collision-checking.hh>
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
+#include <hpp/core/roadmap.hh>
 
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/handle.hh"
@@ -131,6 +134,45 @@ namespace hpp {
       }
       return it->second;
     }
+
+    void ProblemSolver::createPlacementConstraint
+    (const std::string& name, const std::string& surface1,
+     const std::string& surface2)
+    {
+      if (!robot_) throw std::runtime_error ("No robot loaded");
+      using constraints::StaticStabilityGravityPtr_t;
+      using constraints::StaticStabilityGravityComplement;
+      using constraints::StaticStabilityGravityComplementPtr_t;
+      std::string complementName (name + "/complement");
+      std::pair < StaticStabilityGravityPtr_t,
+		  StaticStabilityGravityComplementPtr_t > constraints
+	(StaticStabilityGravityComplement::createPair
+	 (name, complementName, robot_));
+      JointAndTriangles_t l = robot_->get <JointAndTriangles_t>	(surface1);
+      if (l.empty ()) throw std::runtime_error
+			("First list of triangles not found.");
+      for (JointAndTriangles_t::const_iterator it = l.begin ();
+	   it != l.end(); ++it) {
+	constraints.first->addObjectTriangle (it->second, it->first);
+      }
+      // Search first robot triangles
+      l = robot_->get <JointAndTriangles_t> (surface2);
+      if (l.empty ()) {
+	// and then environment triangles.
+	l = get <JointAndTriangles_t> (surface2);
+	if (l.empty ()) throw std::runtime_error
+			  ("Second list of triangles not found.");
+      }
+      for (JointAndTriangles_t::const_iterator it = l.begin ();
+	   it != l.end(); ++it) {
+	constraints.first->addFloorTriangle (it->second, it->first);
+      }
+
+      addNumericalConstraint (name, constraints.first);
+      addNumericalConstraint (complementName, constraints.second);
+      comparisonType (complementName, core::Equality::create ());
+    }
+
 
     void ProblemSolver::resetConstraints ()
     {

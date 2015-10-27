@@ -340,8 +340,10 @@ namespace hpp {
       {
         assert (waypoint_.first);
         config_ = q;
-        if (!waypoint_.first->applyConstraints (qoffset, config_))
+        if (!waypoint_.first->applyConstraints (qoffset, config_)) {
+	  q = config_;
           return false;
+	}
         bool success = Edge::applyConstraints (config_, q);
         result_ = q;
         return success;

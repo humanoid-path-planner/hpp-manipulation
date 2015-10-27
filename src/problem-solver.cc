@@ -22,7 +22,7 @@
 
 #include <hpp/model/gripper.hh>
 
-#include <hpp/constraints/static-stability.hh>
+#include <hpp/constraints/convex-shape-contact.hh>
 
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/discretized-collision-checking.hh>
@@ -140,32 +140,33 @@ namespace hpp {
      const std::string& surface2)
     {
       if (!robot_) throw std::runtime_error ("No robot loaded");
-      using constraints::StaticStabilityGravityPtr_t;
-      using constraints::StaticStabilityGravityComplement;
-      using constraints::StaticStabilityGravityComplementPtr_t;
+      using constraints::ConvexShape;
+      using constraints::ConvexShapeContactPtr_t;
+      using constraints::ConvexShapeContactComplement;
+      using constraints::ConvexShapeContactComplementPtr_t;
       std::string complementName (name + "/complement");
-      std::pair < StaticStabilityGravityPtr_t,
-		  StaticStabilityGravityComplementPtr_t > constraints
-	(StaticStabilityGravityComplement::createPair
+      std::pair < ConvexShapeContactPtr_t,
+		  ConvexShapeContactComplementPtr_t > constraints
+	(ConvexShapeContactComplement::createPair
 	 (name, complementName, robot_));
-      JointAndTriangles_t l = robot_->get <JointAndTriangles_t>	(surface1);
+      JointAndShapes_t l = robot_->get <JointAndShapes_t>	(surface1);
       if (l.empty ()) throw std::runtime_error
 			("First list of triangles not found.");
-      for (JointAndTriangles_t::const_iterator it = l.begin ();
+      for (JointAndShapes_t::const_iterator it = l.begin ();
 	   it != l.end(); ++it) {
-	constraints.first->addObjectTriangle (it->second, it->first);
+	constraints.first->addObject (ConvexShape (it->second, it->first));
       }
       // Search first robot triangles
-      l = robot_->get <JointAndTriangles_t> (surface2);
+      l = robot_->get <JointAndShapes_t> (surface2);
       if (l.empty ()) {
 	// and then environment triangles.
-	l = get <JointAndTriangles_t> (surface2);
+	l = get <JointAndShapes_t> (surface2);
 	if (l.empty ()) throw std::runtime_error
 			  ("Second list of triangles not found.");
       }
-      for (JointAndTriangles_t::const_iterator it = l.begin ();
+      for (JointAndShapes_t::const_iterator it = l.begin ();
 	   it != l.end(); ++it) {
-	constraints.first->addFloorTriangle (it->second, it->first);
+	constraints.first->addFloor (ConvexShape (it->second, it->first));
       }
 
       addNumericalConstraint (name, constraints.first);

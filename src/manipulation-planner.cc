@@ -16,6 +16,8 @@
 
 #include "hpp/manipulation/manipulation-planner.hh"
 
+#include <boost/tuple/tuple.hpp>
+
 #include <hpp/util/pointer.hh>
 #include "hpp/util/timer.hh"
 #include <hpp/util/assertion.hh>
@@ -80,6 +82,7 @@ namespace hpp {
     void ManipulationPlanner::oneStep ()
     {
       HPP_START_TIMECOUNTER(oneStep);
+
       DevicePtr_t robot = HPP_DYNAMIC_PTR_CAST(Device, problem ().robot ());
       HPP_ASSERT(robot);
       const graph::Nodes_t& graphNodes = problem_.constraintGraph ()
@@ -87,6 +90,11 @@ namespace hpp {
       graph::Nodes_t::const_iterator itNode;
       core::Nodes_t newNodes;
       core::PathPtr_t path;
+
+      typedef boost::tuple <core::NodePtr_t, ConfigurationPtr_t, core::PathPtr_t>
+	DelayedEdge_t;
+      typedef std::vector <DelayedEdge_t> DelayedEdges_t;
+      DelayedEdges_t delayedEdges;
 
       // Pick a random node
       ConfigurationPtr_t q_rand = shooter_->shoot();
@@ -116,16 +124,25 @@ namespace hpp {
                 newNodes.push_back (roadmap ()->addNodeAndEdges
                     (near, q_new, path));
               } else {
-                core::NodePtr_t newNode = roadmap ()->addNode (q_new);
-                roadmap ()->addEdge (near, newNode, path);
-                core::interval_t timeRange = path->timeRange ();
-                roadmap ()->addEdge (newNode, near, path->extract
-                    (core::interval_t (timeRange.second ,
-                                       timeRange.first)));
+                delayedEdges.push_back (DelayedEdge_t (near, q_new, path));
               }
             }
+            
           }
         }
+      }
+      // Insert delayed edges
+      for (DelayedEdges_t::const_iterator itEdge = delayedEdges.begin ();
+	   itEdge != delayedEdges.end (); ++itEdge) {
+	const core::NodePtr_t& near = itEdge-> get <0> ();
+	const ConfigurationPtr_t& q_new = itEdge-> get <1> ();
+	const core::PathPtr_t& validPath = itEdge-> get <2> ();
+        core::NodePtr_t newNode = roadmap ()->addNode (q_new);
+	roadmap ()->addEdge (near, newNode, validPath);
+        core::interval_t timeRange = validPath->timeRange ();
+	roadmap ()->addEdge (newNode, near, validPath->extract
+			     (core::interval_t (timeRange.second ,
+					  timeRange.first)));
       }
 
       // Try to connect the new nodes together

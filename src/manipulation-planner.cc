@@ -209,18 +209,29 @@ namespace hpp {
       } else projPath = path;
       GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
       PathValidationReportPtr_t report;
+      core::PathPtr_t fullValidPath;
       HPP_START_TIMECOUNTER (validatePath);
+      bool fullyValid = false;
       try {
-        pathValidation->validate (projPath, false, validPath, report);
+        fullyValid = pathValidation->validate
+          (projPath, false, fullValidPath, report);
       } catch (const core::projection_error& e) {
         hppDout (error, e.what ());
         addFailure (PATH_VALIDATION, edge);
         return false;
       }
       HPP_STOP_TIMECOUNTER (validatePath);
-      if (validPath->length () == 0)
+      if (fullValidPath->length () == 0) {
         addFailure (PATH_VALIDATION, edge);
-      else {
+        validPath = fullValidPath;
+      } else {
+        if (fullyValid) validPath = fullValidPath;
+        else {
+          const value_type& length = fullValidPath->length();
+          const value_type& t_init = fullValidPath->timeRange ().first;
+          validPath = fullValidPath->extract
+            (core::interval_t(t_init, t_init + length * 0.5));
+        }
         extendStatistics_.addSuccess ();
         hppDout (info, "Extension:" << std::endl
             << extendStatistics_);

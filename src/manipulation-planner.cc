@@ -267,16 +267,10 @@ namespace hpp {
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       bool connectSucceed = false;
       for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
-          itn1 != nodes.end (); ++itn1) {
-        ConfigurationPtr_t q1 ((*itn1)->configuration ());
-        connectSucceed = false;
-        for (core::ConnectedComponents_t::const_iterator itcc =
-            roadmap ()->connectedComponents ().begin ();
-            itcc != roadmap ()->connectedComponents ().end (); ++itcc) {
-          if (*itcc == (*itn1)->connectedComponent ())
-            continue;
-          for (core::Nodes_t::const_iterator itn2 = (*itcc)->nodes().begin ();
-              itn2 != (*itcc)->nodes ().end (); ++itn2) {
+	   itn1 != nodes.end (); ++itn1) {
+	for (core::Nodes_t::const_iterator itn2 = boost::next (itn1);
+	     itn2 != nodes.end (); ++itn2) {
+            ConfigurationPtr_t q1 ((*itn1)->configuration ());
             ConfigurationPtr_t q2 ((*itn2)->configuration ());
             assert (*q1 != *q2);
             path = (*sm) (*q1, *q2);
@@ -291,11 +285,7 @@ namespace hpp {
               roadmap ()->addEdge (*itn2, *itn1, projPath->extract
                   (core::interval_t (timeRange.second,
                                      timeRange.first)));
-              connectSucceed = true;
-              break;
             }
-          }
-          if (connectSucceed) break;
         }
       }
     }

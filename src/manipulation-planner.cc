@@ -265,12 +265,17 @@ namespace hpp {
       PathProjectorPtr_t pathProjector (problem().pathProjector ());
       core::PathPtr_t path, projPath, validPath;
       graph::GraphPtr_t graph = problem_.constraintGraph ();
-      bool connectSucceed = false;
       for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
 	   itn1 != nodes.end (); ++itn1) {
+        ConfigurationPtr_t q1 ((*itn1)->configuration ());
 	for (core::Nodes_t::const_iterator itn2 = boost::next (itn1);
 	     itn2 != nodes.end (); ++itn2) {
-            ConfigurationPtr_t q1 ((*itn1)->configuration ());
+            bool _1to2 = (*itn1)->isOutNeighbor (*itn2);
+            bool _2to1 = (*itn1)->isInNeighbor (*itn2);
+            if (_1to2 && _2to1) {
+              hppDout (info, "the two nodes are already connected");
+              continue;
+            }
             ConfigurationPtr_t q2 ((*itn2)->configuration ());
             assert (*q1 != *q2);
             path = (*sm) (*q1, *q2);
@@ -280,11 +285,13 @@ namespace hpp {
             } else projPath = path;
 	    PathValidationReportPtr_t report;
             if (pathValidation->validate (projPath, false, validPath, report)) {
-              roadmap ()->addEdge (*itn1, *itn2, projPath);
-              core::interval_t timeRange = projPath->timeRange ();
-              roadmap ()->addEdge (*itn2, *itn1, projPath->extract
-                  (core::interval_t (timeRange.second,
-                                     timeRange.first)));
+              if (!_1to2) roadmap ()->addEdge (*itn1, *itn2, projPath);
+              if (!_2to1) {
+                core::interval_t timeRange = projPath->timeRange ();
+                roadmap ()->addEdge (*itn2, *itn1, projPath->extract
+                    (core::interval_t (timeRange.second,
+                                       timeRange.first)));
+              }
             }
         }
       }

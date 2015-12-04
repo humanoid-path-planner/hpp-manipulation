@@ -94,10 +94,12 @@ namespace hpp {
 	/// \param name name of the placement constraint,
 	/// \param triangleName name of the first list of triangles,
 	/// \param envContactName name of the second list of triangles.
+        /// \param margin see hpp::constraints::QPStaticStability constructor
 	/// 
 	void createPlacementConstraint (const std::string& name,
 					const std::string& surface1,
-					const std::string& surface2);
+					const std::string& surface2,
+                                        const value_type& margin = 1e-4);
 
         /// Reset constraint set and put back the disable collisions
         /// between gripper and handle

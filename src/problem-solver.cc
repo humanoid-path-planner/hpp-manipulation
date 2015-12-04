@@ -137,7 +137,7 @@ namespace hpp {
 
     void ProblemSolver::createPlacementConstraint
     (const std::string& name, const std::string& surface1,
-     const std::string& surface2)
+     const std::string& surface2, const value_type& margin)
     {
       if (!robot_) throw std::runtime_error ("No robot loaded");
       using constraints::ConvexShape;
@@ -168,6 +168,8 @@ namespace hpp {
 	   it != l.end(); ++it) {
 	constraints.first->addFloor (ConvexShape (it->second, it->first));
       }
+
+      constraints.first->setNormalMargin (margin);
 
       addNumericalConstraint (name, NumericalConstraint::create
 			      (constraints.first));

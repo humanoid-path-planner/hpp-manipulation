@@ -21,16 +21,18 @@
 # include <map>
 # include <hpp/model/device.hh>
 # include <hpp/core/problem-solver.hh>
+# include <hpp/core/container.hh>
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/deprecated.hh"
 # include "hpp/manipulation/device.hh"
-# include "hpp/manipulation/container.hh"
 # include "hpp/manipulation/graph/fwd.hh"
 
 namespace hpp {
   namespace manipulation {
-    class HPP_MANIPULATION_DLLAPI ProblemSolver : public core::ProblemSolver,
-    public Container <LockedJointPtr_t>, public Container <JointAndShapes_t>
+    class HPP_MANIPULATION_DLLAPI ProblemSolver :
+      public core::ProblemSolver,
+      public core::Container <LockedJointPtr_t>,
+      public core::Container <JointAndShapes_t>
     {
       public:
         typedef core::ProblemSolver parent_t;
@@ -143,7 +145,7 @@ namespace hpp {
 
         /// Get the underlying map of a container
         template <typename Element>
-          const typename Container<Element>::ElementMap_t& getAll () const
+          const typename core::Container<Element>::ElementMap_t& getAll () const
         {
           return Container <Element>::getAll ();
         }

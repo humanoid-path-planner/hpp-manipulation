@@ -59,7 +59,6 @@ CONFIGURE_FILE (${CMAKE_SOURCE_DIR}/doc/main.hh.in
 
 SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/fwd.hh
-  include/hpp/manipulation/container.hh
   include/hpp/manipulation/axial-handle.hh
   include/hpp/manipulation/handle.hh
   include/hpp/manipulation/problem.hh

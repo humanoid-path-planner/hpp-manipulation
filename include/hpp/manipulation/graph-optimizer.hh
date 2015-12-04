@@ -47,7 +47,7 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI GraphOptimizer : public PathOptimizer
     {
       public:
-        typedef core::ProblemSolver::PathOptimizerBuilder_t PathOptimizerBuilder_t;
+        typedef core::PathOptimizerBuilder_t PathOptimizerBuilder_t;
 
         template <typename TraitsOrInnerType>
           static GraphOptimizerPtr_t create (const core::Problem& problem);

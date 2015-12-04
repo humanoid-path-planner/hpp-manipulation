@@ -68,21 +68,24 @@ namespace hpp {
     ProblemSolver::ProblemSolver () :
       core::ProblemSolver (), robot_ (), problem_ (0x0), graspsMap_()
     {
-      addPathPlannerType ("M-RRT", ManipulationPlanner::create);
-      addPathValidationType ("Graph-Discretized",
+      add <core::PathPlannerBuilder_t> ("M-RRT", ManipulationPlanner::create);
+      using core::PathValidationBuilder_t;
+      add <PathValidationBuilder_t> ("Graph-Discretized",
           GraphPathValidation::create <core::DiscretizedCollisionChecking>);
-      addPathValidationType ("Graph-Progressive", GraphPathValidation::create <
+      add <PathValidationBuilder_t> ("Graph-Progressive",
+          GraphPathValidation::create <
           core::continuousCollisionChecking::Progressive >);
-      addPathOptimizerType ("Graph-RandomShortcut",
+      using core::PathOptimizerBuilder_t;
+      add <PathOptimizerBuilder_t> ("Graph-RandomShortcut",
           GraphOptimizer::create <core::RandomShortcut>);
-      addPathOptimizerType ("PartialShortcut", core::pathOptimization::
+      add <PathOptimizerBuilder_t> ("PartialShortcut", core::pathOptimization::
           PartialShortcut::createWithTraits <PartialShortcutTraits>);
-      addPathOptimizerType ("Graph-PartialShortcut",
+      add <PathOptimizerBuilder_t> ("Graph-PartialShortcut",
           GraphOptimizer::create <core::pathOptimization::PartialShortcut>);
-      addPathOptimizerType ("ConfigOptimization",
+      add <PathOptimizerBuilder_t> ("ConfigOptimization",
           core::pathOptimization::ConfigOptimization::createWithTraits
           <pathOptimization::ConfigOptimizationTraits>);
-      addPathOptimizerType ("Graph-ConfigOptimization",
+      add <PathOptimizerBuilder_t> ("Graph-ConfigOptimization",
           GraphOptimizer::create <
           GraphConfigOptimizationTraits
             <pathOptimization::ConfigOptimizationTraits>

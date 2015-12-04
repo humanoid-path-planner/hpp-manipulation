@@ -17,6 +17,7 @@
 #include <hpp/manipulation/graph-optimizer.hh>
 
 #include <hpp/manipulation/graph/edge.hh>
+#include <hpp/manipulation/graph-path-validation.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -27,6 +28,9 @@ namespace hpp {
         expanded = PathVector::create
           (path->outputSize(), path->outputDerivativeSize()),
         toConcat;
+      GraphPathValidationPtr_t gpv = HPP_DYNAMIC_PTR_CAST (GraphPathValidation,
+              this->problem().pathValidation ());
+      const_cast <core::Problem&>(this->problem ()).pathValidation (gpv->innerValidation());
       unpack (path, expanded);
       ConstraintSetPtr_t c;
       for (std::size_t i_s = 0; i_s < expanded->numberPaths ();) {
@@ -51,6 +55,7 @@ namespace hpp {
         opted->concatenate (*toConcat);
       }
       pathOptimizer_.reset ();
+      const_cast <core::Problem&>(this->problem ()).pathValidation (gpv);
       return opted;
     }
 

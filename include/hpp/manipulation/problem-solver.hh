@@ -150,6 +150,13 @@ namespace hpp {
           return Container <Element>::getAll ();
         }
 
+        /// Get the keys of a container
+        template <typename Element, typename ReturnType>
+          ReturnType getKeys () const
+        {
+          return Container <Element>::template getKeys <ReturnType> ();
+        }
+
       protected:
         virtual void initializeProblem (ProblemPtr_t problem);
 

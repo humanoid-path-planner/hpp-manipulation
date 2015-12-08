@@ -67,6 +67,13 @@ namespace hpp {
           return core::Container <Element>::get (name);
         }
 
+        /// Get the keys of a container
+        template <typename Element, typename ReturnType>
+          ReturnType getKeys () const
+        {
+          return core::Container <Element>::template getKeys <ReturnType> ();
+        }
+
         /// Get the underlying map of a container
         template <typename Element>
           const typename core::Container<Element>::ElementMap_t& getAll () const

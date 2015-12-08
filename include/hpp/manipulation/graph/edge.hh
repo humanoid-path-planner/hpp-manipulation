@@ -116,6 +116,10 @@ namespace hpp {
           /// \return The initialized projector.
           ConstraintSetPtr_t configConstraint() const;
 
+          void setShort (bool isShort) {
+            isShort_ = isShort;
+          }
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
@@ -135,6 +139,8 @@ namespace hpp {
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
+
+          bool isShort_;
 
         private:
           typedef Cache < ConstraintSetPtr_t > Constraint_t;

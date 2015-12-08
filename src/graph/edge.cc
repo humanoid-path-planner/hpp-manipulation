@@ -34,7 +34,8 @@ namespace hpp {
     namespace graph {
       Edge::Edge (const std::string& name,
 		  const core::SteeringMethodPtr_t& steeringMethod) :
-	GraphComponent (name), pathConstraints_ (new Constraint_t()),
+	GraphComponent (name), isShort_ (false),
+        pathConstraints_ (new Constraint_t()),
 	configConstraints_ (new Constraint_t()),
 	steeringMethod_ (steeringMethod->copy ())
       {}
@@ -275,10 +276,8 @@ namespace hpp {
         ConstraintSetPtr_t c = configConstraint ();
         ConfigProjectorPtr_t proj = c->configProjector ();
         proj->rightHandSideFromConfig (qoffset);
-        if (c->apply (q)) {
-          return true;
-        }
-	assert (proj);
+        if (isShort_) q = qoffset;
+        if (c->apply (q)) return true;
 	::hpp::statistics::SuccessStatistics& ss = proj->statistics ();
 	if (ss.nbFailure () > ss.nbSuccess ()) {
 	  hppDout (warning, c->name () << " fails often." << std::endl << ss);
@@ -478,8 +477,8 @@ namespace hpp {
 	cp->updateRightHandSide ();
 
         // Eventually, do the projection.
-        if (cs->apply (q))
-          return true;
+        if (isShort_) q = q_offset;
+        if (cs->apply (q)) return true;
 	::hpp::statistics::SuccessStatistics& ss = cp->statistics ();
 	if (ss.nbFailure () > ss.nbSuccess ()) {
 	  hppDout (warning, cs->name () << " fails often." << std::endl << ss);

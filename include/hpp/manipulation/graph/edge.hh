@@ -274,7 +274,8 @@ namespace hpp {
           void insertConfigConstraint (const NumericalConstraintPtr_t& nm,
               const SizeIntervals_t& passiveDofs = SizeIntervals_t ());
 
-          void insertConfigConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq) __attribute__ ((deprecated));
+          void insertConfigConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)
+            HPP_MANIPULATION_DEPRECATED;
 
           void insertConfigConstraint (const LockedJointPtr_t lockedJoint);
 

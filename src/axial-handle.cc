@@ -40,7 +40,7 @@ namespace hpp {
       std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(false);
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
-				      ("Transformation_(1,1,1,1,1,1)_" + name ()
+				      ("Transformation_(1,1,1,1,1,0)_" + name ()
 				       + "_" + gripper->name (),
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),
@@ -52,11 +52,11 @@ namespace hpp {
     (const GripperPtr_t& gripper) const
     {
       using boost::assign::list_of;
-      std::vector <bool> mask = list_of (false)(false)(false)(false)(true)
-	(false);
+      std::vector <bool> mask = list_of (false)(false)(false)(false)(false)
+        (true);
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
-				      ("Transformation_(0,0,0,0,0,0)_" + name ()
+				      ("Transformation_(0,0,0,0,0,1)_" + name ()
 				       + "_" + gripper->name (),
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),
@@ -71,7 +71,7 @@ namespace hpp {
       std::vector <bool> mask = list_of (false)(true)(true)(true)(true)(false);
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
-				      ("Transformation_(0,1,1,1,1,1)_" + name ()
+				      ("Transformation_(0,1,1,1,1,0)_" + name ()
 				       + "_" + gripper->name (),
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),
@@ -85,11 +85,10 @@ namespace hpp {
     {
       using boost::assign::list_of;
       using core::DoubleInequality;
-      std::vector <bool> mask = list_of (true)(false)(false)(false)(true)
-	(false);
-      Transform3f transform (gripper->objectPositionInJoint ().getRotation (),
-			     gripper->objectPositionInJoint ().getTranslation ()
-			     + fcl::Vec3f (shift,0,0));
+      std::vector <bool> mask = list_of (true)(false)(false)(false)(false)
+        (false);
+      Transform3f transform = gripper->objectPositionInJoint ()
+        * Transform3f (fcl::Vec3f (shift,0,0));
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
 				      ("Transformation_(1,0,0,0,0,0)_" + name ()

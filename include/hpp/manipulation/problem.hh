@@ -19,11 +19,10 @@
 
 # include <hpp/core/problem.hh>
 
+# include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/device.hh"
 # include "hpp/manipulation/graph/graph.hh"
 # include "hpp/manipulation/graph-path-validation.hh"
-# include "hpp/manipulation/graph-steering-method.hh"
-# include "hpp/manipulation/fwd.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -36,17 +35,12 @@ namespace hpp {
         typedef core::Problem Parent;
 
         /// Constructor
-        Problem (DevicePtr_t robot) : Parent (robot),
-          graph_(), steeringMethod_ (GraphSteeringMethod::create (robot))
-        {
-          Parent::steeringMethod (steeringMethod_);
-        }
+        Problem (DevicePtr_t robot);
 
         /// Set the graph of constraints
         void constraintGraph (const graph::GraphPtr_t& graph)
         {
           graph_ = graph;
-          steeringMethod_->constraintGraph (graph);
           if (pathValidation ())
             pathValidation ()->constraintGraph (graph);
         }
@@ -70,22 +64,14 @@ namespace hpp {
         }
 
         /// Get the path validation as a GraphPathValidation
-        GraphPathValidationPtr_t pathValidation () const
-        {
-          return HPP_DYNAMIC_PTR_CAST (GraphPathValidation, Parent::pathValidation());
-        }
+        GraphPathValidationPtr_t pathValidation () const;
 
         /// Get the steering method as a GraphSteeringMethod
-        GraphSteeringMethodPtr_t steeringMethod () const
-        {
-          return steeringMethod_;
-        }
+        GraphSteeringMethodPtr_t steeringMethod () const;
 
       private:
         /// The graph of constraints
         graph::GraphPtr_t graph_;
-        /// Steering method
-        GraphSteeringMethodPtr_t steeringMethod_;
     }; // class Problem
     /// \}
   } // namespace manipulation

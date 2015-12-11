@@ -32,6 +32,7 @@
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap.hh"
 #include "hpp/manipulation/roadmap-node.hh"
+#include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/node-selector.hh"
 
@@ -188,7 +189,7 @@ namespace hpp {
       GraphSteeringMethodPtr_t sm = problem_.steeringMethod();
       core::PathPtr_t path;
       HPP_START_TIMECOUNTER (buildPath);
-      if (!edge->build (path, *q_near, qProj_, *(sm->distance ()))) {
+      if (!edge->build (path, *q_near, qProj_)) {
         HPP_STOP_TIMECOUNTER (buildPath);
         addFailure (STEERING_METHOD, edge);
         return false;

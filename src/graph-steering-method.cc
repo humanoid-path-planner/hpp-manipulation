@@ -16,6 +16,9 @@
 
 #include "hpp/manipulation/graph-steering-method.hh"
 
+#include <hpp/util/pointer.hh>
+
+#include <hpp/core/distance.hh>
 #include <hpp/core/straight-path.hh>
 
 #include "hpp/manipulation/graph/graph.hh"
@@ -24,9 +27,18 @@
 namespace hpp {
   namespace manipulation {
     GraphSteeringMethodPtr_t GraphSteeringMethod::create
-    (const model::DevicePtr_t& robot)
+      (const core::ProblemPtr_t& problem)
     {
-      GraphSteeringMethod* ptr = new GraphSteeringMethod (robot);
+      assert (dynamic_cast <const ProblemPtr_t> (problem) != NULL
+          && "Cast to const ProblemPtr_t failed");
+      const ProblemPtr_t& p = static_cast <const ProblemPtr_t> (problem);
+      return create (p);
+    }
+
+    GraphSteeringMethodPtr_t GraphSteeringMethod::create
+    (const ProblemPtr_t& problem)
+    {
+      GraphSteeringMethod* ptr = new GraphSteeringMethod (problem);
       GraphSteeringMethodPtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
@@ -41,40 +53,34 @@ namespace hpp {
       return shPtr;
     }
 
-    GraphSteeringMethod::GraphSteeringMethod (const model::DevicePtr_t& robot) :
-      SteeringMethod (), graph_ (), robot_ (robot),
-          distance_ (core::WeighedDistance::create (robot)), weak_ ()
+    GraphSteeringMethod::GraphSteeringMethod (const ProblemPtr_t& problem) :
+      SteeringMethod (problem), problem_ (problem), weak_ ()
     {
     }
 
     GraphSteeringMethod::GraphSteeringMethod (const GraphSteeringMethod& other):
-      SteeringMethod (other), graph_ (other.graph_), robot_ (other.robot_),
-      distance_ (other.distance_)
+      SteeringMethod (other), problem_ (other.problem_)
     {
     }
 
     PathPtr_t GraphSteeringMethod::impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const
     {
       graph::Edges_t possibleEdges;
+      graph::Graph& graph = *problem_->constraintGraph ();
       try {
-        possibleEdges = graph_->getEdges (graph_->getNode (q1), graph_->getNode (q2));
+        possibleEdges = graph.getEdges (graph.getNode (q1), graph.getNode (q2));
       } catch (const std::logic_error& e) {
         hppDout (error, e.what ());
         return PathPtr_t ();
       }
       PathPtr_t path;
       while (!possibleEdges.empty()) {
-        if (possibleEdges.back ()->build (path, q1, q2, *distance_)) {
+        if (possibleEdges.back ()->build (path, q1, q2)) {
           return path;
         }
         possibleEdges.pop_back ();
       }
       return PathPtr_t ();
-    }
-
-    const core::WeighedDistancePtr_t& GraphSteeringMethod::distance () const
-    {
-      return distance_;
     }
   } // namespace manipulation
 } // namespace hpp

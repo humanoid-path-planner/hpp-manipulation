@@ -142,9 +142,11 @@ namespace hpp {
 
       private:
         /// Do validation regarding the constraint graph for PathVector
-        bool impl_validate (const PathVectorPtr_t& path, bool reverse, PathPtr_t& validPart);
+        bool impl_validate (const PathVectorPtr_t& path, bool reverse,
+            PathPtr_t& validPart, PathValidationReportPtr_t& report);
         /// Do validation regarding the constraint graph for Path 
-        bool impl_validate (const PathPtr_t& path, bool reverse, PathPtr_t& validPart);
+        bool impl_validate (const PathPtr_t& path, bool reverse,
+            PathPtr_t& validPart, PathValidationReportPtr_t& report);
         /// The encapsulated PathValidation.
         PathValidationPtr_t pathValidation_;
         /// Pointer to the constraint graph.

@@ -38,12 +38,7 @@ namespace hpp {
         Problem (DevicePtr_t robot);
 
         /// Set the graph of constraints
-        void constraintGraph (const graph::GraphPtr_t& graph)
-        {
-          graph_ = graph;
-          if (pathValidation ())
-            pathValidation ()->constraintGraph (graph);
-        }
+        void constraintGraph (const graph::GraphPtr_t& graph);
 
         /// Get the graph of constraints
         graph::GraphPtr_t constraintGraph () const

@@ -15,6 +15,7 @@
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/manipulation/problem.hh>
+#include <hpp/manipulation/weighed-distance.hh>
 #include <hpp/manipulation/graph-steering-method.hh>
 
 namespace hpp {
@@ -23,6 +24,17 @@ namespace hpp {
       : Parent (robot), graph_()
     {
       Parent::steeringMethod (GraphSteeringMethod::create (this));
+      distance (WeighedDistance::create (robot, graph_));
+    }
+
+    void Problem::constraintGraph (const graph::GraphPtr_t& graph)
+    {
+      graph_ = graph;
+      if (pathValidation ())
+        pathValidation ()->constraintGraph (graph);
+      WeighedDistancePtr_t d = HPP_DYNAMIC_PTR_CAST (WeighedDistance,
+          distance ());
+      if (d) d->constraintGraph (graph);
     }
 
     GraphPathValidationPtr_t Problem::pathValidation () const

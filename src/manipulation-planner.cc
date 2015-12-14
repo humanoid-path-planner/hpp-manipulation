@@ -151,6 +151,7 @@ namespace hpp {
       HPP_START_TIMECOUNTER(tryConnectNewNodes);
       const std::size_t nbConn = tryConnectNewNodes (newNodes);
       HPP_STOP_TIMECOUNTER(tryConnectNewNodes);
+      HPP_DISPLAY_LAST_TIMECOUNTER(tryConnectNewNodes);
       if (nbConn == 0) {
         HPP_START_TIMECOUNTER(tryConnectToRoadmap);
         tryConnectToRoadmap (newNodes);
@@ -159,7 +160,6 @@ namespace hpp {
       }
       HPP_STOP_TIMECOUNTER(oneStep);
       HPP_DISPLAY_LAST_TIMECOUNTER(oneStep);
-      HPP_DISPLAY_LAST_TIMECOUNTER(tryConnectNewNodes);
       HPP_DISPLAY_TIMECOUNTER(oneStep);
       HPP_DISPLAY_TIMECOUNTER(extend);
       HPP_DISPLAY_TIMECOUNTER(tryConnectNewNodes);

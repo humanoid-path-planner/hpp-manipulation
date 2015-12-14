@@ -69,8 +69,12 @@ namespace hpp {
         void init (const ManipulationPlannerWkPtr_t& weak);
 
       private:
-        /// Try to connect configurations in a list.
-        void tryConnect (const core::Nodes_t nodes);
+        /// Try to connect nodes of the roadmap to other connected components.
+        /// \return the number of connection made.
+        std::size_t tryConnectToRoadmap (const core::Nodes_t nodes);
+        /// Try to connect nodes in a list between themselves.
+        /// \return the number of connection made.
+        std::size_t tryConnectNewNodes (const core::Nodes_t nodes);
 
         /// Configuration shooter
         ConfigurationShooterPtr_t shooter_;

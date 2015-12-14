@@ -274,6 +274,8 @@ namespace hpp {
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       bool connectSucceed = false;
       std::size_t nbConnection = 0;
+      const std::size_t K = 7;
+      value_type distance;
       for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
           itn1 != nodes.end (); ++itn1) {
         ConfigurationPtr_t q1 ((*itn1)->configuration ());
@@ -283,8 +285,10 @@ namespace hpp {
             itcc != roadmap ()->connectedComponents ().end (); ++itcc) {
           if (*itcc == (*itn1)->connectedComponent ())
             continue;
-          for (core::Nodes_t::const_iterator itn2 = (*itcc)->nodes().begin ();
-              itn2 != (*itcc)->nodes ().end (); ++itn2) {
+          core::Nodes_t knearest = roadmap()->nearestNeighbor ()
+            ->KnearestSearch (q1, *itcc, K, distance);
+          for (core::Nodes_t::const_iterator itn2 = knearest.begin ();
+              itn2 != knearest.end (); ++itn2) {
             bool _1to2 = (*itn1)->isOutNeighbor (*itn2);
             bool _2to1 = (*itn1)->isInNeighbor (*itn2);
             if (_1to2 && _2to1) {

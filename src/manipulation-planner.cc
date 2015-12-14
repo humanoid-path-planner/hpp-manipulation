@@ -26,6 +26,7 @@
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/projection-error.hh>
+#include <hpp/core/nearest-neighbor.hh>
 
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/device.hh"

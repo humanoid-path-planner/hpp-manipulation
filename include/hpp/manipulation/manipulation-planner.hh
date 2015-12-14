@@ -46,12 +46,12 @@ namespace hpp {
 
         /// One step of extension.
         /// 
-        /// A set of constraints is choosen using the graph of constraints.
-        /// A constraint extension is done using a choosen set.
+        /// A set of constraints is chosen using the graph of constraints.
+        /// A constraint extension is done using a chosen set.
         ///
         virtual void oneStep ();
 
-        /// Extend a the configuration q_near toward q_rand.
+        /// Extend configuration q_near toward q_rand.
         /// \param q_near the configuration to be extended.
         /// \param q_rand the configuration toward extension is performed.
         /// \retval validPath the longest valid path (possibly of length 0),

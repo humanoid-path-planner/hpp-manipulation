@@ -233,12 +233,18 @@ namespace hpp {
         addFailure (PATH_VALIDATION, edge);
         validPath = fullValidPath;
       } else {
-        if (fullyValid) validPath = fullValidPath;
+        if (extendStep_ == 1 || fullyValid) validPath = fullValidPath;
         else {
           const value_type& length = fullValidPath->length();
           const value_type& t_init = fullValidPath->timeRange ().first;
-          validPath = fullValidPath->extract
-            (core::interval_t(t_init, t_init + length * 0.5));
+          try {
+            validPath = fullValidPath->extract
+              (core::interval_t(t_init, t_init + length * extendStep_));
+          } catch (const core::projection_error& e) {
+            hppDout (error, e.what());
+            addFailure (PATH_PROJECTION_SHORTER, edge);
+            return false;
+          }
         }
         extendStatistics_.addSuccess ();
         hppDout (info, "Extension:" << std::endl
@@ -372,6 +378,7 @@ namespace hpp {
       core::PathPlanner (problem, roadmap),
       shooter_ (problem.configurationShooter()),
       problem_ (problem), roadmap_ (roadmap),
+      extendStep_ (1),
       qProj_ (problem.robot ()->configSize ())
     {}
 

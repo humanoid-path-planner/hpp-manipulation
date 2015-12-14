@@ -128,6 +128,8 @@ namespace hpp {
 
         void addFailure (TypeOfFailure t, const graph::EdgePtr_t& edge);
 
+        const value_type extendStep_;
+
         mutable Configuration_t qProj_;
     };
     /// \}

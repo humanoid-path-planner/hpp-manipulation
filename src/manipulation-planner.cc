@@ -304,7 +304,7 @@ namespace hpp {
             } else projPath = path;
 	    PathValidationReportPtr_t report;
             if (pathValidation->validate (projPath, false, validPath, report)) {
-              if (!_1to2 || !_2to1) nbConnection++;
+              nbConnection++;
               if (!_1to2) roadmap ()->addEdge (*itn1, *itn2, projPath);
               if (!_2to1) {
                 core::interval_t timeRange = projPath->timeRange ();
@@ -352,7 +352,7 @@ namespace hpp {
           } else projPath = path;
           PathValidationReportPtr_t report;
           if (pathValidation->validate (projPath, false, validPath, report)) {
-            if (!_1to2 || !_2to1) nbConnection++;
+            nbConnection++;
             if (!_1to2) roadmap ()->addEdge (*itn1, *itn2, projPath);
             if (!_2to1) {
               core::interval_t timeRange = projPath->timeRange ();

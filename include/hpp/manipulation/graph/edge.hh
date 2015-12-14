@@ -73,6 +73,8 @@ namespace hpp {
 
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
+          virtual bool canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+
           virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1,
               ConfigurationIn_t q2) const;
 
@@ -203,6 +205,8 @@ namespace hpp {
 	   const NodeWkPtr_t& to);
 
           virtual bool direction (const core::PathPtr_t& path) const;
+
+          virtual bool canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
           virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 

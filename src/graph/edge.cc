@@ -256,6 +256,17 @@ namespace hpp {
         return constraint;
       }
 
+      bool Edge::canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2)
+	const
+      {
+        ConstraintSetPtr_t constraints = pathConstraint ();
+        constraints->configProjector ()->rightHandSideFromConfig(q1);
+        if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
+          return false;
+        }
+        return true;
+      }
+
       bool Edge::build (core::PathPtr_t& path, ConfigurationIn_t q1,
 			ConfigurationIn_t q2)
 	const
@@ -309,6 +320,11 @@ namespace hpp {
       {
         Edge::init (weak, graph, from, to);
         wkPtr_ = weak;
+      }
+
+      bool WaypointEdge::canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const
+      {
+        return waypoint_.first->canConnect (q1, q2) && Edge::canConnect (q1, q2);
       }
 
       bool WaypointEdge::build (core::PathPtr_t& path, ConfigurationIn_t q1,

@@ -44,6 +44,8 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER(tryConnect);
       HPP_DEFINE_TIMECOUNTER(nearestNeighbor);
       HPP_DEFINE_TIMECOUNTER(delayedEdges);
+      HPP_DEFINE_TIMECOUNTER(tryConnectNewNodes);
+      HPP_DEFINE_TIMECOUNTER(tryConnectToRoadmap);
       /// extend steps
       HPP_DEFINE_TIMECOUNTER(chooseEdge);
       HPP_DEFINE_TIMECOUNTER(applyConstraints);

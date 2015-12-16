@@ -41,6 +41,8 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER(oneStep);
       HPP_DEFINE_TIMECOUNTER(extend);
       HPP_DEFINE_TIMECOUNTER(tryConnect);
+      HPP_DEFINE_TIMECOUNTER(nearestNeighbor);
+      HPP_DEFINE_TIMECOUNTER(delayedEdges);
       /// extend steps
       HPP_DEFINE_TIMECOUNTER(chooseEdge);
       HPP_DEFINE_TIMECOUNTER(applyConstraints);
@@ -106,13 +108,14 @@ namespace hpp {
         // Find the nearest neighbor.
         core::value_type distance;
         for (itNode = graphNodes.begin (); itNode != graphNodes.end (); ++itNode) {
+          HPP_START_TIMECOUNTER(nearestNeighbor);
           RoadmapNodePtr_t near = roadmap_->nearestNode (q_rand, *itcc, *itNode, distance);
+          HPP_STOP_TIMECOUNTER(nearestNeighbor);
+          HPP_DISPLAY_LAST_TIMECOUNTER(nearestNeighbor);
           if (!near) continue;
 
           HPP_START_TIMECOUNTER(extend);
           bool pathIsValid = extend (near, q_rand, path);
-          HPP_STOP_TIMECOUNTER(extend);
-          HPP_DISPLAY_LAST_TIMECOUNTER(extend);
           // Insert new path to q_near in roadmap
           if (pathIsValid) {
             value_type t_final = path->timeRange ().second;
@@ -129,8 +132,12 @@ namespace hpp {
             }
             
           }
+          HPP_STOP_TIMECOUNTER(extend);
+          HPP_DISPLAY_LAST_TIMECOUNTER(extend);
         }
       }
+
+      HPP_START_TIMECOUNTER(delayedEdges);
       // Insert delayed edges
       for (DelayedEdges_t::const_iterator itEdge = delayedEdges.begin ();
 	   itEdge != delayedEdges.end (); ++itEdge) {
@@ -144,6 +151,7 @@ namespace hpp {
 			     (core::interval_t (timeRange.second ,
 					  timeRange.first)));
       }
+      HPP_STOP_TIMECOUNTER(delayedEdges);
 
       // Try to connect the new nodes together
       HPP_START_TIMECOUNTER(tryConnect);
@@ -155,6 +163,8 @@ namespace hpp {
       HPP_DISPLAY_TIMECOUNTER(oneStep);
       HPP_DISPLAY_TIMECOUNTER(extend);
       HPP_DISPLAY_TIMECOUNTER(tryConnect);
+      HPP_DISPLAY_TIMECOUNTER(nearestNeighbor);
+      HPP_DISPLAY_TIMECOUNTER(delayedEdges);
       HPP_DISPLAY_TIMECOUNTER(chooseEdge);
       HPP_DISPLAY_TIMECOUNTER(applyConstraints);
       HPP_DISPLAY_TIMECOUNTER(buildPath);

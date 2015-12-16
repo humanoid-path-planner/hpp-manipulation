@@ -55,6 +55,8 @@ namespace hpp {
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     HPP_PREDEF_CLASS (RoadmapNode);
     typedef RoadmapNode* RoadmapNodePtr_t;
+    HPP_PREDEF_CLASS (WeighedDistance);
+    typedef boost::shared_ptr<WeighedDistance> WeighedDistancePtr_t;
     typedef constraints::RelativeOrientation RelativeOrientation;
     typedef constraints::RelativePosition RelativePosition;
     typedef constraints::RelativeOrientationPtr_t RelativeOrientationPtr_t;

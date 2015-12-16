@@ -28,6 +28,8 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   constraint-set.cc
   roadmap-node.cc
   device.cc
+  weighed-distance.cc
+  problem.cc
   graph-path-validation.cc
   graph-steering-method.cc
   graph-optimizer.cc

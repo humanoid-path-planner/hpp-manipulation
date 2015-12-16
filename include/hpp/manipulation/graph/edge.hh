@@ -18,7 +18,7 @@
 # define HPP_MANIPULATION_GRAPH_EDGE_HH
 
 #include <hpp/core/constraint-set.hh>
-#include <hpp/core/weighed-distance.hh>
+#include <hpp/core/steering-method.hh>
 #include <hpp/core/path.hh>
 
 #include "hpp/manipulation/config.hh"
@@ -65,7 +65,6 @@ namespace hpp {
           /// Create a new empty Edge.
           static EdgePtr_t create
 	    (const std::string& name,
-	     const core::SteeringMethodPtr_t& steeringMethod,
 	     const GraphWkPtr_t& graph,
 	     const NodeWkPtr_t& from,
 	     const NodeWkPtr_t& to);
@@ -74,7 +73,10 @@ namespace hpp {
 
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
-          virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
+          virtual bool canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+
+          virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1,
+              ConfigurationIn_t q2) const;
 
           /// Get the destination
           NodePtr_t to () const;
@@ -97,7 +99,7 @@ namespace hpp {
 	  /// Get steering method associated to the edge.
 	  const core::SteeringMethodPtr_t& steeringMethod () const
 	  {
-	    return steeringMethod_;
+	    return steeringMethod_->get();
 	  }
 
           /// Get direction of the path compare to the edge
@@ -126,8 +128,7 @@ namespace hpp {
               const NodeWkPtr_t& to);
 
           /// Constructor
-          Edge (const std::string& name,
-		const core::SteeringMethodPtr_t& steeringMethod);
+          Edge (const std::string& name);
 
           /// Constraint to project a path.
           /// \return The initialized constraint.
@@ -144,6 +145,7 @@ namespace hpp {
 
         private:
           typedef Cache < ConstraintSetPtr_t > Constraint_t;
+          typedef Cache < core::SteeringMethodPtr_t > SteeringMethod_t;
 
           /// See pathConstraint member function.
           Constraint_t* pathConstraints_;
@@ -159,7 +161,7 @@ namespace hpp {
           bool isInNodeFrom_;
 
 	  /// Steering method used to create paths associated to the edge
-	  core::SteeringMethodPtr_t steeringMethod_;
+	  SteeringMethod_t* steeringMethod_;
 
           /// Weak pointer to itself.
           EdgeWkPtr_t wkPtr_;
@@ -199,13 +201,14 @@ namespace hpp {
           /// Create a new WaypointEdge.
 	static WaypointEdgePtr_t create
 	  (const std::string& name,
-	   const core::SteeringMethodPtr_t& steeringMethod,
 	   const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
 	   const NodeWkPtr_t& to);
 
           virtual bool direction (const core::PathPtr_t& path) const;
 
-          virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2, const core::WeighedDistance& d) const;
+          virtual bool canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+
+          virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
@@ -229,9 +232,8 @@ namespace hpp {
           NodePtr_t node () const;
 
         protected:
-	  WaypointEdge (const std::string& name,
-			const core::SteeringMethodPtr_t& steeringMethod) :
-	    Edge (name, steeringMethod)
+	  WaypointEdge (const std::string& name) :
+	    Edge (name)
 	    {
 	    }
           /// Initialization of the object.
@@ -259,7 +261,6 @@ namespace hpp {
           /// Create a new LevelSetEdge.
           static LevelSetEdgePtr_t create
 	    (const std::string& name,
-	     const core::SteeringMethodPtr_t& steeringMethod,
 	     const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
 	     const NodeWkPtr_t& to);
 
@@ -287,8 +288,7 @@ namespace hpp {
           void init (const LevelSetEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
               const NodeWkPtr_t& to);
 
-	  LevelSetEdge (const std::string& name,
-			const core::SteeringMethodPtr_t& steeringMethod);
+	  LevelSetEdge (const std::string& name);
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;

@@ -45,9 +45,9 @@ namespace hpp {
           /// Create a new Graph.
 	  ///
 	  /// \param robot a manipulation robot
-	  /// \param sm a steering method to create paths from edges
+	  /// \param problem a pointer to the problem
 	  static GraphPtr_t create(const std::string& name, DevicePtr_t robot,
-				   const core::SteeringMethodPtr_t& sm);
+				   const ProblemPtr_t& problem);
 
           /// Create and insert a NodeSelector inside the graph.
           NodeSelectorPtr_t createNodeSelector (const std::string& name);
@@ -119,7 +119,7 @@ namespace hpp {
           const DevicePtr_t& robot () const;
 
 	  /// Get the steering Method
-	  const core::SteeringMethodPtr_t& steeringMethod () const;
+	  const ProblemPtr_t& problem () const;
 
           /// Print the component in DOT language.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
@@ -130,8 +130,8 @@ namespace hpp {
 
           /// Constructor
 	  /// \param sm a steering method to create paths from edges
-          Graph (const std::string& name, const core::SteeringMethodPtr_t& sm) :
-	    GraphComponent (name), steeringMethod_ (sm)
+          Graph (const std::string& name, const ProblemPtr_t& problem) :
+	    GraphComponent (name), problem_ (problem)
           {}
 
           /// Print the object in a stream.
@@ -160,7 +160,7 @@ namespace hpp {
           typedef std::map  < EdgePtr_t, ConstraintSetPtr_t > MapFromEdge;
           typedef std::pair < EdgePtr_t, ConstraintSetPtr_t > PairEdgeConstraints;
           MapFromEdge cfgConstraintSetMapFromEdge_, pathConstraintSetMapFromEdge_;
-	  core::SteeringMethodPtr_t steeringMethod_;
+	  ProblemPtr_t problem_;
           value_type errorThreshold_;
           size_type maxIterations_;
       }; // Class Graph

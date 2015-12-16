@@ -20,12 +20,14 @@
 
 # include <hpp/manipulation/config.hh>
 
+# include "hpp/core/problem-solver.hh" // SteeringMethodBuilder_t
 # include <hpp/core/steering-method.hh>
 # include <hpp/core/weighed-distance.hh>
 # include <hpp/model/device.hh>
 
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
+# include "hpp/manipulation/problem.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -36,61 +38,73 @@ namespace hpp {
 
     class HPP_MANIPULATION_DLLAPI GraphSteeringMethod : public SteeringMethod
     {
+      typedef core::SteeringMethodBuilder_t SteeringMethodBuilder_t;
+
       public:
-      /// Create instance and return shared pointer
-      static GraphSteeringMethodPtr_t create (const model::DevicePtr_t& robot);
+        /// Create instance and return shared pointer
+        /// \warning core::ProblemPtr_t will be casted to ProblemPtr_t
+        static GraphSteeringMethodPtr_t create
+          (const core::ProblemPtr_t& problem);
 
-      /// Create copy and return shared pointer
-      static GraphSteeringMethodPtr_t createCopy
-	(const GraphSteeringMethodPtr_t& other);
-	/// Copy instance and return shared pointer
-	virtual core::SteeringMethodPtr_t copy () const
-	{
-	  return createCopy (weak_.lock ());
-	}
-        /// \name Graph of constraints applicable to the robot.
-        /// \{
+        template <typename T>
+          static GraphSteeringMethodPtr_t create
+          (const core::ProblemPtr_t& problem);
 
-        /// Set constraint graph
-        void constraintGraph (const graph::GraphPtr_t& graph)
+        /// Create instance and return shared pointer
+        static GraphSteeringMethodPtr_t create (const ProblemPtr_t& problem);
+
+        /// Create copy and return shared pointer
+        static GraphSteeringMethodPtr_t createCopy
+          (const GraphSteeringMethodPtr_t& other);
+
+        /// Copy instance and return shared pointer
+        virtual core::SteeringMethodPtr_t copy () const
         {
-          graph_ = graph;
+          return createCopy (weak_.lock ());
         }
 
-        /// Get constraint graph
-        const graph::GraphPtr_t& constraintGraph () const
+        const core::SteeringMethodPtr_t& innerSteeringMethod () const
         {
-          return graph_;
+          return steeringMethod_;
         }
-        /// \}
 
-        const core::WeighedDistancePtr_t& distance () const;
+        void innerSteeringMethod (const core::SteeringMethodPtr_t& sm)
+        {
+          steeringMethod_ = sm;
+        }
 
       protected:
         /// Constructor
-        GraphSteeringMethod (const model::DevicePtr_t& robot);
+        GraphSteeringMethod (const ProblemPtr_t& problem);
 
         /// Copy constructor
         GraphSteeringMethod (const GraphSteeringMethod&);
 
         virtual PathPtr_t impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
-	void init (GraphSteeringMethodWkPtr_t weak)
-	{
-	  core::SteeringMethod::init (weak);
-	  weak_ = weak;
-	}
+        void init (GraphSteeringMethodWkPtr_t weak)
+        {
+          core::SteeringMethod::init (weak);
+          weak_ = weak;
+        }
 
       private:
-        /// A pointer to the graph of constraint.
-        graph::GraphPtr_t graph_;
-        /// Pointer to the Robot.
-        core::DeviceWkPtr_t robot_;
-        /// Metric in configuration space.
-        core::WeighedDistancePtr_t distance_;
-	/// Weak pointer to itself
-	GraphSteeringMethodWkPtr_t weak_;
+        /// A pointer to the problem
+        ProblemPtr_t problem_;
+        /// Weak pointer to itself
+        GraphSteeringMethodWkPtr_t weak_;
+        /// The encapsulated steering method
+        core::SteeringMethodPtr_t steeringMethod_;
     };
+
+    template <typename T>
+      GraphSteeringMethodPtr_t GraphSteeringMethod::create
+      (const core::ProblemPtr_t& problem)
+    {
+      GraphSteeringMethodPtr_t gsm = GraphSteeringMethod::create (problem);
+      gsm->innerSteeringMethod (T::create (problem));
+      return gsm;
+    }
     /// \}
   } // namespace manipulation
 } // namespace hpp

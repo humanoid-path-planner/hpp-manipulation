@@ -17,6 +17,8 @@
 
 #include "hpp/manipulation/problem-solver.hh"
 
+#include <boost/bind.hpp>
+
 #include <hpp/util/pointer.hh>
 #include <hpp/util/debug.hh>
 
@@ -29,17 +31,19 @@
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/roadmap.hh>
+#include <hpp/core/steering-method-straight.hh>
 
+#include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/handle.hh"
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
-#include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap.hh"
 #include "hpp/manipulation/constraint-set.hh"
 #include "hpp/manipulation/graph-optimizer.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph-node-optimizer.hh"
+#include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/path-optimization/config-optimization.hh"
 
 namespace hpp {
@@ -90,8 +94,13 @@ namespace hpp {
           GraphConfigOptimizationTraits
             <pathOptimization::ConfigOptimizationTraits>
             >);
+      using core::SteeringMethodBuilder_t;
+      add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
+          GraphSteeringMethod::create <core::SteeringMethodStraight>);
+
       pathPlannerType ("M-RRT");
       pathValidationType ("Graph-Discretized", 0.05);
+      steeringMethodType ("Graph-SteeringMethodStraight");
     }
 
     ProblemSolverPtr_t ProblemSolver::create ()

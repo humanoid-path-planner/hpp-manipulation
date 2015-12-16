@@ -46,12 +46,12 @@ namespace hpp {
 
         /// One step of extension.
         /// 
-        /// A set of constraints is choosen using the graph of constraints.
-        /// A constraint extension is done using a choosen set.
+        /// A set of constraints is chosen using the graph of constraints.
+        /// A constraint extension is done using a chosen set.
         ///
         virtual void oneStep ();
 
-        /// Extend a the configuration q_near toward q_rand.
+        /// Extend configuration q_near toward q_rand.
         /// \param q_near the configuration to be extended.
         /// \param q_rand the configuration toward extension is performed.
         /// \retval validPath the longest valid path (possibly of length 0),
@@ -69,8 +69,12 @@ namespace hpp {
         void init (const ManipulationPlannerWkPtr_t& weak);
 
       private:
-        /// Try to connect configurations in a list.
-        void tryConnect (const core::Nodes_t nodes);
+        /// Try to connect nodes of the roadmap to other connected components.
+        /// \return the number of connection made.
+        std::size_t tryConnectToRoadmap (const core::Nodes_t nodes);
+        /// Try to connect nodes in a list between themselves.
+        /// \return the number of connection made.
+        std::size_t tryConnectNewNodes (const core::Nodes_t nodes);
 
         /// Configuration shooter
         ConfigurationShooterPtr_t shooter_;
@@ -123,6 +127,8 @@ namespace hpp {
         EdgeReasonMap failureReasons_;
 
         void addFailure (TypeOfFailure t, const graph::EdgePtr_t& edge);
+
+        const value_type extendStep_;
 
         mutable Configuration_t qProj_;
     };

@@ -32,7 +32,8 @@ namespace hpp {
           const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
     {
       assert (path);
-      bool success = impl_validate (path, reverse, validPart);
+      PathValidationReportPtr_t report;
+      bool success = impl_validate (path, reverse, validPart, report);
       assert (constraintGraph_);
       assert (constraintGraph_->getNode (validPart->initial ()));
       assert (constraintGraph_->getNode (validPart->end     ()));
@@ -44,19 +45,20 @@ namespace hpp {
      ValidationReport&)
     {
       assert (path);
-      return impl_validate (path, reverse, validPart);
+      PathValidationReportPtr_t report;
+      return impl_validate (path, reverse, validPart, report);
     }
 
     bool GraphPathValidation::validate (const PathPtr_t& path, bool reverse,
 					PathPtr_t& validPart,
-					PathValidationReportPtr_t&)
+					PathValidationReportPtr_t& report)
     {
       assert (path);
-      return impl_validate (path, reverse, validPart);
+      return impl_validate (path, reverse, validPart, report);
     }
 
-    bool GraphPathValidation::impl_validate (
-        const PathVectorPtr_t& path, bool reverse, PathPtr_t& validPart)
+    bool GraphPathValidation::impl_validate (const PathVectorPtr_t& path,
+        bool reverse, PathPtr_t& validPart, PathValidationReportPtr_t& report)
     {
       PathPtr_t validSubPart;
       if (reverse) {
@@ -64,7 +66,7 @@ namespace hpp {
         assert (!reverse && "This has never been tested with reverse path");
         for (long int i = path->numberPaths () - 1; i >= 0; i--) {
           // We should stop at the first non valid subpath.
-          if (!impl_validate (path->pathAtRank (i), true, validSubPart)) {
+          if (!impl_validate (path->pathAtRank (i), true, validSubPart, report)) {
             PathVectorPtr_t p = PathVector::create
 	      (path->outputSize(), path->outputDerivativeSize());
             for (long int v = path->numberPaths () - 1; v > i; v--)
@@ -78,7 +80,7 @@ namespace hpp {
       } else {
         for (size_t i = 0; i != path->numberPaths (); i++) {
           // We should stop at the first non valid subpath.
-          if (!impl_validate (path->pathAtRank (i), false, validSubPart)) {
+          if (!impl_validate (path->pathAtRank (i), false, validSubPart, report)) {
             PathVectorPtr_t p = PathVector::create
 	      (path->outputSize(), path->outputDerivativeSize());
             for (size_t v = 0; v < i; v++)
@@ -95,15 +97,14 @@ namespace hpp {
       return true;
     }
 
-    bool GraphPathValidation::impl_validate (
-        const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
+    bool GraphPathValidation::impl_validate (const PathPtr_t& path,
+        bool reverse, PathPtr_t& validPart, PathValidationReportPtr_t& report)
     {
       PathVectorPtr_t pathVector = HPP_DYNAMIC_PTR_CAST(PathVector, path);
       if (pathVector)
-        return impl_validate (pathVector, reverse, validPart);
+        return impl_validate (pathVector, reverse, validPart, report);
 
       PathPtr_t pathNoCollision;
-      PathValidationReportPtr_t report;
       if (pathValidation_->validate (path, reverse, pathNoCollision, report)) {
         validPart = path;
         return true;

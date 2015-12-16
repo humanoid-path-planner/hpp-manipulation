@@ -64,6 +64,7 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/problem.hh
   include/hpp/manipulation/problem-solver.hh
   include/hpp/manipulation/device.hh
+  include/hpp/manipulation/weighed-distance.hh
   include/hpp/manipulation/constraint-set.hh
   include/hpp/manipulation/roadmap.hh
   include/hpp/manipulation/roadmap-node.hh

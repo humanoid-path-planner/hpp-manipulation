@@ -25,6 +25,7 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   manipulation-planner.cc
   problem-solver.cc
   roadmap.cc
+  connected-component.cc
   constraint-set.cc
   roadmap-node.cc
   device.cc

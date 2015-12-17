@@ -20,16 +20,20 @@
 #include <hpp/core/distance.hh>
 #include <hpp/core/connected-component.hh>
 
+#include <hpp/manipulation/connected-component.hh>
 #include <hpp/manipulation/roadmap-node.hh>
 
 namespace hpp {
   namespace manipulation {
     Roadmap::Roadmap (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot) :
-      core::Roadmap (distance, robot) {}
+      core::Roadmap (distance, robot), weak_ () {}
 
     RoadmapPtr_t Roadmap::create (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot)
     {
-      return RoadmapPtr_t (new Roadmap (distance, robot));
+      Roadmap* ptr = new Roadmap (distance, robot);
+      RoadmapPtr_t shPtr (ptr);
+      ptr->init(shPtr);
+      return shPtr; 
     }
 
     void Roadmap::clear ()
@@ -104,7 +108,14 @@ namespace hpp {
 
     core::NodePtr_t Roadmap::createNode (const ConfigurationPtr_t& q) const
     {
-      return RoadmapNodePtr_t (new RoadmapNode (q));
+      // call RoadmapNode constructor with new manipulation connected component
+      return RoadmapNodePtr_t (new RoadmapNode (q, ConnectedComponent::create(weak_)));    
     }
+
+    graph::NodePtr_t Roadmap::getNode(RoadmapNodePtr_t node)
+    {
+      return graph_->getNode(node);
+    }
+
   } // namespace manipulation
 } // namespace hpp

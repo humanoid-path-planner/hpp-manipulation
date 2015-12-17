@@ -21,26 +21,39 @@
 
 #include <hpp/core/connected-component.hh>
 
-# include "hpp/manipulation/fwd.hh"
-# include "hpp/manipulation/graph/fwd.hh"
+# include "hpp/manipulation/roadmap.hh"
+# include "hpp/manipulation/roadmap-node.hh"
 
 namespace hpp {
   namespace manipulation {
-    /// \addtogroup connected-component
-    /// \{
     /// Extension of hpp::core::connected-component. Adds a list of roadmap nodes for
     /// every contraint graph node within the connected component. Thus every roadmap
     /// node is assigned to a grahp node, which minimises computation time.
 class HPP_MANIPULATION_DLLAPI ConnectedComponent : public core::ConnectedComponent 
 { 
   public:
-      // Map of graph nodes within the connected component
-      typedef std::map <char, graph::NodePtr_t> graphNodes_t;
+      typedef std::vector<RoadmapNodePtr_t> RoadmapNodes_t;
+      /// Map of graph nodes within the connected component
+      typedef std::map <graph::NodePtr_t, RoadmapNodes_t> GraphNodes_t;
+      typedef boost::shared_ptr<ConnectedComponent> ManipulationConnectedComponentPtr_t; 
+     
+      /// return a shared pointer to new instance of manipulation::ConnectedComponent 
+      static ManipulationConnectedComponentPtr_t create (const RoadmapWkPtr_t& Roadmap);
+
+      /// Merge two connected components (extension of core::ConnectedComponent::merge)
+      /// \param other manipulation connected component to merge into this one.
+      /// \note other will be empty after calling this method.
+      void merge (const ManipulationConnectedComponentPtr_t& other); 
+         
+      /// Add roadmap node to connected component
+      /// \param roadmap node to be added
+      void addNode (const RoadmapNodePtr_t& node);
+       
   protected:
   private:
-	std:
+	GraphNodes_t GraphNodeMap_;
+	static RoadmapPtr_t Roadmap_; 
     }; // class ConnectedComponent
-    /// \}
   } //   namespace manipulation
 } // namespace hpp
 #endif // HPP_MANIPULATION_CONNECTED_COMPONENT_HH

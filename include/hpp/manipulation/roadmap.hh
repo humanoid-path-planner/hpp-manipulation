@@ -56,7 +56,7 @@ namespace hpp {
         void push_node (const core::NodePtr_t& n);
 
         /// Get the nearest neighbor in a given graph::Node and in a given
-        /// core::ConnectedComponent.
+        /// ConnectedComponent.
         RoadmapNodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
             const ConnectedComponentPtr_t& connectedComponent,
             const graph::NodePtr_t& node,

@@ -20,9 +20,13 @@
 #define HPP_MANIPULATION_CONNECTED_COMPONENT_HH
 
 #include <hpp/core/connected-component.hh>
-
-# include "hpp/manipulation/roadmap.hh"
-# include "hpp/manipulation/roadmap-node.hh"
+//#include <hpp/util/pointer.hh>
+#include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/fwd.hh>
+#include <hpp/manipulation/graph/fwd.hh>
+//#include "hpp/manipulation/roadmap.hh"
+//#include <hpp/core/distance.hh>
+//#include "hpp/manipulation/roadmap-node.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -35,24 +39,30 @@ class HPP_MANIPULATION_DLLAPI ConnectedComponent : public core::ConnectedCompone
       typedef std::vector<RoadmapNodePtr_t> RoadmapNodes_t;
       /// Map of graph nodes within the connected component
       typedef std::map <graph::NodePtr_t, RoadmapNodes_t> GraphNodes_t;
-      typedef boost::shared_ptr<ConnectedComponent> ManipulationConnectedComponentPtr_t; 
      
+      ConnectedComponent() {}
+
       /// return a shared pointer to new instance of manipulation::ConnectedComponent 
-      static ManipulationConnectedComponentPtr_t create (const RoadmapWkPtr_t& Roadmap);
+      static ConnectedComponentPtr_t create (const RoadmapWkPtr_t& roadmap);
+
+      /// helper method to set dynamic variable "roadmap_" within static function "create"
+//      static void setRoadmap (const RoadmapWkPtr_t& roadmap, ConnectedComponentPtr_t CC);
 
       /// Merge two connected components (extension of core::ConnectedComponent::merge)
       /// \param other manipulation connected component to merge into this one.
       /// \note other will be empty after calling this method.
-      void merge (const ManipulationConnectedComponentPtr_t& other); 
+      void merge (const ConnectedComponentPtr_t& other); 
          
       /// Add roadmap node to connected component
       /// \param roadmap node to be added
       void addNode (const RoadmapNodePtr_t& node);
-       
+
+      RoadmapNodes_t getRoadmapNodes (const graph::NodePtr_t graphNode);
+     
   protected:
   private:
-	GraphNodes_t GraphNodeMap_;
-	static RoadmapPtr_t Roadmap_; 
+	GraphNodes_t graphNodeMap_;
+	RoadmapPtr_t roadmap_;
     }; // class ConnectedComponent
   } //   namespace manipulation
 } // namespace hpp

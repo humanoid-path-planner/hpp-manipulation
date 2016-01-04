@@ -55,6 +55,8 @@ namespace hpp {
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     HPP_PREDEF_CLASS (RoadmapNode);
     typedef RoadmapNode* RoadmapNodePtr_t;
+    HPP_PREDEF_CLASS (ConnectedComponent);
+    typedef boost::shared_ptr<ConnectedComponent> ConnectedComponentPtr_t; 
     HPP_PREDEF_CLASS (WeighedDistance);
     typedef boost::shared_ptr<WeighedDistance> WeighedDistancePtr_t;
     typedef constraints::RelativeOrientation RelativeOrientation;
@@ -72,7 +74,6 @@ namespace hpp {
     typedef model::vectorOut_t vectorOut_t;
     HPP_PREDEF_CLASS (ManipulationPlanner);
     typedef boost::shared_ptr < ManipulationPlanner > ManipulationPlannerPtr_t;
-    typedef core::ConnectedComponentPtr_t ConnectedComponentPtr_t;
     HPP_PREDEF_CLASS (GraphPathValidation);
     typedef boost::shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
     HPP_PREDEF_CLASS (GraphSteeringMethod);

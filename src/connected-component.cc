@@ -18,47 +18,74 @@
 
 #include <hpp/manipulation/connected-component.hh>
 
+#include "hpp/manipulation/roadmap.hh"
+#include "hpp/manipulation/roadmap-node.hh"
+
 namespace hpp {
   namespace manipulation {
 
-    ConnectedComponent::ManipulationConnectedComponentPtr_t 
-      ConnectedComponent::create(const RoadmapWkPtr_t& Roadmap)
+    ConnectedComponentPtr_t ConnectedComponent::create(const RoadmapWkPtr_t& roadmap)
     {
       ConnectedComponent* ptr = new ConnectedComponent ();
-      ConnectedComponent::ManipulationConnectedComponentPtr_t shPtr (ptr);
+      ConnectedComponentPtr_t shPtr (ptr);
       // calls init function in core::ConnectedComponent that saves 
       // shPtr into the class variable weak_ (weak pointer). Reimplement?
       ptr->init (shPtr);
-      Roadmap_ = Roadmap.lock ();
+      shPtr->roadmap_ = roadmap.lock();
       return shPtr;
     }
-    
-    void ConnectedComponent::merge (const ManipulationConnectedComponentPtr_t& other)
+
+//    void ConnectedComponent::setRoadmap (const RoadmapWkPtr_t& roadmap, ConnectedComponentPtr_t CC)
+//    {
+//      CC->rdmp_ = roadmap.lock ();
+//    }
+ 
+    void ConnectedComponent::merge (const ConnectedComponentPtr_t& other)
     {
       core::ConnectedComponent::merge(other);
 
-// take all graph nodes in other->GraphNodeMap_ and put them in this->GraphNodeMap_
-// if they already exist in this->GraphNodeMap_, append roadmap nodes from graph node in other
-// to graph node in this. 
-
-      other->GraphNodeMap_.clear();
+      /// take all graph nodes in other->graphNodeMap_ and put them in this->graphNodeMap_
+      /// if they already exist in this->graphNodeMap_, append roadmap nodes from other graph node
+      /// to graph node in this. 
+      for (GraphNodes_t::iterator otherIt = other->graphNodeMap_.begin(); 
+	otherIt != other->graphNodeMap_.end(); otherIt++)
+      {
+	// find other graph node in this-graphNodeMap_ -> merge their roadmap nodes
+	GraphNodes_t::iterator mapIt = this->graphNodeMap_.find(otherIt->first);
+	if (mapIt != this->graphNodeMap_.end())	{
+	  mapIt->second.insert(mapIt->second.end(), otherIt->second.begin(), otherIt->second.end());
+	} else {
+	  this->graphNodeMap_.insert(*otherIt);
+	}
+      }
+      other->graphNodeMap_.clear();
     } 
 
     void ConnectedComponent::addNode(const RoadmapNodePtr_t& node)      
     {
       core::ConnectedComponent::addNode(node);
       // Find right graph node in map and add roadmap node to corresponding vector
-      GraphNodes_t::iterator mapIt = GraphNodeMap_.find(Roadmap_->getNode(node));
-      if (mapIt != GraphNodeMap_.end()) {
+      GraphNodes_t::iterator mapIt = graphNodeMap_.find(roadmap_->getNode(node));
+      if (mapIt != graphNodeMap_.end()) {
         mapIt->second.push_back(node);
       // if graph node not found, add new map element with one roadmap node
       } else {
 	RoadmapNodes_t newRoadmapNodeVector;
 	newRoadmapNodeVector.push_back(node);
-	GraphNodeMap_.insert(std::pair<graph::NodePtr_t, RoadmapNodes_t>
-	  (Roadmap_->getNode(node), newRoadmapNodeVector));
+	graphNodeMap_.insert(std::pair<graph::NodePtr_t, RoadmapNodes_t>
+	  (roadmap_->getNode(node), newRoadmapNodeVector));
       }
 
+    }
+
+    ConnectedComponent::RoadmapNodes_t ConnectedComponent::getRoadmapNodes (const graph::NodePtr_t graphNode)
+    {
+      RoadmapNodes_t res;
+      GraphNodes_t::iterator mapIt = graphNodeMap_.find(graphNode);
+      if (mapIt != graphNodeMap_.end()) {
+        res = mapIt->second;
+      }
+      return res;
     }
 
 

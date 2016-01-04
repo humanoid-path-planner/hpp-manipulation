@@ -112,7 +112,7 @@ namespace hpp {
         core::value_type distance;
         for (itNode = graphNodes.begin (); itNode != graphNodes.end (); ++itNode) {
           HPP_START_TIMECOUNTER(nearestNeighbor);
-          RoadmapNodePtr_t near = roadmap_->nearestNode (q_rand, *itcc, *itNode, distance);
+          RoadmapNodePtr_t near = roadmap_->nearestNode (q_rand, HPP_STATIC_PTR_CAST(ConnectedComponent,*itcc), *itNode, distance);
           HPP_STOP_TIMECOUNTER(nearestNeighbor);
           HPP_DISPLAY_LAST_TIMECOUNTER(nearestNeighbor);
           if (!near) continue;

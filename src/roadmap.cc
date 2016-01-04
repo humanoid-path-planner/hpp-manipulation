@@ -18,9 +18,10 @@
 
 #include <hpp/util/pointer.hh>
 #include <hpp/core/distance.hh>
-#include <hpp/core/connected-component.hh>
-
 #include <hpp/manipulation/connected-component.hh>
+// #include <hpp/core/connected-component.hh>
+
+
 #include <hpp/manipulation/roadmap-node.hh>
 
 namespace hpp {
@@ -91,11 +92,10 @@ namespace hpp {
     {
       core::NodePtr_t result = NULL;
       minDistance = std::numeric_limits <value_type>::infinity ();
-      for (core::Nodes_t::const_iterator itNode =
-          connectedComponent->nodes ().begin ();
-          itNode != connectedComponent->nodes ().end (); ++itNode) {
-        if (graph_->getNode (static_cast <RoadmapNodePtr_t> (*itNode)) != node)
-          continue;
+      ConnectedComponent::RoadmapNodes_t roadmapNodes = connectedComponent->getRoadmapNodes (node);
+      for (ConnectedComponent::RoadmapNodes_t::const_iterator itNode =
+          roadmapNodes.begin ();
+          itNode != roadmapNodes.end (); ++itNode) {
         value_type d = (*distance()) (*(*itNode)->configuration (),
             *configuration);
         if (d < minDistance) {

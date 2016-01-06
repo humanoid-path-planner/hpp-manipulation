@@ -61,19 +61,20 @@ namespace hpp {
       other->graphNodeMap_.clear();
     } 
 
-    void ConnectedComponent::addNode(const RoadmapNodePtr_t& node)      
+    void ConnectedComponent::addNode(const core::NodePtr_t& node)      
     {
       core::ConnectedComponent::addNode(node);
       // Find right graph node in map and add roadmap node to corresponding vector
-      GraphNodes_t::iterator mapIt = graphNodeMap_.find(roadmap_->getNode(node));
+      const RoadmapNodePtr_t& n = static_cast <const RoadmapNodePtr_t> (node);
+      GraphNodes_t::iterator mapIt = graphNodeMap_.find(roadmap_->getNode(n));
       if (mapIt != graphNodeMap_.end()) {
-        mapIt->second.push_back(node);
+        mapIt->second.push_back(n);
       // if graph node not found, add new map element with one roadmap node
       } else {
 	RoadmapNodes_t newRoadmapNodeVector;
-	newRoadmapNodeVector.push_back(node);
+	newRoadmapNodeVector.push_back(n);
 	graphNodeMap_.insert(std::pair<graph::NodePtr_t, RoadmapNodes_t>
-	  (roadmap_->getNode(node), newRoadmapNodeVector));
+	  (roadmap_->getNode(n), newRoadmapNodeVector));
       }
 
     }

@@ -55,7 +55,7 @@ class HPP_MANIPULATION_DLLAPI ConnectedComponent : public core::ConnectedCompone
          
       /// Add roadmap node to connected component
       /// \param roadmap node to be added
-      void addNode (const RoadmapNodePtr_t& node);
+      void addNode (const core::NodePtr_t& node);
 
       RoadmapNodes_t getRoadmapNodes (const graph::NodePtr_t graphNode);
      

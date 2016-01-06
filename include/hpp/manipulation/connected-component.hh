@@ -51,7 +51,7 @@ class HPP_MANIPULATION_DLLAPI ConnectedComponent : public core::ConnectedCompone
       /// Merge two connected components (extension of core::ConnectedComponent::merge)
       /// \param other manipulation connected component to merge into this one.
       /// \note other will be empty after calling this method.
-      void merge (const ConnectedComponentPtr_t& other); 
+      void merge (const core::ConnectedComponentPtr_t& otherCC); 
          
       /// Add roadmap node to connected component
       /// \param roadmap node to be added

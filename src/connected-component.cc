@@ -40,10 +40,10 @@ namespace hpp {
 //      CC->rdmp_ = roadmap.lock ();
 //    }
  
-    void ConnectedComponent::merge (const ConnectedComponentPtr_t& other)
+    void ConnectedComponent::merge (const core::ConnectedComponentPtr_t& otherCC)
     {
-      core::ConnectedComponent::merge(other);
-
+      core::ConnectedComponent::merge(otherCC);
+      const ConnectedComponentPtr_t other = boost::static_pointer_cast <ConnectedComponent> (otherCC);
       /// take all graph nodes in other->graphNodeMap_ and put them in this->graphNodeMap_
       /// if they already exist in this->graphNodeMap_, append roadmap nodes from other graph node
       /// to graph node in this. 

@@ -122,6 +122,8 @@ namespace hpp {
           statistics::DiscreteDistribution < RoadmapNodePtr_t > getDistribOutOfConnectedComponent (
               const core::ConnectedComponentPtr_t& cc) const;
 
+          statistics::DiscreteDistribution < RoadmapNodePtr_t > getDistrib () const;
+
         private:
           /// The constraint that creates the foliation.
           ConstraintSetPtr_t constraint_;

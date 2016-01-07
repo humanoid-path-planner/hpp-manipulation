@@ -469,35 +469,46 @@ namespace hpp {
         }
       }
 
-      bool LevelSetEdge::applyConstraints (ConfigurationIn_t, ConfigurationOut_t) const
+      bool LevelSetEdge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
       {
-        throw std::logic_error ("I need to know which connected component we wish to use.");
+        // First, get an offset from the histogram
+        statistics::DiscreteDistribution < RoadmapNodePtr_t > distrib = hist_->getDistrib ();
+        const Configuration_t& qlevelset = *(distrib ()->configuration ());
+
+        return applyConstraintsWithOffset (qoffset, qlevelset, q);
       }
 
       bool LevelSetEdge::applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const
       {
         // First, get an offset from the histogram that is not in the same connected component.
         statistics::DiscreteDistribution < RoadmapNodePtr_t > distrib = hist_->getDistribOutOfConnectedComponent (n_offset->connectedComponent ());
-        const Configuration_t& levelsetTarget = *(distrib ()->configuration ()),
-                               q_offset = *(n_offset->configuration ());
-        // Then, set the offset.
+        const Configuration_t& qlevelset = *(distrib ()->configuration ()),
+                               qoffset = *(n_offset->configuration ());
+
+        return applyConstraintsWithOffset (qoffset, qlevelset, q);
+      }
+
+      bool LevelSetEdge::applyConstraintsWithOffset (ConfigurationIn_t qoffset,
+          ConfigurationIn_t qlevelset, ConfigurationOut_t q) const
+      {
+        // First, set the offset.
         ConstraintSetPtr_t cs = extraConfigConstraint ();
         const ConfigProjectorPtr_t cp = cs->configProjector ();
         assert (cp);
-	cp->rightHandSideFromConfig (q_offset);
+	cp->rightHandSideFromConfig (qoffset);
 	for (NumericalConstraints_t::const_iterator it =
 	       extraNumericalConstraints_.begin ();
 	     it != extraNumericalConstraints_.end (); ++it) {
-          (*it)->rightHandSideFromConfig (levelsetTarget);
+          (*it)->rightHandSideFromConfig (qlevelset);
         }
         for (LockedJoints_t::const_iterator it = extraLockedJoints_.begin ();
 	     it != extraLockedJoints_.end (); ++it) {
-          (*it)->rightHandSideFromConfig (levelsetTarget);
+          (*it)->rightHandSideFromConfig (qlevelset);
         }
 	cp->updateRightHandSide ();
 
         // Eventually, do the projection.
-        if (isShort_) q = q_offset;
+        if (isShort_) q = qoffset;
         if (cs->apply (q)) return true;
 	::hpp::statistics::SuccessStatistics& ss = cp->statistics ();
 	if (ss.nbFailure () > ss.nbSuccess ()) {

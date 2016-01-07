@@ -297,6 +297,9 @@ namespace hpp {
           virtual void populateTooltip (dot::Tooltip& tp) const;
 
         private:
+          bool applyConstraintsWithOffset (ConfigurationIn_t qoffset,
+              ConfigurationIn_t qlevelset, ConfigurationOut_t q) const;
+
           typedef Cache < ConstraintSetPtr_t > Constraint_t;
 
           /// See pathConstraint member function.

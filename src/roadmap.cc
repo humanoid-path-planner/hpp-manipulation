@@ -38,12 +38,10 @@ namespace hpp {
     void Roadmap::clear ()
     {
       Parent::clear ();
-      Histograms newHistograms;
-      Histograms::iterator it;
-      for (it = histograms_.begin(); it != histograms_.end(); ++it) {
-        newHistograms.push_back ((*it)->clone ());
+      for (Histograms::iterator it = histograms_.begin();
+          it != histograms_.end(); ++it) {
+        (*it)->clear ();
       }
-      histograms_ = newHistograms;
     }
 
     void Roadmap::push_node (const core::NodePtr_t& n)

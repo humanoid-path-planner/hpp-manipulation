@@ -98,6 +98,8 @@ namespace hpp {
           virtual void add (const RoadmapNodePtr_t& node) = 0;
 
           virtual HistogramPtr_t clone () const = 0;
+
+          virtual void clear () = 0;
       };
 
       class HPP_MANIPULATION_DLLLOCAL LeafHistogram : public ::hpp::statistics::Statistics < LeafBin >
@@ -123,6 +125,8 @@ namespace hpp {
               const core::ConnectedComponentPtr_t& cc) const;
 
           statistics::DiscreteDistribution < RoadmapNodePtr_t > getDistrib () const;
+
+          void clear () { Parent::clear(); }
 
         private:
           /// The constraint that creates the foliation.
@@ -150,6 +154,8 @@ namespace hpp {
           const graph::GraphPtr_t& constraintGraph () const;
 
           virtual HistogramPtr_t clone () const;
+
+          void clear () { Parent::clear(); }
 
         private:
           /// The constraint graph

@@ -119,6 +119,8 @@ namespace hpp {
 
           HPP_START_TIMECOUNTER(extend);
           bool pathIsValid = extend (near, q_rand, path);
+          HPP_STOP_TIMECOUNTER(extend);
+          HPP_DISPLAY_LAST_TIMECOUNTER(extend);
           // Insert new path to q_near in roadmap
           if (pathIsValid) {
             value_type t_final = path->timeRange ().second;
@@ -135,8 +137,8 @@ namespace hpp {
             }
             
           }
-          HPP_STOP_TIMECOUNTER(extend);
-          HPP_DISPLAY_LAST_TIMECOUNTER(extend);
+
+
         }
       }
 
@@ -172,6 +174,8 @@ namespace hpp {
       HPP_DISPLAY_TIMECOUNTER(oneStep);
       HPP_DISPLAY_TIMECOUNTER(extend);
       HPP_DISPLAY_TIMECOUNTER(tryConnect);
+      HPP_DISPLAY_TIMECOUNTER(tryConnectNewNodes);
+      HPP_DISPLAY_TIMECOUNTER(tryConnectToRoadmap);
       HPP_DISPLAY_TIMECOUNTER(nearestNeighbor);
       HPP_DISPLAY_TIMECOUNTER(delayedEdges);
       HPP_DISPLAY_TIMECOUNTER(chooseEdge);

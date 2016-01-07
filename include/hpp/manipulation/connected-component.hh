@@ -20,13 +20,9 @@
 #define HPP_MANIPULATION_CONNECTED_COMPONENT_HH
 
 #include <hpp/core/connected-component.hh>
-//#include <hpp/util/pointer.hh>
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>
 #include <hpp/manipulation/graph/fwd.hh>
-//#include "hpp/manipulation/roadmap.hh"
-//#include <hpp/core/distance.hh>
-//#include "hpp/manipulation/roadmap-node.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -44,9 +40,6 @@ class HPP_MANIPULATION_DLLAPI ConnectedComponent : public core::ConnectedCompone
 
       /// return a shared pointer to new instance of manipulation::ConnectedComponent 
       static ConnectedComponentPtr_t create (const RoadmapWkPtr_t& roadmap);
-
-      /// helper method to set dynamic variable "roadmap_" within static function "create"
-//      static void setRoadmap (const RoadmapWkPtr_t& roadmap, ConnectedComponentPtr_t CC);
 
       /// Merge two connected components (extension of core::ConnectedComponent::merge)
       /// \param other manipulation connected component to merge into this one.

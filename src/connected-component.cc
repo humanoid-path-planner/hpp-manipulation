@@ -35,11 +35,6 @@ namespace hpp {
       return shPtr;
     }
 
-//    void ConnectedComponent::setRoadmap (const RoadmapWkPtr_t& roadmap, ConnectedComponentPtr_t CC)
-//    {
-//      CC->rdmp_ = roadmap.lock ();
-//    }
- 
     void ConnectedComponent::merge (const core::ConnectedComponentPtr_t& otherCC)
     {
       core::ConnectedComponent::merge(otherCC);

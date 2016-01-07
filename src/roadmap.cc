@@ -19,8 +19,6 @@
 #include <hpp/util/pointer.hh>
 #include <hpp/core/distance.hh>
 #include <hpp/manipulation/connected-component.hh>
-// #include <hpp/core/connected-component.hh>
-
 
 #include <hpp/manipulation/roadmap-node.hh>
 

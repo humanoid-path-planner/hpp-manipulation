@@ -161,21 +161,21 @@ namespace hpp {
 		  ConvexShapeContactComplementPtr_t > constraints
 	(ConvexShapeContactComplement::createPair
 	 (name, complementName, robot_));
-      JointAndShapes_t l = robot_->get <JointAndShapes_t>	(surface1);
-      if (l.empty ()) throw std::runtime_error
-			("First list of triangles not found.");
+      if (!robot_->has <JointAndShapes_t> (surface1))
+        throw std::runtime_error ("First list of triangles not found.");
+      JointAndShapes_t l = robot_->get <JointAndShapes_t> (surface1);
       for (JointAndShapes_t::const_iterator it = l.begin ();
 	   it != l.end(); ++it) {
 	constraints.first->addObject (ConvexShape (it->second, it->first));
       }
+
       // Search first robot triangles
-      l = robot_->get <JointAndShapes_t> (surface2);
-      if (l.empty ()) {
+      if (robot_->has <JointAndShapes_t> (surface2))
+        l = robot_->get <JointAndShapes_t> (surface2);
 	// and then environment triangles.
+      else if (has <JointAndShapes_t> (surface2))
 	l = get <JointAndShapes_t> (surface2);
-	if (l.empty ()) throw std::runtime_error
-			  ("Second list of triangles not found.");
-      }
+      else throw std::runtime_error ("Second list of triangles not found.");
       for (JointAndShapes_t::const_iterator it = l.begin ();
 	   it != l.end(); ++it) {
 	constraints.first->addFloor (ConvexShape (it->second, it->first));

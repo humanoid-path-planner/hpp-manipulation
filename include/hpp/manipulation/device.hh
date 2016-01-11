@@ -67,6 +67,13 @@ namespace hpp {
           return core::Container <Element>::get (name);
         }
 
+        /// Check if a Container has a key.
+        template <typename Element>
+          bool has (const std::string& name) const
+        {
+          return core::Container <Element>::has (name);
+        }
+
         /// Get the keys of a container
         template <typename Element, typename ReturnType>
           ReturnType getKeys () const

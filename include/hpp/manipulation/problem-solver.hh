@@ -136,6 +136,13 @@ namespace hpp {
           return Container <Element>::get (name);
         }
 
+        /// Check if a Container has a key.
+        template <typename Element>
+          bool has (const std::string& name) const
+        {
+          return core::Container <Element>::has (name);
+        }
+
         /// Add an element to a container
         template <typename Element>
           void add (const std::string& name, const Element& element)

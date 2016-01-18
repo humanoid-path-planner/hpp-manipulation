@@ -60,7 +60,7 @@ namespace hpp {
       {
         public:
           /// Destructor
-          ~Edge ();
+          virtual ~Edge ();
 
           /// Create a new empty Edge.
           static EdgePtr_t create
@@ -256,7 +256,7 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI LevelSetEdge : public Edge
       {
         public:
-          ~LevelSetEdge ();
+          virtual ~LevelSetEdge ();
 
           /// Create a new LevelSetEdge.
           static LevelSetEdgePtr_t create
@@ -268,17 +268,36 @@ namespace hpp {
 
           virtual bool applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const;
 
-          void histogram (LeafHistogramPtr_t hist);
+          void buildHistogram ();
 
           LeafHistogramPtr_t histogram () const;
 
-          void insertConfigConstraint (const NumericalConstraintPtr_t& nm,
+          /// \name Foliation definition
+          /// \{
+
+          /// Insert a NumericalConstraint that parametrizes the foliation
+          void insertParamConstraint (const NumericalConstraintPtr_t& nm,
               const SizeIntervals_t& passiveDofs = SizeIntervals_t ());
 
-          void insertConfigConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)
+          void insertParamConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)
             HPP_MANIPULATION_DEPRECATED;
 
-          void insertConfigConstraint (const LockedJointPtr_t lockedJoint);
+          /// Insert a LockedJoint that parametrizes the foliation
+          void insertParamConstraint (const LockedJointPtr_t lockedJoint);
+
+          /// Insert a NumericalConstraint that defines the foliation
+          ///
+          /// The manifold represented the foliation is defined by this
+          /// constraints.
+          void insertConditionConstraint (const NumericalConstraintPtr_t& nm,
+              const SizeIntervals_t& passiveDofs = SizeIntervals_t ());
+
+          /// Insert a LockedJoint that defines the foliation
+          ///
+          /// The manifold represented the foliation is defined by this
+          /// constraints.
+          void insertConditionConstraint (const LockedJointPtr_t lockedJoint);
+          /// \}
 
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
@@ -300,12 +319,19 @@ namespace hpp {
           bool applyConstraintsWithOffset (ConfigurationIn_t qoffset,
               ConfigurationIn_t qlevelset, ConfigurationOut_t q) const;
 
-          typedef Cache < ConstraintSetPtr_t > Constraint_t;
+          // Parametrizer
+          // NumericalConstraints_t
+          NumericalConstraints_t paramNumericalConstraints_;
+          IntervalsContainer_t paramPassiveDofs_;
+          // LockedJoints_t
+          LockedJoints_t paramLockedJoints_;
 
-          /// See pathConstraint member function.
-          Constraint_t* extraConstraints_;
-          ConstraintSetPtr_t extraConfigConstraint () const;
-          void buildExtraConfigConstraint () const;
+          // Condition
+          // NumericalConstraints_t
+          NumericalConstraints_t condNumericalConstraints_;
+          IntervalsContainer_t condPassiveDofs_;
+          // LockedJoints_t
+          LockedJoints_t condLockedJoints_;
 
           /// This histogram will be used to find a good level set.
           LeafHistogramPtr_t hist_;

@@ -163,7 +163,7 @@ namespace hpp {
       LeafHistogram::LeafHistogram (const Foliation f) :
         f_ (f), threshold_ (0)
       {
-        ConfigProjectorPtr_t p = f_.parametrizer ();
+        ConfigProjectorPtr_t p = f_.parametrizer ()->configProjector();
         if (p) {
           threshold_ = p->errorThreshold () /
 	    sqrt((double)p->rightHandSide ().size ());
@@ -270,25 +270,25 @@ namespace hpp {
         if (!condition_->isSatisfied (q)) {
           hppDout (error, "Configuration not in the foliation");
         }
-        return parametrizer_->rightHandSideFromConfig (q);
+        return parametrizer_->configProjector()->rightHandSideFromConfig (q);
       }
 
-      ConfigProjectorPtr_t Foliation::condition () const
+      ConstraintSetPtr_t Foliation::condition () const
       {
         return condition_;
       }
 
-      void Foliation::condition (const ConfigProjectorPtr_t c)
+      void Foliation::condition (const ConstraintSetPtr_t c)
       {
         condition_ = c;
       }
 
-      ConfigProjectorPtr_t Foliation::parametrizer () const
+      ConstraintSetPtr_t Foliation::parametrizer () const
       {
         return parametrizer_;
       }
 
-      void Foliation::parametrizer (const ConfigProjectorPtr_t p)
+      void Foliation::parametrizer (const ConstraintSetPtr_t p)
       {
         parametrizer_ = p;
       }

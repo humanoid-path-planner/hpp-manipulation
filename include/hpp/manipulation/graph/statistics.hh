@@ -117,24 +117,17 @@ namespace hpp {
           /// Whether the configuration is the submanifold $\mathcal{M}$
           vector_t parameter (ConfigurationIn_t q) const;
 
-          void condition (const ConfigProjectorPtr_t c);
-          ConfigProjectorPtr_t condition () const;
-          void parametrizer (const ConfigProjectorPtr_t p);
-          ConfigProjectorPtr_t parametrizer () const;
+          void condition (const ConstraintSetPtr_t c);
+          ConstraintSetPtr_t condition () const;
+          void parametrizer (const ConstraintSetPtr_t p);
+          ConstraintSetPtr_t parametrizer () const;
 
         private:
           // condition_ contains the constraints defining the submanifold
           // containing all the leaf.
           // parametrizer_ contains the constraints providing a parametrization
           // of the foliation.
-          //struct {
-          //  NumericalConstraints_t nc;
-            // This should be not be used as we are never resolving equations.
-            // We are only testing if they are equations are true or false.
-            // IntervalsContainer_t pdofs;
-          //  LockedJoints_t lj;
-          //} condition_, parametrizer_;
-          ConfigProjectorPtr_t condition_, parametrizer_;
+          ConstraintSetPtr_t condition_, parametrizer_;
       };
 
       class HPP_MANIPULATION_DLLAPI LeafHistogram : public ::hpp::statistics::Statistics < LeafBin >

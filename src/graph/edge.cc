@@ -458,16 +458,22 @@ namespace hpp {
       {
         GraphComponent::populateTooltip (tp);
         tp.addLine ("");
-        tp.addLine ("Extra numerical constraints are:");
-        ConfigProjectorPtr_t param = hist_->foliation().parametrizer();
-        const NumericalConstraints_t& nc = param->numericalConstraints();
-        const LockedJoints_t& lj = param->lockedJoints ();
-        for (NumericalConstraints_t::const_iterator it = nc.begin ();
-            it != nc.end (); ++it) {
+        tp.addLine ("Foliation condition constraints:");
+        for (NumericalConstraints_t::const_iterator it = condNumericalConstraints_.begin ();
+            it != condNumericalConstraints_.end (); ++it) {
           tp.addLine ("- " + (*it)->function ().name ());
         }
-        for (LockedJoints_t::const_iterator it = lj.begin ();
-            it != lj.end (); ++it) {
+        for (LockedJoints_t::const_iterator it = condLockedJoints_.begin ();
+            it != condLockedJoints_.end (); ++it) {
+          tp.addLine ("- " + (*it)->jointName ());
+        }
+        tp.addLine ("Foliation parametrization constraints:");
+        for (NumericalConstraints_t::const_iterator it = paramNumericalConstraints_.begin ();
+            it != paramNumericalConstraints_.end (); ++it) {
+          tp.addLine ("- " + (*it)->function ().name ());
+        }
+        for (LockedJoints_t::const_iterator it = paramLockedJoints_.begin ();
+            it != paramLockedJoints_.end (); ++it) {
           tp.addLine ("- " + (*it)->jointName ());
         }
       }
@@ -502,40 +508,20 @@ namespace hpp {
       bool LevelSetEdge::applyConstraintsWithOffset (ConfigurationIn_t qoffset,
           ConfigurationIn_t qlevelset, ConfigurationOut_t q) const
       {
-        /*
         // First, set the offset.
-        ConstraintSetPtr_t cs = extraConfigConstraint ();
+        ConstraintSetPtr_t cs = hist_->foliation().parametrizer ();
         const ConfigProjectorPtr_t cp = cs->configProjector ();
         assert (cp);
 	cp->rightHandSideFromConfig (qoffset);
 	for (NumericalConstraints_t::const_iterator it =
-	       extraNumericalConstraints_.begin ();
-	     it != extraNumericalConstraints_.end (); ++it) {
+	       paramNumericalConstraints_.begin ();
+	     it != paramNumericalConstraints_.end (); ++it) {
           (*it)->rightHandSideFromConfig (qlevelset);
         }
-        for (LockedJoints_t::const_iterator it = extraLockedJoints_.begin ();
-	     it != extraLockedJoints_.end (); ++it) {
+        for (LockedJoints_t::const_iterator it = paramLockedJoints_.begin ();
+	     it != paramLockedJoints_.end (); ++it) {
           (*it)->rightHandSideFromConfig (qlevelset);
         }
-        // */
-  //*
-        ConfigProjectorPtr_t param = hist_->foliation().parametrizer();
-        const NumericalConstraints_t& nc = param->numericalConstraints();
-        const LockedJoints_t& lj = param->lockedJoints ();
-
-        // Then, set the offset.
-        ConstraintSetPtr_t cs = extraConfigConstraint ();
-        const ConfigProjectorPtr_t cp = cs->configProjector ();
-        assert (cp);
-	cp->rightHandSideFromConfig (q_offset);
-	for (NumericalConstraints_t::const_iterator it = nc.begin ();
-	     it != nc.end (); ++it) {
-          (*it)->rightHandSideFromConfig (levelsetTarget);
-        }
-        for (LockedJoints_t::const_iterator it = lj.begin ();
-	     it != lj.end (); ++it) {
-          (*it)->rightHandSideFromConfig (levelsetTarget);
-        } //*/
 	cp->updateRightHandSide ();
 
         // Eventually, do the projection.
@@ -570,99 +556,104 @@ namespace hpp {
         return shPtr;
       }
 
-      void LevelSetEdge::histogram (LeafHistogramPtr_t hist)
-      {
-        hist_ = hist;
-      }
-
       LeafHistogramPtr_t LevelSetEdge::histogram () const
       {
         return hist_;
       }
 
-      void LevelSetEdge::buildExtraConfigConstraint () const
+      void LevelSetEdge::buildHistogram ()
       {
-        /// First get the numerical constraints
-        ConfigProjectorPtr_t param = hist_->foliation().parametrizer();
-        const NumericalConstraints_t& nc = param->numericalConstraints();
-        const LockedJoints_t& lj = param->lockedJoints ();
+        Foliation f;
 
         /// Build the constraint set.
-        std::string n = "(" + name () + "_extra)";
+        std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();
 
-        ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+        // The parametrizer
+        ConstraintSetPtr_t param = ConstraintSet::create (g->robot (), "Set " + n);
 
-        ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+        ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "projParam_" + n, g->errorThreshold(), g->maxIterations());
         g->insertNumericalConstraints (proj);
-        for (NumericalConstraints_t::const_iterator it = nc.begin ();
-            it != nc.end (); ++it) {
-          proj->add (*it);
+        IntervalsContainer_t::const_iterator itpdof = paramPassiveDofs_.begin ();
+        for (NumericalConstraints_t::const_iterator it = paramNumericalConstraints_.begin ();
+            it != paramNumericalConstraints_.end (); ++it) {
+          proj->add (*it, *itpdof);
+          ++itpdof;
         }
+        assert (itpdof == paramPassiveDofs_.end ());
 
         insertNumericalConstraints (proj);
         to ()->insertNumericalConstraints (proj);
-        constraint->addConstraint (proj);
-        constraint->edge (wkPtr_.lock ());
+        param->addConstraint (proj);
+        param->edge (wkPtr_.lock ());
 
         g->insertLockedJoints (proj);
-        for (LockedJoints_t::const_iterator it = lj.begin ();
-            it != lj.end (); ++it) {
+        for (LockedJoints_t::const_iterator it = paramLockedJoints_.begin ();
+            it != paramLockedJoints_.end (); ++it) {
           proj->add (*it);
         }
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
-        extraConstraints_->set (constraint);
+
+        f.parametrizer (param);
+
+        // The codition
+        ConstraintSetPtr_t cond = ConstraintSet::create (g->robot (), "Set " + n);
+        proj = ConfigProjector::create(g->robot(), "projCond_" + n, g->errorThreshold(), g->maxIterations());
+        itpdof = condPassiveDofs_.begin ();
+        for (NumericalConstraints_t::const_iterator it = condNumericalConstraints_.begin ();
+            it != condNumericalConstraints_.end (); ++it) {
+          proj->add (*it, *itpdof);
+          ++itpdof;
+        }
+        assert (itpdof == condPassiveDofs_.end ());
+        for (LockedJoints_t::const_iterator it = condLockedJoints_.begin ();
+            it != condLockedJoints_.end (); ++it) {
+          proj->add (*it);
+        }
+        f.condition (cond);
+        cond->addConstraint (proj);
+
+        hist_ = LeafHistogram::create (f);
       }
 
-      ConstraintSetPtr_t LevelSetEdge::extraConfigConstraint () const
+      void LevelSetEdge::insertParamConstraint (const NumericalConstraintPtr_t& nm,
+              const SizeIntervals_t& passiveDofs)
       {
-        if (!*extraConstraints_) {
-          /*
-          std::string n = "(" + name () + "_extra)";
-          GraphPtr_t g = graph_.lock ();
+        paramNumericalConstraints_.push_back (nm);
+        paramPassiveDofs_.push_back (passiveDofs);
+      }
 
-          ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+      void LevelSetEdge::insertParamConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)
+      {
+        insertParamConstraint (NumericalConstraint::create (function, ineq));
+      }
 
-          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-          g->insertNumericalConstraints (proj);
-          IntervalsContainer_t::const_iterator itpdof = extraPassiveDofs_.begin ();
-          for (NumericalConstraints_t::const_iterator it = extraNumericalConstraints_.begin ();
-              it != extraNumericalConstraints_.end (); ++it) {
-            proj->add (*it, *itpdof);
-            ++itpdof;
-          }
-          assert (itpdof == extraPassiveDofs_.end ());
-          insertNumericalConstraints (proj);
-          to ()->insertNumericalConstraints (proj);
-          constraint->addConstraint (proj);
+      void LevelSetEdge::insertParamConstraint (const LockedJointPtr_t lockedJoint)
+      {
+        paramLockedJoints_.push_back (lockedJoint);
+      }
 
-          g->insertLockedJoints (proj);
-          for (LockedJoints_t::const_iterator it = extraLockedJoints_.begin ();
-              it != extraLockedJoints_.end (); ++it) {
-            proj->add (*it);
-          }
-          insertLockedJoints (proj);
-          to ()->insertLockedJoints (proj);
+      void LevelSetEdge::insertConditionConstraint (const NumericalConstraintPtr_t& nm,
+              const SizeIntervals_t& passiveDofs)
+      {
+        condNumericalConstraints_.push_back (nm);
+        condPassiveDofs_.push_back (passiveDofs);
+      }
 
-          constraint->edge (wkPtr_.lock ());
-          extraConstraints_->set (constraint);
-          */
-          buildExtraConfigConstraint ();
-        }
-        return extraConstraints_->get ();
+      void LevelSetEdge::insertConditionConstraint (const LockedJointPtr_t lockedJoint)
+      {
+        condLockedJoints_.push_back (lockedJoint);
       }
 
       LevelSetEdge::LevelSetEdge
       (const std::string& name) :
-	Edge (name), extraConstraints_ (new Constraint_t())
+	Edge (name)
       {
       }
 
       LevelSetEdge::~LevelSetEdge ()
-      {
-        if (extraConstraints_  ) delete extraConstraints_;
-      }
+      {}
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

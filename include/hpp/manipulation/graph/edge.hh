@@ -85,17 +85,29 @@ namespace hpp {
           NodePtr_t from () const;
 
           /// Get the node in which path is.
-          virtual NodePtr_t node () const;
-
-          void isInNodeFrom (bool iinf)
+          NodePtr_t node () const
           {
-            isInNodeFrom_ = iinf;
+            return node_.lock();
           }
 
-          bool isInNodeFrom () const
+          void node (NodePtr_t node)
           {
-            return isInNodeFrom_;
+            node_ = node;
           }
+
+          /// \deprecated use node(NodePtr_t) instead.
+          void isInNodeFrom (bool iinf) HPP_MANIPULATION_DEPRECATED
+          {
+            if (iinf) node_ = from_;
+            else      node_ = to_;
+          }
+
+          /// \deprecated see NodePtr_t node() const
+          bool isInNodeFrom () const HPP_MANIPULATION_DEPRECATED
+          {
+            return node_.lock() == from_.lock();
+          }
+
 	  /// Get steering method associated to the edge.
 	  const core::SteeringMethodPtr_t& steeringMethod () const
 	  {
@@ -158,7 +170,7 @@ namespace hpp {
           NodeWkPtr_t from_, to_;
 
           /// True if this path is in node from, False if in node to
-          bool isInNodeFrom_;
+          NodeWkPtr_t node_;
 
 	  /// Steering method used to create paths associated to the edge
 	  SteeringMethod_t* steeringMethod_;

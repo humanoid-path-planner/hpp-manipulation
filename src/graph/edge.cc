@@ -57,12 +57,6 @@ namespace hpp {
         return from_.lock();
       }
 
-      NodePtr_t Edge::node () const
-      {
-        if (isInNodeFrom_) return from ();
-        else return to ();
-      }
-
       bool Edge::direction (const core::PathPtr_t& path) const
       {
         Configuration_t q0 = path->initial (),
@@ -169,7 +163,7 @@ namespace hpp {
         wkPtr_ = weak;
         from_ = from;
         to_ = to;
-        isInNodeFrom_ = false;
+        node_ = to;
       }
 
       std::ostream& Edge::print (std::ostream& os) const

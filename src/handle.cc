@@ -93,38 +93,19 @@ namespace hpp {
     }
 
     NumericalConstraintPtr_t Handle::createPreGrasp
-    (const GripperPtr_t& gripper) const
+    (const GripperPtr_t& gripper, const value_type& shift) const
     {
       using boost::assign::list_of;
-      std::vector <bool> mask = list_of (false)(true)(true)(true)(true)(true);
+      std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(true);
+      Transform3f transform = gripper->objectPositionInJoint ()
+        * Transform3f (fcl::Vec3f (shift,0,0));
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
 				      ("Transformation_(0,1,1,1,1,1)_" + name ()
 				       + "_" + gripper->name (),
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),
-				       gripper->objectPositionInJoint (),
-				       localPosition(), mask)));
-    }
-
-    NumericalConstraintPtr_t Handle::createPreGraspComplement
-    (const GripperPtr_t& gripper, const value_type& shift,
-     const value_type& width) const
-    {
-      using boost::assign::list_of;
-      using core::DoubleInequality;
-      std::vector <bool> mask = list_of (true)(false)(false)(false)(false)
-	(false);
-      Transform3f transform = gripper->objectPositionInJoint ()
-        * Transform3f (fcl::Vec3f (shift,0,0));
-      return NumericalConstraintPtr_t
-	(NumericalConstraint::create (RelativeTransformation::create
-				      ("Transformation_(1,0,0,0,0,0)_" + name ()
-				       + "_" + gripper->name (),
-				       gripper->joint()->robot(),
-				       gripper->joint (), joint (),
-				       transform, localPosition(), mask),
-				      DoubleInequality::create (width)));
+                                       transform, localPosition(), mask)));
     }
 
     HandlePtr_t Handle::clone () const

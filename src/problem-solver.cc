@@ -32,6 +32,7 @@
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/comparison-type.hh>
 
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/device.hh"
@@ -189,6 +190,44 @@ namespace hpp {
 			      (constraints.second, core::Equality::create ()));
     }
 
+    void ProblemSolver::createPrePlacementConstraint
+    (const std::string& name, const std::string& surface1,
+     const std::string& surface2, const value_type& width,
+     const value_type& margin)
+    {
+      if (!robot_) throw std::runtime_error ("No robot loaded");
+      using constraints::ConvexShape;
+      using constraints::ConvexShapeContact;
+      using constraints::ConvexShapeContactPtr_t;
+
+      ConvexShapeContactPtr_t cvxShape = ConvexShapeContact::create (name, robot_);
+
+      if (!robot_->has <JointAndShapes_t> (surface1))
+        throw std::runtime_error ("First list of triangles not found.");
+      JointAndShapes_t l = robot_->get <JointAndShapes_t> (surface1);
+
+      for (JointAndShapes_t::const_iterator it = l.begin ();
+	   it != l.end(); ++it) {
+	cvxShape->addObject (ConvexShape (it->second, it->first));
+      }
+
+      // Search first robot triangles
+      if (robot_->has <JointAndShapes_t> (surface2))
+        l = robot_->get <JointAndShapes_t> (surface2);
+	// and then environment triangles.
+      else if (has <JointAndShapes_t> (surface2))
+	l = get <JointAndShapes_t> (surface2);
+      else throw std::runtime_error ("Second list of triangles not found.");
+
+      for (JointAndShapes_t::const_iterator it = l.begin ();
+	   it != l.end(); ++it) {
+	cvxShape->addFloor (ConvexShape (it->second, it->first));
+      }
+
+      cvxShape->setNormalMargin (margin + width);
+
+      addNumericalConstraint (name, NumericalConstraint::create (cvxShape));
+    }
 
     void ProblemSolver::resetConstraints ()
     {

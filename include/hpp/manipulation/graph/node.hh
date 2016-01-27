@@ -69,6 +69,16 @@ namespace hpp {
           /// the constraints. Instead, use the class NodeSelector.
           virtual bool contains (ConfigurationIn_t config) const;
 
+          inline bool isWaypoint () const
+          {
+            return isWaypoint_;
+          }
+
+          inline void isWaypoint (bool isWaypoint)
+          {
+            isWaypoint_ = isWaypoint;
+          }
+
           /// Get the parent NodeSelector.
           NodeSelectorWkPtr_t nodeSelector () const
           {
@@ -160,6 +170,8 @@ namespace hpp {
 
           /// Weak pointer to itself.
           NodeWkPtr_t wkPtr_;
+
+          bool isWaypoint_;
       }; // class Node
 
       /// \}

@@ -27,7 +27,8 @@ namespace hpp {
   namespace manipulation {
     namespace graph {
       Node::Node (const std::string& name) :
-	GraphComponent (name), configConstraints_ (new Constraint_t())
+	GraphComponent (name), configConstraints_ (new Constraint_t()),
+        isWaypoint_ (false)
       {}
 
       Node::~Node ()

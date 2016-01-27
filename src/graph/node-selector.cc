@@ -39,12 +39,15 @@ namespace hpp {
         wkPtr_ = weak;
       }
 
-      NodePtr_t NodeSelector::createNode (const std::string& name)
+      NodePtr_t NodeSelector::createNode (const std::string& name,
+          bool waypoint)
       {
         NodePtr_t newNode = Node::create (name);
         newNode->nodeSelector(wkPtr_);
         newNode->parentGraph(graph_);
-        orderedStates_.push_back(newNode);
+        newNode->isWaypoint (waypoint);
+        if (waypoint) waypoints_.push_back(newNode);
+        else orderedStates_.push_back(newNode);
         return newNode;
       }
 

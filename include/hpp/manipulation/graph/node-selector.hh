@@ -34,7 +34,7 @@ namespace hpp {
           static NodeSelectorPtr_t create(const std::string& name);
 
           /// Create an empty node
-          NodePtr_t createNode (const std::string& name);
+          NodePtr_t createNode (const std::string& name, bool waypoint = false);
 
           /// Returns the state of a configuration.
           NodePtr_t getNode(ConfigurationIn_t config) const;
@@ -82,6 +82,7 @@ namespace hpp {
 
           /// List of the states of one end-effector, ordered by priority.
           Nodes_t orderedStates_;
+          Nodes_t waypoints_;
 
         private:
           /// Weak pointer to itself.

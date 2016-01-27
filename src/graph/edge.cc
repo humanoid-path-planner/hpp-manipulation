@@ -95,9 +95,9 @@ namespace hpp {
       {
         Configuration_t q0 = path->initial (),
                         q1 = path->end ();
-        const bool src_contains_q0 = waypoint_.second->contains (q0);
+        const bool src_contains_q0 = waypoints_.back().second->contains (q0);
         const bool dst_contains_q0 = to  ()->contains (q0);
-        const bool src_contains_q1 = waypoint_.second->contains (q1);
+        const bool src_contains_q1 = waypoints_.back().second->contains (q1);
         const bool dst_contains_q1 = to  ()->contains (q1);
         if (!(
               (src_contains_q0 && dst_contains_q1)
@@ -287,7 +287,7 @@ namespace hpp {
         proj->rightHandSideFromConfig (qoffset);
         if (isShort_) q = qoffset;
         if (c->apply (q)) return true;
-	::hpp::statistics::SuccessStatistics& ss = proj->statistics ();
+	const ::hpp::statistics::SuccessStatistics& ss = proj->statistics ();
 	if (ss.nbFailure () > ss.nbSuccess ()) {
 	  hppDout (warning, c->name () << " fails often." << std::endl << ss);
 	} else {
@@ -318,91 +318,100 @@ namespace hpp {
 
       bool WaypointEdge::canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const
       {
-        return waypoint_.first->canConnect (q1, q2) && Edge::canConnect (q1, q2);
+        /// TODO: This is not correct
+        return waypoints_.back().first->canConnect (q1, q2) && Edge::canConnect (q1, q2);
       }
 
       bool WaypointEdge::build (core::PathPtr_t& path, ConfigurationIn_t q1,
           ConfigurationIn_t q2) const
       {
-        assert (waypoint_.first);
-        core::PathPtr_t pathToWaypoint;
+        core::PathPtr_t p;
+        core::PathVectorPtr_t pv = core::PathVector::create
+          (graph_.lock ()->robot ()->configSize (),
+           graph_.lock ()->robot ()->numberDof ());
         // Many times, this will be called rigth after WaypointEdge::applyConstraints so config_
         // already satisfies the constraints.
-        if (!result_.isApprox (q2)) config_ = q2;
-        if (!waypoint_.first->applyConstraints (q1, config_))
-          return false;
-        if (!waypoint_.first->build (pathToWaypoint, q1, config_))
-          return false;
-        core::PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (core::PathVector, pathToWaypoint);
-        if (!pv) {
-          pv = core::PathVector::create
-	    (graph_.lock ()->robot ()->configSize (),
-	     graph_.lock ()->robot ()->numberDof ());
-          pv->appendPath (pathToWaypoint);
-        }
-        path = pv;
+        bool useCache = result_.isApprox (q2);
+        if (!useCache) configs_.col (0) = q2;
 
-        core::PathPtr_t end;
-        if (!Edge::build (end, config_, q2))
+        assert (waypoints_[0].first);
+        if (!waypoints_[0].first->applyConstraints (q1, configs_.col (0)))
           return false;
-        pv->appendPath (end);
+        if (!waypoints_[0].first->build (p, q1, configs_.col (0)))
+          return false;
+        pv->appendPath (p);
+
+        for (std::size_t i = 1; i < waypoints_.size (); ++i) {
+          assert (waypoints_[i].first);
+          if (!useCache) configs_.col (i) = q2;
+          if (!waypoints_[i].first->applyConstraints (configs_.col(i-1), configs_.col (i)))
+            return false;
+          if (!waypoints_[i].first->build (p, configs_.col(i-1), configs_.col (i)))
+            return false;
+          pv->appendPath (p);
+        }
+
+        if (!Edge::build (p, configs_.col (configs_.cols()-1), q2))
+          return false;
+        pv->appendPath (p);
+
+        path = pv;
         return true;
       }
 
       bool WaypointEdge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
       {
-        assert (waypoint_.first);
-        config_ = q;
-        if (!waypoint_.first->applyConstraints (qoffset, config_)) {
-	  q = config_;
+        assert (waypoints_[0].first);
+        configs_.col (0) = q;
+        if (!waypoints_[0].first->applyConstraints (qoffset, configs_.col (0))) {
+          q = configs_.col(0);
           return false;
-	}
-        bool success = Edge::applyConstraints (config_, q);
+        }
+        for (std::size_t i = 1; i < waypoints_.size (); ++i) {
+          assert (waypoints_[i].first);
+          configs_.col (i) = q;
+          if (!waypoints_[i].first->applyConstraints (configs_.col(i-1), configs_.col (i))) {
+            q = configs_.col(i);
+            return false;
+          }
+        }
+        bool success = Edge::applyConstraints (configs_.col (configs_.cols()-1), q);
         result_ = q;
         return success;
       }
 
-      void WaypointEdge::createWaypoint (const unsigned d, const std::string& bname)
+      void WaypointEdge::nbWaypoints (const size_type number)
       {
-        std::ostringstream ss;
-        ss << bname << "_n" << d;
-        NodePtr_t node = Node::create (ss.str());
-        node->parentGraph(graph_);
-        EdgePtr_t edge;
-        ss.str (std::string ()); ss.clear ();
-        ss << bname << "_e" << d;
-        if (d == 0) {
-          edge = Edge::create (ss.str (), graph_, from (),
-			       node);
-          edge->isInNodeFrom (isInNodeFrom ());
-        } else {
-          WaypointEdgePtr_t we = WaypointEdge::create
-	    (ss.str (), graph_, from (), node);
-          we->createWaypoint (d-1, bname);
-          edge = we;
-          edge->isInNodeFrom (isInNodeFrom ());
-        }
-        waypoint_ = Waypoint (edge, node);
-        config_ = Configuration_t(graph_.lock ()->robot ()->configSize ());
-        result_ = Configuration_t(graph_.lock ()->robot ()->configSize ());
+        waypoints_.resize (number);
+        const size_type nbDof = graph_.lock ()->robot ()->configSize ();
+        configs_ = matrix_t (nbDof, number);
+        result_ = Configuration_t (nbDof);
+      }
+
+      void WaypointEdge::setWaypoint (const std::size_t index, const EdgePtr_t wEdge, const NodePtr_t wTo)
+      {
+        assert (index < waypoints_.size());
+        waypoints_[index] = Waypoint_t (wEdge, wTo);
       }
 
       NodePtr_t WaypointEdge::node () const
       {
-        if (isInNodeFrom ()) return waypoint_.second;
+        if (isInNodeFrom ()) return waypoints_.back().second;
         else return to ();
       }
 
       template <>
-      EdgePtr_t WaypointEdge::waypoint <Edge> () const
+      EdgePtr_t WaypointEdge::waypoint <Edge> (const std::size_t index) const
       {
-        return waypoint_.first;
+        assert (index < waypoints_.size()); 
+        return waypoints_[index].first;
       }
 
       template <>
-      WaypointEdgePtr_t WaypointEdge::waypoint <WaypointEdge> () const
+      WaypointEdgePtr_t WaypointEdge::waypoint <WaypointEdge> (const std::size_t index) const
       {
-        return HPP_DYNAMIC_PTR_CAST (WaypointEdge, waypoint_.first);
+        assert (index < waypoints_.size()); 
+        return HPP_DYNAMIC_PTR_CAST (WaypointEdge, waypoints_[index].first);
       }
 
       std::ostream& WaypointEdge::print (std::ostream& os) const
@@ -417,19 +426,28 @@ namespace hpp {
       {
         // First print the waypoint node, then the first edge.
         da ["style"]="dashed";
-        waypoint_.second->dotPrint (os, da);
+        for (std::size_t i = 1; i < waypoints_.size (); ++i)
+          waypoints_[i].second->dotPrint (os, da);
+
         da ["style"]="solid";
-        waypoint_.first->dotPrint (os, da) << std::endl;
+        for (std::size_t i = 1; i < waypoints_.size (); ++i)
+          waypoints_[i].first->dotPrint (os, da) << std::endl;
+
         da ["style"]="dotted";
         da ["dir"] = "both";
         da ["arrowtail"]="dot";
+        // TODO: This is very ugly. There ought to be a better way of 
+        // getting the real from() Node.
+        // We should be using Edge::dotPrint (...) instead of the following
+        // paragraph.
         da.insert ("shape", "onormal");
         da.insertWithQuote ("label", name());
         dot::Tooltip tp; tp.addLine ("Edge constains:");
         populateTooltip (tp);
         da.insertWithQuote ("tooltip", tp.toStr());
         da.insertWithQuote ("labeltooltip", tp.toStr());
-        os << waypoint_.second->id () << " -> " << to()->id () << " " << da << ";";
+        os << waypoints_.back().second->id () << " -> " << to()->id () << " " << da << ";";
+
         return os;
       }
 

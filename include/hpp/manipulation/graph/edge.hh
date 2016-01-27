@@ -227,18 +227,22 @@ namespace hpp {
           /// Return the inner waypoint.
           /// \param EdgeType is either Edge or WaypointEdge
           template <class EdgeType>
-          boost::shared_ptr <EdgeType> waypoint () const;
+          boost::shared_ptr <EdgeType> waypoint (const std::size_t index) const;
 
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
-          /// Create inner waypoints.
-          /// \param depth the number of waypoints between from() and to()
-          ///              minus 1.
-          /// \param bname basename used for naming.
-          /// \note inner edges are named bname + "_e" + pos
-          ///       inner nodes are named bname + "_n" + pos
-          void createWaypoint (const unsigned int depth, const std::string& bname = "WaypointEdge");
+          /// Set the number of waypoints
+          void nbWaypoints (const size_type number);
+
+          std::size_t nbWaypoints () const
+          {
+            return waypoints_.size ();
+          }
+
+          /// Set waypoint index with wEdge and wTo.
+          /// \param wTo is the destination node of wEdge
+          void setWaypoint (const std::size_t index, const EdgePtr_t wEdge, const NodePtr_t wTo);
 
           /// Get the node in which path after the waypoint is.
           NodePtr_t node () const;
@@ -256,10 +260,13 @@ namespace hpp {
           virtual std::ostream& print (std::ostream& os) const;
 
         private:
-          typedef std::pair < EdgePtr_t, NodePtr_t > Waypoint;
+          typedef std::pair < EdgePtr_t, NodePtr_t > Waypoint_t;
+          typedef std::vector <Waypoint_t> Waypoints_t;
 
-          Waypoint waypoint_;
-          mutable Configuration_t config_, result_;
+          Waypoints_t waypoints_;
+
+          mutable matrix_t configs_;
+          mutable Configuration_t result_;
 
           WaypointEdgeWkPtr_t wkPtr_;
       }; // class WaypointEdge

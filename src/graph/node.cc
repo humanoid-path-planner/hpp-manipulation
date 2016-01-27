@@ -60,6 +60,15 @@ namespace hpp {
         return newEdge;
       }
 
+      EdgePtr_t Node::linkTo(const std::string& name, const NodePtr_t& to,
+			     const size_type& w, EdgeFactory create)
+      {
+        EdgePtr_t newEdge = create(name, graph_, wkPtr_, to);
+        if (w >= 0) neighbors_.insert (newEdge, (Weight_t)w);
+        else hiddenNeighbors_.push_back (newEdge);
+        return newEdge;
+      }
+
       bool Node::contains (ConfigurationIn_t config) const
       {
         return configConstraint()->isSatisfied (config);

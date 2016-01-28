@@ -287,6 +287,8 @@ namespace hpp {
 
           virtual bool applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const;
 
+          virtual ConstraintSetPtr_t buildConfigConstraint() const;
+
           void buildHistogram ();
 
           LeafHistogramPtr_t histogram () const;

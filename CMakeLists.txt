@@ -86,10 +86,10 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/path-optimization/config-optimization.hh
   )
 
-# Add dependency toward hpp-model library in pkg-config file.
-PKG_CONFIG_APPEND_LIBS("hpp-manipulation")
-
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(tests)
+
+# Add dependency toward hpp-manipulation library in pkg-config file.
+PKG_CONFIG_APPEND_LIBS("hpp-manipulation")
 
 SETUP_PROJECT_FINALIZE()

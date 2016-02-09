@@ -19,7 +19,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include <hpp/util/pointer.hh>
-#include "hpp/util/timer.hh"
+#include <hpp/util/timer.hh>
 #include <hpp/util/assertion.hh>
 
 #include <hpp/core/path-validation.hh>

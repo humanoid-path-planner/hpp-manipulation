@@ -50,6 +50,8 @@
 namespace hpp {
   namespace manipulation {
     namespace {
+      typedef std::list<std::string> StringList_t;
+
       struct PartialShortcutTraits :
         core::pathOptimization::PartialShortcutTraits {
           static bool removeLockedJoints () { return false; }
@@ -149,8 +151,8 @@ namespace hpp {
     }
 
     void ProblemSolver::createPlacementConstraint
-    (const std::string& name, const std::string& surface1,
-     const std::string& surface2, const value_type& margin)
+    (const std::string& name, const std::list<std::string>& surface1,
+     const std::list<std::string>& surface2, const value_type& margin)
     {
       if (!robot_) throw std::runtime_error ("No robot loaded");
       using constraints::ConvexShape;
@@ -162,24 +164,32 @@ namespace hpp {
 		  ConvexShapeContactComplementPtr_t > constraints
 	(ConvexShapeContactComplement::createPair
 	 (name, complementName, robot_));
-      if (!robot_->has <JointAndShapes_t> (surface1))
-        throw std::runtime_error ("First list of triangles not found.");
-      JointAndShapes_t l = robot_->get <JointAndShapes_t> (surface1);
-      for (JointAndShapes_t::const_iterator it = l.begin ();
-	   it != l.end(); ++it) {
-	constraints.first->addObject (ConvexShape (it->second, it->first));
+
+      JointAndShapes_t l;
+      for (StringList_t::const_iterator it1 = surface1.begin ();
+          it1 != surface1.end(); ++it1) {
+        if (!robot_->has <JointAndShapes_t> (*it1))
+          throw std::runtime_error ("First list of triangles not found.");
+        l = robot_->get <JointAndShapes_t> (*it1);
+        for (JointAndShapes_t::const_iterator it = l.begin ();
+            it != l.end(); ++it) {
+          constraints.first->addObject (ConvexShape (it->second, it->first));
+        }
       }
 
-      // Search first robot triangles
-      if (robot_->has <JointAndShapes_t> (surface2))
-        l = robot_->get <JointAndShapes_t> (surface2);
-	// and then environment triangles.
-      else if (has <JointAndShapes_t> (surface2))
-	l = get <JointAndShapes_t> (surface2);
-      else throw std::runtime_error ("Second list of triangles not found.");
-      for (JointAndShapes_t::const_iterator it = l.begin ();
-	   it != l.end(); ++it) {
-	constraints.first->addFloor (ConvexShape (it->second, it->first));
+      for (StringList_t::const_iterator it2 = surface2.begin ();
+          it2 != surface2.end(); ++it2) {
+        // Search first robot triangles
+        if (robot_->has <JointAndShapes_t> (*it2))
+          l = robot_->get <JointAndShapes_t> (*it2);
+        // and then environment triangles.
+        else if (has <JointAndShapes_t> (*it2))
+          l = get <JointAndShapes_t> (*it2);
+        else throw std::runtime_error ("Second list of triangles not found.");
+        for (JointAndShapes_t::const_iterator it = l.begin ();
+            it != l.end(); ++it) {
+          constraints.first->addFloor (ConvexShape (it->second, it->first));
+        }
       }
 
       constraints.first->setNormalMargin (margin);
@@ -191,8 +201,8 @@ namespace hpp {
     }
 
     void ProblemSolver::createPrePlacementConstraint
-    (const std::string& name, const std::string& surface1,
-     const std::string& surface2, const value_type& width,
+    (const std::string& name, const std::list<std::string>& surface1,
+     const std::list<std::string>& surface2, const value_type& width,
      const value_type& margin)
     {
       if (!robot_) throw std::runtime_error ("No robot loaded");
@@ -202,26 +212,33 @@ namespace hpp {
 
       ConvexShapeContactPtr_t cvxShape = ConvexShapeContact::create (name, robot_);
 
-      if (!robot_->has <JointAndShapes_t> (surface1))
-        throw std::runtime_error ("First list of triangles not found.");
-      JointAndShapes_t l = robot_->get <JointAndShapes_t> (surface1);
+      JointAndShapes_t l;
+      for (StringList_t::const_iterator it1 = surface1.begin ();
+          it1 != surface1.end(); ++it1) {
+        if (!robot_->has <JointAndShapes_t> (*it1))
+          throw std::runtime_error ("First list of triangles not found.");
+        l = robot_->get <JointAndShapes_t> (*it1);
 
-      for (JointAndShapes_t::const_iterator it = l.begin ();
-	   it != l.end(); ++it) {
-	cvxShape->addObject (ConvexShape (it->second, it->first));
+        for (JointAndShapes_t::const_iterator it = l.begin ();
+            it != l.end(); ++it) {
+          cvxShape->addObject (ConvexShape (it->second, it->first));
+        }
       }
 
-      // Search first robot triangles
-      if (robot_->has <JointAndShapes_t> (surface2))
-        l = robot_->get <JointAndShapes_t> (surface2);
-	// and then environment triangles.
-      else if (has <JointAndShapes_t> (surface2))
-	l = get <JointAndShapes_t> (surface2);
-      else throw std::runtime_error ("Second list of triangles not found.");
+      for (StringList_t::const_iterator it2 = surface2.begin ();
+          it2 != surface2.end(); ++it2) {
+        // Search first robot triangles
+        if (robot_->has <JointAndShapes_t> (*it2))
+          l = robot_->get <JointAndShapes_t> (*it2);
+        // and then environment triangles.
+        else if (has <JointAndShapes_t> (*it2))
+          l = get <JointAndShapes_t> (*it2);
+        else throw std::runtime_error ("Second list of triangles not found.");
 
-      for (JointAndShapes_t::const_iterator it = l.begin ();
-	   it != l.end(); ++it) {
-	cvxShape->addFloor (ConvexShape (it->second, it->first));
+        for (JointAndShapes_t::const_iterator it = l.begin ();
+            it != l.end(); ++it) {
+          cvxShape->addFloor (ConvexShape (it->second, it->first));
+        }
       }
 
       cvxShape->setNormalMargin (margin + width);

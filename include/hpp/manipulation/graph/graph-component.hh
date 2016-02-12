@@ -86,7 +86,7 @@ namespace hpp {
           const NumericalConstraints_t& numericalConstraints() const;
 
           /// Get a reference to the NumericalConstraints_t
-          const std::vector <SizeIntervals_t>& passiveDofs() const;
+          const IntervalsContainer_t& passiveDofs() const;
 
           /// Get a reference to the LockedJoints_t
           const LockedJoints_t& lockedJoints () const;
@@ -110,7 +110,7 @@ namespace hpp {
           /// Stores the numerical constraints.
           NumericalConstraints_t numericalConstraints_;
           /// Stores the passive dofs for each numerical constraints.
-          std::vector <SizeIntervals_t> passiveDofs_;
+          IntervalsContainer_t passiveDofs_;
           /// List of LockedJoint constraints
           LockedJoints_t lockedJoints_;
           /// A weak pointer to the parent graph.

@@ -51,16 +51,6 @@ namespace hpp {
       }
 
       EdgePtr_t Node::linkTo(const std::string& name, const NodePtr_t& to,
-			     const Weight_t& w, const bool& isInNodeFrom,
-			     EdgeFactory create)
-      {
-        EdgePtr_t newEdge = create(name, graph_, wkPtr_, to);
-        neighbors_.insert (newEdge, w);
-        newEdge->isInNodeFrom (isInNodeFrom);
-        return newEdge;
-      }
-
-      EdgePtr_t Node::linkTo(const std::string& name, const NodePtr_t& to,
 			     const size_type& w, EdgeFactory create)
       {
         EdgePtr_t newEdge = create(name, graph_, wkPtr_, to);

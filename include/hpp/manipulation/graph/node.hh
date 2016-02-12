@@ -55,14 +55,6 @@ namespace hpp {
           static NodePtr_t create (const std::string& name);
 
           /// Create a link from this node to the given node.
-          /// \deprecated Use Edge->node(NodePtr_t) to give the node.
-          EdgePtr_t linkTo (const std::string& name, const NodePtr_t& to,
-			    const Weight_t& w = 1,
-			    const bool& isInNodeFrom = false,
-			    EdgeFactory create = Edge::create)
-            HPP_MANIPULATION_DEPRECATED;
-
-          /// Create a link from this node to the given node.
           /// \param w if strictly negative, the edge is not included in the neighbor
           ///          list. Otherwise, it is included with Weight_t w
           EdgePtr_t linkTo (const std::string& name, const NodePtr_t& to,

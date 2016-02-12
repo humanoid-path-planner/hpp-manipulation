@@ -82,6 +82,7 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/graph/graph-component.hh
   include/hpp/manipulation/graph/fwd.hh
   include/hpp/manipulation/graph/dot.hh
+  include/hpp/manipulation/graph/helper.hh
 
   include/hpp/manipulation/path-optimization/config-optimization.hh
   )

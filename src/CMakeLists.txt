@@ -42,6 +42,7 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   graph/node-selector.cc
   graph/guided-node-selector.cc
   graph/statistics.cc
+  graph/helper.cc
 
   graph/dot.cc
 

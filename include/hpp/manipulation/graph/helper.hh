@@ -27,75 +27,92 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      /// \addtogroup constraint_graph
-      /// \{
+      namespace helper
+      {
+        /// \defgroup helper Helpers to build the graph of constraints
+        /// \addtogroup helper
+        /// \{
 
-      struct NumericalConstraintsAndPassiveDofs {
-        NumericalConstraints_t nc;
-        IntervalsContainer_t pdof;
-        NumericalConstraintsAndPassiveDofs merge
-          (const NumericalConstraintsAndPassiveDofs& other) {
-            NumericalConstraintsAndPassiveDofs ret;
-            // ret.nc.reserve (nc.size() + other.nc.size());
-            ret.pdof.reserve (pdof.size() + other.pdof.size());
+        struct NumericalConstraintsAndPassiveDofs {
+          NumericalConstraints_t nc;
+          IntervalsContainer_t pdof;
+          NumericalConstraintsAndPassiveDofs merge
+            (const NumericalConstraintsAndPassiveDofs& other) {
+              NumericalConstraintsAndPassiveDofs ret;
+              // ret.nc.reserve (nc.size() + other.nc.size());
+              ret.pdof.reserve (pdof.size() + other.pdof.size());
 
-            std::copy (nc.begin(), nc.end(), ret.nc.begin());
-            std::copy (other.nc.begin(), other.nc.end(), ret.nc.begin());
+              std::copy (nc.begin(), nc.end(), ret.nc.begin());
+              std::copy (other.nc.begin(), other.nc.end(), ret.nc.begin());
 
-            std::copy (pdof.begin(), pdof.end(), ret.pdof.begin());
-            std::copy (other.pdof.begin(), other.pdof.end(), ret.pdof.begin());
-            return ret;
+              std::copy (pdof.begin(), pdof.end(), ret.pdof.begin());
+              std::copy (other.pdof.begin(), other.pdof.end(), ret.pdof.begin());
+              return ret;
+            }
+
+          template <bool forPath> void addToComp (GraphComponentPtr_t comp) const;
+
+          template <bool param> void specifyFoliation (LevelSetEdgePtr_t lse) const;
+        };
+
+        struct FoliatedManifold {
+          // Manifold definition
+          NumericalConstraintsAndPassiveDofs nc;
+          LockedJoints_t lj;
+          NumericalConstraintsAndPassiveDofs nc_path;
+          // Foliation definition
+          NumericalConstraintsAndPassiveDofs nc_fol;
+          LockedJoints_t lj_fol;
+
+          FoliatedManifold merge (const FoliatedManifold& other) {
+            FoliatedManifold both;
+            both.nc = nc.merge (other.nc);
+            both.nc_path = nc_path.merge (other.nc_path);
+
+            std::copy (lj.begin (), lj.end (), both.lj.end ());
+            std::copy (other.lj.begin (), other.lj.end (), both.lj.end ());
+            return both;
           }
 
-        template <bool forPath> void addToComp (GraphComponentPtr_t comp) const;
+          void addToNode (NodePtr_t comp) const;
+          void addToEdge (EdgePtr_t comp) const;
+          void specifyFoliation (LevelSetEdgePtr_t lse) const;
 
-        template <bool param> void specifyFoliation (LevelSetEdgePtr_t lse) const;
-      };
+          bool isFoliated () const {
+            return lj_fol.empty () && nc_fol.nc.empty ();
+          }
+        };
 
-      struct FoliatedManifold {
-        // Manifold definition
-        NumericalConstraintsAndPassiveDofs nc;
-        LockedJoints_t lj;
-        NumericalConstraintsAndPassiveDofs nc_path;
-        // Foliation definition
-        NumericalConstraintsAndPassiveDofs nc_fol;
-        LockedJoints_t lj_fol;
+        typedef std::pair <EdgePtr_t, EdgePtr_t> EdgePair_t;
 
-        FoliatedManifold merge (const FoliatedManifold& other) {
-          FoliatedManifold both;
-          both.nc = nc.merge (other.nc);
-          both.nc_path = nc_path.merge (other.nc_path);
+        enum GraspingCase {
+          NoGrasp = 0,
+          GraspOnly = 1 << 0,
+          WithPreGrasp = 1 << 1
+        };
+        enum PlacementCase {
+          NoPlace = 1 << 2,
+          PlaceOnly = 1 << 3,
+          WithPrePlace = 1 << 4
+        };
 
-          std::copy (lj.begin (), lj.end (), both.lj.end ());
-          std::copy (other.lj.begin (), other.lj.end (), both.lj.end ());
-          return both;
-        }
-
-        void addToNode (NodePtr_t comp) const;
-        void addToEdge (EdgePtr_t comp) const;
-        void specifyFoliation (LevelSetEdgePtr_t lse) const;
-
-        bool isFoliated () const {
-          return lj_fol.empty () && nc_fol.nc.empty ();
-        }
-      };
-
-      class HPP_MANIPULATION_DLLAPI Helper
-      {
-        public:
-          typedef std::pair <WaypointEdgePtr_t, WaypointEdgePtr_t> WaypointEdgePair_t;
-
-          WaypointEdgePair_t createWaypoints (
+        /// Create edges according to the case.
+        /// gCase is a logical OR combination of GraspingCase and PlacementCase
+        ///
+        /// When an argument is not relevant, use the default constructor
+        /// of FoliatedManifold
+        template < int gCase >
+          EdgePair_t createEdges (
               const std::string& forwName,   const std::string& backName,
               const NodePtr_t& from,         const NodePtr_t& to,
               const size_type& wForw,        const size_type& wBack,
               const FoliatedManifold& grasp, const FoliatedManifold& pregrasp,
               const FoliatedManifold& place, const FoliatedManifold& preplace,
-              const bool levelSetPlace,      const bool levelSetGrasp,
+              const bool levelSetGrasp,      const bool levelSetPlace,
               const FoliatedManifold& submanifoldDef = FoliatedManifold ()
               );
-      };
-      /// \}
+        /// \}
+      } // namespace helper
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

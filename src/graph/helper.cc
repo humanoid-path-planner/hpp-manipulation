@@ -225,6 +225,118 @@ namespace hpp {
           }
 
         template <> EdgePair_t
+          createEdges <WithPreGrasp | PlaceOnly> (
+              const std::string& forwName,   const std::string& backName,
+              const NodePtr_t& from,         const NodePtr_t& to,
+              const size_type& wForw,        const size_type& wBack,
+              const FoliatedManifold& grasp, const FoliatedManifold& pregrasp,
+              const FoliatedManifold& place, const FoliatedManifold&,
+              const bool levelSetGrasp,      const bool levelSetPlace,
+              const FoliatedManifold& submanifoldDef)
+          {
+            // Create the edges
+            WaypointEdgePtr_t weForw = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
+                from->linkTo (forwName,    to, wForw, WaypointEdge::create)),
+
+            weBack = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
+                to->  linkTo (backName, from, wBack, WaypointEdge::create));
+
+            weForw->nbWaypoints (2);
+            weBack->nbWaypoints (2);
+
+            std::string name = forwName;
+            NodeSelectorPtr_t ns = weForw->parentGraph ()->nodeSelector ();
+            NodePtr_t n0 = from,
+                      n1 = ns->createNode (name + "_pregrasp", true),
+                      n2 = ns->createNode (name + "_intersec", true),
+                      n3 = to;
+
+            EdgePtr_t e01 = n0->linkTo (name + "_e01", n1, -1, Edge::create),
+                      e12 = n1->linkTo (name + "_e12", n2, -1, Edge::create),
+                      e23 = weForw;
+            LevelSetEdgePtr_t e12_ls;
+            if (levelSetGrasp)
+              e12_ls = HPP_DYNAMIC_PTR_CAST (LevelSetEdge,
+                  n1->linkTo (name + "_e12_ls", n2, -1, LevelSetEdge::create));
+
+            // Set the edges properties
+            e01->node (n0);
+            e12->node (n0); e12->setShort (true);
+            e23->node (n3);
+
+            // set the nodes constraints
+            // From and to are not populated automatically to avoid duplicates.
+            place.addToNode (n1);
+            pregrasp.addToNode (n1);
+            submanifoldDef.addToNode (n1);
+            place.addToNode (n2);
+            grasp.addToNode (n2);
+            submanifoldDef.addToNode (n2);
+
+            // Set the edges constraints
+            place.addToEdge (e01);
+            submanifoldDef.addToEdge (e01);
+            place.addToEdge (e12);
+            submanifoldDef.addToEdge (e12);
+            grasp.addToEdge (e23);
+            submanifoldDef.addToEdge (e23);
+
+            // Set the waypoints
+            weForw->setWaypoint (0, e01, n1);
+            weForw->setWaypoint (1, (levelSetGrasp)?e12_ls:e12, n2);
+
+            // Populate bacward edge
+            EdgePtr_t e32 = n3->linkTo (name + "_e32", n2, -1, Edge::create),
+                      e21 = n2->linkTo (name + "_e21", n1, -1, Edge::create),
+                      e10 = weBack;
+            LevelSetEdgePtr_t e32_ls;
+            if (levelSetPlace)
+              e32_ls = HPP_DYNAMIC_PTR_CAST (LevelSetEdge,
+                  n3->linkTo (name + "_e32_ls", n2, -1, LevelSetEdge::create));
+
+            e32->node (n3);
+            e21->node (n0); e21->setShort (true);
+            e10->node (n0);
+
+            place.addToEdge (e10);
+            submanifoldDef.addToEdge (e10);
+            place.addToEdge (e21);
+            submanifoldDef.addToEdge (e21);
+            grasp.addToEdge (e32);
+            submanifoldDef.addToEdge (e32);
+
+            weForw->setWaypoint (0, (levelSetGrasp)?e32_ls:e32, n2);
+            weBack->setWaypoint (1, e21, n1);
+
+            if (levelSetPlace) {
+              if (!place.foliated ()) {
+                hppDout (warning, "You asked for a LevelSetEdge for placement, "
+                    "but did not specify the target foliation. "
+                    "It will have no effect");
+              }
+              e32_ls->node (n3);
+              e32_ls->setShort (true);
+              grasp.addToEdge (e32_ls);
+              place.specifyFoliation (e32_ls);
+              submanifoldDef.addToEdge (e32_ls);
+            }
+            if (levelSetGrasp) {
+              if (!grasp.foliated ()) {
+                hppDout (warning, "You asked for a LevelSetEdge for grasping, "
+                    "but did not specify the target foliation. "
+                    "It will have no effect");
+              }
+              e12_ls->node (n0);
+              e12_ls->setShort (true);
+              place.addToEdge (e12_ls);
+              grasp.specifyFoliation (e12_ls);
+              submanifoldDef.addToEdge (e12_ls);
+            }
+
+            return std::make_pair (weForw, weBack);
+          }
+
+        template <> EdgePair_t
           createEdges <GraspOnly | PlaceOnly>(
             const std::string& forwName,   const std::string& backName,
             const NodePtr_t& from,         const NodePtr_t& to,
@@ -588,7 +700,7 @@ namespace hpp {
               BOOST_FOREACH (const Object_t& o, r.ohs) {
                 bool oIsGrasped = false;
                 // TODO: use the fact that the set is sorted.
-                // BOOST_FOREACH (const HandlePtr_t& h, o.get<1>()) {
+                // BOOST_FOREACH (const HandlePtr_t& h, o.get<1>())
                 for (index_t i = 0; i < o.get<1>().size(); ++i) {
                   if (idxsOH.erase (iOH) == 1) oIsGrasped = true;
                   ++iOH;
@@ -600,99 +712,102 @@ namespace hpp {
                       nam.get<1>(), unused);
               }
               nam.get<1>().addToNode (nam.get<0>());
-              }
-              return nam;
             }
+            return nam;
+          }
 
-            /// Arguments are such that
-            /// \li gTo[iG] != gFrom[iG]
-            /// \li for all i != iG, gTo[iG] == gFrom[iG]
-            void makeEdge (Result& r,
-                const GraspV_t& gFrom, const GraspV_t& gTo,
-                const index_t iG)
-            {
-              const NodeAndManifold_t& from = makeNode (r, gFrom),
-              to   = makeNode (r, gTo);
-              FoliatedManifold grasp, pregrasp, place, preplace;
-              graspManifold (r.gs[iG], r.handle (gTo[iG]),
-                  grasp, pregrasp);
-              const Object_t& o = r.object (gTo[iG]);
-              relaxedPlacementManifold (o.get<0>().get<0>(),
-                  o.get<0>().get<1>(),
-                  o.get<0>().get<2>(),
-                  place, preplace);
-              if (pregrasp.empty ()) {
-                if (preplace.empty ())
-                  createEdges <GraspOnly | PlaceOnly> (
-                      "forwName"            , "backName",
-                      from.get<0> ()        , to.get<0>(),
-                      1                     , 1,
-                      grasp                 , pregrasp,
-                      place                 , preplace,
-                      grasp.foliated ()     , place.foliated(),
-                      from.get<1> ());
-                else
-                  createEdges <GraspOnly | WithPrePlace> (
-                      "forwName"            , "backName",
-                      from.get<0> ()        , to.get<0>(),
-                      1                     , 1,
-                      grasp                 , pregrasp,
-                      place                 , preplace,
-                      grasp.foliated ()     , place.foliated(),
-                      from.get<1> ());
-              } else {
-                if (preplace.empty ())
-                  createEdges <WithPreGrasp | PlaceOnly> (
-                      "forwName"            , "backName",
-                      from.get<0> ()        , to.get<0>(),
-                      1                     , 1,
-                      grasp                 , pregrasp,
-                      place                 , preplace,
-                      grasp.foliated ()     , place.foliated(),
-                      from.get<1> ());
-                else
-                  createEdges <WithPreGrasp | WithPrePlace> (
-                      "forwName"            , "backName",
-                      from.get<0> ()        , to.get<0>(),
-                      1                     , 1,
-                      grasp                 , pregrasp,
-                      place                 , preplace,
-                      grasp.foliated ()     , place.foliated(),
-                      from.get<1> ());
+          /// Arguments are such that
+          /// \li gTo[iG] != gFrom[iG]
+          /// \li for all i != iG, gTo[iG] == gFrom[iG]
+          void makeEdge (Result& r,
+              const GraspV_t& gFrom, const GraspV_t& gTo,
+              const index_t iG)
+          {
+            const NodeAndManifold_t& from = makeNode (r, gFrom),
+            to   = makeNode (r, gTo);
+            FoliatedManifold grasp, pregrasp, place, preplace;
+            graspManifold (r.gs[iG], r.handle (gTo[iG]),
+                grasp, pregrasp);
+            const Object_t& o = r.object (gTo[iG]);
+            relaxedPlacementManifold (o.get<0>().get<0>(),
+                o.get<0>().get<1>(),
+                o.get<0>().get<2>(),
+                place, preplace);
+            if (pregrasp.empty ()) {
+              if (preplace.empty ())
+                createEdges <GraspOnly | PlaceOnly> (
+                    "forwName"            , "backName",
+                    from.get<0> ()        , to.get<0>(),
+                    1                     , 1,
+                    grasp                 , pregrasp,
+                    place                 , preplace,
+                    grasp.foliated ()     , place.foliated(),
+                    from.get<1> ());
+              else {
+                hppDout (error, "GraspOnly | WithPrePlace not implemeted yet");
+                /*
+                   createEdges <GraspOnly | WithPrePlace> (
+                   "forwName"            , "backName",
+                   from.get<0> ()        , to.get<0>(),
+                   1                     , 1,
+                   grasp                 , pregrasp,
+                   place                 , preplace,
+                   grasp.foliated ()     , place.foliated(),
+                   from.get<1> ()); // */
               }
+            } else {
+              if (preplace.empty ())
+                createEdges <WithPreGrasp | PlaceOnly> (
+                    "forwName"            , "backName",
+                    from.get<0> ()        , to.get<0>(),
+                    1                     , 1,
+                    grasp                 , pregrasp,
+                    place                 , preplace,
+                    grasp.foliated ()     , place.foliated(),
+                    from.get<1> ());
+              else
+                createEdges <WithPreGrasp | WithPrePlace> (
+                    "forwName"            , "backName",
+                    from.get<0> ()        , to.get<0>(),
+                    1                     , 1,
+                    grasp                 , pregrasp,
+                    place                 , preplace,
+                    grasp.foliated ()     , place.foliated(),
+                    from.get<1> ());
             }
+          }
 
-        /// idx are the available grippers
-            void recurseGrippers (Result& r,
-                const IndexV_t& idx_g, const IndexV_t& idx_oh,
-            const GraspV_t& grasps)
-        {
-              IndexV_t nIdx_g (idx_g.size() - 1);
-              IndexV_t nIdx_oh (idx_oh.size() - 1);
-          for (IndexV_t::const_iterator itx_g = idx_g.begin ();
-              itx_g != idx_g.end (); ++itx_g) {
-            // Copy all element except itx_g
-            std::copy (boost::next (itx_g), idx_g.end (),
-                std::copy (idx_g.begin (), itx_g, nIdx_g.begin ())
-                );
-            for (IndexV_t::const_iterator itx_oh = idx_oh.begin ();
-                itx_oh != idx_oh.end (); ++itx_oh) {
-              // Copy all element except itx_oh
-              std::copy (boost::next (itx_oh), idx_oh.end (),
-                  std::copy (idx_oh.begin (), itx_oh, nIdx_oh.begin ())
+          /// idx are the available grippers
+          void recurseGrippers (Result& r,
+              const IndexV_t& idx_g, const IndexV_t& idx_oh,
+              const GraspV_t& grasps)
+          {
+            IndexV_t nIdx_g (idx_g.size() - 1);
+            IndexV_t nIdx_oh (idx_oh.size() - 1);
+            for (IndexV_t::const_iterator itx_g = idx_g.begin ();
+                itx_g != idx_g.end (); ++itx_g) {
+              // Copy all element except itx_g
+              std::copy (boost::next (itx_g), idx_g.end (),
+                  std::copy (idx_g.begin (), itx_g, nIdx_g.begin ())
                   );
+              for (IndexV_t::const_iterator itx_oh = idx_oh.begin ();
+                  itx_oh != idx_oh.end (); ++itx_oh) {
+                // Copy all element except itx_oh
+                std::copy (boost::next (itx_oh), idx_oh.end (),
+                    std::copy (idx_oh.begin (), itx_oh, nIdx_oh.begin ())
+                    );
 
-                  // Create the edge for the selected grasp
-              GraspV_t nGrasps = grasps;
-                  nGrasps [*itx_g] = *itx_oh;
-                  makeEdge (r, grasps, nGrasps, *itx_g);
+                // Create the edge for the selected grasp
+                GraspV_t nGrasps = grasps;
+                nGrasps [*itx_g] = *itx_oh;
+                makeEdge (r, grasps, nGrasps, *itx_g);
 
-                  // Do all the possible combination below this new grasp
-                  recurseGrippers (r, nIdx_oh, nIdx_oh, nGrasps);
+                // Do all the possible combination below this new grasp
+                recurseGrippers (r, nIdx_oh, nIdx_oh, nGrasps);
+              }
             }
           }
         }
-          }
 
         void graphBuilder (
             const Objects_t& objects,

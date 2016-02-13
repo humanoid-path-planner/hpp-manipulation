@@ -17,10 +17,10 @@
 // hpp-manipulation. If not, see
 // <http://www.gnu.org/licenses/>.
 
+#include <hpp/manipulation/handle.hh>
+
 #include <hpp/util/debug.hh>
 #include <hpp/model/device.hh>
-#include <hpp/core/explicit-numerical-constraint.hh>
-#include <hpp/manipulation/handle.hh>
 
 #include <boost/assign/list_of.hpp>
 
@@ -33,10 +33,24 @@
 #include <hpp/constraints/relative-transformation.hh>
 
 #include <hpp/core/numerical-constraint.hh>
+#include <hpp/core/explicit-numerical-constraint.hh>
 #include <hpp/core/explicit-relative-transformation.hh>
 
 namespace hpp {
   namespace manipulation {
+    namespace {
+      struct ZeroDiffFunc : public constraints::DifferentiableFunction {
+        ZeroDiffFunc (size_type sIn, size_type sInD,
+            std::string name=std::string("Empty function"))
+          : DifferentiableFunction (sIn, sInD, 0, 0, name)
+        {
+          context ("Grasp complement");
+        }
+
+        inline void impl_compute (vectorOut_t, vectorIn_t) const {}
+        inline void impl_jacobian (matrixOut_t, vectorIn_t) const {}
+      };
+    }
 
     using core::ExplicitNumericalConstraint;
     using constraints::DifferentiableFunction;
@@ -79,17 +93,13 @@ namespace hpp {
     NumericalConstraintPtr_t Handle::createGraspComplement
     (const GripperPtr_t& gripper) const
     {
-      using boost::assign::list_of;
-      std::vector <bool> mask = list_of (false)(false)(false)(false)(false)
-	(false);
-      return NumericalConstraintPtr_t
-	(NumericalConstraint::create (RelativeTransformation::create
-				      ("Transformation_(0,0,0,0,0,0)_" + name ()
-				       + "_" + gripper->name (),
-				       gripper->joint()->robot(),
-				       gripper->joint (), joint (),
-				       gripper->objectPositionInJoint (),
-				       localPosition(), mask)));
+      core::DevicePtr_t robot = gripper->joint()->robot();
+      return NumericalConstraint::create (
+          boost::shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
+            robot->configSize(), robot->numberDof (),
+            "Transformation_(0,0,0,0,0,0)_" + name () + "_" + gripper->name ()
+            ))
+          );
     }
 
     NumericalConstraintPtr_t Handle::createPreGrasp

@@ -20,6 +20,8 @@
 # include <string>
 # include <algorithm>
 
+# include <boost/tuple/tuple.hpp>
+
 # include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
@@ -111,6 +113,59 @@ namespace hpp {
               const bool levelSetGrasp,      const bool levelSetPlace,
               const FoliatedManifold& submanifoldDef = FoliatedManifold ()
               );
+
+        /// Create a waypoint edge taking into account:
+        /// \li grasp
+        /// \li placement
+        /// \li preplacement
+
+        /// Create a waypoint edge taking into account
+        /// \li grasp
+        /// \li pregrasp
+        /// \li placement
+
+        /// \todo when the handle is a free flying object, add the robot DOFs
+        ///       as passive dofs to the numerical constraints for paths
+        void graspManifold (
+            const GripperPtr_t& gripper, const HandlePtr_t& handle,
+            FoliatedManifold& grasp, FoliatedManifold& pregrasp);
+
+        /// The placement foliation constraint is built using
+        /// hpp::constraints::ConvexShapeMatcherComplement
+        void strictPlacementManifold (
+            const NumericalConstraintPtr_t placement,
+            const NumericalConstraintPtr_t preplacement,
+            const NumericalConstraintPtr_t placementComplement,
+            FoliatedManifold& place, FoliatedManifold& preplace);
+
+        /// The placement foliation constraint is built locked joints
+        /// It is faster than strictPlacementManifold but the foliation
+        /// parametrisation is redundant.
+        void relaxedPlacementManifold (
+            const NumericalConstraintPtr_t placement,
+            const NumericalConstraintPtr_t preplacement,
+            const LockedJoints_t objectLocks,
+            FoliatedManifold& place, FoliatedManifold& preplace);
+
+        typedef boost::tuple <NumericalConstraintPtr_t,
+                              NumericalConstraintPtr_t,
+                              LockedJoints_t>
+                              PlacementConstraint_t;
+        typedef std::vector <HandlePtr_t> Handles_t;
+        typedef std::vector <GripperPtr_t> Grippers_t;
+        typedef boost::tuple <PlacementConstraint_t, Handles_t> Object_t;
+        typedef std::vector <Object_t> Objects_t;
+
+        /// Fill a Graph 
+        ///
+        /// \note It is assumed that a gripper can grasp only one handle and each
+        /// handle cannot be grasped by several grippers at the same time.
+        ///
+        /// \param[in,out] graph must be an initialized empty Graph.
+        void graphBuilder (
+            const Objects_t& objects,
+            const Grippers_t& grippers,
+            GraphPtr_t graph);
         /// \}
       } // namespace helper
     } // namespace graph

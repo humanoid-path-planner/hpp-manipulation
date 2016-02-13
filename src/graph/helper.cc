@@ -18,9 +18,15 @@
 
 #include <hpp/util/debug.hh>
 
+#include <hpp/model/gripper.hh>
+
+#include <hpp/constraints/differentiable-function.hh>
+
 #include <hpp/manipulation/graph/node.hh>
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/node-selector.hh>
+
+#include <hpp/manipulation/handle.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -429,6 +435,126 @@ namespace hpp {
 
           return std::make_pair (eForw, eBack);
         }
+
+        void graspManifold (
+            const GripperPtr_t& gripper, const HandlePtr_t& handle,
+            FoliatedManifold& grasp, FoliatedManifold& pregrasp)
+        {
+          NumericalConstraintPtr_t gc  = handle->createGrasp (gripper);
+          grasp.nc.nc.push_back (gc);
+          grasp.nc.pdof.push_back (SizeIntervals_t ());
+          grasp.nc_path.nc.push_back (gc);
+          // TODO: see function declaration
+          grasp.nc_path.pdof.push_back (SizeIntervals_t ());
+          NumericalConstraintPtr_t gcc = handle->createGraspComplement (gripper);
+          if (gcc->function ().outputSize () > 0) {
+            grasp.nc_fol.nc.push_back (gcc);
+            grasp.nc_fol.pdof.push_back (SizeIntervals_t());
+          }
+
+          const value_type c = handle->clearance () + gripper->clearance ();
+          NumericalConstraintPtr_t pgc = handle->createPreGrasp (gripper, c);
+          pregrasp.nc.nc.push_back (pgc);
+          pregrasp.nc.pdof.push_back (SizeIntervals_t());
+          pregrasp.nc_path.nc.push_back (pgc);
+          pregrasp.nc_path.pdof.push_back (SizeIntervals_t());
+        }
+
+        void strictPlacementManifold (
+            const NumericalConstraintPtr_t placement,
+            const NumericalConstraintPtr_t preplacement,
+            const NumericalConstraintPtr_t placementComplement,
+            FoliatedManifold& place, FoliatedManifold& preplace)
+        {
+          place.nc.nc.push_back (placement);
+          place.nc.pdof.push_back (SizeIntervals_t());
+          place.nc_path.nc.push_back (placement);
+          place.nc_path.pdof.push_back (SizeIntervals_t());
+          if (placementComplement && placementComplement->function().outputSize () > 0) {
+            place.nc_fol.nc.push_back (placementComplement);
+            place.nc_fol.pdof.push_back (SizeIntervals_t());
+          }
+
+          preplace.nc.nc.push_back (preplacement);
+          preplace.nc.pdof.push_back (SizeIntervals_t());
+          preplace.nc_path.nc.push_back (preplacement);
+          preplace.nc_path.pdof.push_back (SizeIntervals_t());
+        }
+
+        void relaxedPlacementManifold (
+            const NumericalConstraintPtr_t placement,
+            const NumericalConstraintPtr_t preplacement,
+            const LockedJoints_t objectLocks,
+            FoliatedManifold& place, FoliatedManifold& preplace)
+        {
+          place.nc.nc.push_back (placement);
+          place.nc.pdof.push_back (SizeIntervals_t());
+          place.nc_path.nc.push_back (placement);
+          place.nc_path.pdof.push_back (SizeIntervals_t());
+          std::copy (objectLocks.begin(), objectLocks.end(), place.lj_fol.end());
+
+          preplace.nc.nc.push_back (preplacement);
+          preplace.nc.pdof.push_back (SizeIntervals_t());
+          preplace.nc_path.nc.push_back (preplacement);
+          preplace.nc_path.pdof.push_back (SizeIntervals_t());
+        }
+
+        typedef std::vector <std::size_t> IndexV_t;
+        typedef std::list <std::size_t> IndexL_t;
+        typedef std::pair <std::size_t, std::size_t> Grasp_t;
+        typedef std::vector <std::size_t, std::size_t> GraspV_t;
+
+        void makeEdge (const Grippers_t& grippers, const IndexV_t& idx_g,
+            const Objects_t& objects, const IndexV_t& idx_oh,
+            const GraspV_t& grasps
+
+        /// idx are the available grippers
+        void recurseGrippers (const Grippers_t& grippers, const IndexV_t& idx_g,
+            const Objects_t& objects, const IndexV_t& idx_oh,
+            const GraspV_t& grasps)
+        {
+          for (IndexV_t::const_iterator itx_g = idx_g.begin ();
+              itx_g != idx_g.end (); ++itx_g) {
+            IndexV_t nIdx_g (idx_g.size() - 1);
+            // Copy all element except itx_g
+            std::copy (boost::next (itx_g), idx_g.end (),
+                std::copy (idx_g.begin (), itx_g, nIdx_g.begin ())
+                );
+            for (IndexV_t::const_iterator itx_oh = idx_oh.begin ();
+                itx_oh != idx_oh.end (); ++itx_oh) {
+              IndexV_t nIdx_oh (idx_oh.size() - 1);
+              // Copy all element except itx_oh
+              std::copy (boost::next (itx_oh), idx_oh.end (),
+                  std::copy (idx_oh.begin (), itx_oh, nIdx_oh.begin ())
+                  );
+              GraspV_t nGrasps = grasps;
+              grasps.push_back (Grasp_t (*itx_g, *itx_oh));
+              makeEdge (grippers, objects, grasps, nGrasps);
+              recurseGrippers (grippers, nIdx_oh, objects, nIdx_oh, nGrasps);
+            }
+          }
+        }
+
+        void graphBuilder (
+            const Objects_t& objects,
+            const Grippers_t& grippers,
+            GraphPtr_t graph)
+        {
+          if (!graph) throw std::logic_error ("The graph must be initialized");
+          NodeSelectorPtr_t ns = graph->nodeSelector ();
+          if (!ns) throw std::logic_error ("The graph does not have a NodeSelector");
+
+          // Max number of handles that can be grasped
+          std::size_t nGrippers = grippers.size ();
+          for (Objects_t::const_iterator begin = objects.begin ();
+              begin != objects.end (); ++begin) {
+            for (
+          }
+          for (Grippers_t::const_iterator begin = grippers.begin ();
+              begin != grippers.end (); ++begin) {
+          }
+        }
+      } // namespace helper
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

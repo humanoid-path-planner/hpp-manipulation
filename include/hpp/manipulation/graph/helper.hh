@@ -29,8 +29,7 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      namespace helper
-      {
+      namespace helper {
         /// \defgroup helper Helpers to build the graph of constraints
         /// \addtogroup helper
         /// \{
@@ -169,6 +168,20 @@ namespace hpp {
             const Objects_t& objects,
             const Grippers_t& grippers,
             GraphPtr_t graph);
+
+        struct ObjectDef_t {
+          std::string name;
+          JointPtr_t lastJoint;
+          StringList_t handles, shapes;
+        };
+
+        GraphPtr_t graphBuilder (
+            const ProblemSolverPtr_t& ps,
+            const std::string& graphName,
+            const StringList_t& griNames,
+            const std::list <ObjectDef_t>& objs,
+            const StringList_t& envNames,
+            const value_type& prePlaceWidth = 0.05);
         /// \}
       } // namespace helper
     } // namespace graph

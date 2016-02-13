@@ -24,11 +24,11 @@
 
 #include <hpp/constraints/differentiable-function.hh>
 
+#include <hpp/manipulation/handle.hh>
 #include <hpp/manipulation/graph/node.hh>
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/node-selector.hh>
-
-#include <hpp/manipulation/handle.hh>
+#include <hpp/manipulation/problem-solver.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -827,6 +827,66 @@ namespace hpp {
           GraspV_t iG (r.nG, r.nOH);
 
           recurseGrippers (r, availG, availOH, iG);
+        }
+
+        GraphPtr_t graphBuilder (
+            const ProblemSolverPtr_t& ps,
+            const std::string& graphName,
+            const StringList_t& griNames,
+            const std::list <ObjectDef_t>& objs,
+            const StringList_t& envNames,
+            const value_type& prePlaceWidth)
+        {
+          const Device& robot = *(ps->robot ());
+          Grippers_t grippers (griNames.size());
+          index_t i = 0;
+          BOOST_FOREACH (const std::string& gn, griNames) {
+            grippers[i] = robot.get <GripperPtr_t> (gn);
+            ++i;
+          }
+          Objects_t objects (objs.size());
+          i = 0;
+          const value_type margin = 1e-3;
+          bool prePlace = (prePlaceWidth > 0);
+          BOOST_FOREACH (const ObjectDef_t& od, objs) {
+            // Create handles
+            objects[i].get<1> ().resize (od.handles.size());
+            Handles_t::iterator it = objects[i].get<1> ().begin();
+            BOOST_FOREACH (const std::string hn, od.handles) {
+              *it = robot.get <HandlePtr_t> (hn);
+              ++it;
+            }
+            // Create placement
+            if (!od.shapes.empty ()) {
+              const std::string placeN = "place_" + od.name;
+              ps->createPlacementConstraint (placeN,
+                  od.shapes, envNames, margin);
+              objects[i].get<0> ().get<0> () =
+                ps->get <NumericalConstraintPtr_t> (placeN);
+              if (prePlace) {
+                ps->createPrePlacementConstraint ("pre" + placeN,
+                    od.shapes, envNames, margin, prePlaceWidth);
+                objects[i].get<0> ().get<1> () =
+                  ps->get <NumericalConstraintPtr_t> ("pre" + placeN);
+              }
+            }
+            // Create object lock
+            for (JointPtr_t oj = od.lastJoint;
+                oj != NULL; oj = oj->parentJoint ()) {
+              LockedJointPtr_t lj = core::LockedJoint::create (oj,
+                  robot.currentConfiguration()
+                  .segment (oj->rankInConfiguration (), oj->configSize ()));
+              ps->add <LockedJointPtr_t> ("lock_" + oj->name (), lj);
+              objects[i].get<0> ().get<2> ().push_back (lj);
+            }
+            ++i;
+          }
+          GraphPtr_t graph = Graph::create (graphName,
+              ps->robot(), ps->problem());
+          graph->createNodeSelector ("nodeSelector");
+          graphBuilder (objects, grippers, graph);
+          ps->constraintGraph (graph);
+          return graph;
         }
       } // namespace helper
     } // namespace graph

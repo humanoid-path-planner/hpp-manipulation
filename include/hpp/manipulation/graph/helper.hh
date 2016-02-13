@@ -80,8 +80,11 @@ namespace hpp {
           void addToEdge (EdgePtr_t comp) const;
           void specifyFoliation (LevelSetEdgePtr_t lse) const;
 
-          bool isFoliated () const {
+          bool foliated () const {
             return lj_fol.empty () && nc_fol.nc.empty ();
+          }
+          bool empty () const {
+            return lj.empty () && nc.nc.empty ();
           }
         };
 

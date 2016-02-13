@@ -16,6 +16,8 @@
 
 #include <hpp/manipulation/graph/helper.hh>
 
+#include <boost/foreach.hpp>
+
 #include <hpp/util/debug.hh>
 
 #include <hpp/model/gripper.hh>
@@ -195,7 +197,7 @@ namespace hpp {
             weBack->setWaypoint (2, e21, n1);
 
             if (levelSetPlace) {
-              if (!place.isFoliated ()) {
+              if (!place.foliated ()) {
                 hppDout (warning, "You asked for a LevelSetEdge for placement, "
                     "but did not specify the target foliation. "
                     "It will have no effect");
@@ -207,7 +209,7 @@ namespace hpp {
               submanifoldDef.addToEdge (e32_ls);
             }
             if (levelSetGrasp) {
-              if (!grasp.isFoliated ()) {
+              if (!grasp.foliated ()) {
                 hppDout (warning, "You asked for a LevelSetEdge for grasping, "
                     "but did not specify the target foliation. "
                     "It will have no effect");
@@ -293,7 +295,7 @@ namespace hpp {
           weForw->setWaypoint (0, (levelSetGrasp)?e21_ls:e21, n1);
 
           if (levelSetPlace) {
-            if (!place.isFoliated ()) {
+            if (!place.foliated ()) {
               hppDout (warning, "You asked for a LevelSetEdge for placement, "
                   "but did not specify the target foliation. "
                   "It will have no effect");
@@ -305,7 +307,7 @@ namespace hpp {
             submanifoldDef.addToEdge (e21_ls);
           }
           if (levelSetGrasp) {
-            if (!grasp.isFoliated ()) {
+            if (!grasp.foliated ()) {
               hppDout (warning, "You asked for a LevelSetEdge for grasping, "
                   "but did not specify the target foliation. "
                   "It will have no effect");
@@ -385,7 +387,7 @@ namespace hpp {
           if (levelSetGrasp) {
             hppDout (error, "You specified a foliated grasp with no placement. "
                 "This is currently unsupported.");
-            if (!grasp.isFoliated ()) {
+            if (!grasp.foliated ()) {
               hppDout (warning, "You asked for a LevelSetEdge for grasping, "
                   "but did not specify the target foliation. "
                   "It will have no effect");
@@ -425,7 +427,7 @@ namespace hpp {
           submanifoldDef.addToEdge (eBack);
 
           if (levelSetGrasp) {
-            if (!grasp.isFoliated ()) {
+            if (!grasp.foliated ()) {
               hppDout (warning, "You asked for a LevelSetEdge for grasping, "
                   "but did not specify the target foliation. "
                   "It will have no effect");
@@ -499,41 +501,198 @@ namespace hpp {
           preplace.nc_path.pdof.push_back (SizeIntervals_t());
         }
 
-        typedef std::vector <std::size_t> IndexV_t;
-        typedef std::list <std::size_t> IndexL_t;
-        typedef std::pair <std::size_t, std::size_t> Grasp_t;
-        typedef std::vector <std::size_t, std::size_t> GraspV_t;
+        namespace {
+          typedef std::size_t index_t;
+          typedef std::vector <index_t> IndexV_t;
+          typedef std::list <index_t> IndexL_t;
+          typedef std::pair <index_t, index_t> Grasp_t;
+          typedef boost::tuple <NodePtr_t,
+                  FoliatedManifold>
+                    NodeAndManifold_t;
+          //typedef std::vector <index_t, index_t> GraspV_t;
+          /// GraspV_t corresponds to a unique ID of a  permutation.
+          /// - its size is the number of grippers,
+          /// - the values correpond to the index of the handle (0..nbHandle-1), or
+          ///   nbHandle to mean no handle. 
+          typedef std::vector <index_t> GraspV_t;
 
-        void makeEdge (const Grippers_t& grippers, const IndexV_t& idx_g,
-            const Objects_t& objects, const IndexV_t& idx_oh,
-            const GraspV_t& grasps
+          struct Result {
+            GraphPtr_t graph;
+            std::vector<NodeAndManifold_t> nodes;
+            index_t nG, nOH;
+            GraspV_t dims;
+            const Grippers_t& gs;
+            const Objects_t& ohs;
+
+            Result (const Grippers_t& grippers, const Objects_t& objects, GraphPtr_t g) :
+              graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects)
+            {
+              BOOST_FOREACH (const Object_t& o, objects) {
+                nOH += o.get<1>().size();
+              }
+              dims.resize (nG);
+              dims[0] = nOH + 1;
+              for (index_t i = 1; i < nG; ++i)
+                dims[i] = dims[i-1] * (nOH + 1);
+              nodes.resize (dims[nG-1] * (nOH + 1));
+            }
+
+            NodeAndManifold_t& operator() (const GraspV_t& iG)
+            {
+              index_t iGOH = 0;
+              for (index_t i = 1; i < nG; ++i)
+                iGOH += dims[i] * (iG[i]);
+              return nodes [iGOH];
+            }
+
+            const Object_t& object (const index_t& iOH) const {
+              index_t iH = iOH;
+              BOOST_FOREACH (const Object_t& o, ohs) {
+                if (iH < o.get<1>().size()) return o;
+                iH -= o.get<1>().size();
+              }
+              throw std::out_of_range ("Handle index");
+            }
+
+            const HandlePtr_t& handle (const index_t& iOH) const {
+              index_t iH = iOH;
+              BOOST_FOREACH (const Object_t& o, ohs) {
+                if (iH < o.get<1>().size()) return o.get<1>()[iH];
+                iH -= o.get<1>().size();
+              }
+              throw std::out_of_range ("Handle index");
+            }
+
+            std::string name (const GraspV_t& /*iG*/) const {
+              // TODO: define a more representative name
+              return "name";
+            }
+          };
+
+          const NodeAndManifold_t& makeNode (Result& r, const GraspV_t& g)
+          {
+            NodeAndManifold_t& nam = r (g);
+            if (!nam.get<0>()) {
+              nam.get<0>() = r.graph->nodeSelector ()->createNode (r.name (g));
+              // Loop over the grippers and create grasping constraints if required
+              FoliatedManifold unused;
+              std::set <index_t> idxsOH;
+              for (index_t i = 0; i < r.nG; ++i) {
+                if (g[i] < r.nOH) {
+                  idxsOH.insert (g[i]);
+                  graspManifold (r.gs[i], r.handle (g[i]),
+                      nam.get<1>(), unused);
+                }
+              }
+              index_t iOH = 0;
+              BOOST_FOREACH (const Object_t& o, r.ohs) {
+                bool oIsGrasped = false;
+                // TODO: use the fact that the set is sorted.
+                // BOOST_FOREACH (const HandlePtr_t& h, o.get<1>()) {
+                for (index_t i = 0; i < o.get<1>().size(); ++i) {
+                  if (idxsOH.erase (iOH) == 1) oIsGrasped = true;
+                  ++iOH;
+                }
+                if (!oIsGrasped)
+                  relaxedPlacementManifold (o.get<0>().get<0>(),
+                      o.get<0>().get<1>(),
+                      o.get<0>().get<2>(),
+                      nam.get<1>(), unused);
+              }
+              nam.get<1>().addToNode (nam.get<0>());
+              }
+              return nam;
+            }
+
+            /// Arguments are such that
+            /// \li gTo[iG] != gFrom[iG]
+            /// \li for all i != iG, gTo[iG] == gFrom[iG]
+            void makeEdge (Result& r,
+                const GraspV_t& gFrom, const GraspV_t& gTo,
+                const index_t iG)
+            {
+              const NodeAndManifold_t& from = makeNode (r, gFrom),
+              to   = makeNode (r, gTo);
+              FoliatedManifold grasp, pregrasp, place, preplace;
+              graspManifold (r.gs[iG], r.handle (gTo[iG]),
+                  grasp, pregrasp);
+              const Object_t& o = r.object (gTo[iG]);
+              relaxedPlacementManifold (o.get<0>().get<0>(),
+                  o.get<0>().get<1>(),
+                  o.get<0>().get<2>(),
+                  place, preplace);
+              if (pregrasp.empty ()) {
+                if (preplace.empty ())
+                  createEdges <GraspOnly | PlaceOnly> (
+                      "forwName"            , "backName",
+                      from.get<0> ()        , to.get<0>(),
+                      1                     , 1,
+                      grasp                 , pregrasp,
+                      place                 , preplace,
+                      grasp.foliated ()     , place.foliated(),
+                      from.get<1> ());
+                else
+                  createEdges <GraspOnly | WithPrePlace> (
+                      "forwName"            , "backName",
+                      from.get<0> ()        , to.get<0>(),
+                      1                     , 1,
+                      grasp                 , pregrasp,
+                      place                 , preplace,
+                      grasp.foliated ()     , place.foliated(),
+                      from.get<1> ());
+              } else {
+                if (preplace.empty ())
+                  createEdges <WithPreGrasp | PlaceOnly> (
+                      "forwName"            , "backName",
+                      from.get<0> ()        , to.get<0>(),
+                      1                     , 1,
+                      grasp                 , pregrasp,
+                      place                 , preplace,
+                      grasp.foliated ()     , place.foliated(),
+                      from.get<1> ());
+                else
+                  createEdges <WithPreGrasp | WithPrePlace> (
+                      "forwName"            , "backName",
+                      from.get<0> ()        , to.get<0>(),
+                      1                     , 1,
+                      grasp                 , pregrasp,
+                      place                 , preplace,
+                      grasp.foliated ()     , place.foliated(),
+                      from.get<1> ());
+              }
+            }
 
         /// idx are the available grippers
-        void recurseGrippers (const Grippers_t& grippers, const IndexV_t& idx_g,
-            const Objects_t& objects, const IndexV_t& idx_oh,
+            void recurseGrippers (Result& r,
+                const IndexV_t& idx_g, const IndexV_t& idx_oh,
             const GraspV_t& grasps)
         {
+              IndexV_t nIdx_g (idx_g.size() - 1);
+              IndexV_t nIdx_oh (idx_oh.size() - 1);
           for (IndexV_t::const_iterator itx_g = idx_g.begin ();
               itx_g != idx_g.end (); ++itx_g) {
-            IndexV_t nIdx_g (idx_g.size() - 1);
             // Copy all element except itx_g
             std::copy (boost::next (itx_g), idx_g.end (),
                 std::copy (idx_g.begin (), itx_g, nIdx_g.begin ())
                 );
             for (IndexV_t::const_iterator itx_oh = idx_oh.begin ();
                 itx_oh != idx_oh.end (); ++itx_oh) {
-              IndexV_t nIdx_oh (idx_oh.size() - 1);
               // Copy all element except itx_oh
               std::copy (boost::next (itx_oh), idx_oh.end (),
                   std::copy (idx_oh.begin (), itx_oh, nIdx_oh.begin ())
                   );
+
+                  // Create the edge for the selected grasp
               GraspV_t nGrasps = grasps;
-              grasps.push_back (Grasp_t (*itx_g, *itx_oh));
-              makeEdge (grippers, objects, grasps, nGrasps);
-              recurseGrippers (grippers, nIdx_oh, objects, nIdx_oh, nGrasps);
+                  nGrasps [*itx_g] = *itx_oh;
+                  makeEdge (r, grasps, nGrasps, *itx_g);
+
+                  // Do all the possible combination below this new grasp
+                  recurseGrippers (r, nIdx_oh, nIdx_oh, nGrasps);
             }
           }
         }
+          }
 
         void graphBuilder (
             const Objects_t& objects,
@@ -544,15 +703,15 @@ namespace hpp {
           NodeSelectorPtr_t ns = graph->nodeSelector ();
           if (!ns) throw std::logic_error ("The graph does not have a NodeSelector");
 
-          // Max number of handles that can be grasped
-          std::size_t nGrippers = grippers.size ();
-          for (Objects_t::const_iterator begin = objects.begin ();
-              begin != objects.end (); ++begin) {
-            for (
-          }
-          for (Grippers_t::const_iterator begin = grippers.begin ();
-              begin != grippers.end (); ++begin) {
-          }
+          Result r (grippers, objects, graph);
+
+          IndexV_t availG (r.nG), availOH (r.nOH);
+          for (index_t i = 0; i < r.nG; ++i) availG[i] = i;
+          for (index_t i = 0; i < r.nOH; ++i) availOH[i] = i;
+
+          GraspV_t iG (r.nG, r.nOH);
+
+          recurseGrippers (r, availG, availOH, iG);
         }
       } // namespace helper
     } // namespace graph

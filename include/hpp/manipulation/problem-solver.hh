@@ -99,8 +99,8 @@ namespace hpp {
         /// \param margin see hpp::constraints::ConvexShapeContact::setNormalMargin
 	/// 
 	void createPlacementConstraint (const std::string& name,
-					const std::list<std::string>& surface1,
-					const std::list<std::string>& surface2,
+					const StringList_t& surface1,
+					const StringList_t& surface2,
                                         const value_type& margin = 1e-4);
 
 	/// Create pre-placement constraint
@@ -111,8 +111,8 @@ namespace hpp {
         /// \param margin see hpp::constraints::ConvexShapeContact::setNormalMargin
 	/// 
 	void createPrePlacementConstraint (const std::string& name,
-					   const std::list<std::string>& surface1,
-					   const std::list<std::string>& surface2,
+					   const StringList_t& surface1,
+					   const StringList_t& surface2,
                                            const value_type& width,
                                            const value_type& margin = 1e-4);
 

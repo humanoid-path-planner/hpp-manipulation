@@ -50,8 +50,6 @@
 namespace hpp {
   namespace manipulation {
     namespace {
-      typedef std::list<std::string> StringList_t;
-
       struct PartialShortcutTraits :
         core::pathOptimization::PartialShortcutTraits {
           static bool removeLockedJoints () { return false; }
@@ -151,8 +149,8 @@ namespace hpp {
     }
 
     void ProblemSolver::createPlacementConstraint
-    (const std::string& name, const std::list<std::string>& surface1,
-     const std::list<std::string>& surface2, const value_type& margin)
+    (const std::string& name, const StringList_t& surface1,
+     const StringList_t& surface2, const value_type& margin)
     {
       if (!robot_) throw std::runtime_error ("No robot loaded");
       using constraints::ConvexShape;
@@ -201,8 +199,8 @@ namespace hpp {
     }
 
     void ProblemSolver::createPrePlacementConstraint
-    (const std::string& name, const std::list<std::string>& surface1,
-     const std::list<std::string>& surface2, const value_type& width,
+    (const std::string& name, const StringList_t& surface1,
+     const StringList_t& surface2, const value_type& width,
      const value_type& margin)
     {
       if (!robot_) throw std::runtime_error ("No robot loaded");

@@ -119,6 +119,7 @@ namespace hpp {
     typedef std::vector<core::vector3_t> Shape_t;
     typedef std::pair <JointPtr_t, Shape_t> JointAndShape_t;
     typedef std::list <JointAndShape_t> JointAndShapes_t;
+    typedef std::list <std::string> StringList_t;
     typedef HPP_MANIPULATION_DEPRECATED Shape_t Triangle;
     typedef HPP_MANIPULATION_DEPRECATED JointAndShape_t JointAndTriangle_t;
     typedef HPP_MANIPULATION_DEPRECATED JointAndShapes_t JointAndTriangles_t;

@@ -626,7 +626,11 @@ namespace hpp {
         f.condition (cond);
         cond->addConstraint (proj);
 
+        // TODO: If hist_ is not NULL, remove the previous Histogram.
+        // It should not be of any use and it slows down node insertion in the
+        // roadmap.
         hist_ = LeafHistogram::create (f);
+        g->insertHistogram (hist_);
       }
 
       ConstraintSetPtr_t LevelSetEdge::buildConfigConstraint() const

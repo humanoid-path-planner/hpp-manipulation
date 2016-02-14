@@ -169,6 +169,7 @@ namespace hpp {
             weForw->setWaypoint (2, e23, n3);
 
             // Populate bacward edge
+            name = backName;
             EdgePtr_t e43 = n4->linkTo (name + "_e43", n3, -1, Edge::create),
                       e32 = n3->linkTo (name + "_e32", n2, -1, Edge::create),
                       e21 = n2->linkTo (name + "_e21", n1, -1, Edge::create),
@@ -193,7 +194,7 @@ namespace hpp {
             submanifoldDef.addToEdge (e43);
 
             weBack->setWaypoint (0, e43, n3);
-            weForw->setWaypoint (1, (levelSetGrasp)?e32_ls:e32, n2);
+            weBack->setWaypoint (1, (levelSetPlace)?e32_ls:e32, n2);
             weBack->setWaypoint (2, e21, n1);
 
             if (levelSetPlace) {
@@ -207,6 +208,7 @@ namespace hpp {
               grasp.addToEdge (e32_ls);
               place.specifyFoliation (e32_ls);
               submanifoldDef.addToEdge (e32_ls);
+              e32_ls->buildHistogram ();
             }
             if (levelSetGrasp) {
               if (!grasp.foliated ()) {
@@ -219,6 +221,7 @@ namespace hpp {
               place.addToEdge (e12_ls);
               grasp.specifyFoliation (e12_ls);
               submanifoldDef.addToEdge (e12_ls);
+              e12_ls->buildHistogram ();
             }
 
             return std::make_pair (weForw, weBack);
@@ -286,6 +289,7 @@ namespace hpp {
             weForw->setWaypoint (1, (levelSetGrasp)?e12_ls:e12, n2);
 
             // Populate bacward edge
+            name = backName;
             EdgePtr_t e32 = n3->linkTo (name + "_e32", n2, -1, Edge::create),
                       e21 = n2->linkTo (name + "_e21", n1, -1, Edge::create),
                       e10 = weBack;
@@ -305,7 +309,7 @@ namespace hpp {
             grasp.addToEdge (e32);
             submanifoldDef.addToEdge (e32);
 
-            weForw->setWaypoint (0, (levelSetGrasp)?e32_ls:e32, n2);
+            weBack->setWaypoint (0, (levelSetPlace)?e32_ls:e32, n2);
             weBack->setWaypoint (1, e21, n1);
 
             if (levelSetPlace) {
@@ -319,6 +323,7 @@ namespace hpp {
               grasp.addToEdge (e32_ls);
               place.specifyFoliation (e32_ls);
               submanifoldDef.addToEdge (e32_ls);
+              e32_ls->buildHistogram ();
             }
             if (levelSetGrasp) {
               if (!grasp.foliated ()) {
@@ -331,6 +336,7 @@ namespace hpp {
               place.addToEdge (e12_ls);
               grasp.specifyFoliation (e12_ls);
               submanifoldDef.addToEdge (e12_ls);
+              e12_ls->buildHistogram ();
             }
 
             return std::make_pair (weForw, weBack);
@@ -389,6 +395,7 @@ namespace hpp {
           weForw->setWaypoint (0, (levelSetGrasp)?e01_ls:e01, n1);
 
           // Populate bacward edge
+          name = backName;
           EdgePtr_t e21 = n2->linkTo (name + "_e21", n1, -1, Edge::create),
                     e10 = weBack;
           LevelSetEdgePtr_t e21_ls;
@@ -404,7 +411,7 @@ namespace hpp {
           grasp.addToEdge (e21);
           submanifoldDef.addToEdge (e21);
 
-          weForw->setWaypoint (0, (levelSetGrasp)?e21_ls:e21, n1);
+          weBack->setWaypoint (0, (levelSetPlace)?e21_ls:e21, n1);
 
           if (levelSetPlace) {
             if (!place.foliated ()) {
@@ -417,6 +424,7 @@ namespace hpp {
             grasp.addToEdge (e21_ls);
             place.specifyFoliation (e21_ls);
             submanifoldDef.addToEdge (e21_ls);
+            e21_ls->buildHistogram ();
           }
           if (levelSetGrasp) {
             if (!grasp.foliated ()) {
@@ -429,6 +437,7 @@ namespace hpp {
             place.addToEdge (e01_ls);
             grasp.specifyFoliation (e01_ls);
             submanifoldDef.addToEdge (e01_ls);
+            e01_ls->buildHistogram ();
           }
 
           return std::make_pair (weForw, weBack);
@@ -485,6 +494,7 @@ namespace hpp {
           // weForw->setWaypoint (1, (levelSetGrasp)?e12_ls:e12, n2);
 
           // Populate bacward edge
+          name = backName;
           EdgePtr_t e21 = n2->linkTo (name + "_e21", n1, -1, Edge::create),
                     e10 = weBack;
 
@@ -494,7 +504,7 @@ namespace hpp {
           submanifoldDef.addToEdge (e10);
           submanifoldDef.addToEdge (e21);
 
-          weForw->setWaypoint (0, e21, n1);
+          weBack->setWaypoint (0, e21, n1);
 
           if (levelSetGrasp) {
             hppDout (error, "You specified a foliated grasp with no placement. "
@@ -508,6 +518,7 @@ namespace hpp {
             e12_ls->setShort (true);
             grasp.specifyFoliation (e12_ls);
             submanifoldDef.addToEdge (e12_ls);
+            e12_ls->buildHistogram ();
           }
 
           return std::make_pair (weForw, weBack);
@@ -544,10 +555,42 @@ namespace hpp {
                   "but did not specify the target foliation. "
                   "It will have no effect");
             }
-            grasp.specifyFoliation (HPP_DYNAMIC_PTR_CAST (LevelSetEdge, eForw));
+            LevelSetEdgePtr_t ls = HPP_DYNAMIC_PTR_CAST (LevelSetEdge, eForw);
+            grasp.specifyFoliation (ls);
+            ls->buildHistogram ();
           }
 
           return std::make_pair (eForw, eBack);
+        }
+
+        EdgePtr_t createLoopEdge (
+              const std::string& loopName,
+              const NodePtr_t& node,
+              const size_type& w,
+              const bool levelSet,
+              const FoliatedManifold& submanifoldDef)
+        {
+          // Create the edges
+          EdgePtr_t loop;
+          if (levelSet)
+               loop = node->linkTo (loopName, node, w, LevelSetEdge::create);
+          else loop = node->linkTo (loopName, node, w, Edge::create);
+
+          loop->node (node);
+          submanifoldDef.addToEdge (loop);
+
+          if (levelSet) {
+            if (!submanifoldDef.foliated ()) {
+              hppDout (warning, "You asked for a LevelSetEdge for looping, "
+                  "but did not specify the target foliation. "
+                  "It will have no effect");
+            }
+            LevelSetEdgePtr_t ls = HPP_DYNAMIC_PTR_CAST (LevelSetEdge, loop);
+            submanifoldDef.specifyFoliation (ls);
+            ls->buildHistogram ();
+          }
+
+          return loop;
         }
 
         void graspManifold (
@@ -605,7 +648,7 @@ namespace hpp {
           place.nc.pdof.push_back (SizeIntervals_t());
           place.nc_path.nc.push_back (placement);
           place.nc_path.pdof.push_back (SizeIntervals_t());
-          std::copy (objectLocks.begin(), objectLocks.end(), place.lj_fol.end());
+          std::copy (objectLocks.begin(), objectLocks.end(), std::back_inserter(place.lj_fol));
 
           preplace.nc.nc.push_back (preplacement);
           preplace.nc.pdof.push_back (SizeIntervals_t());
@@ -651,7 +694,7 @@ namespace hpp {
 
             NodeAndManifold_t& operator() (const GraspV_t& iG)
             {
-              index_t iGOH = 0;
+              index_t iGOH = iG[0];
               for (index_t i = 1; i < nG; ++i)
                 iGOH += dims[i] * (iG[i]);
               return nodes [iGOH];
@@ -675,9 +718,45 @@ namespace hpp {
               throw std::out_of_range ("Handle index");
             }
 
-            std::string name (const GraspV_t& /*iG*/) const {
-              // TODO: define a more representative name
-              return "name";
+            /// Get a node name from a set of grasps
+            std::string name (const GraspV_t& idxOH, bool abbrev = false) const {
+              assert (idxOH.size () == nG);
+              std::stringstream ss;
+              bool first = true;
+              std::string sepGOH = (abbrev?"-":" grasps "),
+                          sep    = (abbrev?":":" : ");
+              for (std::size_t i = 0; i < idxOH.size (); ++i) {
+                if (idxOH[i] < nOH) { // This grippers grasps an object
+                  if (first) first = false; else ss << sep; 
+                  if (abbrev) ss << i << sepGOH << idxOH[i];
+                  else
+                    ss << gs[i]->name() << sepGOH << handle (idxOH[i])->name ();
+                }
+              }
+              if (first) return (abbrev?"f":"free");
+              return ss.str();
+            }
+
+            /// Get an edge name from a set of grasps
+            std::pair<std::string, std::string> name
+              (const GraspV_t& gFrom, const GraspV_t& gTo, const index_t iG)
+            {
+              const std::string nf (name (gFrom, true)),
+                                nt (name (gTo, true));
+              std::stringstream ssForw, ssBack;
+              const char sep[] = " | ";
+              ssForw << gs[iG]->name() << " > " << handle (gTo[iG])->name () << sep << nf;
+              ssBack << gs[iG]->name() << " < " << handle (gTo[iG])->name () << sep << nt;
+              return std::make_pair (ssForw.str(), ssBack.str ());
+            }
+
+            std::string nameLoopEdge (const GraspV_t& gFrom)
+            {
+              const std::string nf (name (gFrom, true));
+              std::stringstream ss;
+              const char sep[] = " | ";
+              ss << "Loop" << sep << nf;
+              return ss.str();
             }
           };
 
@@ -685,6 +764,7 @@ namespace hpp {
           {
             NodeAndManifold_t& nam = r (g);
             if (!nam.get<0>()) {
+              hppDout (info, "Creating node " << r.name (g));
               nam.get<0>() = r.graph->nodeSelector ()->createNode (r.name (g));
               // Loop over the grippers and create grasping constraints if required
               FoliatedManifold unused;
@@ -712,6 +792,11 @@ namespace hpp {
                       nam.get<1>(), unused);
               }
               nam.get<1>().addToNode (nam.get<0>());
+
+              createLoopEdge (r.nameLoopEdge (g),
+                  nam.get<0>(), 1, 
+                  nam.get<1>().foliated(),
+                  nam.get<1>());
             }
             return nam;
           }
@@ -733,10 +818,12 @@ namespace hpp {
                 o.get<0>().get<1>(),
                 o.get<0>().get<2>(),
                 place, preplace);
+            std::pair<std::string, std::string> names =
+              r.name (gFrom, gTo, iG);
             if (pregrasp.empty ()) {
               if (preplace.empty ())
                 createEdges <GraspOnly | PlaceOnly> (
-                    "forwName"            , "backName",
+                    names.first           , names.second,
                     from.get<0> ()        , to.get<0>(),
                     1                     , 1,
                     grasp                 , pregrasp,
@@ -747,7 +834,7 @@ namespace hpp {
                 hppDout (error, "GraspOnly | WithPrePlace not implemeted yet");
                 /*
                    createEdges <GraspOnly | WithPrePlace> (
-                   "forwName"            , "backName",
+                   names.first           , names.second,
                    from.get<0> ()        , to.get<0>(),
                    1                     , 1,
                    grasp                 , pregrasp,
@@ -758,7 +845,7 @@ namespace hpp {
             } else {
               if (preplace.empty ())
                 createEdges <WithPreGrasp | PlaceOnly> (
-                    "forwName"            , "backName",
+                    names.first           , names.second,
                     from.get<0> ()        , to.get<0>(),
                     1                     , 1,
                     grasp                 , pregrasp,
@@ -767,7 +854,7 @@ namespace hpp {
                     from.get<1> ());
               else
                 createEdges <WithPreGrasp | WithPrePlace> (
-                    "forwName"            , "backName",
+                    names.first           , names.second,
                     from.get<0> ()        , to.get<0>(),
                     1                     , 1,
                     grasp                 , pregrasp,
@@ -782,6 +869,7 @@ namespace hpp {
               const IndexV_t& idx_g, const IndexV_t& idx_oh,
               const GraspV_t& grasps)
           {
+            if (idx_g.empty () || idx_oh.empty ()) return;
             IndexV_t nIdx_g (idx_g.size() - 1);
             IndexV_t nIdx_oh (idx_oh.size() - 1);
             for (IndexV_t::const_iterator itx_g = idx_g.begin ();
@@ -803,7 +891,7 @@ namespace hpp {
                 makeEdge (r, grasps, nGrasps, *itx_g);
 
                 // Do all the possible combination below this new grasp
-                recurseGrippers (r, nIdx_oh, nIdx_oh, nGrasps);
+                recurseGrippers (r, nIdx_g, nIdx_oh, nGrasps);
               }
             }
           }
@@ -885,6 +973,9 @@ namespace hpp {
           GraphPtr_t graph = Graph::create (graphName,
               ps->robot(), ps->problem());
           graph->createNodeSelector ("nodeSelector");
+          graph->maxIterations  (ps->maxIterations ());
+          graph->errorThreshold (ps->errorThreshold ());
+
           graphBuilder (objects, grippers, graph);
           ps->constraintGraph (graph);
           return graph;

@@ -121,6 +121,18 @@ namespace hpp {
 	  /// Get the steering Method
 	  const ProblemPtr_t& problem () const;
 
+          /// Register an histogram representing a foliation
+          void insertHistogram (const graph::HistogramPtr_t& hist)
+          {
+            hists_.push_back (hist);
+          }
+
+          /// Get the histograms
+          std::list<HistogramPtr_t>& histograms ()
+          {
+            return hists_;
+          }
+
           /// Print the component in DOT language.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
@@ -155,6 +167,9 @@ namespace hpp {
           typedef std::map  < NodePtr_t, ConstraintSetPtr_t > MapFromNode;
           typedef std::pair < NodePtr_t, ConstraintSetPtr_t > PairNodeConstraints;
           MapFromNode constraintSetMapFromNode_;
+
+          /// List of histograms
+          std::list<HistogramPtr_t> hists_;
 
           /// Map of constraint sets (from Edge).
           typedef std::map  < EdgePtr_t, ConstraintSetPtr_t > MapFromEdge;

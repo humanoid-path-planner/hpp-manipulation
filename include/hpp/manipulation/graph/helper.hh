@@ -80,7 +80,7 @@ namespace hpp {
           void specifyFoliation (LevelSetEdgePtr_t lse) const;
 
           bool foliated () const {
-            return lj_fol.empty () && nc_fol.nc.empty ();
+            return !lj_fol.empty () || !nc_fol.nc.empty ();
           }
           bool empty () const {
             return lj.empty () && nc.nc.empty ();
@@ -113,6 +113,14 @@ namespace hpp {
               const FoliatedManifold& grasp, const FoliatedManifold& pregrasp,
               const FoliatedManifold& place, const FoliatedManifold& preplace,
               const bool levelSetGrasp,      const bool levelSetPlace,
+              const FoliatedManifold& submanifoldDef = FoliatedManifold ()
+              );
+
+        EdgePtr_t createLoopEdge (
+              const std::string& loopName,
+              const NodePtr_t& node,
+              const size_type& w,
+              const bool levelSet,
               const FoliatedManifold& submanifoldDef = FoliatedManifold ()
               );
 

@@ -111,7 +111,7 @@ namespace hpp {
         * Transform3f (fcl::Vec3f (shift,0,0));
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
-				      ("Transformation_(0,1,1,1,1,1)_" + name ()
+				      ("Transformation_(1,1,1,1,1,1)_" + name ()
 				       + "_" + gripper->name (),
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),

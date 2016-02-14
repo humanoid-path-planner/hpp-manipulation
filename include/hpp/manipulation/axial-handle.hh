@@ -66,6 +66,8 @@ namespace hpp {
       /// \return the constraint of relative transformation between the handle and
       ///         the gripper.
       /// \note The translation along x-axis and the rotation around z-axis are not constrained.
+      /// \todo this function is never called. It should follow changes of
+      ///       Handle::createPreGrasp prototype.
       virtual NumericalConstraintPtr_t createPreGrasp
       (const GripperPtr_t& gripper) const;
 

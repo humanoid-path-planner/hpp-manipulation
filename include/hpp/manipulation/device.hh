@@ -1,6 +1,6 @@
 ///
 /// Copyright (c) 2014 CNRS
-/// Authors: Florent Lamiraux
+/// Authors: Florent Lamiraux, Joseph Mirabel
 ///
 ///
 // This file is part of hpp-manipulation.
@@ -35,10 +35,10 @@ namespace hpp {
     ///
     /// This class also contains model::Gripper, Handle and \ref JointAndTriangles_t
     class HPP_MANIPULATION_DLLAPI Device : public model::HumanoidRobot,
-      public core::Container <HandlePtr_t>,
-      public core::Container <model::GripperPtr_t>,
-      public core::Container <JointAndShapes_t>,
-      public core::Container <model::JointVector_t>
+      protected core::Container <HandlePtr_t>,
+      protected core::Container <model::GripperPtr_t>,
+      protected core::Container <JointAndShapes_t>,
+      protected core::Container <model::JointVector_t>
     {
       public:
         typedef model::HumanoidRobot Parent_t;

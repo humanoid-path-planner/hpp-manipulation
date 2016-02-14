@@ -171,7 +171,6 @@ namespace hpp {
 
         struct ObjectDef_t {
           std::string name;
-          JointPtr_t lastJoint;
           StringList_t handles, shapes;
         };
 

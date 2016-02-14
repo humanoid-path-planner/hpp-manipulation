@@ -871,8 +871,9 @@ namespace hpp {
               }
             }
             // Create object lock
-            for (JointPtr_t oj = od.lastJoint;
-                oj != NULL; oj = oj->parentJoint ()) {
+            using model::JointVector_t;
+            assert (robot.has <JointVector_t> (od.name));
+            BOOST_FOREACH (const JointPtr_t& oj, robot.get<JointVector_t> (od.name)) {
               LockedJointPtr_t lj = core::LockedJoint::create (oj,
                   robot.currentConfiguration()
                   .segment (oj->rankInConfiguration (), oj->configSize ()));

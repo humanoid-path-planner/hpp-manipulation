@@ -37,7 +37,8 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI Device : public model::HumanoidRobot,
       public core::Container <HandlePtr_t>,
       public core::Container <model::GripperPtr_t>,
-      public core::Container <JointAndShapes_t>
+      public core::Container <JointAndShapes_t>,
+      public core::Container <model::JointVector_t>
     {
       public:
         typedef model::HumanoidRobot Parent_t;
@@ -112,7 +113,7 @@ namespace hpp {
         /// add the current Robot.
         /// When creating a robot from several URDF files, this enables
         /// collisions between joints from different files.
-        void didInsertRobot ();
+        void didInsertRobot (const std::string& name);
 
         /// \}
 

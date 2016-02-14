@@ -25,7 +25,7 @@
 
 namespace hpp {
   namespace manipulation {
-        void Device::didInsertRobot ()
+        void Device::didInsertRobot (const std::string& name)
         {
           if (!didPrepare_) {
             hppDout (error, "You must call prepareInsertRobot before.");
@@ -34,6 +34,7 @@ namespace hpp {
           /// Build list of new joints
           const model::JointVector_t jv = getJointVector ();
           model::JointVector_t newj;
+          newj.reserve (jv.size () - jointCache_.size ());
           model::JointVector_t::const_iterator retFind, it1, it2;
           for (it1 = jv.begin (); it1 != jv.end (); ++it1) {
             retFind = find (jointCache_.begin (), jointCache_.end (), *it1);
@@ -50,6 +51,7 @@ namespace hpp {
             }
           }
           jointCache_.clear ();
+          add (name, newj);
         }
     std::ostream& Device::print (std::ostream& os) const
     {

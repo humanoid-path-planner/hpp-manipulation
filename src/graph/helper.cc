@@ -740,6 +740,7 @@ namespace hpp {
           struct Result {
             GraphPtr_t graph;
             std::vector<NodeAndManifold_t> nodes;
+            std::vector< boost::array<NumericalConstraintPtr_t,3> > graspCs;
             index_t nG, nOH;
             GraspV_t dims;
             const Grippers_t& gs;
@@ -756,6 +757,7 @@ namespace hpp {
               for (index_t i = 1; i < nG; ++i)
                 dims[i] = dims[i-1] * (nOH + 1);
               nodes.resize (dims[nG-1] * (nOH + 1));
+              graspCs.resize (nG * nOH);
             }
 
             NodeAndManifold_t& operator() (const GraspV_t& iG)
@@ -764,6 +766,24 @@ namespace hpp {
               for (index_t i = 1; i < nG; ++i)
                 iGOH += dims[i] * (iG[i]);
               return nodes [iGOH];
+            }
+
+            inline boost::array<NumericalConstraintPtr_t,3>& graspConstraint (
+                const index_t& iG, const index_t& iOH)
+            {
+              boost::array<NumericalConstraintPtr_t,3>& gcs =
+                graspCs [iG * nOH + iOH];
+              if (!gcs[0]) {
+                hppDout (info, "Create grasps constraints for ("
+                    << iG << ", " << iOH << ")");
+                const GripperPtr_t& g (gs[iG]);
+                const HandlePtr_t& h (handle (iOH));
+                gcs[0] = h->createGrasp (g);
+                gcs[1] = h->createGraspComplement (g);
+                const value_type c = h->clearance () + g->clearance ();
+                gcs[2] = h->createPreGrasp (g, c);
+              }
+              return gcs;
             }
 
             const Object_t& object (const index_t& iOH) const {
@@ -824,6 +844,27 @@ namespace hpp {
               ss << "Loop" << sep << nf;
               return ss.str();
             }
+
+            void graspManifold (const index_t& iG, const index_t& iOH,
+                FoliatedManifold& grasp, FoliatedManifold& pregrasp)
+            {
+              boost::array<NumericalConstraintPtr_t,3>& gcs
+                = graspConstraint (iG, iOH);
+              grasp.nc.nc.push_back (gcs[0]);
+              grasp.nc.pdof.push_back (SizeIntervals_t ());
+              grasp.nc_path.nc.push_back (gcs[0]);
+              // TODO: see function declaration
+              grasp.nc_path.pdof.push_back (SizeIntervals_t ());
+              if (gcs[1]->function ().outputSize () > 0) {
+                grasp.nc_fol.nc.push_back (gcs[1]);
+                grasp.nc_fol.pdof.push_back (SizeIntervals_t());
+              }
+
+              pregrasp.nc.nc.push_back (gcs[2]);
+              pregrasp.nc.pdof.push_back (SizeIntervals_t());
+              pregrasp.nc_path.nc.push_back (gcs[2]);
+              pregrasp.nc_path.pdof.push_back (SizeIntervals_t());
+            }
           };
 
           const NodeAndManifold_t& makeNode (Result& r, const GraspV_t& g)
@@ -838,8 +879,7 @@ namespace hpp {
               for (index_t i = 0; i < r.nG; ++i) {
                 if (g[i] < r.nOH) {
                   idxsOH.insert (g[i]);
-                  graspManifold (r.gs[i], r.handle (g[i]),
-                      nam.get<1>(), unused);
+                  r.graspManifold (i, g[i], nam.get<1>(), unused);
                 }
               }
               index_t iOH = 0;
@@ -861,7 +901,8 @@ namespace hpp {
 
               createLoopEdge (r.nameLoopEdge (g),
                   nam.get<0>(), 1, 
-                  nam.get<1>().foliated(),
+                  false,
+                  // TODO nam.get<1>().foliated(),
                   nam.get<1>());
             }
             return nam;
@@ -876,9 +917,9 @@ namespace hpp {
           {
             const NodeAndManifold_t& from = makeNode (r, gFrom),
             to   = makeNode (r, gTo);
-            FoliatedManifold grasp, pregrasp, place, preplace;
-            graspManifold (r.gs[iG], r.handle (gTo[iG]),
-                grasp, pregrasp);
+            FoliatedManifold grasp, pregrasp, place, preplace,
+                             submanifold;
+            r.graspManifold (iG, gTo[iG], grasp, pregrasp);
             const Object_t& o = r.object (gTo[iG]);
             relaxedPlacementManifold (o.get<0>().get<0>(),
                 o.get<0>().get<1>(),
@@ -886,6 +927,34 @@ namespace hpp {
                 place, preplace);
             std::pair<std::string, std::string> names =
               r.name (gFrom, gTo, iG);
+            {
+              FoliatedManifold unused;
+              std::set <index_t> idxsOH;
+              for (index_t i = 0; i < r.nG; ++i) {
+                if (gFrom[i] < r.nOH) {
+                  idxsOH.insert (gFrom[i]);
+                  r.graspManifold (i, gFrom[i], submanifold, unused);
+                }
+              }
+              index_t iOH = 0;
+              BOOST_FOREACH (const Object_t& o, r.ohs) {
+                bool oIsGrasped = false;
+                const index_t iOHstart = iOH;
+                for (; iOH < iOHstart + o.get<1>().size(); ++iOH) {
+                  if (iOH == gTo [iG]) {
+                    oIsGrasped = true;
+                    iOH = iOHstart + o.get<1>().size();
+                    break;
+                  }
+                  if (idxsOH.erase (iOH) == 1) oIsGrasped = true;
+                }
+                if (!oIsGrasped)
+                  relaxedPlacementManifold (o.get<0>().get<0>(),
+                      o.get<0>().get<1>(),
+                      o.get<0>().get<2>(),
+                      submanifold, unused);
+              }
+            }
             if (pregrasp.empty ()) {
               if (preplace.empty ())
                 createEdges <GraspOnly | PlaceOnly> (
@@ -895,7 +964,7 @@ namespace hpp {
                     grasp                 , pregrasp,
                     place                 , preplace,
                     grasp.foliated ()     , place.foliated(),
-                    from.get<1> ());
+                    submanifold);
               else {
                 hppDout (error, "GraspOnly | WithPrePlace not implemeted yet");
                 /*
@@ -906,7 +975,7 @@ namespace hpp {
                    grasp                 , pregrasp,
                    place                 , preplace,
                    grasp.foliated ()     , place.foliated(),
-                   from.get<1> ()); // */
+                   submanifold); // */
               }
             } else {
               if (preplace.empty ())
@@ -917,7 +986,7 @@ namespace hpp {
                     grasp                 , pregrasp,
                     place                 , preplace,
                     grasp.foliated ()     , place.foliated(),
-                    from.get<1> ());
+                    submanifold);
               else
                 createEdges <WithPreGrasp | WithPrePlace> (
                     names.first           , names.second,
@@ -926,7 +995,7 @@ namespace hpp {
                     grasp                 , pregrasp,
                     place                 , preplace,
                     grasp.foliated ()     , place.foliated(),
-                    from.get<1> ());
+                    submanifold);
             }
           }
 

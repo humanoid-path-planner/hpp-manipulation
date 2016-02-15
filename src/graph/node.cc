@@ -128,7 +128,14 @@ namespace hpp {
 
       void Node::updateWeight (const EdgePtr_t& e, const Weight_t& w)
       {
-        neighbors_.insert (e, w);
+        for (Neighbors_t::const_iterator it = neighbors_.begin();
+            it != neighbors_.end(); ++it) {
+          if (it->second == e) {
+            /// Update the weights
+            neighbors_.insert (e, w);
+          }
+        }
+        hppDout (error, "Edge not found");
       }
     } // namespace graph
   } // namespace manipulation

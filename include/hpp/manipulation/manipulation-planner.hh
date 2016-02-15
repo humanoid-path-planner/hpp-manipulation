@@ -40,12 +40,14 @@ namespace hpp {
       public hpp::core::PathPlanner
     {
       public:
+        typedef std::list<std::size_t> ErrorFreqs_t;
+
         /// Create an instance and return a shared pointer to the instance
         static ManipulationPlannerPtr_t create (const core::Problem& problem,
             const core::RoadmapPtr_t& roadmap);
 
         /// One step of extension.
-        /// 
+        ///
         /// A set of constraints is chosen using the graph of constraints.
         /// A constraint extension is done using a chosen set.
         ///
@@ -59,6 +61,16 @@ namespace hpp {
         /// \return True if the returned path is valid.
         bool extend (RoadmapNodePtr_t q_near,
             const ConfigurationPtr_t &q_rand, core::PathPtr_t& validPath);
+
+        /// Get the number of occurrence of each errors.
+        ///
+        /// \sa ManipulationPlanner::errorList
+        ErrorFreqs_t getEdgeStat (const graph::EdgePtr_t& edge) const;
+
+        /// Get the list of possible outputs of the extension step.
+        ///
+        /// \sa ManipulationPlanner::getEdgeStat
+        static StringList_t errorList ();
 
       protected:
         /// Protected constructor
@@ -100,7 +112,8 @@ namespace hpp {
           STEERING_METHOD = 1,
           PATH_VALIDATION = 2,
           PATH_PROJECTION_SHORTER = 3,
-          PATH_PROJECTION_ZERO = 4
+          PATH_PROJECTION_ZERO = 4,
+          PARTLY_EXTENDED = 5
         };
         static const std::vector<Reason> reasons_;
 

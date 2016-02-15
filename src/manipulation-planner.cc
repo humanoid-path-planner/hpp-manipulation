@@ -61,7 +61,8 @@ namespace hpp {
       (SuccessBin::createReason ("SteeringMethod"))
       (SuccessBin::createReason ("PathValidation returned length 0"))
       (SuccessBin::createReason ("Path could not be fully projected"))
-      (SuccessBin::createReason ("Path could not be projected"));
+      (SuccessBin::createReason ("Path could not be projected"))
+      (SuccessBin::createReason ("Extended partly"));
 
     ManipulationPlannerPtr_t ManipulationPlanner::create (const core::Problem& problem,
         const core::RoadmapPtr_t& roadmap)
@@ -91,6 +92,32 @@ namespace hpp {
         if (*((*itNode)->configuration ()) == *q) return true;
       }
       return false;
+    }
+
+    ManipulationPlanner::ErrorFreqs_t ManipulationPlanner::getEdgeStat
+      (const graph::EdgePtr_t& edge) const
+    {
+      const std::size_t& id = edge->id ();
+      ErrorFreqs_t ret;
+      if (indexPerEdgeStatistics_.size() <= id ||
+         indexPerEdgeStatistics_[id] < 0) {
+        for (int i = 0; i < 6; ++i) ret.push_back (0);
+      } else {
+        const SuccessStatistics& ss =
+          perEdgeStatistics_[indexPerEdgeStatistics_[id]];
+        ret.push_back (ss.nbSuccess ());
+        for (int i = 0; i < 6; ++i)
+          ret.push_back (ss.nbFailure (reasons_[i]));
+      }
+      return ret;
+    }
+
+    StringList_t ManipulationPlanner::errorList ()
+    {
+      StringList_t ret;
+      ret.push_back ("Success");
+      for (int i = 0; i < 6; ++i) ret.push_back (reasons_[i].what);
+      return ret;
     }
 
     void ManipulationPlanner::oneStep ()
@@ -257,8 +284,10 @@ namespace hpp {
         es.addFailure (reasons_[PATH_VALIDATION]);
         validPath = fullValidPath;
       } else {
-        if (extendStep_ == 1 || fullyValid) validPath = fullValidPath;
-        else {
+        if (extendStep_ == 1 || fullyValid) {
+          validPath = fullValidPath;
+          es.addSuccess ();
+        } else {
           const value_type& length = fullValidPath->length();
           const value_type& t_init = fullValidPath->timeRange ().first;
           try {
@@ -269,8 +298,8 @@ namespace hpp {
             es.addFailure (reasons_[PATH_PROJECTION_SHORTER]);
             return false;
           }
+          es.addFailure (reasons_[PARTLY_EXTENDED]);
         }
-        es.addSuccess ();
         hppDout (info, "Extension:" << std::endl
             << es);
       }

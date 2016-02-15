@@ -426,11 +426,11 @@ namespace hpp {
       {
         // First print the waypoint node, then the first edge.
         da ["style"]="dashed";
-        for (std::size_t i = 1; i < waypoints_.size (); ++i)
+        for (std::size_t i = 0; i < waypoints_.size (); ++i)
           waypoints_[i].second->dotPrint (os, da);
 
         da ["style"]="solid";
-        for (std::size_t i = 1; i < waypoints_.size (); ++i)
+        for (std::size_t i = 0; i < waypoints_.size (); ++i)
           waypoints_[i].first->dotPrint (os, da) << std::endl;
 
         da ["style"]="dotted";

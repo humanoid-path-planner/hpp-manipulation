@@ -56,7 +56,10 @@ namespace hpp {
           void name(const std::string& name) HPP_MANIPULATION_DEPRECATED;
 
           /// Return the component id.
-	  std::size_t id () const;
+	  const std::size_t& id () const
+          {
+            return id_;
+          }
 
           /// Add core::NumericalConstraint to the component.
           /// \param passiveDofs see ConfigProjector::addNumericalConstraint

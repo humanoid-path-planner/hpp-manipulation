@@ -82,7 +82,7 @@ namespace hpp {
       std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(true);
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
-				      ("Transformation_(1,1,1,1,1,1)_" + name ()
+				      ("Grasp_(1,1,1,1,1,1)_" + name ()
 				       + "_" + gripper->name (),
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),
@@ -97,7 +97,7 @@ namespace hpp {
       return NumericalConstraint::create (
           boost::shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
             robot->configSize(), robot->numberDof (),
-            "Transformation_(0,0,0,0,0,0)_" + name () + "_" + gripper->name ()
+            "GraspComp_(0,0,0,0,0,0)_" + name () + "_" + gripper->name ()
             ))
           );
     }
@@ -111,7 +111,7 @@ namespace hpp {
         * Transform3f (fcl::Vec3f (shift,0,0));
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
-				      ("Transformation_(1,1,1,1,1,1)_" + name ()
+				      ("Pregrasp_(1,1,1,1,1,1)_" + name ()
 				       + "_" + gripper->name (),
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),

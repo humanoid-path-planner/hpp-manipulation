@@ -89,44 +89,20 @@ namespace hpp {
         /// extend.
         typedef ::hpp::statistics::SuccessStatistics SuccessStatistics;
         typedef ::hpp::statistics::SuccessBin SuccessBin;
-        SuccessStatistics extendStatistics_;
+        typedef ::hpp::statistics::SuccessBin::Reason Reason;
+        SuccessStatistics& edgeStat (const graph::EdgePtr_t& edge);
+        std::vector<int> indexPerEdgeStatistics_;
+        std::vector<SuccessStatistics> perEdgeStatistics_;
 
         /// A Reason is associated to each EdgePtr_t that generated a failure.
         enum TypeOfFailure {
-          PROJECTION,
-          STEERING_METHOD,
-          PATH_VALIDATION,
-          PATH_PROJECTION_SHORTER,
-          PATH_PROJECTION_ZERO
+          PROJECTION = 0,
+          STEERING_METHOD = 1,
+          PATH_VALIDATION = 2,
+          PATH_PROJECTION_SHORTER = 3,
+          PATH_PROJECTION_ZERO = 4
         };
-        struct Reasons {
-          typedef ::hpp::statistics::SuccessBin::Reason Reason;
-          Reason projFailed, smFailed, pvFailed, pprojShorter, pprojZero;
-
-          Reasons (const Reason& proj, const Reason& sm, const Reason& pv, const Reason& pps, const Reason& ppz) :
-            projFailed (proj), smFailed (sm), pvFailed (pv), pprojShorter (pps), pprojZero (ppz) {}
-          const Reason& get (TypeOfFailure t)
-          {
-            switch (t) {
-              case PROJECTION:
-                return projFailed;
-              case STEERING_METHOD:
-                return smFailed;
-              case PATH_VALIDATION:
-                return pvFailed;
-              case PATH_PROJECTION_SHORTER:
-                return pprojShorter;
-              case PATH_PROJECTION_ZERO:
-                return pprojZero;
-            }
-            return ::hpp::statistics::SuccessBin::REASON_UNKNOWN;
-          }
-        };
-        typedef std::pair < graph::EdgePtr_t, Reasons > EdgeReasonPair;
-        typedef std::map  < graph::EdgePtr_t, Reasons > EdgeReasonMap;
-        EdgeReasonMap failureReasons_;
-
-        void addFailure (TypeOfFailure t, const graph::EdgePtr_t& edge);
+        static const std::vector<Reason> reasons_;
 
         const value_type extendStep_;
 

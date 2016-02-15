@@ -17,6 +17,7 @@
 #include "hpp/manipulation/manipulation-planner.hh"
 
 #include <boost/tuple/tuple.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include <hpp/util/pointer.hh>
 #include <hpp/util/timer.hh>
@@ -53,6 +54,14 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER(projectPath);
       HPP_DEFINE_TIMECOUNTER(validatePath);
     }
+
+    const std::vector<ManipulationPlanner::Reason>
+      ManipulationPlanner::reasons_ = boost::assign::list_of
+      (SuccessBin::createReason ("Projection"))
+      (SuccessBin::createReason ("SteeringMethod"))
+      (SuccessBin::createReason ("PathValidation returned length 0"))
+      (SuccessBin::createReason ("Path could not be fully projected"))
+      (SuccessBin::createReason ("Path could not be projected"));
 
     ManipulationPlannerPtr_t ManipulationPlanner::create (const core::Problem& problem,
         const core::RoadmapPtr_t& roadmap)
@@ -202,9 +211,10 @@ namespace hpp {
       }
       qProj_ = *q_rand;
       HPP_START_TIMECOUNTER (applyConstraints);
+      SuccessStatistics& es = edgeStat (edge);
       if (!edge->applyConstraints (n_near, qProj_)) {
         HPP_STOP_TIMECOUNTER (applyConstraints);
-        addFailure (PROJECTION, edge);
+        es.addFailure (reasons_[PROJECTION]);
         return false;
       }
       HPP_STOP_TIMECOUNTER (applyConstraints);
@@ -212,7 +222,7 @@ namespace hpp {
       HPP_START_TIMECOUNTER (buildPath);
       if (!edge->build (path, *q_near, qProj_)) {
         HPP_STOP_TIMECOUNTER (buildPath);
-        addFailure (STEERING_METHOD, edge);
+        es.addFailure (reasons_[STEERING_METHOD]);
         return false;
       }
       HPP_STOP_TIMECOUNTER (buildPath);
@@ -222,10 +232,10 @@ namespace hpp {
         if (!pathProjector->apply (path, projPath)) {
           if (!projPath || projPath->length () == 0) {
             HPP_STOP_TIMECOUNTER (projectPath);
-            addFailure (PATH_PROJECTION_ZERO, edge);
+            es.addFailure (reasons_[PATH_PROJECTION_ZERO]);
             return false;
           }
-          addFailure (PATH_PROJECTION_SHORTER, edge);
+          es.addFailure (reasons_[PATH_PROJECTION_SHORTER]);
         }
         HPP_STOP_TIMECOUNTER (projectPath);
       } else projPath = path;
@@ -239,12 +249,12 @@ namespace hpp {
           (projPath, false, fullValidPath, report);
       } catch (const core::projection_error& e) {
         hppDout (error, e.what ());
-        addFailure (PATH_VALIDATION, edge);
+        es.addFailure (reasons_[PATH_VALIDATION]);
         return false;
       }
       HPP_STOP_TIMECOUNTER (validatePath);
       if (fullValidPath->length () == 0) {
-        addFailure (PATH_VALIDATION, edge);
+        es.addFailure (reasons_[PATH_VALIDATION]);
         validPath = fullValidPath;
       } else {
         if (extendStep_ == 1 || fullyValid) validPath = fullValidPath;
@@ -256,34 +266,29 @@ namespace hpp {
               (core::interval_t(t_init, t_init + length * extendStep_));
           } catch (const core::projection_error& e) {
             hppDout (error, e.what());
-            addFailure (PATH_PROJECTION_SHORTER, edge);
+            es.addFailure (reasons_[PATH_PROJECTION_SHORTER]);
             return false;
           }
         }
-        extendStatistics_.addSuccess ();
+        es.addSuccess ();
         hppDout (info, "Extension:" << std::endl
-            << extendStatistics_);
+            << es);
       }
       return true;
     }
 
-    void ManipulationPlanner::addFailure (TypeOfFailure t, const graph::EdgePtr_t& edge)
+    ManipulationPlanner::SuccessStatistics& ManipulationPlanner::edgeStat
+      (const graph::EdgePtr_t& edge)
     {
-      EdgeReasonMap::iterator it = failureReasons_.find (edge);
-      if (it == failureReasons_.end ()) {
-        std::string edgeStr = edge->name () + " - ";
-        Reasons r (SuccessBin::createReason (edgeStr + "Projection"),
-                   SuccessBin::createReason (edgeStr + "SteeringMethod"),
-                   SuccessBin::createReason (edgeStr + "PathValidation returned length 0"),
-                   SuccessBin::createReason (edgeStr + "Path could not be fully projected"),
-                   SuccessBin::createReason (edgeStr + "Path could not be projected"));
-        failureReasons_.insert (EdgeReasonPair (edge, r));
-        extendStatistics_.addFailure (r.get (t));
-        return;
+      const std::size_t& id = edge->id ();
+      if (indexPerEdgeStatistics_.size () <= id) {
+        indexPerEdgeStatistics_.resize (id + 1, -1);
       }
-      Reasons r = it->second;
-      extendStatistics_.addFailure (r.get (t));
-      hppDout (info, "Extension failed." << std::endl << extendStatistics_);
+      if (indexPerEdgeStatistics_[id] < 0) {
+        indexPerEdgeStatistics_[id] = perEdgeStatistics_.size();
+        perEdgeStatistics_.push_back (SuccessStatistics (edge->name (), 2));
+      }
+      return perEdgeStatistics_[indexPerEdgeStatistics_[id]];
     }
 
     inline std::size_t ManipulationPlanner::tryConnectToRoadmap (const core::Nodes_t nodes)

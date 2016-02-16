@@ -101,8 +101,13 @@ namespace hpp {
         }
 
         namespace {
-          template <bool pregrasp, bool intersec, bool preplace>
-            struct WEtraits {
+          template <int gCase>
+            struct CaseTraits {
+              static const bool pregrasp = (gCase & WithPreGrasp);
+              static const bool intersec = !((gCase & NoGrasp) || (gCase & NoPlace));
+              static const bool preplace = (gCase & WithPrePlace);
+              static const bool valid = !(gCase == (NoGrasp | NoPlace));
+
               static const std::size_t nbWaypoints = (pregrasp?1:0) + (intersec?1:0) + (preplace?1:0);
               static const std::size_t Nnodes = 2 + nbWaypoints;
               static const std::size_t Nedges = 1 + nbWaypoints;
@@ -126,15 +131,17 @@ namespace hpp {
                 assert (preplace); return n[1 + (pregrasp?1:0) + (intersec?1:0)];
               }
 
-              static inline WaypointEdgePtr_t makeWE (
+              static inline EdgePtr_t makeWE (
                   const std::string& name,
                   const NodePtr_t& from, const NodePtr_t& to,
                   const size_type& w)
               {
-                WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
-                    from->linkTo (name, to, w, WaypointEdge::create));
-                we->nbWaypoints (nbWaypoints);
-                return we;
+                if (Nedges > 1) {
+                  WaypointEdgePtr_t we = boost::static_pointer_cast <WaypointEdge>
+                      (from->linkTo (name, to, w, WaypointEdge::create));
+                  we->nbWaypoints (nbWaypoints);
+                  return we;
+                } else return from->linkTo (name, to, w, Edge::create);
               }
 
               static inline NodeArray makeWaypoints (
@@ -158,26 +165,81 @@ namespace hpp {
                 return nodes;
               }
 
+              static inline EdgePtr_t makeLSEgrasp (const std::string& name,
+                  const NodeArray& n, const EdgeArray& e,
+                  const size_type w, LevelSetEdgePtr_t& gls)
+              {
+                if (Nedges > 1) {
+                  const std::size_t T = (pregrasp?1:0) + (intersec?1:0);
+                  WaypointEdgePtr_t we = boost::static_pointer_cast <WaypointEdge>
+                    (n.front()->linkTo (name + "_ls", n.back(), w,
+                                        WaypointEdge::create));
+                  we->nbWaypoints (nbWaypoints);
+                  gls = linkWaypoint <LevelSetEdge> (n, T-1, T, name, "ls");
+                  for (std::size_t i = 0; i < Nedges - 1; ++i)
+                    we->setWaypoint (Nedges - 1 - i, e[i], n[i]);
+                  we->setWaypoint (T-1, gls, n[T]);
+                  gls->node (n.front());
+                  gls->setShort (preplace);
+                  return we;
+                } else {
+                  assert (gCase == (GraspOnly | NoPlace)
+                      && "Cannot implement a LevelSetEdge for grasping");
+                  gls = boost::static_pointer_cast <LevelSetEdge>
+                    (n.front()->linkTo (name + "_ls", n.back(), w,
+                                        LevelSetEdge::create));
+                  return gls;
+                }
+              }
+
+              static inline EdgePtr_t makeLSEplace (const std::string& name,
+                  const NodeArray& n, const EdgeArray& e,
+                  const size_type w, LevelSetEdgePtr_t& pls)
+              {
+                if (Nedges > 1) {
+                  const std::size_t T = (pregrasp?1:0) + (intersec?1:0);
+                  WaypointEdgePtr_t we = boost::static_pointer_cast <WaypointEdge>
+                    (n.back()->linkTo (name + "_ls", n.front(), w,
+                                       WaypointEdge::create));
+                  we->nbWaypoints (nbWaypoints);
+                  pls = linkWaypoint <LevelSetEdge> (n, T+1, T, name, "ls");
+                  for (std::size_t i = Nedges - 1; i != 0; --i)
+                    we->setWaypoint (Nedges - 1 - i, e[i], n[i]);
+                  we->setWaypoint (Nedges - 1 - T, pls, n[T]);
+                  pls->node (n.back ());
+                  pls->setShort (preplace);
+                  return we;
+                } else {
+                  assert (gCase == (GraspOnly | NoPlace)
+                      && "Cannot implement a LevelSetEdge for grasping");
+                  pls = boost::static_pointer_cast <LevelSetEdge>
+                    (n.back()->linkTo (name + "_ls", n.front(), w,
+                                       LevelSetEdge::create));
+                  return pls;
+                }
+              }
+
               template <typename EdgeType>
               static inline boost::shared_ptr<EdgeType> linkWaypoint (
-                    const NodeArray& nodes,
-                    const std::size_t& iF, const std::size_t& iT,
-                    const std::string& prefix,
-                    const std::string& suffix = "")
-                {
-                  std::stringstream ss;
-                  ss << prefix << "_" << iF << iT;
-                  if (suffix.length () > 0) ss << "_" << suffix;
-                  return HPP_DYNAMIC_PTR_CAST (EdgeType,
-                      nodes[iF]->linkTo (ss.str(), nodes[iT], -1, EdgeType::create));
-                }
+                  const NodeArray& nodes,
+                  const std::size_t& iF, const std::size_t& iT,
+                  const std::string& prefix,
+                  const std::string& suffix = "")
+              {
+                std::stringstream ss;
+                ss << prefix << "_" << iF << iT;
+                if (suffix.length () > 0) ss << "_" << suffix;
+                return boost::static_pointer_cast <EdgeType>
+                    (nodes[iF]->linkTo (ss.str(), nodes[iT], -1, EdgeType::create));
+              }
 
               template <bool forward>
               static inline EdgeArray linkWaypoints (
-                  const NodeArray& nodes, const WaypointEdgePtr_t we,
+                  const NodeArray& nodes, const EdgePtr_t& edge,
                   const std::string& name)
               {
                 EdgeArray e;
+                WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST(WaypointEdge, edge);
                 if (forward)
                   for (std::size_t i = 0; i < Nedges - 1; ++i) {
                     e[i] = linkWaypoint <Edge> (nodes, i, i + 1, name);
@@ -239,8 +301,7 @@ namespace hpp {
             };
         }
 
-        template <> Edges_t
-          createEdges <WithPreGrasp | WithPrePlace> (
+        template <int gCase> Edges_t createEdges (
               const std::string& forwName,   const std::string& backName,
               const NodePtr_t& from,         const NodePtr_t& to,
               const size_type& wForw,        const size_type& wBack,
@@ -249,25 +310,20 @@ namespace hpp {
               const bool levelSetGrasp,      const bool levelSetPlace,
               const FoliatedManifold& submanifoldDef)
           {
-            typedef WEtraits<true,true,true> T;
-            // Create the edges
-            WaypointEdgePtr_t weForw = T::makeWE (forwName, from, to, wForw),
-                              weBack = T::makeWE (backName, to, from, wBack),
-                              weForwLs, weBackLs;
+            typedef CaseTraits<gCase> T;
+            assert (T::valid && "Not a valid case.");
+            typedef typename T::NodeArray NodeArray;
+            typedef typename T::EdgeArray EdgeArray;
 
-            if (levelSetGrasp)
-              weForwLs = T::makeWE (forwName + "_ls", from, to, 10*wForw);
-            if (levelSetPlace)
-              weBackLs = T::makeWE (backName + "_ls", to, from, 10*wBack);
+            // Create the edges
+            EdgePtr_t weForw = T::makeWE (forwName, from, to, wForw),
+                      weBack = T::makeWE (backName, to, from, wBack),
+                      weForwLs, weBackLs;
 
             std::string name = forwName;
-            T::NodeArray n = T::makeWaypoints (from, to, name);
+            NodeArray n = T::makeWaypoints (from, to, name);
 
-            T::EdgeArray eF = T::linkWaypoints <true> (n, weForw, name);
-
-            LevelSetEdgePtr_t e12_ls;
-            if (levelSetGrasp)
-              e12_ls = T::linkWaypoint <LevelSetEdge> (n, 1, 2, name, "ls");
+            EdgeArray eF = T::template linkWaypoints <true> (n, weForw, name);
 
             // Set the nodes constraints
             // Note that submanifold is not taken into account for nodes
@@ -276,22 +332,26 @@ namespace hpp {
             T::setNodeConstraints (n, grasp, pregrasp, place, preplace);
 
             // Set the edges properties
-            T::setEdgeProp <true> (eF, n);
+            T::template setEdgeProp <true> (eF, n);
 
             // Set the edges constraints
             T::setEdgeConstraints (eF, grasp, place, submanifoldDef);
 
+            LevelSetEdgePtr_t gls;
+            if (levelSetGrasp)
+              weForwLs = T::makeLSEgrasp (name, n, eF, 10*wForw, gls);
+
             // Populate bacward edge
             name = backName;
-            T::EdgeArray eB = T::linkWaypoints <false> (n, weBack, name);
+            EdgeArray eB = T::template linkWaypoints <false> (n, weBack, name);
 
-            LevelSetEdgePtr_t e32_ls;
-            if (levelSetPlace)
-              e32_ls = T::linkWaypoint <LevelSetEdge> (n, 3, 2, name, "ls");
-
-            T::setEdgeProp <false> (eB, n);
+            T::template setEdgeProp <false> (eB, n);
 
             T::setEdgeConstraints (eB, grasp, place, submanifoldDef);
+
+            LevelSetEdgePtr_t pls;
+            if (levelSetPlace)
+              weBackLs = T::makeLSEplace (name, n, eB, 10*wBack, pls);
 
             Edges_t ret = boost::assign::list_of (weForw)(weBack);
 
@@ -301,18 +361,12 @@ namespace hpp {
                     "but did not specify the target foliation. "
                     "It will have no effect");
               }
-              e32_ls->node (n[4]);
-              e32_ls->setShort (true);
-              grasp.addToEdge (e32_ls);
-              place.specifyFoliation (e32_ls);
-              submanifoldDef.addToEdge (e32_ls);
-              e32_ls->buildHistogram ();
+              grasp.addToEdge (pls);
+              place.specifyFoliation (pls);
+              submanifoldDef.addToEdge (pls);
+              pls->buildHistogram ();
               place.addToEdge (weBackLs);
               submanifoldDef.addToEdge (weBackLs);
-              weBackLs->Edge::node (n[0]); weBackLs->setShort (true);
-              weBackLs->setWaypoint (0, eB[3]   , n[3]);
-              weBackLs->setWaypoint (1, e32_ls, n[2]);
-              weBackLs->setWaypoint (2, eB[1]   , n[1]);
               ret.push_back (weBackLs);
             }
             if (levelSetGrasp) {
@@ -321,358 +375,17 @@ namespace hpp {
                     "but did not specify the target foliation. "
                     "It will have no effect");
               }
-              e12_ls->node (n[0]);
-              e12_ls->setShort (true);
-              place.addToEdge (e12_ls);
-              grasp.specifyFoliation (e12_ls);
-              submanifoldDef.addToEdge (e12_ls);
-              e12_ls->buildHistogram ();
-              weForwLs->Edge::node (n[4]); weForwLs->setShort (true);
+              place.addToEdge (gls);
+              grasp.specifyFoliation (gls);
+              submanifoldDef.addToEdge (gls);
+              gls->buildHistogram ();
               grasp.addToEdge (weForwLs);
               submanifoldDef.addToEdge (weForwLs);
-              weForwLs->setWaypoint (0, eF[0] , n[1]);
-              weForwLs->setWaypoint (1, e12_ls, n[2]);
-              weForwLs->setWaypoint (2, eF[2] , n[3]);
               ret.push_back (weForwLs);
             }
 
             return ret;
           }
-
-        template <> Edges_t
-          createEdges <WithPreGrasp | PlaceOnly> (
-              const std::string& forwName,   const std::string& backName,
-              const NodePtr_t& from,         const NodePtr_t& to,
-              const size_type& wForw,        const size_type& wBack,
-              const FoliatedManifold& grasp, const FoliatedManifold& pregrasp,
-              const FoliatedManifold& place, const FoliatedManifold&,
-              const bool levelSetGrasp,      const bool levelSetPlace,
-              const FoliatedManifold& submanifoldDef)
-          {
-            // Create the edges
-            WaypointEdgePtr_t weForw = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
-                from->linkTo (forwName,    to, wForw, WaypointEdge::create)),
-
-            weBack = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
-                to->  linkTo (backName, from, wBack, WaypointEdge::create));
-
-            weForw->nbWaypoints (2);
-            weBack->nbWaypoints (2);
-
-            std::string name = forwName;
-            NodeSelectorPtr_t ns = weForw->parentGraph ()->nodeSelector ();
-            NodePtr_t n0 = from,
-                      n1 = ns->createNode (name + "_pregrasp", true),
-                      n2 = ns->createNode (name + "_intersec", true),
-                      n3 = to;
-
-            EdgePtr_t e01 = n0->linkTo (name + "_e01", n1, -1, Edge::create),
-                      e12 = n1->linkTo (name + "_e12", n2, -1, Edge::create),
-                      e23 = weForw;
-            LevelSetEdgePtr_t e12_ls;
-            if (levelSetGrasp)
-              e12_ls = HPP_DYNAMIC_PTR_CAST (LevelSetEdge,
-                  n1->linkTo (name + "_e12_ls", n2, -1, LevelSetEdge::create));
-
-            // Set the edges properties
-            e01->node (n0);
-            e12->node (n0); e12->setShort (true);
-            e23->node (n3);
-
-            // set the nodes constraints
-            // From and to are not populated automatically to avoid duplicates.
-            place.addToNode (n1);
-            pregrasp.addToNode (n1);
-            submanifoldDef.addToNode (n1);
-            place.addToNode (n2);
-            grasp.addToNode (n2);
-            submanifoldDef.addToNode (n2);
-
-            // Set the edges constraints
-            place.addToEdge (e01);
-            submanifoldDef.addToEdge (e01);
-            place.addToEdge (e12);
-            submanifoldDef.addToEdge (e12);
-            grasp.addToEdge (e23);
-            submanifoldDef.addToEdge (e23);
-
-            // Set the waypoints
-            weForw->setWaypoint (0, e01, n1);
-            weForw->setWaypoint (1, (levelSetGrasp)?e12_ls:e12, n2);
-
-            // Populate bacward edge
-            name = backName;
-            EdgePtr_t e32 = n3->linkTo (name + "_e32", n2, -1, Edge::create),
-                      e21 = n2->linkTo (name + "_e21", n1, -1, Edge::create),
-                      e10 = weBack;
-            LevelSetEdgePtr_t e32_ls;
-            if (levelSetPlace)
-              e32_ls = HPP_DYNAMIC_PTR_CAST (LevelSetEdge,
-                  n3->linkTo (name + "_e32_ls", n2, -1, LevelSetEdge::create));
-
-            e32->node (n3);
-            e21->node (n0); e21->setShort (true);
-            e10->node (n0);
-
-            place.addToEdge (e10);
-            submanifoldDef.addToEdge (e10);
-            place.addToEdge (e21);
-            submanifoldDef.addToEdge (e21);
-            grasp.addToEdge (e32);
-            submanifoldDef.addToEdge (e32);
-
-            weBack->setWaypoint (0, (levelSetPlace)?e32_ls:e32, n2);
-            weBack->setWaypoint (1, e21, n1);
-
-            if (levelSetPlace) {
-              if (!place.foliated ()) {
-                hppDout (warning, "You asked for a LevelSetEdge for placement, "
-                    "but did not specify the target foliation. "
-                    "It will have no effect");
-              }
-              e32_ls->node (n3);
-              e32_ls->setShort (true);
-              grasp.addToEdge (e32_ls);
-              place.specifyFoliation (e32_ls);
-              submanifoldDef.addToEdge (e32_ls);
-              e32_ls->buildHistogram ();
-            }
-            if (levelSetGrasp) {
-              if (!grasp.foliated ()) {
-                hppDout (warning, "You asked for a LevelSetEdge for grasping, "
-                    "but did not specify the target foliation. "
-                    "It will have no effect");
-              }
-              e12_ls->node (n0);
-              e12_ls->setShort (true);
-              place.addToEdge (e12_ls);
-              grasp.specifyFoliation (e12_ls);
-              submanifoldDef.addToEdge (e12_ls);
-              e12_ls->buildHistogram ();
-            }
-
-            return boost::assign::list_of (weForw)(weBack);
-          }
-
-        template <> Edges_t
-          createEdges <GraspOnly | PlaceOnly>(
-            const std::string& forwName,   const std::string& backName,
-            const NodePtr_t& from,         const NodePtr_t& to,
-            const size_type& wForw,        const size_type& wBack,
-            const FoliatedManifold& grasp, const FoliatedManifold& ,
-            const FoliatedManifold& place, const FoliatedManifold& ,
-            const bool levelSetGrasp,      const bool levelSetPlace,
-            const FoliatedManifold& submanifoldDef)
-        {
-          // Create the edges
-          WaypointEdgePtr_t weForw = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
-              from->linkTo (forwName,    to, wForw, WaypointEdge::create)),
-
-          weBack = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
-              to->  linkTo (backName, from, wBack, WaypointEdge::create));
-
-          weForw->nbWaypoints (1);
-          weBack->nbWaypoints (1);
-
-          std::string name = forwName;
-          NodeSelectorPtr_t ns = weForw->parentGraph ()->nodeSelector ();
-          NodePtr_t n0 = from,
-                    n1 = ns->createNode (name + "_intersec", true),
-                    n2 = to;
-
-          EdgePtr_t e01 = n0->linkTo (name + "_e01", n1, -1, Edge::create),
-                    e12 = weForw;
-          LevelSetEdgePtr_t e01_ls;
-          if (levelSetGrasp)
-            e01_ls = HPP_DYNAMIC_PTR_CAST (LevelSetEdge,
-                n0->linkTo (name + "_e01_ls", n1, -1, LevelSetEdge::create));
-
-          // Set the edges properties
-          e01->node (n0);
-          e12->node (n1);
-
-          // set the nodes constraints
-          // From and to are not populated automatically to avoid duplicates.
-          place.addToNode (n1);
-          grasp.addToNode (n1);
-          submanifoldDef.addToNode (n1);
-
-          // Set the edges constraints
-          place.addToEdge (e01);
-          submanifoldDef.addToEdge (e01);
-          grasp.addToEdge (e12);
-          submanifoldDef.addToEdge (e12);
-
-          // Set the waypoints
-          weForw->setWaypoint (0, (levelSetGrasp)?e01_ls:e01, n1);
-
-          // Populate bacward edge
-          name = backName;
-          EdgePtr_t e21 = n2->linkTo (name + "_e21", n1, -1, Edge::create),
-                    e10 = weBack;
-          LevelSetEdgePtr_t e21_ls;
-          if (levelSetPlace)
-            e21_ls = HPP_DYNAMIC_PTR_CAST (LevelSetEdge,
-                n2->linkTo (name + "_e21_ls", n1, -1, LevelSetEdge::create));
-
-          e21->node (n2);
-          e10->node (n0);
-
-          place.addToEdge (e10);
-          submanifoldDef.addToEdge (e10);
-          grasp.addToEdge (e21);
-          submanifoldDef.addToEdge (e21);
-
-          weBack->setWaypoint (0, (levelSetPlace)?e21_ls:e21, n1);
-
-          if (levelSetPlace) {
-            if (!place.foliated ()) {
-              hppDout (warning, "You asked for a LevelSetEdge for placement, "
-                  "but did not specify the target foliation. "
-                  "It will have no effect");
-            }
-            e21_ls->node (n2);
-            e21_ls->setShort (true);
-            grasp.addToEdge (e21_ls);
-            place.specifyFoliation (e21_ls);
-            submanifoldDef.addToEdge (e21_ls);
-            e21_ls->buildHistogram ();
-          }
-          if (levelSetGrasp) {
-            if (!grasp.foliated ()) {
-              hppDout (warning, "You asked for a LevelSetEdge for grasping, "
-                  "but did not specify the target foliation. "
-                  "It will have no effect");
-            }
-            e01_ls->node (n0);
-            e01_ls->setShort (true);
-            place.addToEdge (e01_ls);
-            grasp.specifyFoliation (e01_ls);
-            submanifoldDef.addToEdge (e01_ls);
-            e01_ls->buildHistogram ();
-          }
-
-          return boost::assign::list_of (weForw)(weBack);
-        }
-
-        template <> Edges_t
-          createEdges <WithPreGrasp | NoPlace>(
-            const std::string& forwName,   const std::string& backName,
-            const NodePtr_t& from,         const NodePtr_t& to,
-            const size_type& wForw,        const size_type& wBack,
-            const FoliatedManifold& grasp, const FoliatedManifold& pregrasp,
-            const FoliatedManifold&,       const FoliatedManifold&,
-            const bool levelSetGrasp,      const bool,
-            const FoliatedManifold& submanifoldDef)
-        {
-          // Create the edges
-          WaypointEdgePtr_t weForw = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
-              from->linkTo (forwName,    to, wForw, WaypointEdge::create)),
-
-          weBack = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
-              to->  linkTo (backName, from, wBack, WaypointEdge::create));
-
-          weForw->nbWaypoints (1);
-          weBack->nbWaypoints (1);
-
-          std::string name = forwName;
-          NodeSelectorPtr_t ns = weForw->parentGraph ()->nodeSelector ();
-          NodePtr_t n0 = from,
-                    n1 = ns->createNode (name + "_pregrasp", true),
-                    n2 = to;
-
-          EdgePtr_t e01 = n0->linkTo (name + "_e01", n1, -1, Edge::create),
-                    e12 = weForw;
-          LevelSetEdgePtr_t e12_ls;
-          if (levelSetGrasp)
-            e12_ls = HPP_DYNAMIC_PTR_CAST (LevelSetEdge,
-                n1->linkTo (name + "_e12_ls", n2, -1, LevelSetEdge::create));
-
-          // Set the edges properties
-          e01->node (n0);
-          e12->node (n0); e12->setShort (true);
-
-          // set the nodes constraints
-          // From and to are not populated automatically to avoid duplicates.
-          pregrasp.addToNode (n1);
-          submanifoldDef.addToNode (n1);
-
-          // Set the edges constraints
-          submanifoldDef.addToEdge (e01);
-          submanifoldDef.addToEdge (e12);
-
-          // Set the waypoints
-          weForw->setWaypoint (0, e01, n1);
-          // weForw->setWaypoint (1, (levelSetGrasp)?e12_ls:e12, n2);
-
-          // Populate bacward edge
-          name = backName;
-          EdgePtr_t e21 = n2->linkTo (name + "_e21", n1, -1, Edge::create),
-                    e10 = weBack;
-
-          e21->node (n0); e21->setShort (true);
-          e10->node (n0);
-
-          submanifoldDef.addToEdge (e10);
-          submanifoldDef.addToEdge (e21);
-
-          weBack->setWaypoint (0, e21, n1);
-
-          if (levelSetGrasp) {
-            hppDout (error, "You specified a foliated grasp with no placement. "
-                "This is currently unsupported.");
-            if (!grasp.foliated ()) {
-              hppDout (warning, "You asked for a LevelSetEdge for grasping, "
-                  "but did not specify the target foliation. "
-                  "It will have no effect");
-            }
-            e12_ls->node (n0);
-            e12_ls->setShort (true);
-            grasp.specifyFoliation (e12_ls);
-            submanifoldDef.addToEdge (e12_ls);
-            e12_ls->buildHistogram ();
-          }
-
-          return boost::assign::list_of (weForw)(weBack);
-        }
-
-        template <> Edges_t
-          createEdges <GraspOnly | NoPlace>(
-            const std::string& forwName,   const std::string& backName,
-            const NodePtr_t& from,         const NodePtr_t& to,
-            const size_type& wForw,        const size_type& wBack,
-            const FoliatedManifold& grasp, const FoliatedManifold&,
-            const FoliatedManifold&,       const FoliatedManifold&,
-            const bool levelSetGrasp,      const bool,
-            const FoliatedManifold& submanifoldDef)
-        {
-          // Create the edges
-          EdgePtr_t eForw;
-          if (levelSetGrasp)
-                    eForw = from->linkTo (forwName,   to, wForw, LevelSetEdge::create);
-          else      eForw = from->linkTo (forwName,   to, wForw, Edge::create);
-          EdgePtr_t eBack = to->  linkTo (backName, from, wBack, Edge::create);
-
-          std::string name = forwName;
-
-          eForw->node (from);
-          submanifoldDef.addToEdge (eForw);
-          eBack->node (from);
-          submanifoldDef.addToEdge (eBack);
-
-          if (levelSetGrasp) {
-            if (!grasp.foliated ()) {
-              hppDout (warning, "You asked for a LevelSetEdge for grasping, "
-                  "but did not specify the target foliation. "
-                  "It will have no effect");
-            }
-            LevelSetEdgePtr_t ls = HPP_DYNAMIC_PTR_CAST (LevelSetEdge, eForw);
-            grasp.specifyFoliation (ls);
-            ls->buildHistogram ();
-          }
-
-          return boost::assign::list_of (eForw)(eBack);
-        }
 
         EdgePtr_t createLoopEdge (
               const std::string& loopName,

@@ -34,7 +34,8 @@ namespace hpp {
           static NodeSelectorPtr_t create(const std::string& name);
 
           /// Create an empty node
-          NodePtr_t createNode (const std::string& name, bool waypoint = false);
+          NodePtr_t createNode (const std::string& name, bool waypoint = false,
+              const int w = 0);
 
           /// Returns the state of a configuration.
           NodePtr_t getNode(ConfigurationIn_t config) const;
@@ -43,10 +44,7 @@ namespace hpp {
           NodePtr_t getNode(RoadmapNodePtr_t node) const;
 
           /// Returns a list of all the nodes
-          const Nodes_t& getNodes () const
-          {
-            return orderedStates_;
-          }
+          Nodes_t getNodes () const;
 
           /// Select randomly an outgoing edge of the given node.
           virtual EdgePtr_t chooseEdge(RoadmapNodePtr_t from) const;
@@ -81,7 +79,9 @@ namespace hpp {
           virtual std::ostream& print (std::ostream& os) const;
 
           /// List of the states of one end-effector, ordered by priority.
-          Nodes_t orderedStates_;
+          typedef std::pair <int, NodePtr_t> WeighedNode_t;
+          typedef std::list <WeighedNode_t> WeighedNodes_t;
+          WeighedNodes_t orderedStates_;
           Nodes_t waypoints_;
 
         private:

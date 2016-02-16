@@ -40,23 +40,44 @@ namespace hpp {
       }
 
       NodePtr_t NodeSelector::createNode (const std::string& name,
-          bool waypoint)
+          bool waypoint, const int w)
       {
         NodePtr_t newNode = Node::create (name);
         newNode->nodeSelector(wkPtr_);
         newNode->parentGraph(graph_);
         newNode->isWaypoint (waypoint);
         if (waypoint) waypoints_.push_back(newNode);
-        else orderedStates_.push_back(newNode);
+        else {
+          bool found = false;
+          for (WeighedNodes_t::iterator it = orderedStates_.begin();
+              it != orderedStates_.end (); ++it) {
+            if (it->first < w) {
+              orderedStates_.insert (it, WeighedNode_t(w,newNode));
+              found = true;
+              break;
+            }
+          }
+          if (!found) 
+            orderedStates_.push_back (WeighedNode_t(w,newNode));
+        }
         return newNode;
+      }
+
+      Nodes_t NodeSelector::getNodes () const
+      {
+        Nodes_t ret;
+        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
+            it != orderedStates_.end (); ++it)
+          ret.push_back (it->second);
+        return ret;
       }
 
       NodePtr_t NodeSelector::getNode(ConfigurationIn_t config) const
       {
-        for (Nodes_t::const_iterator it = orderedStates_.begin();
+        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
 	     orderedStates_.end() != it; ++it) {
-          if ((*it)->contains(config))
-            return *it;
+          if (it->second->contains(config))
+            return it->second;
 	}
 	std::stringstream oss;
 	oss << "A configuration has no node:" << model::displayConfig (config);
@@ -95,9 +116,9 @@ namespace hpp {
 
       std::ostream& NodeSelector::dotPrint (std::ostream& os, dot::DrawingAttributes) const
       {
-        for (Nodes_t::const_iterator it = orderedStates_.begin();
+        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)
-          (*it)->dotPrint (os);
+          it->second->dotPrint (os);
         return os;
       }
 
@@ -105,9 +126,9 @@ namespace hpp {
       {
         os << "|-- ";
         GraphComponent::print (os) << std::endl;
-        for (Nodes_t::const_iterator it = orderedStates_.begin();
+        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)
-          os << *(*it);
+          os << it->first << " " << *it->second;
         return os;
       }
     } // namespace graph

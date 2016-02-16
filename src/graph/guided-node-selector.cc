@@ -130,9 +130,9 @@ namespace hpp {
 
       std::ostream& GuidedNodeSelector::dotPrint (std::ostream& os, dot::DrawingAttributes) const
       {
-        for (Nodes_t::const_iterator it = orderedStates_.begin();
+        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)
-          (*it)->dotPrint (os);
+          it->second->dotPrint (os);
         return os;
       }
 
@@ -140,9 +140,9 @@ namespace hpp {
       {
         os << "|-- ";
         GraphComponent::print (os) << std::endl;
-        for (Nodes_t::const_iterator it = orderedStates_.begin();
+        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)
-          os << *(*it);
+          os << it->first << " " << *it->second;
         return os;
       }
     } // namespace graph

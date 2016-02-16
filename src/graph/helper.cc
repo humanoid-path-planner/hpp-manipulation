@@ -197,7 +197,7 @@ namespace hpp {
             e01->node (n[0]);
             e12->node (n[0]); e12->setShort (true);
             e23->node (n[4]); e23->setShort (true);
-            e34->node (n[4]);
+            e34->node (n[4]); e34->setShort (true);
 
             // set the nodes constraints
             // From and to are not populated automatically to avoid duplicates.
@@ -239,7 +239,7 @@ namespace hpp {
             e43->node (n[4]);
             e32->node (n[4]); e32->setShort (true);
             e21->node (n[0]); e21->setShort (true);
-            e10->node (n[0]);
+            e10->node (n[0]); e10->setShort (true);
 
             place.addToEdge (e10);
             submanifoldDef.addToEdge (e10);
@@ -268,6 +268,9 @@ namespace hpp {
               place.specifyFoliation (e32_ls);
               submanifoldDef.addToEdge (e32_ls);
               e32_ls->buildHistogram ();
+              place.addToEdge (weBackLs);
+              submanifoldDef.addToEdge (weBackLs);
+              weBackLs->Edge::node (n[0]); weBackLs->setShort (true);
               weBackLs->setWaypoint (0, e43   , n[3]);
               weBackLs->setWaypoint (1, e32_ls, n[2]);
               weBackLs->setWaypoint (2, e21   , n[1]);
@@ -285,6 +288,9 @@ namespace hpp {
               grasp.specifyFoliation (e12_ls);
               submanifoldDef.addToEdge (e12_ls);
               e12_ls->buildHistogram ();
+              weForwLs->Edge::node (n[4]); weForwLs->setShort (true);
+              grasp.addToEdge (weForwLs);
+              submanifoldDef.addToEdge (weForwLs);
               weForwLs->setWaypoint (0, e01   , n[1]);
               weForwLs->setWaypoint (1, e12_ls, n[2]);
               weForwLs->setWaypoint (2, e23   , n[3]);
@@ -712,8 +718,12 @@ namespace hpp {
         {
           place.nc.nc.push_back (placement);
           place.nc.pdof.push_back (SizeIntervals_t());
-          place.nc_path.nc.push_back (placement);
-          place.nc_path.pdof.push_back (SizeIntervals_t());
+          // The placement constraints are not required in the path, as long as
+          // they are satisfied at both ends and the object does not move. The
+          // former condition is ensured by the placement constraints on both
+          // ends and the latter is ensure by the LockedJoint constraints.
+          // place.nc_path.nc.push_back (placement);
+          // place.nc_path.pdof.push_back (SizeIntervals_t());
           std::copy (objectLocks.begin(), objectLocks.end(), std::back_inserter(place.lj_fol));
 
           preplace.nc.nc.push_back (preplacement);
@@ -900,7 +910,7 @@ namespace hpp {
               nam.get<1>().addToNode (nam.get<0>());
 
               createLoopEdge (r.nameLoopEdge (g),
-                  nam.get<0>(), 1, 
+                  nam.get<0>(), 0, 
                   false,
                   // TODO nam.get<1>().foliated(),
                   nam.get<1>());

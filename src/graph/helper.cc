@@ -645,12 +645,14 @@ namespace hpp {
             }
           };
 
-          const NodeAndManifold_t& makeNode (Result& r, const GraspV_t& g)
+          const NodeAndManifold_t& makeNode (Result& r, const GraspV_t& g,
+              const int priority)
           {
             NodeAndManifold_t& nam = r (g);
             if (!nam.get<0>()) {
               hppDout (info, "Creating node " << r.name (g));
-              nam.get<0>() = r.graph->nodeSelector ()->createNode (r.name (g));
+              nam.get<0>() = r.graph->nodeSelector ()->createNode
+                (r.name (g), false, priority);
               // Loop over the grippers and create grasping constraints if required
               FoliatedManifold unused;
               std::set <index_t> idxsOH;
@@ -691,10 +693,10 @@ namespace hpp {
           /// \li for all i != iG, gTo[iG] == gFrom[iG]
           void makeEdge (Result& r,
               const GraspV_t& gFrom, const GraspV_t& gTo,
-              const index_t iG)
+              const index_t iG, const int priority)
           {
-            const NodeAndManifold_t& from = makeNode (r, gFrom),
-            to   = makeNode (r, gTo);
+            const NodeAndManifold_t& from = makeNode (r, gFrom, priority),
+                                     to   = makeNode (r, gTo, priority+1);
             FoliatedManifold grasp, pregrasp, place, preplace,
                              submanifold;
             r.graspManifold (iG, gTo[iG], grasp, pregrasp);
@@ -780,7 +782,7 @@ namespace hpp {
           /// idx are the available grippers
           void recurseGrippers (Result& r,
               const IndexV_t& idx_g, const IndexV_t& idx_oh,
-              const GraspV_t& grasps)
+              const GraspV_t& grasps, const int depth)
           {
             if (idx_g.empty () || idx_oh.empty ()) return;
             IndexV_t nIdx_g (idx_g.size() - 1);
@@ -793,18 +795,17 @@ namespace hpp {
                   );
               for (IndexV_t::const_iterator itx_oh = idx_oh.begin ();
                   itx_oh != idx_oh.end (); ++itx_oh) {
+                // Create the edge for the selected grasp
+                GraspV_t nGrasps = grasps;
+                nGrasps [*itx_g] = *itx_oh;
+                makeEdge (r, grasps, nGrasps, *itx_g, depth);
+
                 // Copy all element except itx_oh
                 std::copy (boost::next (itx_oh), idx_oh.end (),
                     std::copy (idx_oh.begin (), itx_oh, nIdx_oh.begin ())
                     );
-
-                // Create the edge for the selected grasp
-                GraspV_t nGrasps = grasps;
-                nGrasps [*itx_g] = *itx_oh;
-                makeEdge (r, grasps, nGrasps, *itx_g);
-
                 // Do all the possible combination below this new grasp
-                recurseGrippers (r, nIdx_g, nIdx_oh, nGrasps);
+                recurseGrippers (r, nIdx_g, nIdx_oh, nGrasps, depth + 2);
               }
             }
           }
@@ -827,7 +828,7 @@ namespace hpp {
 
           GraspV_t iG (r.nG, r.nOH);
 
-          recurseGrippers (r, availG, availOH, iG);
+          recurseGrippers (r, availG, availOH, iG, 0);
         }
 
         GraphPtr_t graphBuilder (

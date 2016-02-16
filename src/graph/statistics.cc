@@ -165,8 +165,9 @@ namespace hpp {
       {
         ConfigProjectorPtr_t p = f_.parametrizer ()->configProjector();
         if (p) {
-          threshold_ = p->errorThreshold () /
-	    sqrt((double)p->rightHandSide ().size ());
+          if (p->rightHandSide ().size () > 0)
+            threshold_ = p->errorThreshold () /
+              sqrt((double)p->rightHandSide ().size ());
         }
       }
 

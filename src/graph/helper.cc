@@ -49,8 +49,10 @@ namespace hpp {
           NumericalConstraints_t::const_iterator it;
           IntervalsContainer_t::const_iterator itpdof = pdof.begin ();
           for (it = nc.begin (); it != nc.end (); ++it) {
-            if (forPath) n->addNumericalConstraintForPath (*it, *itpdof);
-            else      comp->addNumericalConstraint (*it, *itpdof);
+            if (*it) {
+              if (forPath) n->addNumericalConstraintForPath (*it, *itpdof);
+              else      comp->addNumericalConstraint (*it, *itpdof);
+            }
             ++itpdof;
           }
           assert (itpdof == pdof.end ());
@@ -63,8 +65,10 @@ namespace hpp {
           NumericalConstraints_t::const_iterator it;
           IntervalsContainer_t::const_iterator itpdof = pdof.begin ();
           for (it = nc.begin (); it != nc.end (); ++it) {
-            if (param) lse->insertParamConstraint (*it, *itpdof);
-            else   lse->insertConditionConstraint (*it, *itpdof);
+            if (*it) {
+              if (param) lse->insertParamConstraint (*it, *itpdof);
+              else   lse->insertConditionConstraint (*it, *itpdof);
+            }
             ++itpdof;
           }
           assert (itpdof == pdof.end ());
@@ -75,7 +79,8 @@ namespace hpp {
           nc.addToComp <false> (comp);
           for (LockedJoints_t::const_iterator it = lj.begin ();
               it != lj.end (); ++it)
-            comp->addLockedJointConstraint (*it);
+            if (*it && (*it)->numberDof() > 0)
+              comp->addLockedJointConstraint (*it);
           nc_path.addToComp <true> (comp);
         }
 
@@ -84,7 +89,8 @@ namespace hpp {
           nc_fol.addToComp <false> (comp);
           for (LockedJoints_t::const_iterator it = lj_fol.begin ();
               it != lj_fol.end (); ++it)
-            comp->addLockedJointConstraint (*it);
+            if (*it && (*it)->numberDof() > 0)
+              (*it) comp->addLockedJointConstraint (*it);
         }
 
         void FoliatedManifold::specifyFoliation (LevelSetEdgePtr_t lse) const
@@ -92,7 +98,8 @@ namespace hpp {
           nc.specifyFoliation <false> (lse);
           for (LockedJoints_t::const_iterator it = lj.begin ();
               it != lj.end (); ++it)
-            lse->insertConditionConstraint (*it);
+            if (*it && (*it)->numberDof() > 0)
+              lse->insertConditionConstraint (*it);
 
           nc_fol.specifyFoliation <true> (lse);
           for (LockedJoints_t::const_iterator it = lj_fol.begin ();
@@ -468,20 +475,24 @@ namespace hpp {
             const LockedJoints_t objectLocks,
             FoliatedManifold& place, FoliatedManifold& preplace)
         {
-          place.nc.nc.push_back (placement);
-          place.nc.pdof.push_back (SizeIntervals_t());
-          // The placement constraints are not required in the path, as long as
-          // they are satisfied at both ends and the object does not move. The
-          // former condition is ensured by the placement constraints on both
-          // ends and the latter is ensure by the LockedJoint constraints.
-          // place.nc_path.nc.push_back (placement);
-          // place.nc_path.pdof.push_back (SizeIntervals_t());
+          if (placement) {
+            place.nc.nc.push_back (placement);
+            place.nc.pdof.push_back (SizeIntervals_t());
+            // The placement constraints are not required in the path, as long as
+            // they are satisfied at both ends and the object does not move. The
+            // former condition is ensured by the placement constraints on both
+            // ends and the latter is ensure by the LockedJoint constraints.
+            // place.nc_path.nc.push_back (placement);
+            // place.nc_path.pdof.push_back (SizeIntervals_t());
+          }
           std::copy (objectLocks.begin(), objectLocks.end(), std::back_inserter(place.lj_fol));
 
-          preplace.nc.nc.push_back (preplacement);
-          preplace.nc.pdof.push_back (SizeIntervals_t());
-          preplace.nc_path.nc.push_back (preplacement);
-          preplace.nc_path.pdof.push_back (SizeIntervals_t());
+          if (placement && preplacement) {
+            preplace.nc.nc.push_back (preplacement);
+            preplace.nc.pdof.push_back (SizeIntervals_t());
+            // preplace.nc_path.nc.push_back (preplacement);
+            // preplace.nc_path.pdof.push_back (SizeIntervals_t());
+          }
         }
 
         namespace {

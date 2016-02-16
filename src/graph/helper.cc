@@ -101,63 +101,142 @@ namespace hpp {
         }
 
         namespace {
-          inline WaypointEdgePtr_t makeWE (
-              const std::string& name,
-              const NodePtr_t& from, const NodePtr_t& to,
-              const size_type& w,    const std::size_t& nbWaypoints)
-          {
-            WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
-                from->linkTo (name, to, w, WaypointEdge::create));
-            we->nbWaypoints (nbWaypoints);
-            return we;
-          }
-
           template <bool pregrasp, bool intersec, bool preplace>
-            struct node_array {
-              static const std::size_t size = 1 + (pregrasp?1:0) + (intersec?1:0) + (preplace?1:0) + 1;
-              typedef boost::array <NodePtr_t, size> Type;
-              };
+            struct WEtraits {
+              static const std::size_t nbWaypoints = (pregrasp?1:0) + (intersec?1:0) + (preplace?1:0);
+              static const std::size_t Nnodes = 2 + nbWaypoints;
+              static const std::size_t Nedges = 1 + nbWaypoints;
+              // static const std::size_t iNpregrasp = pregrasp?1 + 1:nbWaypoints;
+              // static const std::size_t iNpreplace = pregrasp?1 + 1:nbWaypoints;
+              typedef boost::array <NodePtr_t, Nnodes> NodeArray;
+              typedef boost::array <EdgePtr_t, Nedges> EdgeArray;
 
-          template <bool pregrasp, bool intersec, bool preplace>
-          inline typename node_array<pregrasp, intersec, preplace>::Type
-          makeNodes (NodeSelectorPtr_t ns,
-              const NodePtr_t& from, const NodePtr_t& to,
-              const std::string& name)
-          {
-            const std::size_t N = 1 + (pregrasp?1:0) + (intersec?1:0) + (preplace?1:0) + 1;
-            boost::array <NodePtr_t, N> nodes;
-            std::size_t r = 0;
-            nodes[r] = from; ++r;
-            if (pregrasp) {
-              nodes[r] = ns->createNode (name + "_pregrasp", true);
-              ++r;
-            }
-            if (intersec) {
-              nodes[r] = ns->createNode (name + "_intersec", true);
-              ++r;
-            }
-            if (preplace) {
-              nodes[r] = ns->createNode (name + "_preplace", true);
-              ++r;
-            }
-            nodes[r] = to;
-            return nodes;
-          }
+              static inline const NodePtr_t& Npregrasp (const NodeArray& n)
+              {
+                assert (pregrasp); return n[1];
+              }
 
-          template <typename EdgeType, std::size_t N>
-          boost::shared_ptr<EdgeType> makeE (
-              const boost::array <NodePtr_t, N>& nodes,
-              const std::size_t& iF, const std::size_t& iT,
-              const std::string& prefix,
-              const size_type& w = -1,
-              const std::string& suffix = "")
-          {
-            std::stringstream ss;
-            ss << prefix << "_" << iF << iT;
-            if (suffix.length () > 0) ss << "_" << suffix;
-            return HPP_DYNAMIC_PTR_CAST (EdgeType,
-              nodes[iF]->linkTo (ss.str(), nodes[iT], w, EdgeType::create));
-          }
+              static inline const NodePtr_t& Nintersec (const NodeArray& n)
+              {
+                assert (intersec); return n[1 + (pregrasp?1:0)];
+              }
+
+              static inline const NodePtr_t& Npreplace (const NodeArray& n)
+              {
+                assert (preplace); return n[1 + (pregrasp?1:0) + (intersec?1:0)];
+              }
+
+              static inline WaypointEdgePtr_t makeWE (
+                  const std::string& name,
+                  const NodePtr_t& from, const NodePtr_t& to,
+                  const size_type& w)
+              {
+                WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST (WaypointEdge,
+                    from->linkTo (name, to, w, WaypointEdge::create));
+                we->nbWaypoints (nbWaypoints);
+                return we;
+              }
+
+              static inline NodeArray makeWaypoints (
+                  const NodePtr_t& from, const NodePtr_t& to,
+                  const std::string& name)
+              {
+                NodeSelectorPtr_t ns = from->parentGraph ()->nodeSelector ();
+                NodeArray nodes;
+                std::size_t r = 0;
+                nodes[r] = from; ++r;
+                if (pregrasp) {
+                  nodes[r] = ns->createNode (name + "_pregrasp", true); ++r;
+                }
+                if (intersec) {
+                  nodes[r] = ns->createNode (name + "_intersec", true); ++r;
+                }
+                if (preplace) {
+                  nodes[r] = ns->createNode (name + "_preplace", true); ++r;
+                }
+                nodes[r] = to;
+                return nodes;
+              }
+
+              template <typename EdgeType>
+              static inline boost::shared_ptr<EdgeType> linkWaypoint (
+                    const NodeArray& nodes,
+                    const std::size_t& iF, const std::size_t& iT,
+                    const std::string& prefix,
+                    const std::string& suffix = "")
+                {
+                  std::stringstream ss;
+                  ss << prefix << "_" << iF << iT;
+                  if (suffix.length () > 0) ss << "_" << suffix;
+                  return HPP_DYNAMIC_PTR_CAST (EdgeType,
+                      nodes[iF]->linkTo (ss.str(), nodes[iT], -1, EdgeType::create));
+                }
+
+              template <bool forward>
+              static inline EdgeArray linkWaypoints (
+                  const NodeArray& nodes, const WaypointEdgePtr_t we,
+                  const std::string& name)
+              {
+                EdgeArray e;
+                if (forward)
+                  for (std::size_t i = 0; i < Nedges - 1; ++i) {
+                    e[i] = linkWaypoint <Edge> (nodes, i, i + 1, name);
+                    we->setWaypoint (i, e[i], nodes[i+1]);
+                  }
+                else
+                  for (std::size_t i = Nedges - 1; i != 0; --i) {
+                    e[i] = linkWaypoint <Edge> (nodes, i + 1, i, name);
+                    we->setWaypoint (Nedges - 1 - i, e[i], nodes[i]);
+                  }
+                e[(forward?Nedges - 1:0)] = we;
+                return e;
+              }
+
+              static inline void setNodeConstraints (const NodeArray& n,
+                  const FoliatedManifold& g, const FoliatedManifold& pg,
+                  const FoliatedManifold& p, const FoliatedManifold& pp)
+              {
+                // From and to are not populated automatically
+                // to avoid duplicates.
+                if (pregrasp) {
+                  p .addToNode (Npregrasp (n));
+                  pg.addToNode (Npregrasp (n));
+                }
+                if (intersec) {
+                  p .addToNode (Nintersec (n));
+                  g .addToNode (Nintersec (n));
+                }
+                if (preplace) {
+                  pp.addToNode (Npreplace (n));
+                  g .addToNode (Npreplace (n));
+                }
+              }
+
+              static inline void setEdgeConstraints (const EdgeArray& e,
+                  const FoliatedManifold& g, const FoliatedManifold& p,
+                  const FoliatedManifold& m)
+              {
+                // The border B
+                const std::size_t B = (pregrasp?1:0) + (intersec?1:0);
+                for (std::size_t i = 0; i < B     ; ++i) p.addToEdge (e[i]);
+                for (std::size_t i = B; i < Nedges; ++i) g.addToEdge (e[i]);
+                for (std::size_t i = 0; i < Nedges; ++i) m.addToEdge (e[i]);
+              }
+
+              template <bool forward>
+              static inline void setEdgeProp
+              (const EdgeArray& e, const NodeArray& n)
+              {
+                /// Last is short
+                const std::size_t K = (forward?1:0);
+                for (std::size_t i = K; i < Nedges - 1 + K; ++i)
+                  e[i]->setShort (true);
+                // The border B
+                const std::size_t B = (pregrasp?1:0) + (intersec?1:0);
+                for (std::size_t i = 0; i < B     ; ++i) e[i]->node (n[0]);
+                for (std::size_t i = B; i < Nedges; ++i) e[i]->node (n[Nnodes-1]);
+              }
+            };
         }
 
         template <> Edges_t
@@ -170,89 +249,49 @@ namespace hpp {
               const bool levelSetGrasp,      const bool levelSetPlace,
               const FoliatedManifold& submanifoldDef)
           {
+            typedef WEtraits<true,true,true> T;
             // Create the edges
-            WaypointEdgePtr_t weForw = makeWE (forwName, from, to, wForw, 3),
-                              weBack = makeWE (backName, to, from, wBack, 3),
+            WaypointEdgePtr_t weForw = T::makeWE (forwName, from, to, wForw),
+                              weBack = T::makeWE (backName, to, from, wBack),
                               weForwLs, weBackLs;
 
             if (levelSetGrasp)
-              weForwLs = makeWE (forwName + "_ls", from, to, 10*wForw, 3);
+              weForwLs = T::makeWE (forwName + "_ls", from, to, 10*wForw);
             if (levelSetPlace)
-              weBackLs = makeWE (backName + "_ls", to, from, 10*wBack, 3);
+              weBackLs = T::makeWE (backName + "_ls", to, from, 10*wBack);
 
             std::string name = forwName;
-            NodeSelectorPtr_t ns = weForw->parentGraph ()->nodeSelector ();
-            boost::array <NodePtr_t, 5> n = makeNodes <true, true, true>
-              (weForw->parentGraph ()->nodeSelector (), from, to, name);
+            T::NodeArray n = T::makeWaypoints (from, to, name);
 
-            EdgePtr_t e01 = makeE <Edge> (n, 0, 1, name, -1),
-                      e12 = makeE <Edge> (n, 1, 2, name, -1),
-                      e23 = makeE <Edge> (n, 2, 3, name, -1),
-                      e34 = weForw;
+            T::EdgeArray eF = T::linkWaypoints <true> (n, weForw, name);
+
             LevelSetEdgePtr_t e12_ls;
             if (levelSetGrasp)
-              e12_ls = makeE <LevelSetEdge> (n, 1, 2, name, -1, "ls");
+              e12_ls = T::linkWaypoint <LevelSetEdge> (n, 1, 2, name, "ls");
+
+            // Set the nodes constraints
+            // Note that submanifold is not taken into account for nodes
+            // because the edges constraints will enforce configuration to stay
+            // in a leaf, and so in the manifold itself.
+            T::setNodeConstraints (n, grasp, pregrasp, place, preplace);
 
             // Set the edges properties
-            e01->node (n[0]);
-            e12->node (n[0]); e12->setShort (true);
-            e23->node (n[4]); e23->setShort (true);
-            e34->node (n[4]); e34->setShort (true);
-
-            // set the nodes constraints
-            // From and to are not populated automatically to avoid duplicates.
-            place.addToNode (n[1]);
-            pregrasp.addToNode (n[1]);
-            // submanifoldDef.addToNode (n[1]);
-            place.addToNode (n[2]);
-            grasp.addToNode (n[2]);
-            // submanifoldDef.addToNode (n[2]);
-            preplace.addToNode (n[3]);
-            grasp.addToNode (n[3]);
-            // submanifoldDef.addToNode (n[3]);
+            T::setEdgeProp <true> (eF, n);
 
             // Set the edges constraints
-            place.addToEdge (e01);
-            submanifoldDef.addToEdge (e01);
-            place.addToEdge (e12);
-            submanifoldDef.addToEdge (e12);
-            grasp.addToEdge (e23);
-            submanifoldDef.addToEdge (e23);
-            grasp.addToEdge (e34);
-            submanifoldDef.addToEdge (e34);
-
-            // Set the waypoints
-            weForw->setWaypoint (0, e01, n[1]);
-            weForw->setWaypoint (1, e12, n[2]);
-            weForw->setWaypoint (2, e23, n[3]);
+            T::setEdgeConstraints (eF, grasp, place, submanifoldDef);
 
             // Populate bacward edge
             name = backName;
-            EdgePtr_t e43 = makeE <Edge> (n, 4, 3, name, -1),
-                      e32 = makeE <Edge> (n, 3, 2, name, -1),
-                      e21 = makeE <Edge> (n, 2, 1, name, -1),
-                      e10 = weBack;
+            T::EdgeArray eB = T::linkWaypoints <false> (n, weBack, name);
+
             LevelSetEdgePtr_t e32_ls;
             if (levelSetPlace)
-              e32_ls = makeE <LevelSetEdge> (n, 3, 2, name, -1, "ls");
+              e32_ls = T::linkWaypoint <LevelSetEdge> (n, 3, 2, name, "ls");
 
-            e43->node (n[4]);
-            e32->node (n[4]); e32->setShort (true);
-            e21->node (n[0]); e21->setShort (true);
-            e10->node (n[0]); e10->setShort (true);
+            T::setEdgeProp <false> (eB, n);
 
-            place.addToEdge (e10);
-            submanifoldDef.addToEdge (e10);
-            place.addToEdge (e21);
-            submanifoldDef.addToEdge (e21);
-            grasp.addToEdge (e32);
-            submanifoldDef.addToEdge (e32);
-            grasp.addToEdge (e43);
-            submanifoldDef.addToEdge (e43);
-
-            weBack->setWaypoint (0, e43, n[3]);
-            weBack->setWaypoint (1, e32, n[2]);
-            weBack->setWaypoint (2, e21, n[1]);
+            T::setEdgeConstraints (eB, grasp, place, submanifoldDef);
 
             Edges_t ret = boost::assign::list_of (weForw)(weBack);
 
@@ -271,9 +310,9 @@ namespace hpp {
               place.addToEdge (weBackLs);
               submanifoldDef.addToEdge (weBackLs);
               weBackLs->Edge::node (n[0]); weBackLs->setShort (true);
-              weBackLs->setWaypoint (0, e43   , n[3]);
+              weBackLs->setWaypoint (0, eB[3]   , n[3]);
               weBackLs->setWaypoint (1, e32_ls, n[2]);
-              weBackLs->setWaypoint (2, e21   , n[1]);
+              weBackLs->setWaypoint (2, eB[1]   , n[1]);
               ret.push_back (weBackLs);
             }
             if (levelSetGrasp) {
@@ -291,9 +330,9 @@ namespace hpp {
               weForwLs->Edge::node (n[4]); weForwLs->setShort (true);
               grasp.addToEdge (weForwLs);
               submanifoldDef.addToEdge (weForwLs);
-              weForwLs->setWaypoint (0, e01   , n[1]);
+              weForwLs->setWaypoint (0, eF[0] , n[1]);
               weForwLs->setWaypoint (1, e12_ls, n[2]);
-              weForwLs->setWaypoint (2, e23   , n[3]);
+              weForwLs->setWaypoint (2, eF[2] , n[3]);
               ret.push_back (weForwLs);
             }
 

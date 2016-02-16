@@ -90,7 +90,7 @@ namespace hpp {
           for (LockedJoints_t::const_iterator it = lj_fol.begin ();
               it != lj_fol.end (); ++it)
             if (*it && (*it)->numberDof() > 0)
-              (*it) comp->addLockedJointConstraint (*it);
+              comp->addLockedJointConstraint (*it);
         }
 
         void FoliatedManifold::specifyFoliation (LevelSetEdgePtr_t lse) const
@@ -263,21 +263,25 @@ namespace hpp {
 
               static inline void setNodeConstraints (const NodeArray& n,
                   const FoliatedManifold& g, const FoliatedManifold& pg,
-                  const FoliatedManifold& p, const FoliatedManifold& pp)
+                  const FoliatedManifold& p, const FoliatedManifold& pp,
+                  const FoliatedManifold& m)
               {
                 // From and to are not populated automatically
                 // to avoid duplicates.
                 if (pregrasp) {
                   p .addToNode (Npregrasp (n));
                   pg.addToNode (Npregrasp (n));
+                  m .addToNode (Npregrasp (n));
                 }
                 if (intersec) {
                   p .addToNode (Nintersec (n));
                   g .addToNode (Nintersec (n));
+                  m .addToNode (Nintersec (n));
                 }
                 if (preplace) {
                   pp.addToNode (Npreplace (n));
                   g .addToNode (Npreplace (n));
+                  m .addToNode (Npreplace (n));
                 }
               }
 
@@ -336,7 +340,8 @@ namespace hpp {
             // Note that submanifold is not taken into account for nodes
             // because the edges constraints will enforce configuration to stay
             // in a leaf, and so in the manifold itself.
-            T::setNodeConstraints (n, grasp, pregrasp, place, preplace);
+            T::setNodeConstraints (n, grasp, pregrasp, place, preplace,
+                submanifoldDef);
 
             // Set the edges properties
             T::template setEdgeProp <true> (eF, n);

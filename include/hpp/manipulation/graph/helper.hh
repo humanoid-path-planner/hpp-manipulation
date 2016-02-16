@@ -87,8 +87,6 @@ namespace hpp {
           }
         };
 
-        typedef std::pair <EdgePtr_t, EdgePtr_t> EdgePair_t;
-
         enum GraspingCase {
           NoGrasp = 0,
           GraspOnly = 1 << 0,
@@ -106,7 +104,7 @@ namespace hpp {
         /// When an argument is not relevant, use the default constructor
         /// of FoliatedManifold
         template < int gCase >
-          EdgePair_t createEdges (
+          Edges_t createEdges (
               const std::string& forwName,   const std::string& backName,
               const NodePtr_t& from,         const NodePtr_t& to,
               const size_type& wForw,        const size_type& wBack,

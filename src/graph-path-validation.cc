@@ -16,6 +16,8 @@
 
 #include "hpp/manipulation/graph-path-validation.hh"
 
+#include <hpp/manipulation/constraint-set.hh>
+
 namespace hpp {
   namespace manipulation {
     GraphPathValidationPtr_t GraphPathValidation::create (const PathValidationPtr_t& pathValidation)
@@ -119,7 +121,34 @@ namespace hpp {
       const graph::NodePtr_t& origNode = constraintGraph_->getNode (q);
       if (!newPath (q, newTR.second))
         throw std::logic_error ("End configuration of the valid part cannot be projected.");
-      const graph::NodePtr_t& destNode = constraintGraph_->getNode (q);
+      // This may throw in the following case:
+      // - node constraints: object_placement + other_function
+      // - path constraints: other_function, object_lock
+      // This is semantically correct but for a path going from q0 to q1,
+      // we ensure that
+      // - object_placement (q0) = eps_place0
+      // - other_function (q0) = eps_other0
+      // - eps_place0 + eps_other0 < eps
+      // - other_function (q(s)) < eps
+      // - object_placement (q(s)) = object_placement (q0) # thanks to the object_lock
+      // So we only have:
+      // - other_function (q(s)) + object_placement (q(s)) < eps + eps_place0
+      // And not:
+      // - other_function (q(s)) + object_placement (q(s)) < eps
+      // In this case, there is no good way to recover. Just return failure.
+      graph::NodePtr_t destNode;
+      try {
+        destNode = constraintGraph_->getNode (q);
+      } catch (const std::logic_error& e) {
+        ConstraintSetPtr_t c = HPP_DYNAMIC_PTR_CAST(ConstraintSet, path->constraints());
+        hppDout (error, "Edge " << c->edge()->name()
+            << " generated an error: " << e.what());
+        hppDout (error, "Likely, the constraints for paths are relaxed. If "
+            "this problem occurs often, you may want to use the same "
+            "constraints for node and paths in " << c->edge()->node()->name());
+        validPart = path->extract (std::make_pair (oldTR.first,oldTR.first));
+        return false;
+      }
       if (!oldPath (q, oldTR.first))
         throw std::logic_error ("Initial configuration of the path to be validated cannot be projected.");
       const graph::NodePtr_t& oldOnode = constraintGraph_->getNode (q);

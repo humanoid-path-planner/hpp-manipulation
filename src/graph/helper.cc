@@ -487,8 +487,8 @@ namespace hpp {
             // they are satisfied at both ends and the object does not move. The
             // former condition is ensured by the placement constraints on both
             // ends and the latter is ensure by the LockedJoint constraints.
-            // place.nc_path.nc.push_back (placement);
-            // place.nc_path.pdof.push_back (SizeIntervals_t());
+            place.nc_path.nc.push_back (placement);
+            place.nc_path.pdof.push_back (SizeIntervals_t());
           }
           std::copy (objectLocks.begin(), objectLocks.end(), std::back_inserter(place.lj_fol));
 

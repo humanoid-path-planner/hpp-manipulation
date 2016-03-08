@@ -165,7 +165,8 @@ namespace hpp {
       // edge of the constraint graph. Two option are possible:
       // - Use the steering method to create a new path and validate it.
       // - Return a null path.
-      validPart = path->extract (std::make_pair (oldTR.first,oldTR.first));
+      // validPart = path->extract (std::make_pair (oldTR.first,oldTR.first));
+      validPart = pathNoCollision;
       return false;
     }
 

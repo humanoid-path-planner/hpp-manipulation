@@ -110,10 +110,11 @@ namespace hpp {
         enum TypeOfFailure {
           PROJECTION = 0,
           STEERING_METHOD = 1,
-          PATH_VALIDATION = 2,
-          PATH_PROJECTION_SHORTER = 3,
-          PATH_PROJECTION_ZERO = 4,
-          PARTLY_EXTENDED = 5
+          PATH_VALIDATION_ZERO = 2,
+          PATH_PROJECTION_ZERO = 3,
+          PATH_PROJECTION_SHORTER = 4,
+          PATH_VALIDATION_SHORTER = 5,
+          PARTLY_EXTENDED = 6
         };
         static const std::vector<Reason> reasons_;
 

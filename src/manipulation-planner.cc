@@ -57,12 +57,13 @@ namespace hpp {
 
     const std::vector<ManipulationPlanner::Reason>
       ManipulationPlanner::reasons_ = boost::assign::list_of
-      (SuccessBin::createReason ("Projection"))
-      (SuccessBin::createReason ("SteeringMethod"))
-      (SuccessBin::createReason ("PathValidation returned length 0"))
-      (SuccessBin::createReason ("Path could not be fully projected"))
-      (SuccessBin::createReason ("Path could not be projected"))
-      (SuccessBin::createReason ("Extended partly"));
+      (SuccessBin::createReason ("[Fail] Projection"))
+      (SuccessBin::createReason ("[Fail] SteeringMethod"))
+      (SuccessBin::createReason ("[Fail] Path validation returned length 0"))
+      (SuccessBin::createReason ("[Fail] Path could not be projected"))
+      (SuccessBin::createReason ("[Info] Path could not be fully projected"))
+      (SuccessBin::createReason ("[Info] Path could not be fully validated"))
+      (SuccessBin::createReason ("[Info] Extended partly"));
 
     ManipulationPlannerPtr_t ManipulationPlanner::create (const core::Problem& problem,
         const core::RoadmapPtr_t& roadmap)
@@ -254,9 +255,11 @@ namespace hpp {
       }
       HPP_STOP_TIMECOUNTER (buildPath);
       core::PathPtr_t projPath;
+      bool projShorter = false;
       if (pathProjector) {
         HPP_START_TIMECOUNTER (projectPath);
-        if (!pathProjector->apply (path, projPath)) {
+        projShorter = !pathProjector->apply (path, projPath);
+        if (projShorter) {
           if (!projPath || projPath->length () == 0) {
             HPP_STOP_TIMECOUNTER (projectPath);
             es.addFailure (reasons_[PATH_PROJECTION_ZERO]);
@@ -276,17 +279,18 @@ namespace hpp {
           (projPath, false, fullValidPath, report);
       } catch (const core::projection_error& e) {
         hppDout (error, e.what ());
-        es.addFailure (reasons_[PATH_VALIDATION]);
+        es.addFailure (reasons_[PATH_VALIDATION_ZERO]);
         return false;
       }
       HPP_STOP_TIMECOUNTER (validatePath);
       if (fullValidPath->length () == 0) {
-        es.addFailure (reasons_[PATH_VALIDATION]);
+        es.addFailure (reasons_[PATH_VALIDATION_ZERO]);
         validPath = fullValidPath;
+        return false;
       } else {
+        if (!fullyValid) es.addFailure (reasons_[PATH_VALIDATION_SHORTER]);
         if (extendStep_ == 1 || fullyValid) {
           validPath = fullValidPath;
-          es.addSuccess ();
         } else {
           const value_type& length = fullValidPath->length();
           const value_type& t_init = fullValidPath->timeRange ().first;
@@ -298,11 +302,12 @@ namespace hpp {
             es.addFailure (reasons_[PATH_PROJECTION_SHORTER]);
             return false;
           }
-          es.addFailure (reasons_[PARTLY_EXTENDED]);
         }
         hppDout (info, "Extension:" << std::endl
             << es);
       }
+      if (!projShorter && fullValidPath) es.addSuccess ();
+      else es.addFailure (reasons_[PARTLY_EXTENDED]);
       return true;
     }
 

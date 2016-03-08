@@ -30,6 +30,7 @@
 #include <hpp/manipulation/graph/node.hh>
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/node-selector.hh>
+#include <hpp/manipulation/graph/guided-node-selector.hh>
 #include <hpp/manipulation/problem-solver.hh>
 
 namespace hpp {
@@ -864,12 +865,12 @@ namespace hpp {
               ps->createPlacementConstraint (placeN,
                   od.shapes, envNames, margin);
               objects[i].get<0> ().get<0> () =
-                ps->get <NumericalConstraintPtr_t> (placeN);
+                ps->core::ProblemSolver::get <NumericalConstraintPtr_t> (placeN);
               if (prePlace) {
                 ps->createPrePlacementConstraint ("pre" + placeN,
                     od.shapes, envNames, margin, prePlaceWidth);
                 objects[i].get<0> ().get<1> () =
-                  ps->get <NumericalConstraintPtr_t> ("pre" + placeN);
+                  ps->core::ProblemSolver::get <NumericalConstraintPtr_t> ("pre" + placeN);
               }
             }
             // Create object lock
@@ -879,7 +880,7 @@ namespace hpp {
               LockedJointPtr_t lj = core::LockedJoint::create (oj,
                   robot.currentConfiguration()
                   .segment (oj->rankInConfiguration (), oj->configSize ()));
-              ps->add <LockedJointPtr_t> ("lock_" + oj->name (), lj);
+              ps->ProblemSolver::ThisC_t::add <LockedJointPtr_t> ("lock_" + oj->name (), lj);
               objects[i].get<0> ().get<2> ().push_back (lj);
             }
             ++i;

@@ -31,10 +31,12 @@ namespace hpp {
   namespace manipulation {
     class HPP_MANIPULATION_DLLAPI ProblemSolver :
       public core::ProblemSolver,
-      public core::Container <LockedJointPtr_t>,
-      public core::Container <JointAndShapes_t>
+      public core::Containers <
+        boost::mpl::vector <LockedJointPtr_t, JointAndShapes_t> >
     {
       public:
+        typedef core::Containers < boost::mpl::vector
+          <LockedJointPtr_t, JointAndShapes_t> > ThisC_t;
         typedef core::ProblemSolver parent_t;
         typedef std::vector <std::string> Names_t;
 
@@ -140,41 +142,6 @@ namespace hpp {
         ProblemPtr_t problem () const
         {
           return problem_;
-        }
-
-        /// Get an element of a container
-        template <typename Element>
-          const Element& get (const std::string& name) const
-        {
-          return Container <Element>::get (name);
-        }
-
-        /// Check if a Container has a key.
-        template <typename Element>
-          bool has (const std::string& name) const
-        {
-          return core::Container <Element>::has (name);
-        }
-
-        /// Add an element to a container
-        template <typename Element>
-          void add (const std::string& name, const Element& element)
-        {
-          Container <Element>::add (name, element);
-        }
-
-        /// Get the underlying map of a container
-        template <typename Element>
-          const typename core::Container<Element>::ElementMap_t& getAll () const
-        {
-          return Container <Element>::getAll ();
-        }
-
-        /// Get the keys of a container
-        template <typename Element, typename ReturnType>
-          ReturnType getKeys () const
-        {
-          return Container <Element>::template getKeys <ReturnType> ();
         }
 
       protected:

@@ -73,30 +73,31 @@ namespace hpp {
     ProblemSolver::ProblemSolver () :
       core::ProblemSolver (), robot_ (), problem_ (0x0), graspsMap_()
     {
-      add <core::PathPlannerBuilder_t> ("M-RRT", ManipulationPlanner::create);
+      parent_t::add<core::PathPlannerBuilder_t>
+        ("M-RRT", ManipulationPlanner::create);
       using core::PathValidationBuilder_t;
-      add <PathValidationBuilder_t> ("Graph-Discretized",
+      parent_t::add <PathValidationBuilder_t> ("Graph-Discretized",
           GraphPathValidation::create <core::DiscretizedCollisionChecking>);
-      add <PathValidationBuilder_t> ("Graph-Progressive",
+      parent_t::add <PathValidationBuilder_t> ("Graph-Progressive",
           GraphPathValidation::create <
           core::continuousCollisionChecking::Progressive >);
       using core::PathOptimizerBuilder_t;
-      add <PathOptimizerBuilder_t> ("Graph-RandomShortcut",
+      parent_t::add <PathOptimizerBuilder_t> ("Graph-RandomShortcut",
           GraphOptimizer::create <core::RandomShortcut>);
-      add <PathOptimizerBuilder_t> ("PartialShortcut", core::pathOptimization::
+      parent_t::add <PathOptimizerBuilder_t> ("PartialShortcut", core::pathOptimization::
           PartialShortcut::createWithTraits <PartialShortcutTraits>);
-      add <PathOptimizerBuilder_t> ("Graph-PartialShortcut",
+      parent_t::add <PathOptimizerBuilder_t> ("Graph-PartialShortcut",
           GraphOptimizer::create <core::pathOptimization::PartialShortcut>);
-      add <PathOptimizerBuilder_t> ("ConfigOptimization",
+      parent_t::add <PathOptimizerBuilder_t> ("ConfigOptimization",
           core::pathOptimization::ConfigOptimization::createWithTraits
           <pathOptimization::ConfigOptimizationTraits>);
-      add <PathOptimizerBuilder_t> ("Graph-ConfigOptimization",
+      parent_t::add <PathOptimizerBuilder_t> ("Graph-ConfigOptimization",
           GraphOptimizer::create <
           GraphConfigOptimizationTraits
             <pathOptimization::ConfigOptimizationTraits>
             >);
       using core::SteeringMethodBuilder_t;
-      add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
+      parent_t::add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
           GraphSteeringMethod::create <core::SteeringMethodStraight>);
 
       pathPlannerType ("M-RRT");
@@ -181,8 +182,8 @@ namespace hpp {
         if (robot_->has <JointAndShapes_t> (*it2))
           l = robot_->get <JointAndShapes_t> (*it2);
         // and then environment triangles.
-        else if (has <JointAndShapes_t> (*it2))
-          l = get <JointAndShapes_t> (*it2);
+        else if (ThisC_t::has <JointAndShapes_t> (*it2))
+          l = ThisC_t::get <JointAndShapes_t> (*it2);
         else throw std::runtime_error ("Second list of triangles not found.");
         for (JointAndShapes_t::const_iterator it = l.begin ();
             it != l.end(); ++it) {
@@ -229,8 +230,8 @@ namespace hpp {
         if (robot_->has <JointAndShapes_t> (*it2))
           l = robot_->get <JointAndShapes_t> (*it2);
         // and then environment triangles.
-        else if (has <JointAndShapes_t> (*it2))
-          l = get <JointAndShapes_t> (*it2);
+        else if (ThisC_t::has <JointAndShapes_t> (*it2))
+          l = ThisC_t::get <JointAndShapes_t> (*it2);
         else throw std::runtime_error ("Second list of triangles not found.");
 
         for (JointAndShapes_t::const_iterator it = l.begin ();

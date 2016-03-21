@@ -43,7 +43,7 @@ namespace hpp {
         /// path->end(). In that case, path->end () should be in edge->node().
         /// (obviously, in this case, we have edge->isInNodeFrom_ = true)
         const bool reverseB = setB->edge ()->direction(before);
-        const bool reverseA = setA->edge ()->direction(after);
+        //const bool reverseA = setA->edge ()->direction(after);
 
         reverse = reverseB;
 

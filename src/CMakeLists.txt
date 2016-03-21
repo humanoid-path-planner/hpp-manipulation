@@ -25,9 +25,12 @@ ADD_LIBRARY(${LIBRARY_NAME} SHARED
   manipulation-planner.cc
   problem-solver.cc
   roadmap.cc
+  connected-component.cc
   constraint-set.cc
   roadmap-node.cc
   device.cc
+  weighed-distance.cc
+  problem.cc
   graph-path-validation.cc
   graph-steering-method.cc
   graph-optimizer.cc

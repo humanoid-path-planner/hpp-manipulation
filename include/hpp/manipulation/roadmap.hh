@@ -56,11 +56,14 @@ namespace hpp {
         void push_node (const core::NodePtr_t& n);
 
         /// Get the nearest neighbor in a given graph::Node and in a given
-        /// core::ConnectedComponent.
+        /// ConnectedComponent.
         RoadmapNodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
             const ConnectedComponentPtr_t& connectedComponent,
             const graph::NodePtr_t& node,
             value_type& minDistance) const;
+
+	/// Get graph node corresponding to given roadmap node
+ 	graph::NodePtr_t getNode(RoadmapNodePtr_t node);
 
       protected:
         /// Register a new configuration.
@@ -72,12 +75,18 @@ namespace hpp {
         /// Node factory
         core::NodePtr_t createNode (const ConfigurationPtr_t& config) const;
 
+        void init (const RoadmapPtr_t& shPtr)
+	{
+	  weak_ = shPtr;
+	}
+        
       private:
         typedef std::list < graph::HistogramPtr_t > Histograms;
         /// Keep track of the leaf that are explored.
         /// There should be one histogram per foliation.
         Histograms histograms_;
         graph::GraphPtr_t graph_;
+        RoadmapWkPtr_t weak_;
     };
     /// \}
   } // namespace manipulation

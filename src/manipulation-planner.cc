@@ -16,6 +16,8 @@
 
 #include "hpp/manipulation/manipulation-planner.hh"
 
+#include <boost/tuple/tuple.hpp>
+
 #include <hpp/util/pointer.hh>
 #include "hpp/util/timer.hh"
 #include <hpp/util/assertion.hh>
@@ -24,6 +26,7 @@
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/projection-error.hh>
+#include <hpp/core/nearest-neighbor.hh>
 
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/device.hh"
@@ -39,6 +42,10 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER(oneStep);
       HPP_DEFINE_TIMECOUNTER(extend);
       HPP_DEFINE_TIMECOUNTER(tryConnect);
+      HPP_DEFINE_TIMECOUNTER(nearestNeighbor);
+      HPP_DEFINE_TIMECOUNTER(delayedEdges);
+      HPP_DEFINE_TIMECOUNTER(tryConnectNewNodes);
+      HPP_DEFINE_TIMECOUNTER(tryConnectToRoadmap);
       /// extend steps
       HPP_DEFINE_TIMECOUNTER(chooseEdge);
       HPP_DEFINE_TIMECOUNTER(applyConstraints);
@@ -80,6 +87,7 @@ namespace hpp {
     void ManipulationPlanner::oneStep ()
     {
       HPP_START_TIMECOUNTER(oneStep);
+
       DevicePtr_t robot = HPP_DYNAMIC_PTR_CAST(Device, problem ().robot ());
       HPP_ASSERT(robot);
       const graph::Nodes_t& graphNodes = problem_.constraintGraph ()
@@ -87,6 +95,11 @@ namespace hpp {
       graph::Nodes_t::const_iterator itNode;
       core::Nodes_t newNodes;
       core::PathPtr_t path;
+
+      typedef boost::tuple <core::NodePtr_t, ConfigurationPtr_t, core::PathPtr_t>
+	DelayedEdge_t;
+      typedef std::vector <DelayedEdge_t> DelayedEdges_t;
+      DelayedEdges_t delayedEdges;
 
       // Pick a random node
       ConfigurationPtr_t q_rand = shooter_->shoot();
@@ -98,7 +111,10 @@ namespace hpp {
         // Find the nearest neighbor.
         core::value_type distance;
         for (itNode = graphNodes.begin (); itNode != graphNodes.end (); ++itNode) {
-          RoadmapNodePtr_t near = roadmap_->nearestNode (q_rand, *itcc, *itNode, distance);
+          HPP_START_TIMECOUNTER(nearestNeighbor);
+          RoadmapNodePtr_t near = roadmap_->nearestNode (q_rand, HPP_STATIC_PTR_CAST(ConnectedComponent,*itcc), *itNode, distance);
+          HPP_STOP_TIMECOUNTER(nearestNeighbor);
+          HPP_DISPLAY_LAST_TIMECOUNTER(nearestNeighbor);
           if (!near) continue;
 
           HPP_START_TIMECOUNTER(extend);
@@ -116,28 +132,52 @@ namespace hpp {
                 newNodes.push_back (roadmap ()->addNodeAndEdges
                     (near, q_new, path));
               } else {
-                core::NodePtr_t newNode = roadmap ()->addNode (q_new);
-                roadmap ()->addEdge (near, newNode, path);
-                core::interval_t timeRange = path->timeRange ();
-                roadmap ()->addEdge (newNode, near, path->extract
-                    (core::interval_t (timeRange.second ,
-                                       timeRange.first)));
+                delayedEdges.push_back (DelayedEdge_t (near, q_new, path));
               }
             }
+            
           }
+
+
         }
       }
 
+      HPP_START_TIMECOUNTER(delayedEdges);
+      // Insert delayed edges
+      for (DelayedEdges_t::const_iterator itEdge = delayedEdges.begin ();
+	   itEdge != delayedEdges.end (); ++itEdge) {
+	const core::NodePtr_t& near = itEdge-> get <0> ();
+	const ConfigurationPtr_t& q_new = itEdge-> get <1> ();
+	const core::PathPtr_t& validPath = itEdge-> get <2> ();
+        core::NodePtr_t newNode = roadmap ()->addNode (q_new);
+	roadmap ()->addEdge (near, newNode, validPath);
+        core::interval_t timeRange = validPath->timeRange ();
+	roadmap ()->addEdge (newNode, near, validPath->extract
+			     (core::interval_t (timeRange.second ,
+					  timeRange.first)));
+      }
+      HPP_STOP_TIMECOUNTER(delayedEdges);
+
       // Try to connect the new nodes together
-      HPP_START_TIMECOUNTER(tryConnect);
-      tryConnect (newNodes);
-      HPP_STOP_TIMECOUNTER(tryConnect);
+      HPP_START_TIMECOUNTER(tryConnectNewNodes);
+      const std::size_t nbConn = tryConnectNewNodes (newNodes);
+      HPP_STOP_TIMECOUNTER(tryConnectNewNodes);
+      HPP_DISPLAY_LAST_TIMECOUNTER(tryConnectNewNodes);
+      if (nbConn == 0) {
+        HPP_START_TIMECOUNTER(tryConnectToRoadmap);
+        tryConnectToRoadmap (newNodes);
+        HPP_STOP_TIMECOUNTER(tryConnectToRoadmap);
+        HPP_DISPLAY_LAST_TIMECOUNTER(tryConnectToRoadmap);
+      }
       HPP_STOP_TIMECOUNTER(oneStep);
       HPP_DISPLAY_LAST_TIMECOUNTER(oneStep);
-      HPP_DISPLAY_LAST_TIMECOUNTER(tryConnect);
       HPP_DISPLAY_TIMECOUNTER(oneStep);
       HPP_DISPLAY_TIMECOUNTER(extend);
       HPP_DISPLAY_TIMECOUNTER(tryConnect);
+      HPP_DISPLAY_TIMECOUNTER(tryConnectNewNodes);
+      HPP_DISPLAY_TIMECOUNTER(tryConnectToRoadmap);
+      HPP_DISPLAY_TIMECOUNTER(nearestNeighbor);
+      HPP_DISPLAY_TIMECOUNTER(delayedEdges);
       HPP_DISPLAY_TIMECOUNTER(chooseEdge);
       HPP_DISPLAY_TIMECOUNTER(applyConstraints);
       HPP_DISPLAY_TIMECOUNTER(buildPath);
@@ -168,10 +208,9 @@ namespace hpp {
         return false;
       }
       HPP_STOP_TIMECOUNTER (applyConstraints);
-      GraphSteeringMethodPtr_t sm = problem_.steeringMethod();
       core::PathPtr_t path;
       HPP_START_TIMECOUNTER (buildPath);
-      if (!edge->build (path, *q_near, qProj_, *(sm->distance ()))) {
+      if (!edge->build (path, *q_near, qProj_)) {
         HPP_STOP_TIMECOUNTER (buildPath);
         addFailure (STEERING_METHOD, edge);
         return false;
@@ -192,18 +231,35 @@ namespace hpp {
       } else projPath = path;
       GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
       PathValidationReportPtr_t report;
+      core::PathPtr_t fullValidPath;
       HPP_START_TIMECOUNTER (validatePath);
+      bool fullyValid = false;
       try {
-        pathValidation->validate (projPath, false, validPath, report);
+        fullyValid = pathValidation->validate
+          (projPath, false, fullValidPath, report);
       } catch (const core::projection_error& e) {
         hppDout (error, e.what ());
         addFailure (PATH_VALIDATION, edge);
         return false;
       }
       HPP_STOP_TIMECOUNTER (validatePath);
-      if (validPath->length () == 0)
+      if (fullValidPath->length () == 0) {
         addFailure (PATH_VALIDATION, edge);
-      else {
+        validPath = fullValidPath;
+      } else {
+        if (extendStep_ == 1 || fullyValid) validPath = fullValidPath;
+        else {
+          const value_type& length = fullValidPath->length();
+          const value_type& t_init = fullValidPath->timeRange ().first;
+          try {
+            validPath = fullValidPath->extract
+              (core::interval_t(t_init, t_init + length * extendStep_));
+          } catch (const core::projection_error& e) {
+            hppDout (error, e.what());
+            addFailure (PATH_PROJECTION_SHORTER, edge);
+            return false;
+          }
+        }
         extendStatistics_.addSuccess ();
         hppDout (info, "Extension:" << std::endl
             << extendStatistics_);
@@ -230,7 +286,7 @@ namespace hpp {
       hppDout (info, "Extension failed." << std::endl << extendStatistics_);
     }
 
-    inline void ManipulationPlanner::tryConnect (const core::Nodes_t nodes)
+    inline std::size_t ManipulationPlanner::tryConnectToRoadmap (const core::Nodes_t nodes)
     {
       const core::SteeringMethodPtr_t& sm (problem ().steeringMethod ());
       core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
@@ -238,6 +294,9 @@ namespace hpp {
       core::PathPtr_t path, projPath, validPath;
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       bool connectSucceed = false;
+      std::size_t nbConnection = 0;
+      const std::size_t K = 7;
+      value_type distance;
       for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
           itn1 != nodes.end (); ++itn1) {
         ConfigurationPtr_t q1 ((*itn1)->configuration ());
@@ -247,8 +306,16 @@ namespace hpp {
             itcc != roadmap ()->connectedComponents ().end (); ++itcc) {
           if (*itcc == (*itn1)->connectedComponent ())
             continue;
-          for (core::Nodes_t::const_iterator itn2 = (*itcc)->nodes().begin ();
-              itn2 != (*itcc)->nodes ().end (); ++itn2) {
+          core::Nodes_t knearest = roadmap()->nearestNeighbor ()
+            ->KnearestSearch (q1, *itcc, K, distance);
+          for (core::Nodes_t::const_iterator itn2 = knearest.begin ();
+              itn2 != knearest.end (); ++itn2) {
+            bool _1to2 = (*itn1)->isOutNeighbor (*itn2);
+            bool _2to1 = (*itn1)->isInNeighbor (*itn2);
+            if (_1to2 && _2to1) {
+              hppDout (info, "the two nodes are already connected");
+              continue;
+            }
             ConfigurationPtr_t q2 ((*itn2)->configuration ());
             assert (*q1 != *q2);
             path = (*sm) (*q1, *q2);
@@ -258,11 +325,14 @@ namespace hpp {
             } else projPath = path;
 	    PathValidationReportPtr_t report;
             if (pathValidation->validate (projPath, false, validPath, report)) {
-              roadmap ()->addEdge (*itn1, *itn2, projPath);
-              core::interval_t timeRange = projPath->timeRange ();
-              roadmap ()->addEdge (*itn2, *itn1, projPath->extract
-                  (core::interval_t (timeRange.second,
-                                     timeRange.first)));
+              nbConnection++;
+              if (!_1to2) roadmap ()->addEdge (*itn1, *itn2, projPath);
+              if (!_2to1) {
+                core::interval_t timeRange = projPath->timeRange ();
+                roadmap ()->addEdge (*itn2, *itn1, projPath->extract
+                    (core::interval_t (timeRange.second,
+                                       timeRange.first)));
+              }
               connectSucceed = true;
               break;
             }
@@ -270,6 +340,51 @@ namespace hpp {
           if (connectSucceed) break;
         }
       }
+      return nbConnection;
+    }
+
+    inline std::size_t ManipulationPlanner::tryConnectNewNodes (const core::Nodes_t nodes)
+    {
+      const core::SteeringMethodPtr_t& sm (problem ().steeringMethod ());
+      core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
+      PathProjectorPtr_t pathProjector (problem().pathProjector ());
+      core::PathPtr_t path, projPath, validPath;
+      graph::GraphPtr_t graph = problem_.constraintGraph ();
+      std::size_t nbConnection = 0;
+      for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
+          itn1 != nodes.end (); ++itn1) {
+        ConfigurationPtr_t q1 ((*itn1)->configuration ());
+        for (core::Nodes_t::const_iterator itn2 = boost::next (itn1);
+            itn2 != nodes.end (); ++itn2) {
+          if ((*itn1)->connectedComponent () == (*itn2)->connectedComponent ())
+            continue;
+          bool _1to2 = (*itn1)->isOutNeighbor (*itn2);
+          bool _2to1 = (*itn1)->isInNeighbor (*itn2);
+          if (_1to2 && _2to1) {
+            hppDout (info, "the two nodes are already connected");
+            continue;
+          }
+          ConfigurationPtr_t q2 ((*itn2)->configuration ());
+          assert (*q1 != *q2);
+          path = (*sm) (*q1, *q2);
+          if (!path) continue;
+          if (pathProjector) {
+            if (!pathProjector->apply (path, projPath)) continue;
+          } else projPath = path;
+          PathValidationReportPtr_t report;
+          if (pathValidation->validate (projPath, false, validPath, report)) {
+            nbConnection++;
+            if (!_1to2) roadmap ()->addEdge (*itn1, *itn2, projPath);
+            if (!_2to1) {
+              core::interval_t timeRange = projPath->timeRange ();
+              roadmap ()->addEdge (*itn2, *itn1, projPath->extract
+                  (core::interval_t (timeRange.second,
+                                     timeRange.first)));
+            }
+          }
+        }
+      }
+      return nbConnection;
     }
 
     ManipulationPlanner::ManipulationPlanner (const Problem& problem,
@@ -277,6 +392,7 @@ namespace hpp {
       core::PathPlanner (problem, roadmap),
       shooter_ (problem.configurationShooter()),
       problem_ (problem), roadmap_ (roadmap),
+      extendStep_ (1),
       qProj_ (problem.robot ()->configSize ())
     {}
 

@@ -21,10 +21,10 @@
 # define HPP_MANIPULATION_DEVICE_HH
 
 # include <hpp/model/humanoid-robot.hh>
+# include <hpp/core/container.hh>
 
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/config.hh"
-# include "hpp/manipulation/container.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -35,8 +35,9 @@ namespace hpp {
     ///
     /// This class also contains model::Gripper, Handle and \ref JointAndTriangles_t
     class HPP_MANIPULATION_DLLAPI Device : public model::HumanoidRobot,
-      public Container <HandlePtr_t>, public Container <model::GripperPtr_t>,
-      public Container <JointAndShapes_t>
+      public core::Container <HandlePtr_t>,
+      public core::Container <model::GripperPtr_t>,
+      public core::Container <JointAndShapes_t>
     {
       public:
         typedef model::HumanoidRobot Parent_t;
@@ -63,21 +64,35 @@ namespace hpp {
         template <typename Element>
           const Element& get (const std::string& name) const
         {
-          return Container <Element>::get (name);
+          return core::Container <Element>::get (name);
+        }
+
+        /// Check if a Container has a key.
+        template <typename Element>
+          bool has (const std::string& name) const
+        {
+          return core::Container <Element>::has (name);
+        }
+
+        /// Get the keys of a container
+        template <typename Element, typename ReturnType>
+          ReturnType getKeys () const
+        {
+          return core::Container <Element>::template getKeys <ReturnType> ();
         }
 
         /// Get the underlying map of a container
         template <typename Element>
-          const typename Container<Element>::ElementMap_t& getAll () const
+          const typename core::Container<Element>::ElementMap_t& getAll () const
         {
-          return Container <Element>::getAll ();
+          return core::Container <Element>::getAll ();
         }
 
         /// Add an element to a container
         template <typename Element>
           void add (const std::string& name, const Element& element)
         {
-          Container <Element>::add (name, element);
+          core::Container <Element>::add (name, element);
         }
 
         /// \}

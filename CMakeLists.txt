@@ -59,15 +59,16 @@ CONFIGURE_FILE (${CMAKE_SOURCE_DIR}/doc/main.hh.in
 
 SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/fwd.hh
-  include/hpp/manipulation/container.hh
   include/hpp/manipulation/axial-handle.hh
   include/hpp/manipulation/handle.hh
   include/hpp/manipulation/problem.hh
   include/hpp/manipulation/problem-solver.hh
   include/hpp/manipulation/device.hh
+  include/hpp/manipulation/weighed-distance.hh
   include/hpp/manipulation/constraint-set.hh
   include/hpp/manipulation/roadmap.hh
   include/hpp/manipulation/roadmap-node.hh
+  include/hpp/manipulation/connected-component.hh
   include/hpp/manipulation/manipulation-planner.hh
   include/hpp/manipulation/graph-path-validation.hh
   include/hpp/manipulation/graph-steering-method.hh

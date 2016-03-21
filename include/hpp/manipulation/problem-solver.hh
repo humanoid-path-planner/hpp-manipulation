@@ -21,16 +21,18 @@
 # include <map>
 # include <hpp/model/device.hh>
 # include <hpp/core/problem-solver.hh>
+# include <hpp/core/container.hh>
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/deprecated.hh"
 # include "hpp/manipulation/device.hh"
-# include "hpp/manipulation/container.hh"
 # include "hpp/manipulation/graph/fwd.hh"
 
 namespace hpp {
   namespace manipulation {
-    class HPP_MANIPULATION_DLLAPI ProblemSolver : public core::ProblemSolver,
-    public Container <LockedJointPtr_t>, public Container <JointAndShapes_t>
+    class HPP_MANIPULATION_DLLAPI ProblemSolver :
+      public core::ProblemSolver,
+      public core::Container <LockedJointPtr_t>,
+      public core::Container <JointAndShapes_t>
     {
       public:
         typedef core::ProblemSolver parent_t;
@@ -94,10 +96,12 @@ namespace hpp {
 	/// \param name name of the placement constraint,
 	/// \param triangleName name of the first list of triangles,
 	/// \param envContactName name of the second list of triangles.
+        /// \param margin see hpp::constraints::QPStaticStability constructor
 	/// 
 	void createPlacementConstraint (const std::string& name,
 					const std::string& surface1,
-					const std::string& surface2);
+					const std::string& surface2,
+                                        const value_type& margin = 1e-4);
 
         /// Reset constraint set and put back the disable collisions
         /// between gripper and handle
@@ -132,6 +136,13 @@ namespace hpp {
           return Container <Element>::get (name);
         }
 
+        /// Check if a Container has a key.
+        template <typename Element>
+          bool has (const std::string& name) const
+        {
+          return core::Container <Element>::has (name);
+        }
+
         /// Add an element to a container
         template <typename Element>
           void add (const std::string& name, const Element& element)
@@ -141,9 +152,16 @@ namespace hpp {
 
         /// Get the underlying map of a container
         template <typename Element>
-          const typename Container<Element>::ElementMap_t& getAll () const
+          const typename core::Container<Element>::ElementMap_t& getAll () const
         {
           return Container <Element>::getAll ();
+        }
+
+        /// Get the keys of a container
+        template <typename Element, typename ReturnType>
+          ReturnType getKeys () const
+        {
+          return Container <Element>::template getKeys <ReturnType> ();
         }
 
       protected:

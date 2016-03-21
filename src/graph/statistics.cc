@@ -250,6 +250,18 @@ namespace hpp {
         return distrib;
       }
 
+      statistics::DiscreteDistribution < RoadmapNodePtr_t > LeafHistogram::getDistrib () const
+      {
+        statistics::DiscreteDistribution < RoadmapNodePtr_t > distrib;
+        for (const_iterator bin = begin(); bin != end (); ++bin) {
+          unsigned int w = bin->freq ();
+          if (w == 0)
+            continue;
+          distrib.insert (bin->nodes ().front (), w);
+        }
+        return distrib;
+      }
+
       const LeafBin::RoadmapNodes_t& LeafBin::nodes () const
       {
         return nodes_;

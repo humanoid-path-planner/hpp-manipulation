@@ -24,6 +24,7 @@
 # include <hpp/core/node.hh>
 # include <hpp/manipulation/fwd.hh>
 # include <hpp/manipulation/graph/fwd.hh>
+# include <hpp/manipulation/connected-component.hh>
 
 namespace hpp {
   namespace manipulation {

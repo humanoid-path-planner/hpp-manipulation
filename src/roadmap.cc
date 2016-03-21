@@ -17,29 +17,31 @@
 #include "hpp/manipulation/roadmap.hh"
 
 #include <hpp/util/pointer.hh>
-#include <hpp/core/connected-component.hh>
+#include <hpp/core/distance.hh>
+#include <hpp/manipulation/connected-component.hh>
 
 #include <hpp/manipulation/roadmap-node.hh>
 
 namespace hpp {
   namespace manipulation {
     Roadmap::Roadmap (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot) :
-      core::Roadmap (distance, robot) {}
+      core::Roadmap (distance, robot), weak_ () {}
 
     RoadmapPtr_t Roadmap::create (const core::DistancePtr_t& distance, const core::DevicePtr_t& robot)
     {
-      return RoadmapPtr_t (new Roadmap (distance, robot));
+      Roadmap* ptr = new Roadmap (distance, robot);
+      RoadmapPtr_t shPtr (ptr);
+      ptr->init(shPtr);
+      return shPtr; 
     }
 
     void Roadmap::clear ()
     {
       Parent::clear ();
-      Histograms newHistograms;
-      Histograms::iterator it;
-      for (it = histograms_.begin(); it != histograms_.end(); ++it) {
-        newHistograms.push_back ((*it)->clone ());
+      for (Histograms::iterator it = histograms_.begin();
+          it != histograms_.end(); ++it) {
+        (*it)->clear ();
       }
-      histograms_ = newHistograms;
     }
 
     void Roadmap::push_node (const core::NodePtr_t& n)
@@ -86,11 +88,10 @@ namespace hpp {
     {
       core::NodePtr_t result = NULL;
       minDistance = std::numeric_limits <value_type>::infinity ();
-      for (core::Nodes_t::const_iterator itNode =
-          connectedComponent->nodes ().begin ();
-          itNode != connectedComponent->nodes ().end (); ++itNode) {
-        if (graph_->getNode (static_cast <RoadmapNodePtr_t> (*itNode)) != node)
-          continue;
+      ConnectedComponent::RoadmapNodes_t roadmapNodes = connectedComponent->getRoadmapNodes (node);
+      for (ConnectedComponent::RoadmapNodes_t::const_iterator itNode =
+          roadmapNodes.begin ();
+          itNode != roadmapNodes.end (); ++itNode) {
         value_type d = (*distance()) (*(*itNode)->configuration (),
             *configuration);
         if (d < minDistance) {
@@ -103,7 +104,14 @@ namespace hpp {
 
     core::NodePtr_t Roadmap::createNode (const ConfigurationPtr_t& q) const
     {
-      return RoadmapNodePtr_t (new RoadmapNode (q));
+      // call RoadmapNode constructor with new manipulation connected component
+      return RoadmapNodePtr_t (new RoadmapNode (q, ConnectedComponent::create(weak_)));    
     }
+
+    graph::NodePtr_t Roadmap::getNode(RoadmapNodePtr_t node)
+    {
+      return graph_->getNode(node);
+    }
+
   } // namespace manipulation
 } // namespace hpp

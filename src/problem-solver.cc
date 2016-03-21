@@ -17,6 +17,8 @@
 
 #include "hpp/manipulation/problem-solver.hh"
 
+#include <boost/bind.hpp>
+
 #include <hpp/util/pointer.hh>
 #include <hpp/util/debug.hh>
 
@@ -29,17 +31,19 @@
 #include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/roadmap.hh>
+#include <hpp/core/steering-method-straight.hh>
 
+#include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/handle.hh"
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
-#include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap.hh"
 #include "hpp/manipulation/constraint-set.hh"
 #include "hpp/manipulation/graph-optimizer.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph-node-optimizer.hh"
+#include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/path-optimization/config-optimization.hh"
 
 namespace hpp {
@@ -68,27 +72,35 @@ namespace hpp {
     ProblemSolver::ProblemSolver () :
       core::ProblemSolver (), robot_ (), problem_ (0x0), graspsMap_()
     {
-      addPathPlannerType ("M-RRT", ManipulationPlanner::create);
-      addPathValidationType ("Graph-Discretized",
+      add <core::PathPlannerBuilder_t> ("M-RRT", ManipulationPlanner::create);
+      using core::PathValidationBuilder_t;
+      add <PathValidationBuilder_t> ("Graph-Discretized",
           GraphPathValidation::create <core::DiscretizedCollisionChecking>);
-      addPathValidationType ("Graph-Progressive", GraphPathValidation::create <
+      add <PathValidationBuilder_t> ("Graph-Progressive",
+          GraphPathValidation::create <
           core::continuousCollisionChecking::Progressive >);
-      addPathOptimizerType ("Graph-RandomShortcut",
+      using core::PathOptimizerBuilder_t;
+      add <PathOptimizerBuilder_t> ("Graph-RandomShortcut",
           GraphOptimizer::create <core::RandomShortcut>);
-      addPathOptimizerType ("PartialShortcut", core::pathOptimization::
+      add <PathOptimizerBuilder_t> ("PartialShortcut", core::pathOptimization::
           PartialShortcut::createWithTraits <PartialShortcutTraits>);
-      addPathOptimizerType ("Graph-PartialShortcut",
+      add <PathOptimizerBuilder_t> ("Graph-PartialShortcut",
           GraphOptimizer::create <core::pathOptimization::PartialShortcut>);
-      addPathOptimizerType ("ConfigOptimization",
+      add <PathOptimizerBuilder_t> ("ConfigOptimization",
           core::pathOptimization::ConfigOptimization::createWithTraits
           <pathOptimization::ConfigOptimizationTraits>);
-      addPathOptimizerType ("Graph-ConfigOptimization",
+      add <PathOptimizerBuilder_t> ("Graph-ConfigOptimization",
           GraphOptimizer::create <
           GraphConfigOptimizationTraits
             <pathOptimization::ConfigOptimizationTraits>
             >);
+      using core::SteeringMethodBuilder_t;
+      add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
+          GraphSteeringMethod::create <core::SteeringMethodStraight>);
+
       pathPlannerType ("M-RRT");
       pathValidationType ("Graph-Discretized", 0.05);
+      steeringMethodType ("Graph-SteeringMethodStraight");
     }
 
     ProblemSolverPtr_t ProblemSolver::create ()
@@ -137,7 +149,7 @@ namespace hpp {
 
     void ProblemSolver::createPlacementConstraint
     (const std::string& name, const std::string& surface1,
-     const std::string& surface2)
+     const std::string& surface2, const value_type& margin)
     {
       if (!robot_) throw std::runtime_error ("No robot loaded");
       using constraints::ConvexShape;
@@ -149,25 +161,27 @@ namespace hpp {
 		  ConvexShapeContactComplementPtr_t > constraints
 	(ConvexShapeContactComplement::createPair
 	 (name, complementName, robot_));
-      JointAndShapes_t l = robot_->get <JointAndShapes_t>	(surface1);
-      if (l.empty ()) throw std::runtime_error
-			("First list of triangles not found.");
+      if (!robot_->has <JointAndShapes_t> (surface1))
+        throw std::runtime_error ("First list of triangles not found.");
+      JointAndShapes_t l = robot_->get <JointAndShapes_t> (surface1);
       for (JointAndShapes_t::const_iterator it = l.begin ();
 	   it != l.end(); ++it) {
 	constraints.first->addObject (ConvexShape (it->second, it->first));
       }
+
       // Search first robot triangles
-      l = robot_->get <JointAndShapes_t> (surface2);
-      if (l.empty ()) {
+      if (robot_->has <JointAndShapes_t> (surface2))
+        l = robot_->get <JointAndShapes_t> (surface2);
 	// and then environment triangles.
+      else if (has <JointAndShapes_t> (surface2))
 	l = get <JointAndShapes_t> (surface2);
-	if (l.empty ()) throw std::runtime_error
-			  ("Second list of triangles not found.");
-      }
+      else throw std::runtime_error ("Second list of triangles not found.");
       for (JointAndShapes_t::const_iterator it = l.begin ();
 	   it != l.end(); ++it) {
 	constraints.first->addFloor (ConvexShape (it->second, it->first));
       }
+
+      constraints.first->setNormalMargin (margin);
 
       addNumericalConstraint (name, NumericalConstraint::create
 			      (constraints.first));

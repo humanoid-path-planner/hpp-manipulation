@@ -34,14 +34,22 @@ namespace hpp {
     /// it is compatible with hpp::model::urdf::loadHumanoidRobot
     ///
     /// This class also contains model::Gripper, Handle and \ref JointAndTriangles_t
-    class HPP_MANIPULATION_DLLAPI Device : public model::HumanoidRobot,
-      protected core::Container <HandlePtr_t>,
-      protected core::Container <model::GripperPtr_t>,
-      protected core::Container <JointAndShapes_t>,
-      protected core::Container <model::JointVector_t>
+    class HPP_MANIPULATION_DLLAPI Device :
+      public model::HumanoidRobot,
+      public core::Containers<
+        boost::mpl::vector < HandlePtr_t,
+                             model::GripperPtr_t,
+                             JointAndShapes_t,
+                             model::JointVector_t> >
     {
       public:
         typedef model::HumanoidRobot Parent_t;
+
+        typedef core::Containers<
+          boost::mpl::vector < HandlePtr_t,
+          model::GripperPtr_t,
+          JointAndShapes_t,
+          model::JointVector_t> > Containers_t;
 
         /// Constructor
         /// \param name of the new instance,
@@ -55,48 +63,6 @@ namespace hpp {
 
         /// Print object in a stream
         virtual std::ostream& print (std::ostream& os) const;
-
-        /// \name Accessors to container elements
-        /// Contained elements are of type model::Gripper, Handle and
-        /// \ref JointAndTriangles_t
-        /// \{
-
-        /// Get an element of a container
-        template <typename Element>
-          const Element& get (const std::string& name) const
-        {
-          return core::Container <Element>::get (name);
-        }
-
-        /// Check if a Container has a key.
-        template <typename Element>
-          bool has (const std::string& name) const
-        {
-          return core::Container <Element>::has (name);
-        }
-
-        /// Get the keys of a container
-        template <typename Element, typename ReturnType>
-          ReturnType getKeys () const
-        {
-          return core::Container <Element>::template getKeys <ReturnType> ();
-        }
-
-        /// Get the underlying map of a container
-        template <typename Element>
-          const typename core::Container<Element>::ElementMap_t& getAll () const
-        {
-          return core::Container <Element>::getAll ();
-        }
-
-        /// Add an element to a container
-        template <typename Element>
-          void add (const std::string& name, const Element& element)
-        {
-          core::Container <Element>::add (name, element);
-        }
-
-        /// \}
 
         /// \name Collisions
         /// \{

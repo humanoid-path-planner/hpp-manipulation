@@ -58,10 +58,10 @@ namespace hpp {
       Parent_t::print (os);
       // print handles
       os << "Handles:" << std::endl;
-      Container <HandlePtr_t>::printPointer (os);
+      Containers_t::print <HandlePtr_t> (os);
       // print grippers
       os << "Grippers:" << std::endl;
-      Container <model::GripperPtr_t>::printPointer (os);
+      Containers_t::print <model::GripperPtr_t> (os);
       return os;
     }
 

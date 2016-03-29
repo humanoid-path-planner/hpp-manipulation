@@ -31,7 +31,7 @@ namespace hpp {
       GraphPathValidationPtr_t gpv = HPP_DYNAMIC_PTR_CAST (GraphPathValidation,
               this->problem().pathValidation ());
       const_cast <core::Problem&>(this->problem ()).pathValidation (gpv->innerValidation());
-      unpack (path, expanded);
+      path->flatten (expanded);
       ConstraintSetPtr_t c;
       for (std::size_t i_s = 0; i_s < expanded->numberPaths ();) {
         PathVectorPtr_t toOpt = PathVector::create (
@@ -57,19 +57,6 @@ namespace hpp {
       pathOptimizer_.reset ();
       const_cast <core::Problem&>(this->problem ()).pathValidation (gpv);
       return opted;
-    }
-
-    void GraphOptimizer::unpack (PathVectorPtr_t in, PathVectorPtr_t out)
-    {
-      for (size_t i = 0; i != in->numberPaths (); i++) {
-        PathPtr_t current = in->pathAtRank (i);
-        PathVectorPtr_t pv = HPP_DYNAMIC_PTR_CAST (PathVector, current);
-        if (pv) {
-          unpack (pv, out);
-        } else {
-          out->appendPath (current);
-        }
-      }
     }
   } // namespace manipulation
 } // namespace hpp

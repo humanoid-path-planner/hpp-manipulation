@@ -71,11 +71,6 @@ namespace hpp {
 
         /// The encapsulated PathOptimizer
         PathOptimizerPtr_t pathOptimizer_;
-
-        /// Append all paths of in to out
-        /// \param in a path vector, possibly containing other path vector
-        /// \param out a flat PathVector (do not contain PathVector)
-        static void unpack (PathVectorPtr_t in, PathVectorPtr_t out);
     };
     /// \}
 

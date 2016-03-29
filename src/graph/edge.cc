@@ -289,7 +289,7 @@ namespace hpp {
         if (c->apply (q)) return true;
 	const ::hpp::statistics::SuccessStatistics& ss = proj->statistics ();
 	if (ss.nbFailure () > ss.nbSuccess ()) {
-	  hppDout (warning, c->name () << " fails often." << std::endl << ss);
+	  hppDout (warning, c->name () << " fails often.\n" << ss);
 	} else {
 	  hppDout (warning, c->name () << " succeeds at rate "
 		   << (value_type)(ss.nbSuccess ()) /

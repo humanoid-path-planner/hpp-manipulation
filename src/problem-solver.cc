@@ -34,6 +34,8 @@
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/comparison-type.hh>
 
+#include "hpp/manipulation/package-config.hh" // HPP_MANIPULATION_HAS_WHOLEBODY_STEP
+
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/handle.hh"
@@ -46,6 +48,11 @@
 #include "hpp/manipulation/graph-node-optimizer.hh"
 #include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/path-optimization/config-optimization.hh"
+
+#ifdef HPP_MANIPULATION_HAS_WHOLEBODY_STEP
+#include <hpp/wholebody-step/small-steps.hh>
+#include "hpp/manipulation/path-optimization/small-steps.hh"
+#endif
 
 namespace hpp {
   namespace manipulation {
@@ -99,6 +106,13 @@ namespace hpp {
       using core::SteeringMethodBuilder_t;
       parent_t::add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
           GraphSteeringMethod::create <core::SteeringMethodStraight>);
+
+#ifdef HPP_MANIPULATION_HAS_WHOLEBODY_STEP
+      parent_t::add <PathOptimizerBuilder_t>
+        ("Walkgen", wholebodyStep::SmallSteps::create);
+      parent_t::add <PathOptimizerBuilder_t>
+        ("Graph-Walkgen", pathOptimization::SmallSteps::create);
+#endif
 
       pathPlannerType ("M-RRT");
       pathValidationType ("Graph-Discretized", 0.05);

@@ -48,16 +48,19 @@ ADD_DOC_DEPENDENCY("hpp-fcl")
 ADD_REQUIRED_DEPENDENCY("hpp-core >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 3.0.0")
 ADD_REQUIRED_DEPENDENCY("hpp-statistics >= 0.1")
+ADD_OPTIONAL_DEPENDENCY("hpp-wholebody-step")
 IF (TEST_UR5)
   ADD_REQUIRED_DEPENDENCY(hpp-model-urdf >= 3.0.0)
 ENDIF ()
 
-CONFIGURE_FILE (${CMAKE_SOURCE_DIR}/doc/main.hh.in
-  ${CMAKE_BINARY_DIR}/doc/main.hh
-  @ONLY
-  )
+SET(HPP_MANIPULATION_HAS_WHOLEBODY_STEP ${HPP_WHOLEBODY_STEP_FOUND}
+  CACHE BOOL "Compile with dependency to hpp-wholebody-step")
+
+CONFIG_FILES (doc/main.hh
+  include/hpp/manipulation/package-config.hh)
 
 SET (${PROJECT_NAME}_HEADERS
+  ${CMAKE_BINARY_DIR}/include/hpp/manipulation/package-config.hh
   include/hpp/manipulation/fwd.hh
   include/hpp/manipulation/axial-handle.hh
   include/hpp/manipulation/handle.hh
@@ -84,6 +87,7 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/graph/dot.hh
   include/hpp/manipulation/graph/helper.hh
 
+  include/hpp/manipulation/path-optimization/small-steps.hh
   include/hpp/manipulation/path-optimization/config-optimization.hh
   )
 

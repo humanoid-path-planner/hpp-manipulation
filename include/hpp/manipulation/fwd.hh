@@ -123,6 +123,11 @@ namespace hpp {
     typedef HPP_MANIPULATION_DEPRECATED Shape_t Triangle;
     typedef HPP_MANIPULATION_DEPRECATED JointAndShape_t JointAndTriangle_t;
     typedef HPP_MANIPULATION_DEPRECATED JointAndShapes_t JointAndTriangles_t;
+
+    namespace pathOptimization {
+      HPP_PREDEF_CLASS (SmallSteps);
+      typedef boost::shared_ptr < SmallSteps > SmallStepsPtr_t;
+    } // namespace pathOptimization
   } // namespace manipulation
 } // namespace hpp
 

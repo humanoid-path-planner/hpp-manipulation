@@ -29,6 +29,7 @@
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
+#include <hpp/core/problem.hh>
 
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
@@ -74,6 +75,9 @@ using boost::assign::list_of;
 
 using hpp::core::pathProjector::ProgressivePtr_t;
 using hpp::core::pathProjector::Progressive;
+
+using hpp::core::Problem;
+using hpp::core::ProblemPtr_t;
 
 static matrix3_t identity () { matrix3_t R; R.setIdentity (); return R;}
 
@@ -178,8 +182,10 @@ int main (int , char**) {
   ConfigProjectorPtr_t proj = ConfigProjector::create (r, "test", 1e-4, 20);
   proj->add (NumericalConstraint::create (c));
   cs->addConstraint (proj);
+  ProblemPtr_t problem (new Problem (r));
   WeighedDistancePtr_t dist = WeighedDistance::create (r, list_of (1)(1));
-  SteeringMethodPtr_t sm (SteeringMethodStraight::create (r, dist));
+  problem->distance (dist);
+  SteeringMethodPtr_t sm (SteeringMethodStraight::create (problem));
   const WeighedDistance& d = *dist;
   ProgressivePtr_t pp_ptr = Progressive::create (dist, sm, 0.1);
   Progressive pp = *pp_ptr;

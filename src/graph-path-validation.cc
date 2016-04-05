@@ -30,33 +30,16 @@ namespace hpp {
       pathValidation_ (pathValidation), constraintGraph_ ()
     {}
 
-    bool GraphPathValidation::validate (
-          const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
-    {
-      assert (path);
-      PathValidationReportPtr_t report;
-      bool success = impl_validate (path, reverse, validPart, report);
-      assert (constraintGraph_);
-      assert (constraintGraph_->getNode (validPart->initial ()));
-      assert (constraintGraph_->getNode (validPart->end     ()));
-      return success;
-    }
-
-    bool GraphPathValidation::validate
-    (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
-     ValidationReport&)
-    {
-      assert (path);
-      PathValidationReportPtr_t report;
-      return impl_validate (path, reverse, validPart, report);
-    }
-
     bool GraphPathValidation::validate (const PathPtr_t& path, bool reverse,
 					PathPtr_t& validPart,
 					PathValidationReportPtr_t& report)
     {
       assert (path);
-      return impl_validate (path, reverse, validPart, report);
+      bool success = impl_validate (path, reverse, validPart, report);
+      assert (constraintGraph_);
+      assert (constraintGraph_->getNode (validPart->initial ()));
+      assert (constraintGraph_->getNode (validPart->end     ()));
+      return success;
     }
 
     bool GraphPathValidation::impl_validate (const PathVectorPtr_t& path,

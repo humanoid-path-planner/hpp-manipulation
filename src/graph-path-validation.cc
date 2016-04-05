@@ -90,7 +90,12 @@ namespace hpp {
         return impl_validate (pathVector, reverse, validPart, report);
 
       PathPtr_t pathNoCollision;
-      if (pathValidation_->validate (path, reverse, pathNoCollision, report)) {
+      ConstraintSetPtr_t c = HPP_DYNAMIC_PTR_CAST(ConstraintSet, path->constraints());
+      PathValidationPtr_t validation (c
+          ? c->edge()->pathValidation()
+          : pathValidation_);
+
+      if (validation->validate (path, reverse, pathNoCollision, report)) {
         validPart = path;
         return true;
       }

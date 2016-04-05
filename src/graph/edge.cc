@@ -37,7 +37,8 @@ namespace hpp {
 	GraphComponent (name), isShort_ (false),
         pathConstraints_ (new Constraint_t()),
 	configConstraints_ (new Constraint_t()),
-        steeringMethod_ (new SteeringMethod_t())
+        steeringMethod_ (new SteeringMethod_t()),
+        pathValidation_ (new PathValidation_t())
       {}
 
       Edge::~Edge ()
@@ -45,6 +46,7 @@ namespace hpp {
         if (pathConstraints_  ) delete pathConstraints_;
         if (configConstraints_) delete configConstraints_;
         if (steeringMethod_   ) delete steeringMethod_;
+        if (pathValidation_   ) delete pathValidation_;
       }
 
       NodePtr_t Edge::to () const
@@ -244,9 +246,18 @@ namespace hpp {
         constraint->edge (wkPtr_.lock ());
 
         // Build steering method
-        steeringMethod_->set(g->problem()->steeringMethod()
+        const ProblemPtr_t& problem (g->problem());
+        steeringMethod_->set(problem->steeringMethod()
           ->innerSteeringMethod()->copy());
         steeringMethod_->get()->constraints (constraint);
+        // Build path validation and relative motion matrix
+        // TODO this path validation will not contain obstacles added after
+        // its creation.
+        pathValidation_->set(problem->pathValidationFactory ());
+        using core::RelativeMotion;
+        RelativeMotion::matrix_type matrix (RelativeMotion::matrix (g->robot()));
+        RelativeMotion::fromConstraint (matrix, g->robot(), constraint);
+        pathValidation_->get()->filterCollisionPairs (matrix);
         return constraint;
       }
 

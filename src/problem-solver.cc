@@ -82,12 +82,6 @@ namespace hpp {
     {
       parent_t::add<core::PathPlannerBuilder_t>
         ("M-RRT", ManipulationPlanner::create);
-      using core::PathValidationBuilder_t;
-      parent_t::add <PathValidationBuilder_t> ("Graph-Discretized",
-          GraphPathValidation::create <core::DiscretizedCollisionChecking>);
-      parent_t::add <PathValidationBuilder_t> ("Graph-Progressive",
-          GraphPathValidation::create <
-          core::continuousCollisionChecking::Progressive >);
       using core::PathOptimizerBuilder_t;
       parent_t::add <PathOptimizerBuilder_t> ("Graph-RandomShortcut",
           GraphOptimizer::create <core::RandomShortcut>);
@@ -115,7 +109,6 @@ namespace hpp {
 #endif
 
       pathPlannerType ("M-RRT");
-      pathValidationType ("Graph-Discretized", 0.05);
       steeringMethodType ("Graph-SteeringMethodStraight");
     }
 
@@ -299,6 +292,15 @@ namespace hpp {
                                         hpp::model::DISTANCE);
         }
       }
+    }
+
+    void ProblemSolver::pathValidationType (const std::string& type,
+        const value_type& tolerance)
+    {
+      parent_t::pathValidationType(type, tolerance);
+      problem_->setPathValidationFactory (
+          parent_t::get<core::PathValidationBuilder_t>(type),
+          tolerance);
     }
 
     void ProblemSolver::resetRoadmap ()

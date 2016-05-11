@@ -928,7 +928,9 @@ namespace hpp {
           }
           GraphPtr_t graph = Graph::create (graphName,
               ps->robot(), ps->problem());
-          graph->createNodeSelector ("nodeSelector");
+          graph->nodeSelector (
+              GuidedNodeSelector::create ("nodeSelector",
+              ps->roadmap ()));
           graph->maxIterations  (ps->maxIterations ());
           graph->errorThreshold (ps->errorThreshold ());
 

@@ -121,7 +121,7 @@ namespace hpp {
               if (it->second->to () == node || it->second->to () == *it1)
                 nn.insert (it->second, it->first);
           }
-          if (nn.size () > 0)
+          if (nn.size () > 0 && nn.totalWeight() > 0)
             return nn ();
           hppDout (error, "This node has no neighbors to get to an admissible states.");
         }

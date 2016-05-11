@@ -27,8 +27,6 @@
 #include <hpp/constraints/convex-shape-contact.hh>
 
 #include <hpp/core/random-shortcut.hh>
-#include <hpp/core/discretized-collision-checking.hh>
-#include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
@@ -49,7 +47,7 @@
 #include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/path-optimization/config-optimization.hh"
 
-#ifdef HPP_MANIPULATION_HAS_WHOLEBODY_STEP
+#if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
 #include <hpp/wholebody-step/small-steps.hh>
 #include "hpp/manipulation/path-optimization/small-steps.hh"
 #endif

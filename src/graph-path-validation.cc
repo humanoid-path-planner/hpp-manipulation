@@ -91,6 +91,7 @@ namespace hpp {
 
       PathPtr_t pathNoCollision;
       ConstraintSetPtr_t c = HPP_DYNAMIC_PTR_CAST(ConstraintSet, path->constraints());
+      hppDout(info, (c?"Using edge path validation":"Using default path validation"));
       PathValidationPtr_t validation (c
           ? c->edge()->pathValidation()
           : pathValidation_);

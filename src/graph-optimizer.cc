@@ -30,7 +30,10 @@ namespace hpp {
         toConcat;
       GraphPathValidationPtr_t gpv = HPP_DYNAMIC_PTR_CAST (GraphPathValidation,
               this->problem().pathValidation ());
-      const_cast <core::Problem&>(this->problem ()).pathValidation (gpv->innerValidation());
+      core::Problem p (problem().robot());
+      p.distance(problem().distance());
+      p.pathValidation(gpv->innerValidation());
+
       path->flatten (expanded);
       ConstraintSetPtr_t c;
       for (std::size_t i_s = 0; i_s < expanded->numberPaths ();) {
@@ -41,21 +44,34 @@ namespace hpp {
         graph::EdgePtr_t edge;
         c = HPP_DYNAMIC_PTR_CAST (ConstraintSet, current->constraints ());
         if (c) edge = c->edge ();
+        bool isShort = edge && edge->isShort();
         std::size_t i_e = i_s + 1;
         for (; i_e < expanded->numberPaths (); ++i_e) {
           current = expanded->pathAtRank (i_e);
           c = HPP_DYNAMIC_PTR_CAST (ConstraintSet, current->constraints ());
-          if (!c && edge) break;
+          if (!c && edge) {
+            hppDout(info, "No manipulation::ConstraintSet");
+            break;
+          }
           if (c && edge->node() != c->edge ()->node()) break;
+          if (isShort != c->edge()->isShort()) // We do not optimize edges marked as short
+            break;
           toOpt->appendPath (current);
         }
-        pathOptimizer_ = factory_ (this->problem ());
-        toConcat = pathOptimizer_->optimize (toOpt);
+        hppDout(info, "Edge name: " << edge->name());
+        if (isShort)
+          toConcat = toOpt;
+        else {
+          p.constraints(edge->steeringMethod()->constraints());
+          p.constraints()->configProjector()->rightHandSideFromConfig(toOpt->initial());
+          p.steeringMethod(edge->steeringMethod());
+          pathOptimizer_ = factory_ (p);
+          toConcat = pathOptimizer_->optimize (toOpt);
+        }
         i_s = i_e;
         opted->concatenate (*toConcat);
       }
       pathOptimizer_.reset ();
-      const_cast <core::Problem&>(this->problem ()).pathValidation (gpv);
       return opted;
     }
   } // namespace manipulation

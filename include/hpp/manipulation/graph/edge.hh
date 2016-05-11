@@ -140,6 +140,10 @@ namespace hpp {
             isShort_ = isShort;
           }
 
+          bool isShort () const {
+            return isShort_;
+          }
+
         protected:
           /// Initialization of the object.
           void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,

@@ -270,7 +270,16 @@ namespace hpp {
         if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
           return false;
         }
-	path = (*steeringMethod_->get()) (q1, q2);
+	core::SteeringMethodPtr_t sm (steeringMethod_->get());
+	if (!sm) {
+	  buildPathConstraint ();
+	}
+	if (!sm) {
+	  std::ostringstream oss;
+	  oss << "No steering method set in edge " << name () << ".";
+	  throw std::runtime_error (oss.str ().c_str ());
+	}
+	path = (*sm) (q1, q2);
         return true;
       }
 

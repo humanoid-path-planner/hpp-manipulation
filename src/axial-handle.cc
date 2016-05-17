@@ -26,7 +26,7 @@
 #include <hpp/model/joint.hh>
 #include <hpp/model/gripper.hh>
 
-#include <hpp/constraints/relative-transformation.hh>
+#include <hpp/constraints/generic-transformation.hh>
 
 #include <hpp/core/numerical-constraint.hh>
 

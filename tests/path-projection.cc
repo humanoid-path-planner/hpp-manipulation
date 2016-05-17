@@ -36,7 +36,7 @@
 #include <hpp/model/configuration.hh>
 #include <hpp/model/object-factory.hh>
 
-#include <hpp/constraints/position.hh>
+#include <hpp/constraints/generic-transformation.hh>
 
 #define REQUIRE_MESSAGE(b,m) do {\
   if (!b) {\
@@ -78,8 +78,6 @@ using hpp::core::pathProjector::Progressive;
 
 using hpp::core::Problem;
 using hpp::core::ProblemPtr_t;
-
-static matrix3_t identity () { matrix3_t R; R.setIdentity (); return R;}
 
 hpp::model::ObjectFactory objectFactory;
 
@@ -177,7 +175,8 @@ int main (int , char**) {
   JointPtr_t ee = r->getJointByName ("FOREARM");
   vector3_t target (0, (ARM_LENGTH + FOREARM_LENGTH ) / 2, 0),
             origin (0, FOREARM_LENGTH, 0);
-  PositionPtr_t c = Position::create (r, ee, origin, target, identity (), list_of (false)(true)(false));
+  PositionPtr_t c = Position::create ("Pos", r, ee, origin, target,
+      list_of (false)(true)(false).convert_to_container<std::vector<bool> >());
   ConstraintSetPtr_t cs = ConstraintSet::create (r, "test-cs");
   ConfigProjectorPtr_t proj = ConfigProjector::create (r, "test", 1e-4, 20);
   proj->add (NumericalConstraint::create (c));

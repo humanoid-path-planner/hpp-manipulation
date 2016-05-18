@@ -42,6 +42,9 @@ ENDIF()
 # Activate test using UR5 if requested
 SET (TEST_UR5 FALSE CACHE BOOL "Activate tests using ur5")
 
+# Ask Doxygen to create a tree view in html documentation
+SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
+
 SEARCH_FOR_BOOST()
 ADD_DOC_DEPENDENCY("hpp-model >= 3.0.0")
 ADD_DOC_DEPENDENCY("hpp-fcl")

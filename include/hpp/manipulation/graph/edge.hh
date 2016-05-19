@@ -55,7 +55,31 @@ namespace hpp {
       /// \addtogroup constraint_graph
       /// \{
 
-      /// Abstract class representing representing the link between two nodes.
+      /// Transition between two nodes of a constraint graph
+      ///
+      /// An edge stores two types of constraints.
+
+      /// \li <b> Path constraints </b> should be safisfied by paths belonging
+      /// to the edge. Along any path, the right hand side of the
+      /// constraint is constant, but can differ between paths. For
+      /// instance if an edge represents a transit path of a robot
+      /// that can grasp an object, the right hand side of the
+      /// constraint represents the position of the object. Along any
+      /// transit path, the object does not move, but for different paths
+      /// the object can be at different positions.
+      /// \sa method pathConstraint.
+      /// \li <b> Configuration constraints </b> are constraints that
+      /// configurations in the destination node should satisfy and
+      /// the constraints that paths should satisfy. For instance, if
+      /// the edge links a node where the robot does not hold the
+      /// object to a node where the robot holds the object, the
+      /// configuration constraints represent a fixed relative
+      /// position of the object with respect to the gripper and a
+      /// stable position of the object.  Configuration constraints
+      /// are necessary to generate a configuration in the start node
+      /// of the edge that can reach a given configuration in the
+      /// destination node by an admissible path.  \sa methods
+      /// configConstraint, canConnect, applyConstraints.
       class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent
       {
         public:
@@ -69,8 +93,23 @@ namespace hpp {
 	     const NodeWkPtr_t& from,
 	     const NodeWkPtr_t& to);
 
+	  /// Apply edge constraint
+	  ///
+	  /// \param nnear node containing the configuration defining the right
+	  ///        hand side of the edge constraint,
+	  /// \param[in,out] q configuration to which the edge constraint is
+	  ///                applied.
+	  ///
+	  /// \sa hpp::core::ConfigProjector::rightHandSideFromConfig
           virtual bool applyConstraints (core::NodePtr_t nnear, ConfigurationOut_t q) const;
-
+	  /// Apply edge constraint
+	  ///
+	  /// \param qoffset configuration defining the right hand side of the
+	  ///        edge constraint,
+	  /// \param[in,out] q configuration to which the edge constraint is
+	  ///                applied.
+	  ///
+	  /// \sa hpp::core::ConfigProjector::rightHandSideFromConfig
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
           virtual bool canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
@@ -126,8 +165,7 @@ namespace hpp {
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
-          /// Constraint to project onto the same leaf as config.
-          /// \return The initialized projector.
+          /// Constraint of the destination node and of the path
           ConstraintSetPtr_t configConstraint() const;
 
           void setShort (bool isShort) {

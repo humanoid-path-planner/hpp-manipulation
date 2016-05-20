@@ -37,7 +37,8 @@ namespace hpp {
 	GraphComponent (name), isShort_ (false),
         pathConstraints_ (new Constraint_t()),
 	configConstraints_ (new Constraint_t()),
-        steeringMethod_ (new SteeringMethod_t())
+        steeringMethod_ (new SteeringMethod_t()),
+        pathValidation_ (new PathValidation_t())
       {}
 
       Edge::~Edge ()
@@ -45,6 +46,7 @@ namespace hpp {
         if (pathConstraints_  ) delete pathConstraints_;
         if (configConstraints_) delete configConstraints_;
         if (steeringMethod_   ) delete steeringMethod_;
+        if (pathValidation_   ) delete pathValidation_;
       }
 
       NodePtr_t Edge::to () const
@@ -244,9 +246,18 @@ namespace hpp {
         constraint->edge (wkPtr_.lock ());
 
         // Build steering method
-        steeringMethod_->set(g->problem()->steeringMethod()
+        const ProblemPtr_t& problem (g->problem());
+        steeringMethod_->set(problem->steeringMethod()
           ->innerSteeringMethod()->copy());
         steeringMethod_->get()->constraints (constraint);
+        // Build path validation and relative motion matrix
+        // TODO this path validation will not contain obstacles added after
+        // its creation.
+        pathValidation_->set(problem->pathValidationFactory ());
+        using core::RelativeMotion;
+        RelativeMotion::matrix_type matrix (RelativeMotion::matrix (g->robot()));
+        RelativeMotion::fromConstraint (matrix, g->robot(), constraint);
+        pathValidation_->get()->filterCollisionPairs (matrix);
         return constraint;
       }
 
@@ -267,8 +278,12 @@ namespace hpp {
       {
         ConstraintSetPtr_t constraints = pathConstraint ();
         constraints->configProjector ()->rightHandSideFromConfig(q1);
-        if (!constraints->isSatisfied (q1) || !constraints->isSatisfied (q2)) {
-          return false;
+        if (constraints->isSatisfied (q1)) {
+          if (constraints->isSatisfied (q2)) {
+            path = (*steeringMethod_->get()) (q1, q2);
+            return true;
+          }
+          hppDout(info, "q2 does not satisfy the constraints");
         }
 	core::SteeringMethodPtr_t sm (steeringMethod_->get());
 	if (!sm) {
@@ -344,19 +359,35 @@ namespace hpp {
         if (!useCache) configs_.col (0) = q2;
 
         assert (waypoints_[0].first);
-        if (!waypoints_[0].first->applyConstraints (q1, configs_.col (0)))
+        if (!waypoints_[0].first->applyConstraints (q1, configs_.col (0))) {
+          hppDout (info, "Waypoint edge " << name() << ": applyConstraints failed at waypoint 0."
+              << "\nUse cache: " << useCache
+              );
           return false;
-        if (!waypoints_[0].first->build (p, q1, configs_.col (0)))
+        }
+        if (!waypoints_[0].first->build (p, q1, configs_.col (0))) {
+          hppDout (info, "Waypoint edge " << name() << ": build failed at waypoint 0."
+              << "\nUse cache: " << useCache
+              );
           return false;
+        }
         pv->appendPath (p);
 
         for (std::size_t i = 1; i < waypoints_.size (); ++i) {
           assert (waypoints_[i].first);
           if (!useCache) configs_.col (i) = q2;
-          if (!waypoints_[i].first->applyConstraints (configs_.col(i-1), configs_.col (i)))
+          if (!waypoints_[i].first->applyConstraints (configs_.col(i-1), configs_.col (i))) {
+            hppDout (info, "Waypoint edge " << name() << ": applyConstraints failed at waypoint " << i << "."
+                << "\nUse cache: " << useCache
+                );
             return false;
-          if (!waypoints_[i].first->build (p, configs_.col(i-1), configs_.col (i)))
+          }
+          if (!waypoints_[i].first->build (p, configs_.col(i-1), configs_.col (i))) {
+            hppDout (info, "Waypoint edge " << name() << ": build failed at waypoint " << i << "."
+                << "\nUse cache: " << useCache
+                );
             return false;
+          }
           pv->appendPath (p);
         }
 

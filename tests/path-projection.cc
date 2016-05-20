@@ -29,13 +29,14 @@
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
+#include <hpp/core/problem.hh>
 
 #include <hpp/model/device.hh>
 #include <hpp/model/joint.hh>
 #include <hpp/model/configuration.hh>
 #include <hpp/model/object-factory.hh>
 
-#include <hpp/constraints/position.hh>
+#include <hpp/constraints/generic-transformation.hh>
 
 #define REQUIRE_MESSAGE(b,m) do {\
   if (!b) {\
@@ -75,7 +76,8 @@ using boost::assign::list_of;
 using hpp::core::pathProjector::ProgressivePtr_t;
 using hpp::core::pathProjector::Progressive;
 
-static matrix3_t identity () { matrix3_t R; R.setIdentity (); return R;}
+using hpp::core::Problem;
+using hpp::core::ProblemPtr_t;
 
 hpp::model::ObjectFactory objectFactory;
 
@@ -173,13 +175,16 @@ int main (int , char**) {
   JointPtr_t ee = r->getJointByName ("FOREARM");
   vector3_t target (0, (ARM_LENGTH + FOREARM_LENGTH ) / 2, 0),
             origin (0, FOREARM_LENGTH, 0);
-  PositionPtr_t c = Position::create (r, ee, origin, target, identity (), list_of (false)(true)(false));
+  PositionPtr_t c = Position::create ("Pos", r, ee, origin, target,
+      list_of (false)(true)(false).convert_to_container<std::vector<bool> >());
   ConstraintSetPtr_t cs = ConstraintSet::create (r, "test-cs");
   ConfigProjectorPtr_t proj = ConfigProjector::create (r, "test", 1e-4, 20);
   proj->add (NumericalConstraint::create (c));
   cs->addConstraint (proj);
+  ProblemPtr_t problem (new Problem (r));
   WeighedDistancePtr_t dist = WeighedDistance::create (r, list_of (1)(1));
-  SteeringMethodPtr_t sm (SteeringMethodStraight::create (r, dist));
+  problem->distance (dist);
+  SteeringMethodPtr_t sm (SteeringMethodStraight::create (problem));
   const WeighedDistance& d = *dist;
   ProgressivePtr_t pp_ptr = Progressive::create (dist, sm, 0.1);
   Progressive pp = *pp_ptr;

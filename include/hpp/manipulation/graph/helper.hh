@@ -161,7 +161,12 @@ namespace hpp {
                               PlacementConstraint_t;
         typedef std::vector <HandlePtr_t> Handles_t;
         typedef std::vector <GripperPtr_t> Grippers_t;
-        typedef boost::tuple <PlacementConstraint_t, Handles_t> Object_t;
+        /// Tuple representing an object as follows:
+        /// \li PlacementConstraint_t constraint to place the object
+        /// \li Handles_t             list of handles of the object
+        /// \li std::size_t           the index of this tuple in Objects_t.
+        /// \note the index must be unique, as object equallity is checked using this index.
+        typedef boost::tuple <PlacementConstraint_t, Handles_t, std::size_t> Object_t;
         typedef std::vector <Object_t> Objects_t;
 
         /// Fill a Graph 

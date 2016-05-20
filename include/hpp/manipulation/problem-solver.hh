@@ -132,6 +132,9 @@ namespace hpp {
         virtual void addFunctionToConfigProjector
           (const std::string& constraintName, const std::string& functionName);
 
+        virtual void pathValidationType (const std::string& type,
+                                         const value_type& tolerance);
+
         /// Create a new problem.
         virtual void resetProblem ();
 

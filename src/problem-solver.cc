@@ -27,8 +27,6 @@
 #include <hpp/constraints/convex-shape-contact.hh>
 
 #include <hpp/core/random-shortcut.hh>
-#include <hpp/core/discretized-collision-checking.hh>
-#include <hpp/core/continuous-collision-checking/progressive.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
@@ -49,7 +47,7 @@
 #include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/path-optimization/config-optimization.hh"
 
-#ifdef HPP_MANIPULATION_HAS_WHOLEBODY_STEP
+#if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
 #include <hpp/wholebody-step/small-steps.hh>
 #include "hpp/manipulation/path-optimization/small-steps.hh"
 #endif
@@ -82,12 +80,6 @@ namespace hpp {
     {
       parent_t::add<core::PathPlannerBuilder_t>
         ("M-RRT", ManipulationPlanner::create);
-      using core::PathValidationBuilder_t;
-      parent_t::add <PathValidationBuilder_t> ("Graph-Discretized",
-          GraphPathValidation::create <core::DiscretizedCollisionChecking>);
-      parent_t::add <PathValidationBuilder_t> ("Graph-Progressive",
-          GraphPathValidation::create <
-          core::continuousCollisionChecking::Progressive >);
       using core::PathOptimizerBuilder_t;
       parent_t::add <PathOptimizerBuilder_t> ("Graph-RandomShortcut",
           GraphOptimizer::create <core::RandomShortcut>);
@@ -115,7 +107,6 @@ namespace hpp {
 #endif
 
       pathPlannerType ("M-RRT");
-      pathValidationType ("Graph-Discretized", 0.05);
       steeringMethodType ("Graph-SteeringMethodStraight");
     }
 
@@ -299,6 +290,15 @@ namespace hpp {
                                         hpp::model::DISTANCE);
         }
       }
+    }
+
+    void ProblemSolver::pathValidationType (const std::string& type,
+        const value_type& tolerance)
+    {
+      parent_t::pathValidationType(type, tolerance);
+      problem_->setPathValidationFactory (
+          parent_t::get<core::PathValidationBuilder_t>(type),
+          tolerance);
     }
 
     void ProblemSolver::resetRoadmap ()

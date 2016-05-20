@@ -100,6 +100,8 @@ namespace hpp {
 
           void updateWeight (const EdgePtr_t&edge, const Weight_t& w);
 
+          Weight_t getWeight (const EdgePtr_t&edge);
+
           /// Constraint to project onto this node.
           ConstraintSetPtr_t configConstraint() const;
 

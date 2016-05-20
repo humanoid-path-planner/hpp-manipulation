@@ -15,6 +15,9 @@
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/manipulation/problem.hh>
+
+#include <hpp/core/discretized-collision-checking.hh>
+
 #include <hpp/manipulation/weighed-distance.hh>
 #include <hpp/manipulation/graph-steering-method.hh>
 
@@ -25,6 +28,7 @@ namespace hpp {
     {
       Parent::steeringMethod (GraphSteeringMethod::create (this));
       distance (WeighedDistance::create (robot, graph_));
+      setPathValidationFactory(core::DiscretizedCollisionChecking::create, 0.05);
     }
 
     void Problem::constraintGraph (const graph::GraphPtr_t& graph)
@@ -41,6 +45,24 @@ namespace hpp {
     {
       return HPP_DYNAMIC_PTR_CAST (GraphPathValidation,
           Parent::pathValidation());
+    }
+
+    void Problem::pathValidation (const PathValidationPtr_t& pathValidation)
+    {
+      GraphPathValidationPtr_t pv (GraphPathValidation::create (pathValidation));
+      pv->constraintGraph (graph_);
+      Parent::pathValidation (pv);
+    }
+
+    PathValidationPtr_t Problem::pathValidationFactory () const
+    {
+      PathValidationPtr_t pv (pvFactory_ (robot(), pvTol_));
+      const core::ObjectVector_t& obstacles (collisionObstacles ());
+      // Insert obstacles in path validation object
+      for (core::ObjectVector_t::const_iterator _obs = obstacles.begin ();
+	   _obs != obstacles.end (); ++_obs)
+	pv->addObstacle (*_obs);
+      return pv;
     }
 
     GraphSteeringMethodPtr_t Problem::steeringMethod () const

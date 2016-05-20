@@ -306,7 +306,11 @@ namespace hpp {
                 for (std::size_t i = K; i < Nedges - 1 + K; ++i)
                   e[i]->setShort (true);
                 // The border B
-                const std::size_t B = (pregrasp?1:0) + (intersec?1:0);
+                std::size_t B;
+                if ((gCase & NoGrasp)) // There is no grasp
+                  B = 0;
+                else // There is a grasp
+                  B = 1 + (pregrasp?1:0);
                 for (std::size_t i = 0; i < B     ; ++i) e[i]->node (n[0]);
                 for (std::size_t i = B; i < Nedges; ++i) e[i]->node (n[Nnodes-1]);
               }
@@ -583,6 +587,18 @@ namespace hpp {
               throw std::out_of_range ("Handle index");
             }
 
+            /// Check is an object is grasped by the GraspV_t
+            bool isObjectGrasped (const GraspV_t& idxOH,
+                const Object_t& o) const
+            {
+              assert (idxOH.size () == nG);
+              for (std::size_t i = 0; i < idxOH.size (); ++i)
+                if (idxOH[i] < nOH) // This grippers grasps an object
+                  if (o.get<2>() == object(idxOH[i]).get<2>())
+                    return true;
+              return false;
+            }
+
             /// Get a node name from a set of grasps
             std::string name (const GraspV_t& idxOH, bool abbrev = false) const {
               assert (idxOH.size () == nG);
@@ -698,14 +714,20 @@ namespace hpp {
           {
             const NodeAndManifold_t& from = makeNode (r, gFrom, priority),
                                      to   = makeNode (r, gTo, priority+1);
+            const Object_t& o = r.object (gTo[iG]);
+
+            /// Detect when grasping an object already grasped.
+            bool noPlace = r.isObjectGrasped (gFrom, o);
+
             FoliatedManifold grasp, pregrasp, place, preplace,
                              submanifold;
             r.graspManifold (iG, gTo[iG], grasp, pregrasp);
-            const Object_t& o = r.object (gTo[iG]);
-            relaxedPlacementManifold (o.get<0>().get<0>(),
-                o.get<0>().get<1>(),
-                o.get<0>().get<2>(),
-                place, preplace);
+            if (!noPlace) {
+              relaxedPlacementManifold (o.get<0>().get<0>(),
+                  o.get<0>().get<1>(),
+                  o.get<0>().get<2>(),
+                  place, preplace);
+            }
             std::pair<std::string, std::string> names =
               r.name (gFrom, gTo, iG);
             {
@@ -737,7 +759,16 @@ namespace hpp {
               }
             }
             if (pregrasp.empty ()) {
-              if (preplace.empty ())
+              if (noPlace)
+                createEdges <GraspOnly | NoPlace> (
+                    names.first           , names.second,
+                    from.get<0> ()        , to.get<0>(),
+                    1                     , 1,
+                    grasp                 , pregrasp,
+                    place                 , preplace,
+                    grasp.foliated ()     , place.foliated(),
+                    submanifold);
+              else if (preplace.empty ())
                 createEdges <GraspOnly | PlaceOnly> (
                     names.first           , names.second,
                     from.get<0> ()        , to.get<0>(),
@@ -759,7 +790,16 @@ namespace hpp {
                    submanifold); // */
               }
             } else {
-              if (preplace.empty ())
+              if (noPlace)
+                createEdges <WithPreGrasp | NoPlace> (
+                    names.first           , names.second,
+                    from.get<0> ()        , to.get<0>(),
+                    1                     , 1,
+                    grasp                 , pregrasp,
+                    place                 , preplace,
+                    grasp.foliated ()     , place.foliated(),
+                    submanifold);
+              else if (preplace.empty ())
                 createEdges <WithPreGrasp | PlaceOnly> (
                     names.first           , names.second,
                     from.get<0> ()        , to.get<0>(),
@@ -853,6 +893,7 @@ namespace hpp {
           bool prePlace = (prePlaceWidth > 0);
           BOOST_FOREACH (const ObjectDef_t& od, objs) {
             // Create handles
+            objects[i].get<2> () = i;
             objects[i].get<1> ().resize (od.handles.size());
             Handles_t::iterator it = objects[i].get<1> ().begin();
             BOOST_FOREACH (const std::string hn, od.handles) {
@@ -887,7 +928,9 @@ namespace hpp {
           }
           GraphPtr_t graph = Graph::create (graphName,
               ps->robot(), ps->problem());
-          graph->createNodeSelector ("nodeSelector");
+          graph->nodeSelector (
+              GuidedNodeSelector::create ("nodeSelector",
+              ps->roadmap ()));
           graph->maxIterations  (ps->maxIterations ());
           graph->errorThreshold (ps->errorThreshold ());
 

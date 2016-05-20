@@ -18,6 +18,7 @@
 # define HPP_MANIPULATION_PROBLEM_HH
 
 # include <hpp/core/problem.hh>
+# include <hpp/core/problem-solver.hh>
 
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/device.hh"
@@ -61,12 +62,31 @@ namespace hpp {
         /// Get the path validation as a GraphPathValidation
         GraphPathValidationPtr_t pathValidation () const;
 
+        void pathValidation (const PathValidationPtr_t& pathValidation);
+
         /// Get the steering method as a GraphSteeringMethod
         GraphSteeringMethodPtr_t steeringMethod () const;
+
+        /// Build a new path validation
+        /// \note Current obstacles are added to the created object.
+        /// \todo Keep a pointer to this value to update it when a new obstacle
+        /// is added.
+        PathValidationPtr_t pathValidationFactory () const;
+
+        void setPathValidationFactory (
+            const core::PathValidationBuilder_t& factory,
+            const value_type& tol)
+        {
+          pvFactory_ = factory;
+          pvTol_ = tol;
+        }
 
       private:
         /// The graph of constraints
         graph::GraphPtr_t graph_;
+
+        core::PathValidationBuilder_t pvFactory_;
+        value_type pvTol_;
     }; // class Problem
     /// \}
   } // namespace manipulation

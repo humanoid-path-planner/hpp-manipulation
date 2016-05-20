@@ -74,6 +74,9 @@ namespace hpp {
         return PathPtr_t ();
       }
       PathPtr_t path;
+      if (possibleEdges.empty()) {
+        hppDout (info, "No edge found.");
+      }
       while (!possibleEdges.empty()) {
         if (possibleEdges.back ()->build (path, q1, q2)) {
           return path;

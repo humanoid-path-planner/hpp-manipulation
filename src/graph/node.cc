@@ -137,6 +137,18 @@ namespace hpp {
         }
         hppDout (error, "Edge not found");
       }
+
+      Weight_t Node::getWeight (const EdgePtr_t& e)
+      {
+        for (Neighbors_t::const_iterator it = neighbors_.begin();
+            it != neighbors_.end(); ++it)
+          if (it->second == e) return it->first;
+        for (std::vector<EdgePtr_t>::const_iterator it = hiddenNeighbors_.begin();
+            it != hiddenNeighbors_.end(); ++it)
+          if (*it == e) return -1;
+        hppDout (error, "Edge not found");
+        return 0;
+      }
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

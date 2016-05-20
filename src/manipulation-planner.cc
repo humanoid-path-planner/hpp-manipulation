@@ -102,12 +102,12 @@ namespace hpp {
       ErrorFreqs_t ret;
       if (indexPerEdgeStatistics_.size() <= id ||
          indexPerEdgeStatistics_[id] < 0) {
-        for (int i = 0; i < 6; ++i) ret.push_back (0);
+        for (std::size_t i = 0; i < reasons_.size(); ++i) ret.push_back (0);
       } else {
         const SuccessStatistics& ss =
           perEdgeStatistics_[indexPerEdgeStatistics_[id]];
         ret.push_back (ss.nbSuccess ());
-        for (int i = 0; i < 6; ++i)
+        for (std::size_t i = 0; i < reasons_.size(); ++i)
           ret.push_back (ss.nbFailure (reasons_[i]));
       }
       return ret;
@@ -117,7 +117,7 @@ namespace hpp {
     {
       StringList_t ret;
       ret.push_back ("Success");
-      for (int i = 0; i < 6; ++i) ret.push_back (reasons_[i].what);
+      for (std::size_t i = 0; i < reasons_.size(); ++i) ret.push_back (reasons_[i].what);
       return ret;
     }
 

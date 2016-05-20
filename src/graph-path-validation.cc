@@ -30,33 +30,16 @@ namespace hpp {
       pathValidation_ (pathValidation), constraintGraph_ ()
     {}
 
-    bool GraphPathValidation::validate (
-          const PathPtr_t& path, bool reverse, PathPtr_t& validPart)
-    {
-      assert (path);
-      PathValidationReportPtr_t report;
-      bool success = impl_validate (path, reverse, validPart, report);
-      assert (constraintGraph_);
-      assert (constraintGraph_->getNode (validPart->initial ()));
-      assert (constraintGraph_->getNode (validPart->end     ()));
-      return success;
-    }
-
-    bool GraphPathValidation::validate
-    (const PathPtr_t& path, bool reverse, PathPtr_t& validPart,
-     ValidationReport&)
-    {
-      assert (path);
-      PathValidationReportPtr_t report;
-      return impl_validate (path, reverse, validPart, report);
-    }
-
     bool GraphPathValidation::validate (const PathPtr_t& path, bool reverse,
 					PathPtr_t& validPart,
 					PathValidationReportPtr_t& report)
     {
       assert (path);
-      return impl_validate (path, reverse, validPart, report);
+      bool success = impl_validate (path, reverse, validPart, report);
+      assert (constraintGraph_);
+      assert (constraintGraph_->getNode (validPart->initial ()));
+      assert (constraintGraph_->getNode (validPart->end     ()));
+      return success;
     }
 
     bool GraphPathValidation::impl_validate (const PathVectorPtr_t& path,
@@ -107,7 +90,13 @@ namespace hpp {
         return impl_validate (pathVector, reverse, validPart, report);
 
       PathPtr_t pathNoCollision;
-      if (pathValidation_->validate (path, reverse, pathNoCollision, report)) {
+      ConstraintSetPtr_t c = HPP_DYNAMIC_PTR_CAST(ConstraintSet, path->constraints());
+      hppDout(info, (c?"Using edge path validation":"Using default path validation"));
+      PathValidationPtr_t validation (c
+          ? c->edge()->pathValidation()
+          : pathValidation_);
+
+      if (validation->validate (path, reverse, pathNoCollision, report)) {
         validPart = path;
         return true;
       }

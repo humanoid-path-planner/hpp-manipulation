@@ -153,6 +153,12 @@ namespace hpp {
 	    return steeringMethod_->get();
 	  }
 
+	  /// Get path validation associated to the edge.
+	  const core::PathValidationPtr_t& pathValidation () const
+	  {
+	    return pathValidation_->get();
+	  }
+
           /// Get direction of the path compare to the edge
           /// \return true is reverse
           virtual bool direction (const core::PathPtr_t& path) const;
@@ -170,6 +176,10 @@ namespace hpp {
 
           void setShort (bool isShort) {
             isShort_ = isShort;
+          }
+
+          bool isShort () const {
+            return isShort_;
           }
 
         protected:
@@ -196,6 +206,7 @@ namespace hpp {
         private:
           typedef Cache < ConstraintSetPtr_t > Constraint_t;
           typedef Cache < core::SteeringMethodPtr_t > SteeringMethod_t;
+          typedef Cache < core::PathValidationPtr_t > PathValidation_t;
 
           /// See pathConstraint member function.
           Constraint_t* pathConstraints_;
@@ -212,6 +223,9 @@ namespace hpp {
 
 	  /// Steering method used to create paths associated to the edge
 	  SteeringMethod_t* steeringMethod_;
+
+	  /// Path validation associated to the edge
+	  PathValidation_t* pathValidation_;
 
           /// Weak pointer to itself.
           EdgeWkPtr_t wkPtr_;

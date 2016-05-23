@@ -78,11 +78,10 @@ namespace hpp {
       /// object to a node where the robot holds the object, the
       /// configuration constraints represent a fixed relative
       /// position of the object with respect to the gripper and a
-      /// stable position of the object.  Configuration constraints
-      /// are necessary to generate a configuration in the start node
-      /// of the edge that can reach a given configuration in the
-      /// destination node by an admissible path.  \sa methods
-      /// configConstraint, canConnect, applyConstraints.
+      /// stable position of the object. Configuration constraints are
+      /// necessary to generate a configuration in the destination
+      /// node of the edge that is reachable from a given
+      /// configuration in the start node by an admissible path.
       class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent
       {
         public:

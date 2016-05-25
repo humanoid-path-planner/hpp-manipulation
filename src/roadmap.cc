@@ -50,8 +50,11 @@ namespace hpp {
 
     void Roadmap::push_node (const core::NodePtr_t& n)
     {
-      statInsert (static_cast <RoadmapNodePtr_t> (n));
       Parent::push_node (n);
+      const RoadmapNodePtr_t& node = 
+        static_cast <const RoadmapNodePtr_t> (n);
+      statInsert (node);
+      symbolicCCs_.insert(node->symbolicComponent());
     }
 
     void Roadmap::statInsert (const RoadmapNodePtr_t& n)

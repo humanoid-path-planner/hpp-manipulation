@@ -280,7 +280,7 @@ namespace hpp {
         if (constraints->isSatisfied (q1)) {
           if (constraints->isSatisfied (q2)) {
             path = (*steeringMethod_->get()) (q1, q2);
-            return true;
+            return (bool)path;
           }
           hppDout(info, "q2 does not satisfy the constraints");
         }

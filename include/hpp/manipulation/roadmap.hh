@@ -62,6 +62,12 @@ namespace hpp {
 	/// Get graph node corresponding to given roadmap node
  	graph::NodePtr_t getNode(RoadmapNodePtr_t node);
 
+        /// Get the symbolic components
+        const SymbolicComponents_t& symbolicComponents () const
+        {
+          return symbolicCCs_;
+        }
+
       protected:
         /// Register a new configuration.
         void statInsert (const RoadmapNodePtr_t& n);
@@ -76,7 +82,9 @@ namespace hpp {
 	{
 	  weak_ = shPtr;
 	}
-        
+
+        virtual void addEdge (const core::EdgePtr_t& edge);
+
       private:
         typedef std::list < graph::HistogramPtr_t > Histograms;
         /// Keep track of the leaf that are explored.
@@ -84,6 +92,7 @@ namespace hpp {
         Histograms histograms_;
         graph::GraphPtr_t graph_;
         RoadmapWkPtr_t weak_;
+        SymbolicComponents_t symbolicCCs_;
     };
     /// \}
   } // namespace manipulation

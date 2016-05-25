@@ -26,6 +26,7 @@ SET(SOURCES
   problem-solver.cc
   roadmap.cc
   connected-component.cc
+  symbolic-component.cc
   constraint-set.cc
   roadmap-node.cc
   device.cc

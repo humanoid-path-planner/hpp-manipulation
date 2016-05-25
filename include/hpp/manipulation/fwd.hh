@@ -58,6 +58,11 @@ namespace hpp {
     typedef std::vector<RoadmapNodePtr_t> RoadmapNodes_t;
     HPP_PREDEF_CLASS (ConnectedComponent);
     typedef boost::shared_ptr<ConnectedComponent> ConnectedComponentPtr_t; 
+    HPP_PREDEF_CLASS (SymbolicComponent);
+    typedef boost::shared_ptr<SymbolicComponent> SymbolicComponentPtr_t;
+    typedef std::set<SymbolicComponentPtr_t> SymbolicComponents_t;
+    HPP_PREDEF_CLASS (WeighedSymbolicComponent);
+    typedef boost::shared_ptr<WeighedSymbolicComponent> WeighedSymbolicComponentPtr_t;
     HPP_PREDEF_CLASS (WeighedDistance);
     typedef boost::shared_ptr<WeighedDistance> WeighedDistancePtr_t;
     typedef constraints::RelativeOrientation RelativeOrientation;

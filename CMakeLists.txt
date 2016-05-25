@@ -72,6 +72,7 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/roadmap.hh
   include/hpp/manipulation/roadmap-node.hh
   include/hpp/manipulation/connected-component.hh
+  include/hpp/manipulation/symbolic-component.hh
   include/hpp/manipulation/manipulation-planner.hh
   include/hpp/manipulation/graph-path-validation.hh
   include/hpp/manipulation/graph-steering-method.hh

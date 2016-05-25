@@ -17,10 +17,14 @@
 #include "hpp/manipulation/roadmap.hh"
 
 #include <hpp/util/pointer.hh>
-#include <hpp/core/distance.hh>
-#include <hpp/manipulation/connected-component.hh>
 
+#include <hpp/core/edge.hh>
+#include <hpp/core/distance.hh>
+
+#include <hpp/manipulation/roadmap.hh>
+#include <hpp/manipulation/graph/node.hh>
 #include <hpp/manipulation/roadmap-node.hh>
+#include <hpp/manipulation/symbolic-component.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -99,7 +103,11 @@ namespace hpp {
     core::NodePtr_t Roadmap::createNode (const ConfigurationPtr_t& q) const
     {
       // call RoadmapNode constructor with new manipulation connected component
-      return RoadmapNodePtr_t (new RoadmapNode (q, ConnectedComponent::create(weak_)));    
+      RoadmapNodePtr_t node = new RoadmapNode (q, ConnectedComponent::create(weak_));
+      SymbolicComponentPtr_t sc = WeighedSymbolicComponent::create (weak_.lock());
+      node->symbolicComponent (sc);
+      sc->setFirstNode(node);
+      return node;
     }
 
     graph::NodePtr_t Roadmap::getNode(RoadmapNodePtr_t node)
@@ -107,5 +115,23 @@ namespace hpp {
       return graph_->getNode(node);
     }
 
+    void Roadmap::addEdge (const core::EdgePtr_t& edge)
+    {
+      Parent::addEdge(edge);
+      const RoadmapNodePtr_t& f = static_cast <const RoadmapNodePtr_t> (edge->from());
+      const RoadmapNodePtr_t& t = static_cast <const RoadmapNodePtr_t> (edge->to());
+      SymbolicComponentPtr_t scf = f->symbolicComponent();
+      SymbolicComponentPtr_t sct = t->symbolicComponent();
+      scf->canReach(sct);
+      if (scf->canMerge(sct)) {
+        if (scf->nodes().size() > sct->nodes().size()) {
+          scf->merge(sct);
+          symbolicCCs_.erase(sct);
+        } else {
+          sct->merge(scf);
+          symbolicCCs_.erase(scf);
+        }
+      }
+    }
   } // namespace manipulation
 } // namespace hpp

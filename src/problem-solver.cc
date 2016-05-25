@@ -38,6 +38,7 @@
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/handle.hh"
 #include "hpp/manipulation/graph/graph.hh"
+#include "hpp/manipulation/symbolic-planner.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/roadmap.hh"
 #include "hpp/manipulation/constraint-set.hh"
@@ -80,6 +81,8 @@ namespace hpp {
     {
       parent_t::add<core::PathPlannerBuilder_t>
         ("M-RRT", ManipulationPlanner::create);
+      parent_t::add<core::PathPlannerBuilder_t>
+        ("SymbolicPlanner", SymbolicPlanner::create);
       using core::PathOptimizerBuilder_t;
       parent_t::add <PathOptimizerBuilder_t> ("Graph-RandomShortcut",
           GraphOptimizer::create <core::RandomShortcut>);

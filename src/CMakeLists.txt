@@ -22,6 +22,7 @@ SET(LIBRARY_NAME ${PROJECT_NAME})
 SET(SOURCES
   axial-handle.cc
   handle.cc
+  symbolic-planner.cc
   manipulation-planner.cc
   problem-solver.cc
   roadmap.cc

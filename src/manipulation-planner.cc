@@ -53,6 +53,15 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER(buildPath);
       HPP_DEFINE_TIMECOUNTER(projectPath);
       HPP_DEFINE_TIMECOUNTER(validatePath);
+
+      bool belongs (const ConfigurationPtr_t& q, const core::Nodes_t& nodes)
+      {
+        for (core::Nodes_t::const_iterator itNode = nodes.begin ();
+            itNode != nodes.end (); ++itNode) {
+          if (*((*itNode)->configuration ()) == *q) return true;
+        }
+        return false;
+      }
     }
 
     const std::vector<ManipulationPlanner::Reason>
@@ -84,15 +93,6 @@ namespace hpp {
       ManipulationPlannerPtr_t shPtr (ptr);
       ptr->init (shPtr);
       return shPtr;
-    }
-
-    bool belongs (const ConfigurationPtr_t& q, const core::Nodes_t& nodes)
-    {
-      for (core::Nodes_t::const_iterator itNode = nodes.begin ();
-          itNode != nodes.end (); ++itNode) {
-        if (*((*itNode)->configuration ()) == *q) return true;
-      }
-      return false;
     }
 
     ManipulationPlanner::ErrorFreqs_t ManipulationPlanner::getEdgeStat
@@ -172,10 +172,7 @@ namespace hpp {
                 delayedEdges.push_back (DelayedEdge_t (near, q_new, path));
               }
             }
-            
           }
-
-
         }
       }
 

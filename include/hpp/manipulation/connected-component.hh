@@ -32,7 +32,6 @@ namespace hpp {
 class HPP_MANIPULATION_DLLAPI ConnectedComponent : public core::ConnectedComponent 
 { 
   public:
-      typedef std::vector<RoadmapNodePtr_t> RoadmapNodes_t;
       /// Map of graph nodes within the connected component
       typedef std::map <graph::NodePtr_t, RoadmapNodes_t> GraphNodes_t;
      

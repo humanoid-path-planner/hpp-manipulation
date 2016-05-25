@@ -74,7 +74,7 @@ namespace hpp {
 
     }
 
-    ConnectedComponent::RoadmapNodes_t ConnectedComponent::getRoadmapNodes (const graph::NodePtr_t graphNode)
+    RoadmapNodes_t ConnectedComponent::getRoadmapNodes (const graph::NodePtr_t graphNode)
     {
       RoadmapNodes_t res;
       GraphNodes_t::iterator mapIt = graphNodeMap_.find(graphNode);

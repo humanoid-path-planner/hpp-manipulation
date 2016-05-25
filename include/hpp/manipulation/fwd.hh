@@ -55,6 +55,7 @@ namespace hpp {
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     HPP_PREDEF_CLASS (RoadmapNode);
     typedef RoadmapNode* RoadmapNodePtr_t;
+    typedef std::vector<RoadmapNodePtr_t> RoadmapNodes_t;
     HPP_PREDEF_CLASS (ConnectedComponent);
     typedef boost::shared_ptr<ConnectedComponent> ConnectedComponentPtr_t; 
     HPP_PREDEF_CLASS (WeighedDistance);

@@ -99,7 +99,7 @@ namespace hpp {
       parent_t::add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
           GraphSteeringMethod::create <core::SteeringMethodStraight>);
 
-#ifdef HPP_MANIPULATION_HAS_WHOLEBODY_STEP
+#if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
       parent_t::add <PathOptimizerBuilder_t>
         ("Walkgen", wholebodyStep::SmallSteps::create);
       parent_t::add <PathOptimizerBuilder_t>

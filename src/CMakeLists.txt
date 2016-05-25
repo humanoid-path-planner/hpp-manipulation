@@ -49,6 +49,7 @@ SET(SOURCES
   graph/dot.cc
 
   path-optimization/config-optimization.cc
+  path-optimization/keypoints.cc
   )
 
 IF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)

@@ -91,6 +91,7 @@ SET (${PROJECT_NAME}_HEADERS
 
   include/hpp/manipulation/path-optimization/small-steps.hh
   include/hpp/manipulation/path-optimization/config-optimization.hh
+  include/hpp/manipulation/path-optimization/keypoints.hh
   )
 
 ADD_SUBDIRECTORY(src)

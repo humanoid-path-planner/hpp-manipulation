@@ -135,6 +135,8 @@ namespace hpp {
     namespace pathOptimization {
       HPP_PREDEF_CLASS (SmallSteps);
       typedef boost::shared_ptr < SmallSteps > SmallStepsPtr_t;
+      HPP_PREDEF_CLASS (Keypoints);
+      typedef boost::shared_ptr < Keypoints > KeypointsPtr_t;
     } // namespace pathOptimization
   } // namespace manipulation
 } // namespace hpp

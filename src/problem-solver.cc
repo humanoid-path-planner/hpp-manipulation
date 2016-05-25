@@ -47,6 +47,7 @@
 #include "hpp/manipulation/graph-node-optimizer.hh"
 #include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/path-optimization/config-optimization.hh"
+#include "hpp/manipulation/path-optimization/keypoints.hh"
 
 #if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
 #include <hpp/wholebody-step/small-steps.hh>
@@ -101,6 +102,9 @@ namespace hpp {
       using core::SteeringMethodBuilder_t;
       parent_t::add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
           GraphSteeringMethod::create <core::SteeringMethodStraight>);
+
+      parent_t::add <PathOptimizerBuilder_t> ("KeypointsShortcut",
+          pathOptimization::Keypoints::create);
 
 #ifdef HPP_MANIPULATION_HAS_WHOLEBODY_STEP
       parent_t::add <PathOptimizerBuilder_t>

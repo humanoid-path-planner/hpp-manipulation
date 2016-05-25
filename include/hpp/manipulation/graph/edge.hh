@@ -28,6 +28,7 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      /// \cond
       /// Cache mechanism that enable const-correctness of member functions.
       template <typename C>
         class HPP_MANIPULATION_LOCAL Cache
@@ -51,6 +52,7 @@ namespace hpp {
         private:
           C c_;
       };
+      /// \endcond
 
       /// \addtogroup constraint_graph
       /// \{

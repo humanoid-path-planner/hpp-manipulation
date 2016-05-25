@@ -254,10 +254,9 @@ namespace hpp {
         // TODO this path validation will not contain obstacles added after
         // its creation.
         pathValidation_->set(problem->pathValidationFactory ());
-        using core::RelativeMotion;
-        RelativeMotion::matrix_type matrix (RelativeMotion::matrix (g->robot()));
-        RelativeMotion::fromConstraint (matrix, g->robot(), constraint);
-        pathValidation_->get()->filterCollisionPairs (matrix);
+        relMotion_ = RelativeMotion::matrix (g->robot());
+        RelativeMotion::fromConstraint (relMotion_, g->robot(), constraint);
+        pathValidation_->get()->filterCollisionPairs (relMotion_);
         return constraint;
       }
 

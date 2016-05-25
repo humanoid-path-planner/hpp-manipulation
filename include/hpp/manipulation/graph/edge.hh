@@ -19,6 +19,7 @@
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/steering-method.hh>
+#include <hpp/core/relative-motion.hh>
 #include <hpp/core/path.hh>
 
 #include "hpp/manipulation/config.hh"
@@ -59,6 +60,8 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent
       {
         public:
+          typedef core::RelativeMotion RelativeMotion;
+
           /// Destructor
           virtual ~Edge ();
 
@@ -119,6 +122,11 @@ namespace hpp {
 	  {
 	    return pathValidation_->get();
 	  }
+
+          const RelativeMotion::matrix_type& relativeMotion () const
+          {
+            return relMotion_;
+          }
 
           /// Get direction of the path compare to the edge
           /// \return true is reverse
@@ -187,6 +195,7 @@ namespace hpp {
 	  SteeringMethod_t* steeringMethod_;
 
 	  /// Path validation associated to the edge
+          mutable RelativeMotion::matrix_type relMotion_;
 	  PathValidation_t* pathValidation_;
 
           /// Weak pointer to itself.

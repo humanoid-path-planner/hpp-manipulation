@@ -901,7 +901,7 @@ namespace hpp {
               ++it;
             }
             // Create placement
-            if (!od.shapes.empty ()) {
+            if (!envNames.empty() && !od.shapes.empty ()) {
               const std::string placeN = "place_" + od.name;
               ps->createPlacementConstraint (placeN,
                   od.shapes, envNames, margin);

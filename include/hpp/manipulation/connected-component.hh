@@ -49,12 +49,13 @@ class HPP_MANIPULATION_DLLAPI ConnectedComponent : public core::ConnectedCompone
       /// \param roadmap node to be added
       void addNode (const core::NodePtr_t& node);
 
-      RoadmapNodes_t getRoadmapNodes (const graph::NodePtr_t graphNode);
+      const RoadmapNodes_t& getRoadmapNodes (const graph::NodePtr_t graphNode) const;
      
   protected:
   private:
 	GraphNodes_t graphNodeMap_;
 	RoadmapPtr_t roadmap_;
+        static RoadmapNodes_t empty_;
     }; // class ConnectedComponent
   } //   namespace manipulation
 } // namespace hpp

@@ -23,6 +23,7 @@
 
 namespace hpp {
   namespace manipulation {
+    RoadmapNodes_t ConnectedComponent::empty_ = RoadmapNodes_t();
 
     ConnectedComponentPtr_t ConnectedComponent::create(const RoadmapWkPtr_t& roadmap)
     {
@@ -74,16 +75,14 @@ namespace hpp {
 
     }
 
-    RoadmapNodes_t ConnectedComponent::getRoadmapNodes (const graph::NodePtr_t graphNode)
+    const RoadmapNodes_t& ConnectedComponent::getRoadmapNodes (
+        const graph::NodePtr_t graphNode) const
     {
-      RoadmapNodes_t res;
-      GraphNodes_t::iterator mapIt = graphNodeMap_.find(graphNode);
-      if (mapIt != graphNodeMap_.end()) {
-        res = mapIt->second;
-      }
-      return res;
+      GraphNodes_t::const_iterator mapIt = graphNodeMap_.find(graphNode);
+      if (mapIt != graphNodeMap_.end())
+        return mapIt->second;
+      return empty_;
     }
-
 
   } // namespace manipulation
 } // namespace hpp

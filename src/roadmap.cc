@@ -83,7 +83,7 @@ namespace hpp {
     {
       core::NodePtr_t result = NULL;
       minDistance = std::numeric_limits <value_type>::infinity ();
-      RoadmapNodes_t roadmapNodes = connectedComponent->getRoadmapNodes (node);
+      const RoadmapNodes_t& roadmapNodes = connectedComponent->getRoadmapNodes (node);
       for (RoadmapNodes_t::const_iterator itNode = roadmapNodes.begin ();
           itNode != roadmapNodes.end (); ++itNode) {
         value_type d = (*distance()) (*(*itNode)->configuration (),

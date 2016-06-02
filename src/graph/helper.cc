@@ -17,6 +17,7 @@
 #include <hpp/manipulation/graph/helper.hh>
 
 #include <boost/array.hpp>
+#include <boost/regex.hpp>
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
 
@@ -519,6 +520,26 @@ namespace hpp {
           /// - the values correpond to the index of the handle (0..nbHandle-1), or
           ///   nbHandle to mean no handle. 
           typedef std::vector <index_t> GraspV_t;
+          struct CompiledRule {
+            enum Result {
+              Accept,
+              Refuse,
+              NoMatch,
+              Undefined
+            };
+            boost::regex gripper, handle;
+            bool link;
+            CompiledRule (const Rule& r) :
+              gripper (r.gripper_), handle (r.handle_), link (r.link_) {}
+            Result check (const std::string& g, const std::string& h) const
+            {
+              if (boost::regex_match(g, gripper))
+                if (boost::regex_match(h, handle))
+                  return (link ? Accept : Refuse);
+              return NoMatch;
+            }
+          };
+          typedef std::vector<CompiledRule> CompiledRules_t;
 
           struct Result {
             GraphPtr_t graph;
@@ -528,6 +549,8 @@ namespace hpp {
             GraspV_t dims;
             const Grippers_t& gs;
             const Objects_t& ohs;
+            CompiledRules_t rules;
+            mutable Eigen::MatrixXi rulesCache;
 
             Result (const Grippers_t& grippers, const Objects_t& objects, GraphPtr_t g) :
               graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects)
@@ -541,6 +564,35 @@ namespace hpp {
                 dims[i] = dims[i-1] * (nOH + 1);
               nodes.resize (dims[nG-1] * (nOH + 1));
               graspCs.resize (nG * nOH);
+              rulesCache = Eigen::MatrixXi::Constant(nG, nOH + 1, CompiledRule::Undefined);
+            }
+
+            void setRules (const Rules_t& r)
+            {
+              for (Rules_t::const_iterator _r = r.begin(); _r != r.end(); ++_r)
+                rules.push_back (CompiledRule(*_r));
+            }
+
+            bool graspIsAllowed (const GraspV_t& idxOH) const
+            {
+              assert (idxOH.size () == nG);
+              for (std::size_t i = 0; i < nG; ++i) {
+                if ((CompiledRule::Result)rulesCache(i, idxOH[i]) == CompiledRule::Undefined) {
+                  const std::string& g = gs[i]->name(),
+                                     h = (idxOH[i] == nOH) ? "" : handle (idxOH[i])->name ();
+                  CompiledRule::Result status = CompiledRule::Accept;
+                  for (std::size_t r = 0; r < rules.size(); ++r) {
+                    status = rules[i].check(g,h);
+                    if (status == CompiledRule::Accept) break;
+                    else if (status == CompiledRule::Refuse) break;
+                    status = CompiledRule::Accept;
+                  }
+                  rulesCache(i, idxOH[i]) = status;
+                }
+                bool keep = ((CompiledRule::Result)rulesCache(i, idxOH[i]) == CompiledRule::Accept);
+                if (!keep) return false;
+              }
+              return true;
             }
 
             NodeAndManifold_t& operator() (const GraspV_t& iG)
@@ -828,6 +880,9 @@ namespace hpp {
             if (idx_g.empty () || idx_oh.empty ()) return;
             IndexV_t nIdx_g (idx_g.size() - 1);
             IndexV_t nIdx_oh (idx_oh.size() - 1);
+            bool curGraspIsAllowed = r.graspIsAllowed(grasps);
+            if (curGraspIsAllowed) makeNode (r, grasps, depth);
+
             for (IndexV_t::const_iterator itx_g = idx_g.begin ();
                 itx_g != idx_g.end (); ++itx_g) {
               // Copy all element except itx_g
@@ -839,7 +894,12 @@ namespace hpp {
                 // Create the edge for the selected grasp
                 GraspV_t nGrasps = grasps;
                 nGrasps [*itx_g] = *itx_oh;
-                makeEdge (r, grasps, nGrasps, *itx_g, depth);
+
+                bool nextGraspIsAllowed = r.graspIsAllowed(nGrasps);
+                if (nextGraspIsAllowed) makeNode (r, nGrasps, depth + 1);
+
+                if (curGraspIsAllowed && nextGraspIsAllowed)
+                  makeEdge (r, grasps, nGrasps, *itx_g, depth);
 
                 // Copy all element except itx_oh
                 std::copy (boost::next (itx_oh), idx_oh.end (),
@@ -855,13 +915,15 @@ namespace hpp {
         void graphBuilder (
             const Objects_t& objects,
             const Grippers_t& grippers,
-            GraphPtr_t graph)
+            GraphPtr_t graph,
+            const Rules_t& rules)
         {
           if (!graph) throw std::logic_error ("The graph must be initialized");
           NodeSelectorPtr_t ns = graph->nodeSelector ();
           if (!ns) throw std::logic_error ("The graph does not have a NodeSelector");
 
           Result r (grippers, objects, graph);
+          r.setRules (rules);
 
           IndexV_t availG (r.nG), availOH (r.nOH);
           for (index_t i = 0; i < r.nG; ++i) availG[i] = i;
@@ -935,7 +997,7 @@ namespace hpp {
           graph->maxIterations  (ps->maxIterations ());
           graph->errorThreshold (ps->errorThreshold ());
 
-          graphBuilder (objects, grippers, graph);
+          graphBuilder (objects, grippers, graph, rules);
           ps->constraintGraph (graph);
           return graph;
         }

@@ -878,6 +878,7 @@ namespace hpp {
             const StringList_t& griNames,
             const std::list <ObjectDef_t>& objs,
             const StringList_t& envNames,
+	    const std::vector <Rule>& rules,
             const value_type& prePlaceWidth)
         {
           const Device& robot = *(ps->robot ());

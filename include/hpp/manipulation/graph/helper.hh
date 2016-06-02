@@ -98,6 +98,18 @@ namespace hpp {
           WithPrePlace = 1 << 4
         };
 
+	struct Rule {
+	  std::string gripper_;
+	  std::string handle_;
+	  bool link_;
+	  Rule() : gripper_(""), handle_(""), link_(false) {}
+	  Rule(std::string gripper, std::string handle, bool link) {
+	    gripper_ = gripper;
+	    handle_ = handle;
+	    link_ = link;
+	  }
+	};
+
         /// Create edges according to the case.
         /// gCase is a logical OR combination of GraspingCase and PlacementCase
         ///
@@ -191,6 +203,7 @@ namespace hpp {
             const StringList_t& griNames,
             const std::list <ObjectDef_t>& objs,
             const StringList_t& envNames,
+	    const std::vector<Rule>& rules,
             const value_type& prePlaceWidth = 0.05);
         /// \}
       } // namespace helper

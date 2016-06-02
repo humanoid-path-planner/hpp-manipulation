@@ -165,12 +165,7 @@ namespace hpp {
 	      bool success;
               ConfigurationPtr_t q_new (new Configuration_t
 					((*path) (t_final, success)));
-              if (!belongs (q_new, newNodes)) {
-                newNodes.push_back (roadmap ()->addNodeAndEdges
-                    (near, q_new, path));
-              } else {
-                delayedEdges.push_back (DelayedEdge_t (near, q_new, path));
-              }
+              delayedEdges.push_back (DelayedEdge_t (near, q_new, path));
             }
           }
         }
@@ -185,10 +180,8 @@ namespace hpp {
 	const core::PathPtr_t& validPath = itEdge-> get <2> ();
         core::NodePtr_t newNode = roadmap ()->addNode (q_new);
 	roadmap ()->addEdge (near, newNode, validPath);
-        core::interval_t timeRange = validPath->timeRange ();
-	roadmap ()->addEdge (newNode, near, validPath->extract
-			     (core::interval_t (timeRange.second ,
-					  timeRange.first)));
+	roadmap ()->addEdge (newNode, near, validPath->reverse());
+        newNodes.push_back (newNode);
       }
       HPP_STOP_TIMECOUNTER(delayedEdges);
 

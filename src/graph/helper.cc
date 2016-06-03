@@ -577,12 +577,12 @@ namespace hpp {
             {
               assert (idxOH.size () == nG);
               for (std::size_t i = 0; i < nG; ++i) {
+                const std::string& g = gs[i]->name(),
+                                   h = (idxOH[i] == nOH) ? "" : handle (idxOH[i])->name ();
                 if ((CompiledRule::Result)rulesCache(i, idxOH[i]) == CompiledRule::Undefined) {
-                  const std::string& g = gs[i]->name(),
-                                     h = (idxOH[i] == nOH) ? "" : handle (idxOH[i])->name ();
                   CompiledRule::Result status = CompiledRule::Accept;
                   for (std::size_t r = 0; r < rules.size(); ++r) {
-                    status = rules[i].check(g,h);
+                    status = rules[r].check(g,h);
                     if (status == CompiledRule::Accept) break;
                     else if (status == CompiledRule::Refuse) break;
                     status = CompiledRule::Accept;

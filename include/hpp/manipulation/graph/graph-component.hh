@@ -73,9 +73,15 @@ namespace hpp {
             (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq)
             HPP_MANIPULATION_DEPRECATED;
 
+	  /// Reset the numerical constraints stored in the component.
+	  virtual void resetNumericalConstraints ();
+
           /// Add core::LockedJoint constraint to the component.
           virtual void addLockedJointConstraint
 	    (const LockedJointPtr_t& constraint);
+
+	  /// Reset the locked joint in the component.
+	  virtual void resetLockedJoints ();
 
           /// Insert the numerical constraints in a ConfigProjector
           /// \return true is at least one NumericalConstraintPtr_t was inserted.

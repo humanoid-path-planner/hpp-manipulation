@@ -245,6 +245,10 @@ namespace hpp {
         es.addFailure (reasons_[PROJECTION]);
         return false;
       }
+      if (qProj_.isApprox (*q_near)) {
+	es.addFailure (reasons_[PATH_PROJECTION_ZERO]);
+	return false;
+      }
       HPP_STOP_TIMECOUNTER (applyConstraints);
       core::PathPtr_t path;
       HPP_START_TIMECOUNTER (buildPath);

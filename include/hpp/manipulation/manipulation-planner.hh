@@ -108,13 +108,14 @@ namespace hpp {
 
         /// A Reason is associated to each EdgePtr_t that generated a failure.
         enum TypeOfFailure {
-          PROJECTION = 0,
-          STEERING_METHOD = 1,
-          PATH_VALIDATION_ZERO = 2,
-          PATH_PROJECTION_ZERO = 3,
-          PATH_PROJECTION_SHORTER = 4,
-          PATH_VALIDATION_SHORTER = 5,
-          PARTLY_EXTENDED = 6
+          PATH_PROJECTION_SHORTER = 0,
+          PATH_VALIDATION_SHORTER = 1,
+	  REACHED_DESTINATION_NODE = 2,
+	  FAILURE = 3,
+          PROJECTION = 4,
+          STEERING_METHOD = 5,
+          PATH_VALIDATION_ZERO = 6,
+          PATH_PROJECTION_ZERO = 7
         };
         static const std::vector<Reason> reasons_;
 

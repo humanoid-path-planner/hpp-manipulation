@@ -610,8 +610,15 @@ namespace hpp {
             inline nodeid_type nodeid (const GraspV_t& iG)
             {
               nodeid_type iGOH = iG[0];
-              for (index_t i = 1; i < nG; ++i)
-                iGOH += dims[i] * (iG[i]);
+              nodeid_type res;
+              for (index_t i = 1; i < nG; ++i) {
+                res = iGOH + dims[i] * (iG[i]);
+                if (res < iGOH) {
+                  hppDout (info, "Node ID overflowed. There are too many states...");
+                }
+                iGOH = res;
+                // iGOH += dims[i] * (iG[i]);
+              }
               return iGOH;
             }
 

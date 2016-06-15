@@ -78,6 +78,7 @@ namespace hpp {
       void GraphComponent::resetNumericalConstraints ()
       {
 	numericalConstraints_.clear();
+        passiveDofs_.clear();
       }
 
       void GraphComponent::addLockedJointConstraint

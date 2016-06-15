@@ -16,6 +16,9 @@
 
 #include <hpp/manipulation/graph/helper.hh>
 
+#include <tr1/unordered_map>
+#include <tr1/unordered_set>
+
 #include <boost/array.hpp>
 #include <boost/regex.hpp>
 #include <boost/foreach.hpp>
@@ -544,6 +547,16 @@ namespace hpp {
           struct Result {
             GraphPtr_t graph;
             std::vector<NodeAndManifold_t> nodes;
+            typedef std::vector<NodeAndManifold_t>::size_type nodeid_type;
+            typedef std::pair<nodeid_type, nodeid_type> edgeid_type;
+            struct edgeid_hash {
+              std::tr1::hash<edgeid_type::first_type> first;
+              std::tr1::hash<edgeid_type::second_type> second;
+              std::size_t operator() (const edgeid_type& eid) const {
+                return first(eid.first) + second(eid.second);
+              }
+            };
+            std::tr1::unordered_set<edgeid_type, edgeid_hash> edges;
             std::vector< boost::array<NumericalConstraintPtr_t,3> > graspCs;
             index_t nG, nOH;
             GraspV_t dims;
@@ -595,12 +608,27 @@ namespace hpp {
               return true;
             }
 
-            NodeAndManifold_t& operator() (const GraspV_t& iG)
+            inline nodeid_type nodeid (const GraspV_t& iG)
             {
-              index_t iGOH = iG[0];
+              nodeid_type iGOH = iG[0];
               for (index_t i = 1; i < nG; ++i)
                 iGOH += dims[i] * (iG[i]);
-              return nodes [iGOH];
+              return iGOH;
+            }
+
+            NodeAndManifold_t& operator() (const GraspV_t& iG)
+            {
+              return nodes [nodeid(iG)];
+            }
+
+            bool hasEdge (const GraspV_t& g1, const GraspV_t& g2)
+            {
+              return edges.count(edgeid_type(nodeid(g1), nodeid(g2))) > 0;
+            }
+
+            void addEdge (const GraspV_t& g1, const GraspV_t& g2)
+            {
+              edges.insert(edgeid_type(nodeid(g1), nodeid(g2)));
             }
 
             inline boost::array<NumericalConstraintPtr_t,3>& graspConstraint (
@@ -764,6 +792,11 @@ namespace hpp {
               const GraspV_t& gFrom, const GraspV_t& gTo,
               const index_t iG, const int priority)
           {
+            if (r.hasEdge(gFrom, gTo)) {
+              hppDout (warning, "Prevented creation of duplicated edge\nfrom "
+                  << r.name (gFrom) << "\nto " << r.name (gTo));
+              return;
+            }
             const NodeAndManifold_t& from = makeNode (r, gFrom, priority),
                                      to   = makeNode (r, gTo, priority+1);
             const Object_t& o = r.object (gTo[iG]);
@@ -870,6 +903,7 @@ namespace hpp {
                     grasp.foliated ()     , place.foliated(),
                     submanifold);
             }
+            r.addEdge(gFrom, gTo);
           }
 
           /// idx are the available grippers
@@ -932,6 +966,9 @@ namespace hpp {
           GraspV_t iG (r.nG, r.nOH);
 
           recurseGrippers (r, availG, availOH, iG, 0);
+
+          hppDout (info, "Created a graph with " << r.nodes.size() << " states "
+              "and " << r.edges.size() << " edges.");
         }
 
         GraphPtr_t graphBuilder (

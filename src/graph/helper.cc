@@ -546,8 +546,8 @@ namespace hpp {
 
           struct Result {
             GraphPtr_t graph;
-            std::vector<NodeAndManifold_t> nodes;
-            typedef std::vector<NodeAndManifold_t>::size_type nodeid_type;
+            typedef unsigned long nodeid_type;
+            std::tr1::unordered_map<nodeid_type, NodeAndManifold_t> nodes;
             typedef std::pair<nodeid_type, nodeid_type> edgeid_type;
             struct edgeid_hash {
               std::tr1::hash<edgeid_type::first_type> first;
@@ -575,7 +575,6 @@ namespace hpp {
               dims[0] = nOH + 1;
               for (index_t i = 1; i < nG; ++i)
                 dims[i] = dims[i-1] * (nOH + 1);
-              nodes.resize (dims[nG-1] * (nOH + 1));
               graspCs.resize (nG * nOH);
               rulesCache = Eigen::MatrixXi::Constant(nG, nOH + 1, CompiledRule::Undefined);
             }

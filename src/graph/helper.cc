@@ -622,6 +622,11 @@ namespace hpp {
               return iGOH;
             }
 
+            bool hasNode (const GraspV_t& iG)
+            {
+              return nodes.count(nodeid(iG)) > 0;
+            }
+
             NodeAndManifold_t& operator() (const GraspV_t& iG)
             {
               return nodes [nodeid(iG)];

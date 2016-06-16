@@ -207,11 +207,17 @@ namespace hpp {
         g->insertNumericalConstraints (proj);
         insertNumericalConstraints (proj);
         to ()->insertNumericalConstraints (proj);
+	if (node () == from ()) {
+	  from ()->insertNumericalConstraints (proj);
+	}
         constraint->addConstraint (proj);
 
         g->insertLockedJoints (proj);
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
+	if (node () == from ()) {
+	  from ()->insertLockedJoints (proj);
+	}
 
         constraint->edge (wkPtr_.lock ());
         return constraint;
@@ -280,6 +286,7 @@ namespace hpp {
         constraints->configProjector ()->rightHandSideFromConfig(q1);
         if (constraints->isSatisfied (q1)) {
           if (constraints->isSatisfied (q2)) {
+	    if (q1.isApprox (q2)) return false;
             path = (*steeringMethod_->get()) (q1, q2);
             return path;
           }
@@ -692,6 +699,9 @@ namespace hpp {
 
         insertNumericalConstraints (proj);
         to ()->insertNumericalConstraints (proj);
+	if (node () == from ()) {
+	  from ()->insertNumericalConstraints (proj);
+	}
         constraint->addConstraint (proj);
 
         g->insertLockedJoints (proj);
@@ -701,6 +711,9 @@ namespace hpp {
         }
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
+	if (node () == from ()) {
+	  from ()->insertLockedJoints (proj);
+	}
 
         constraint->edge (wkPtr_.lock ());
         return constraint;

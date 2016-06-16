@@ -66,13 +66,14 @@ namespace hpp {
 
     const std::vector<ManipulationPlanner::Reason>
       ManipulationPlanner::reasons_ = boost::assign::list_of
-      (SuccessBin::createReason ("[Fail] Projection"))
-      (SuccessBin::createReason ("[Fail] SteeringMethod"))
-      (SuccessBin::createReason ("[Fail] Path validation returned length 0"))
-      (SuccessBin::createReason ("[Fail] Path could not be projected"))
-      (SuccessBin::createReason ("[Info] Path could not be fully projected"))
-      (SuccessBin::createReason ("[Info] Path could not be fully validated"))
-      (SuccessBin::createReason ("[Info] Extended partly"));
+      (SuccessBin::createReason ("--Path could not be fully projected"))
+      (SuccessBin::createReason ("--Path could not be fully validated"))
+      (SuccessBin::createReason ("--Reached destination node"))
+      (SuccessBin::createReason ("Failure"))
+      (SuccessBin::createReason ("--Projection of configuration on edge leaf"))
+      (SuccessBin::createReason ("--SteeringMethod"))
+      (SuccessBin::createReason ("--Path validation returned length 0"))
+      (SuccessBin::createReason ("--Path could not be projected at all"));
 
     ManipulationPlannerPtr_t ManipulationPlanner::create (const core::Problem& problem,
         const core::RoadmapPtr_t& roadmap)
@@ -232,14 +233,21 @@ namespace hpp {
       SuccessStatistics& es = edgeStat (edge);
       if (!edge->applyConstraints (n_near, qProj_)) {
         HPP_STOP_TIMECOUNTER (applyConstraints);
+        es.addFailure (reasons_[FAILURE]);
         es.addFailure (reasons_[PROJECTION]);
         return false;
+      }
+      if (qProj_.isApprox (*q_near)) {
+        es.addFailure (reasons_[FAILURE]);
+	es.addFailure (reasons_[PATH_PROJECTION_ZERO]);
+	return false;
       }
       HPP_STOP_TIMECOUNTER (applyConstraints);
       core::PathPtr_t path;
       HPP_START_TIMECOUNTER (buildPath);
       if (!edge->build (path, *q_near, qProj_)) {
         HPP_STOP_TIMECOUNTER (buildPath);
+        es.addFailure (reasons_[FAILURE]);
         es.addFailure (reasons_[STEERING_METHOD]);
         return false;
       }
@@ -252,10 +260,10 @@ namespace hpp {
         if (projShorter) {
           if (!projPath || projPath->length () == 0) {
             HPP_STOP_TIMECOUNTER (projectPath);
+	    es.addFailure (reasons_[FAILURE]);
             es.addFailure (reasons_[PATH_PROJECTION_ZERO]);
             return false;
           }
-          es.addFailure (reasons_[PATH_PROJECTION_SHORTER]);
         }
         HPP_STOP_TIMECOUNTER (projectPath);
       } else projPath = path;
@@ -269,16 +277,17 @@ namespace hpp {
           (projPath, false, fullValidPath, report);
       } catch (const core::projection_error& e) {
         hppDout (error, e.what ());
+        es.addFailure (reasons_[FAILURE]);
         es.addFailure (reasons_[PATH_VALIDATION_ZERO]);
         return false;
       }
       HPP_STOP_TIMECOUNTER (validatePath);
       if (fullValidPath->length () == 0) {
+        es.addFailure (reasons_[FAILURE]);
         es.addFailure (reasons_[PATH_VALIDATION_ZERO]);
         validPath = fullValidPath;
         return false;
       } else {
-        if (!fullyValid) es.addFailure (reasons_[PATH_VALIDATION_SHORTER]);
         if (extendStep_ == 1 || fullyValid) {
           validPath = fullValidPath;
         } else {
@@ -289,6 +298,7 @@ namespace hpp {
               (core::interval_t(t_init, t_init + length * extendStep_));
           } catch (const core::projection_error& e) {
             hppDout (error, e.what());
+	    es.addSuccess ();
             es.addFailure (reasons_[PATH_PROJECTION_SHORTER]);
             return false;
           }
@@ -296,8 +306,18 @@ namespace hpp {
         hppDout (info, "Extension:" << std::endl
             << es);
       }
-      if (!projShorter && fullValidPath) es.addSuccess ();
-      else es.addFailure (reasons_[PARTLY_EXTENDED]);
+      if (!projShorter && fullValidPath) {
+	es.addSuccess ();
+	es.addFailure (reasons_ [REACHED_DESTINATION_NODE]);
+      }
+      else {
+	es.addSuccess ();
+	if (projShorter) {
+	  es.addFailure (reasons_ [PATH_PROJECTION_SHORTER]);
+	} else {
+	  es.addFailure (reasons_ [PATH_VALIDATION_SHORTER]);
+	}
+      }
       return true;
     }
 

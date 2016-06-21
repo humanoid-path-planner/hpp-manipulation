@@ -316,7 +316,7 @@ namespace hpp {
         hppDout (info, "Extension:" << std::endl
             << es);
       }
-      if (!projShorter && fullValidPath) {
+      if (!projShorter && fullyValid) {
 	es.addSuccess ();
 	es.addFailure (reasons_ [REACHED_DESTINATION_NODE]);
       }

@@ -220,6 +220,8 @@ namespace hpp {
     {
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       PathProjectorPtr_t pathProjector = problem_.pathProjector ();
+      model::DevicePtr_t robot (problem_.robot ());
+      value_type eps (graph->errorThreshold ());
       // Select next node in the constraint graph.
       const ConfigurationPtr_t q_near = n_near->configuration ();
       HPP_START_TIMECOUNTER (chooseEdge);
@@ -237,7 +239,7 @@ namespace hpp {
         es.addFailure (reasons_[PROJECTION]);
         return false;
       }
-      if (qProj_.isApprox (*q_near)) {
+      if (model::isApprox (robot, qProj_, *q_near, eps)) {
         es.addFailure (reasons_[FAILURE]);
 	es.addFailure (reasons_[PATH_PROJECTION_ZERO]);
 	return false;

@@ -286,7 +286,6 @@ namespace hpp {
         constraints->configProjector ()->rightHandSideFromConfig(q1);
         if (constraints->isSatisfied (q1)) {
           if (constraints->isSatisfied (q2)) {
-	    if (q1.isApprox (q2)) return false;
             path = (*steeringMethod_->get()) (q1, q2);
             return path;
           }

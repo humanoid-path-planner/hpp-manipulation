@@ -22,10 +22,12 @@ SET(LIBRARY_NAME ${PROJECT_NAME})
 SET(SOURCES
   axial-handle.cc
   handle.cc
+  symbolic-planner.cc
   manipulation-planner.cc
   problem-solver.cc
   roadmap.cc
   connected-component.cc
+  symbolic-component.cc
   constraint-set.cc
   roadmap-node.cc
   device.cc
@@ -47,6 +49,7 @@ SET(SOURCES
   graph/dot.cc
 
   path-optimization/config-optimization.cc
+  path-optimization/keypoints.cc
   )
 
 IF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)

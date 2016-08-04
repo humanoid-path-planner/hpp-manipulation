@@ -260,10 +260,9 @@ namespace hpp {
         // TODO this path validation will not contain obstacles added after
         // its creation.
         pathValidation_->set(problem->pathValidationFactory ());
-        using core::RelativeMotion;
-        RelativeMotion::matrix_type matrix (RelativeMotion::matrix (g->robot()));
-        RelativeMotion::fromConstraint (matrix, g->robot(), constraint);
-        pathValidation_->get()->filterCollisionPairs (matrix);
+        relMotion_ = RelativeMotion::matrix (g->robot());
+        RelativeMotion::fromConstraint (relMotion_, g->robot(), constraint);
+        pathValidation_->get()->filterCollisionPairs (relMotion_);
         return constraint;
       }
 
@@ -287,7 +286,7 @@ namespace hpp {
         if (constraints->isSatisfied (q1)) {
           if (constraints->isSatisfied (q2)) {
             path = (*steeringMethod_->get()) (q1, q2);
-            return path;
+            return (bool)path;
           }
           hppDout(info, "q2 does not satisfy the constraints");
         }

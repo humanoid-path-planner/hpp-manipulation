@@ -98,6 +98,20 @@ namespace hpp {
           WithPrePlace = 1 << 4
         };
 
+	struct Rule {
+	  std::string gripper_;
+	  std::string handle_;
+	  bool link_;
+	  Rule() : gripper_(""), handle_(""), link_(false) {}
+	  Rule(std::string gripper, std::string handle, bool link) {
+	    gripper_ = gripper;
+	    handle_ = handle;
+	    link_ = link;
+	  }
+	};
+
+        typedef std::vector<Rule> Rules_t;
+
         /// Create edges according to the case.
         /// gCase is a logical OR combination of GraspingCase and PlacementCase
         ///
@@ -178,7 +192,8 @@ namespace hpp {
         void graphBuilder (
             const Objects_t& objects,
             const Grippers_t& grippers,
-            GraphPtr_t graph);
+            GraphPtr_t graph,
+            const Rules_t& rules = Rules_t ());
 
         struct ObjectDef_t {
           std::string name;
@@ -191,6 +206,7 @@ namespace hpp {
             const StringList_t& griNames,
             const std::list <ObjectDef_t>& objs,
             const StringList_t& envNames,
+	    const Rules_t& rules,
             const value_type& prePlaceWidth = 0.05);
         /// \}
       } // namespace helper

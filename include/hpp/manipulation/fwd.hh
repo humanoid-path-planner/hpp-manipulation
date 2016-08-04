@@ -58,6 +58,11 @@ namespace hpp {
     typedef std::vector<RoadmapNodePtr_t> RoadmapNodes_t;
     HPP_PREDEF_CLASS (ConnectedComponent);
     typedef boost::shared_ptr<ConnectedComponent> ConnectedComponentPtr_t; 
+    HPP_PREDEF_CLASS (SymbolicComponent);
+    typedef boost::shared_ptr<SymbolicComponent> SymbolicComponentPtr_t;
+    typedef std::set<SymbolicComponentPtr_t> SymbolicComponents_t;
+    HPP_PREDEF_CLASS (WeighedSymbolicComponent);
+    typedef boost::shared_ptr<WeighedSymbolicComponent> WeighedSymbolicComponentPtr_t;
     HPP_PREDEF_CLASS (WeighedDistance);
     typedef boost::shared_ptr<WeighedDistance> WeighedDistancePtr_t;
     typedef constraints::RelativeOrientation RelativeOrientation;
@@ -75,6 +80,8 @@ namespace hpp {
     typedef model::vectorOut_t vectorOut_t;
     HPP_PREDEF_CLASS (ManipulationPlanner);
     typedef boost::shared_ptr < ManipulationPlanner > ManipulationPlannerPtr_t;
+    HPP_PREDEF_CLASS (SymbolicPlanner);
+    typedef boost::shared_ptr < SymbolicPlanner > SymbolicPlannerPtr_t;
     HPP_PREDEF_CLASS (GraphPathValidation);
     typedef boost::shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
     HPP_PREDEF_CLASS (GraphSteeringMethod);
@@ -128,6 +135,8 @@ namespace hpp {
     namespace pathOptimization {
       HPP_PREDEF_CLASS (SmallSteps);
       typedef boost::shared_ptr < SmallSteps > SmallStepsPtr_t;
+      HPP_PREDEF_CLASS (Keypoints);
+      typedef boost::shared_ptr < Keypoints > KeypointsPtr_t;
     } // namespace pathOptimization
   } // namespace manipulation
 } // namespace hpp

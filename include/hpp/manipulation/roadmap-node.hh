@@ -80,10 +80,21 @@ namespace hpp {
 
         /// \}
 
+        void symbolicComponent (const SymbolicComponentPtr_t& sc)
+        {
+          symbolicCC_ = sc;
+        }
+
+        const SymbolicComponentPtr_t& symbolicComponent () const
+        {
+          return symbolicCC_;
+        }
+
       private:
         CachingSystem cacheSystem_;
 
         graph::NodePtr_t node_;
+        SymbolicComponentPtr_t symbolicCC_;
     };
   } // namespace manipulation
 } // namespace hpp

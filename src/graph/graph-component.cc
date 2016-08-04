@@ -75,10 +75,21 @@ namespace hpp {
         addNumericalConstraint (NumericalConstraint::create (function,ineq));
       }
 
+      void GraphComponent::resetNumericalConstraints ()
+      {
+	numericalConstraints_.clear();
+        passiveDofs_.clear();
+      }
+
       void GraphComponent::addLockedJointConstraint
       (const LockedJointPtr_t& constraint)
       {
         lockedJoints_.push_back (constraint);
+      }
+
+      void GraphComponent::resetLockedJoints ()
+      {
+	lockedJoints_.clear();
       }
 
       bool GraphComponent::insertNumericalConstraints (ConfigProjectorPtr_t& proj) const

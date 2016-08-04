@@ -182,7 +182,8 @@ int main (int , char**) {
   proj->add (NumericalConstraint::create (c));
   cs->addConstraint (proj);
   ProblemPtr_t problem (new Problem (r));
-  WeighedDistancePtr_t dist = WeighedDistance::create (r, list_of (1)(1));
+  WeighedDistancePtr_t dist = WeighedDistance::createWithWeight
+    (r, list_of (1)(1));
   problem->distance (dist);
   SteeringMethodPtr_t sm (SteeringMethodStraight::create (problem));
   const WeighedDistance& d = *dist;

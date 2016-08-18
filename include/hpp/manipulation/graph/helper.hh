@@ -88,14 +88,14 @@ namespace hpp {
         };
 
         enum GraspingCase {
-          NoGrasp = 0,
-          GraspOnly = 1 << 0,
-          WithPreGrasp = 1 << 1
+          NoGrasp = 1 << 0,
+          GraspOnly = 1 << 1,
+          WithPreGrasp = 1 << 2
         };
         enum PlacementCase {
-          NoPlace = 1 << 2,
-          PlaceOnly = 1 << 3,
-          WithPrePlace = 1 << 4
+          NoPlace = 1 << 3,
+          PlaceOnly = 1 << 4,
+          WithPrePlace = 1 << 5
         };
 
 	struct Rule {

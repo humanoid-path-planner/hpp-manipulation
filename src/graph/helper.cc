@@ -118,7 +118,10 @@ namespace hpp {
               static const bool pregrasp = (gCase & WithPreGrasp);
               static const bool intersec = !((gCase & NoGrasp) || (gCase & NoPlace));
               static const bool preplace = (gCase & WithPrePlace);
-              static const bool valid = !(gCase == (NoGrasp | NoPlace));
+              static const bool valid =
+                   ( (gCase & WithPreGrasp) || (gCase & GraspOnly) || (gCase & NoGrasp) )
+                && ( (gCase & WithPrePlace) || (gCase & PlaceOnly) || (gCase & NoPlace) )
+                && !(gCase == (NoGrasp | NoPlace));
 
               static const std::size_t nbWaypoints = (pregrasp?1:0) + (intersec?1:0) + (preplace?1:0);
               static const std::size_t Nnodes = 2 + nbWaypoints;

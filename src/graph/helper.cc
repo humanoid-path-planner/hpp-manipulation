@@ -131,20 +131,9 @@ namespace hpp {
               typedef boost::array <NodePtr_t, Nnodes> NodeArray;
               typedef boost::array <EdgePtr_t, Nedges> EdgeArray;
 
-              static inline const NodePtr_t& Npregrasp (const NodeArray& n)
-              {
-                assert (pregrasp); return n[1];
-              }
-
-              static inline const NodePtr_t& Nintersec (const NodeArray& n)
-              {
-                assert (intersec); return n[1 + (pregrasp?1:0)];
-              }
-
-              static inline const NodePtr_t& Npreplace (const NodeArray& n)
-              {
-                assert (preplace); return n[1 + (pregrasp?1:0) + (intersec?1:0)];
-              }
+              static inline const NodePtr_t& Npregrasp (const NodeArray& n) { assert (pregrasp); return n[1]; }
+              static inline const NodePtr_t& Nintersec (const NodeArray& n) { assert (intersec); return n[1 + (pregrasp?1:0)]; }
+              static inline const NodePtr_t& Npreplace (const NodeArray& n) { assert (preplace); return n[1 + (pregrasp?1:0) + (intersec?1:0)]; }
 
               static inline EdgePtr_t makeWE (
                   const std::string& name,

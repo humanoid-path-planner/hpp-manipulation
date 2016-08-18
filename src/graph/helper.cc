@@ -670,6 +670,12 @@ namespace hpp {
               throw std::out_of_range ("Handle index");
             }
 
+            /// Check if an object can be placed
+            bool objectCanBePlaced (const Object_t& o) const
+            {
+              return o.get<0>().get<0>();
+            }
+
             /// Check is an object is grasped by the GraspV_t
             bool isObjectGrasped (const GraspV_t& idxOH,
                 const Object_t& o) const
@@ -764,6 +770,7 @@ namespace hpp {
               }
               index_t iOH = 0;
               BOOST_FOREACH (const Object_t& o, r.ohs) {
+                if (!r.objectCanBePlaced(o)) continue;
                 bool oIsGrasped = false;
                 // TODO: use the fact that the set is sorted.
                 // BOOST_FOREACH (const HandlePtr_t& h, o.get<1>())
@@ -804,8 +811,10 @@ namespace hpp {
                                      to   = makeNode (r, gTo, priority+1);
             const Object_t& o = r.object (gTo[iG]);
 
-            /// Detect when grasping an object already grasped.
-            bool noPlace = r.isObjectGrasped (gFrom, o);
+            // Detect when grasping an object already grasped.
+            // or when there is no placement information for it.
+            bool noPlace = !r.objectCanBePlaced(o)
+                         || r.isObjectGrasped (gFrom, o);
 
             FoliatedManifold grasp, pregrasp, place, preplace,
                              submanifold;
@@ -829,6 +838,7 @@ namespace hpp {
               }
               index_t iOH = 0;
               BOOST_FOREACH (const Object_t& o, r.ohs) {
+                if (!r.objectCanBePlaced(o)) continue;
                 bool oIsGrasped = false;
                 const index_t iOHstart = iOH;
                 for (; iOH < iOHstart + o.get<1>().size(); ++iOH) {

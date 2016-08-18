@@ -192,10 +192,10 @@ namespace hpp {
                   we->nbWaypoints (nbWaypoints);
                   gls = linkWaypoint <LevelSetEdge> (n, T-1, T, name, "ls");
                   for (std::size_t i = 0; i < Nedges - 1; ++i)
-                    we->setWaypoint (Nedges - 1 - i, e[i], n[i]);
+                    we->setWaypoint (i, e[i], n[i]);
                   we->setWaypoint (T-1, gls, n[T]);
                   gls->node (n.front());
-                  gls->setShort (preplace);
+                  gls->setShort (pregrasp);
                   return we;
                 } else {
                   assert (gCase == (GraspOnly | NoPlace)
@@ -225,8 +225,8 @@ namespace hpp {
                   pls->setShort (preplace);
                   return we;
                 } else {
-                  assert (gCase == (GraspOnly | NoPlace)
-                      && "Cannot implement a LevelSetEdge for grasping");
+                  assert (gCase == (NoGrasp | PlaceOnly)
+                      && "Cannot implement a LevelSetEdge for placement");
                   pls = boost::static_pointer_cast <LevelSetEdge>
                     (n.back()->linkTo (name + "_ls", n.front(), w,
                                        LevelSetEdge::create));

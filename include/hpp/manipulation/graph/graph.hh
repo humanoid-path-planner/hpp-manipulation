@@ -98,6 +98,20 @@ namespace hpp {
 	  bool getConfigErrorForNode (ConfigurationIn_t config,
 				      const NodePtr_t& node, vector_t& error);
 
+	  /// Get error of a config with respect to an edge constraint
+	  ///
+	  /// \param config Configuration,
+	  /// \param edge edge containing the constraint to check config against
+	  /// \retval error the error of the edge constraint for the
+	  ///         configuration
+	  /// \return whether the configuration can be a start point of a path
+	  //          of the edge
+	  /// Call core::ConfigProjector::rightHandSideFromConfig with
+	  /// input configuration and method core::ConstraintSet::isSatisfied
+	  /// for the edge constraint.
+	  bool getConfigErrorForEdge (ConfigurationIn_t config,
+				      const EdgePtr_t& edge, vector_t& error);
+
           /// Constraint to project a path.
           /// \param edge a list of edges defining the foliation.
           /// \return The constraint.

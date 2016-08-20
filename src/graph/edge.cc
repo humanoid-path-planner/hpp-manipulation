@@ -281,26 +281,33 @@ namespace hpp {
 			ConfigurationIn_t q2)
 	const
       {
-        ConstraintSetPtr_t constraints = pathConstraint ();
-        constraints->configProjector ()->rightHandSideFromConfig(q1);
-        if (constraints->isSatisfied (q1)) {
-          if (constraints->isSatisfied (q2)) {
-            path = (*steeringMethod_->get()) (q1, q2);
-            return (bool)path;
-          }
-          hppDout(info, "q2 does not satisfy the constraints");
-        }
 	core::SteeringMethodPtr_t sm (steeringMethod_->get());
 	if (!sm) {
 	  buildPathConstraint ();
 	}
+	sm = (steeringMethod_->get());
 	if (!sm) {
 	  std::ostringstream oss;
 	  oss << "No steering method set in edge " << name () << ".";
 	  throw std::runtime_error (oss.str ().c_str ());
 	}
-	path = (*sm) (q1, q2);
-        return path;
+        ConstraintSetPtr_t constraints = pathConstraint ();
+        constraints->configProjector ()->rightHandSideFromConfig(q1);
+        if (constraints->isSatisfied (q1)) {
+          if (constraints->isSatisfied (q2)) {
+            path = (*sm) (q1, q2);
+            return (bool)path;
+          } else {
+	    hppDout(info, "q2 does not satisfy the constraints");
+	    return false;
+	  }
+        } else {
+	  std::ostringstream oss;
+	  oss << "The initial configuration does not satisfy the constraints of"
+	    " edge " << name () << "." << std::endl;
+	  oss << "The graph is probably malformed";
+	  throw std::runtime_error (oss.str ().c_str ());
+	}
       }
 
       bool Edge::applyConstraints (core::NodePtr_t nnear, ConfigurationOut_t q) const

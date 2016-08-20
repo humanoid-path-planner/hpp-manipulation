@@ -66,6 +66,7 @@ namespace hpp {
       typedef boost::shared_ptr <Histogram> HistogramPtr_t;
       typedef boost::shared_ptr <NodeHistogram> NodeHistogramPtr_t;
       typedef boost::shared_ptr <LeafHistogram> LeafHistogramPtr_t;
+      typedef std::list < HistogramPtr_t > Histograms_t;
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

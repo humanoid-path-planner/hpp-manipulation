@@ -642,7 +642,7 @@ namespace hpp {
         const graph::EdgePtr_t edge,
         WeighedSymbolicComponentPtr_t wsc,
         const value_type alpha) {
-      std::size_t i = wsc->indexOf (edge);
+      size_type i = wsc->indexOf (edge);
       assert(i < wsc->p_.size());
       const value_type pi = wsc->p_[i];
       wsc->p_ *= ( 1 - alpha * pi ) / ( 1 - pi );

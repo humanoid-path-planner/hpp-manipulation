@@ -42,7 +42,7 @@ namespace hpp {
     void Roadmap::clear ()
     {
       Parent::clear ();
-      for (Histograms::iterator it = histograms_.begin();
+      for (Histograms_t::iterator it = histograms_.begin();
           it != histograms_.end(); ++it) {
         (*it)->clear ();
       }
@@ -59,10 +59,9 @@ namespace hpp {
 
     void Roadmap::statInsert (const RoadmapNodePtr_t& n)
     {
-      Histograms::iterator it;
-      for (it = histograms_.begin(); it != histograms_.end(); ++it) {
+      Histograms_t::const_iterator it;
+      for (it = histograms_.begin(); it != histograms_.end(); ++it)
         (*it)->add (n);
-      }
     }
 
     void Roadmap::insertHistogram (const graph::HistogramPtr_t hist)

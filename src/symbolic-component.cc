@@ -17,6 +17,7 @@
 #include <hpp/manipulation/symbolic-component.hh>
 
 #include <hpp/manipulation/roadmap.hh>
+#include <hpp/manipulation/graph/node.hh>
 
 namespace hpp {
   namespace manipulation {

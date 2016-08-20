@@ -661,6 +661,11 @@ namespace hpp {
         f.condition (cond);
         cond->addConstraint (proj);
 
+        hppDout(info, "Build histogram of LevelSetEdge " << name()
+            << "\nParametrizer:\n" << *param
+            << "\nCondition:\n" << *cond
+            );
+
         // TODO: If hist_ is not NULL, remove the previous Histogram.
         // It should not be of any use and it slows down node insertion in the
         // roadmap.

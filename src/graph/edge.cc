@@ -290,17 +290,7 @@ namespace hpp {
           }
           hppDout(info, "q2 does not satisfy the constraints");
         }
-	core::SteeringMethodPtr_t sm (steeringMethod_->get());
-	if (!sm) {
-	  buildPathConstraint ();
-	}
-	if (!sm) {
-	  std::ostringstream oss;
-	  oss << "No steering method set in edge " << name () << ".";
-	  throw std::runtime_error (oss.str ().c_str ());
-	}
-	path = (*sm) (q1, q2);
-        return path;
+        return false;
       }
 
       bool Edge::applyConstraints (core::NodePtr_t nnear, ConfigurationOut_t q) const

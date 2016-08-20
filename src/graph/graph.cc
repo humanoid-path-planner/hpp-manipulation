@@ -22,6 +22,7 @@
 #include "hpp/manipulation/graph/node-selector.hh"
 #include "hpp/manipulation/graph/node.hh"
 #include "hpp/manipulation/graph/edge.hh"
+#include "hpp/manipulation/graph/statistics.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -40,6 +41,9 @@ namespace hpp {
         GraphComponent::init (weak);
         robot_ = robot;
         wkPtr_ = weak;
+        insertHistogram(graph::HistogramPtr_t (
+              new graph::NodeHistogram (wkPtr_.lock()))
+            );
       }
 
       NodeSelectorPtr_t Graph::createNodeSelector (const std::string& name)

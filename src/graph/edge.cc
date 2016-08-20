@@ -207,16 +207,16 @@ namespace hpp {
         g->insertNumericalConstraints (proj);
         insertNumericalConstraints (proj);
         to ()->insertNumericalConstraints (proj);
-	if (node () == from ()) {
-	  from ()->insertNumericalConstraints (proj);
+	if (node () != to ()) {
+	  node ()->insertNumericalConstraints (proj);
 	}
         constraint->addConstraint (proj);
 
         g->insertLockedJoints (proj);
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
-	if (node () == from ()) {
-	  from ()->insertLockedJoints (proj);
+	if (node () != to ()) {
+	  node ()->insertLockedJoints (proj);
 	}
 
         constraint->edge (wkPtr_.lock ());
@@ -687,8 +687,8 @@ namespace hpp {
 
         insertNumericalConstraints (proj);
         to ()->insertNumericalConstraints (proj);
-	if (node () == from ()) {
-	  from ()->insertNumericalConstraints (proj);
+        if (node () != to ()) {
+	  node ()->insertNumericalConstraints (proj);
 	}
         constraint->addConstraint (proj);
 
@@ -699,8 +699,8 @@ namespace hpp {
         }
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
-	if (node () == from ()) {
-	  from ()->insertLockedJoints (proj);
+        if (node () != to ()) {
+	  node ()->insertLockedJoints (proj);
 	}
 
         constraint->edge (wkPtr_.lock ());

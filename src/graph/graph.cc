@@ -131,6 +131,16 @@ namespace hpp {
 	return cs->isSatisfied (config, error);
       }
 
+      bool Graph::getConfigErrorForEdgeLeaf
+      (ConfigurationIn_t leafConfig, ConfigurationIn_t config,
+       const EdgePtr_t& edge, vector_t& error)
+      {
+	ConstraintSetPtr_t cs (pathConstraint (edge));
+	ConfigProjectorPtr_t cp (cs->configProjector ());
+	if (cp) cp->rightHandSideFromConfig (leafConfig);
+	return cs->isSatisfied (config, error);
+      }
+
       ConstraintSetPtr_t Graph::configConstraint (const EdgePtr_t& edge)
       {
         return edge->configConstraint ();

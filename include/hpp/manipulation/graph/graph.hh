@@ -156,7 +156,7 @@ namespace hpp {
           }
 
           /// Get the histograms
-          std::list<HistogramPtr_t>& histograms ()
+          const Histograms_t& histograms () const
           {
             return hists_;
           }
@@ -197,7 +197,7 @@ namespace hpp {
           MapFromNode constraintSetMapFromNode_;
 
           /// List of histograms
-          std::list<HistogramPtr_t> hists_;
+          Histograms_t hists_;
 
           /// Map of constraint sets (from Edge).
           typedef std::map  < EdgePtr_t, ConstraintSetPtr_t > MapFromEdge;

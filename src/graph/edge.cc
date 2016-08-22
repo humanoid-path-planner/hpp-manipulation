@@ -207,16 +207,16 @@ namespace hpp {
         g->insertNumericalConstraints (proj);
         insertNumericalConstraints (proj);
         to ()->insertNumericalConstraints (proj);
-	if (node () == from ()) {
-	  from ()->insertNumericalConstraints (proj);
+	if (node () != to ()) {
+	  node ()->insertNumericalConstraints (proj);
 	}
         constraint->addConstraint (proj);
 
         g->insertLockedJoints (proj);
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
-	if (node () == from ()) {
-	  from ()->insertLockedJoints (proj);
+	if (node () != to ()) {
+	  node ()->insertLockedJoints (proj);
 	}
 
         constraint->edge (wkPtr_.lock ());
@@ -678,6 +678,11 @@ namespace hpp {
         f.condition (cond);
         cond->addConstraint (proj);
 
+        hppDout(info, "Build histogram of LevelSetEdge " << name()
+            << "\nParametrizer:\n" << *param
+            << "\nCondition:\n" << *cond
+            );
+
         // TODO: If hist_ is not NULL, remove the previous Histogram.
         // It should not be of any use and it slows down node insertion in the
         // roadmap.
@@ -704,8 +709,8 @@ namespace hpp {
 
         insertNumericalConstraints (proj);
         to ()->insertNumericalConstraints (proj);
-	if (node () == from ()) {
-	  from ()->insertNumericalConstraints (proj);
+        if (node () != to ()) {
+	  node ()->insertNumericalConstraints (proj);
 	}
         constraint->addConstraint (proj);
 
@@ -716,8 +721,8 @@ namespace hpp {
         }
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
-	if (node () == from ()) {
-	  from ()->insertLockedJoints (proj);
+        if (node () != to ()) {
+	  node ()->insertLockedJoints (proj);
 	}
 
         constraint->edge (wkPtr_.lock ());

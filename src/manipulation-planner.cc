@@ -66,14 +66,14 @@ namespace hpp {
 
     const std::vector<ManipulationPlanner::Reason>
       ManipulationPlanner::reasons_ = boost::assign::list_of
-      (SuccessBin::createReason ("--Path could not be fully projected"))
-      (SuccessBin::createReason ("--Path could not be fully validated"))
-      (SuccessBin::createReason ("--Reached destination node"))
-      (SuccessBin::createReason ("Failure"))
-      (SuccessBin::createReason ("--Projection of configuration on edge leaf"))
-      (SuccessBin::createReason ("--SteeringMethod"))
-      (SuccessBin::createReason ("--Path validation returned length 0"))
-      (SuccessBin::createReason ("--Path could not be projected at all"));
+      (SuccessBin::createReason ("--Path could not be fully projected"))        // PATH_PROJECTION_SHORTER = 0, 
+      (SuccessBin::createReason ("--Path could not be fully validated"))        // PATH_VALIDATION_SHORTER = 1, 
+      (SuccessBin::createReason ("--Reached destination node"))                 // REACHED_DESTINATION_NODE = 2,
+      (SuccessBin::createReason ("Failure"))                                    // FAILURE = 3,                 
+      (SuccessBin::createReason ("--Projection of configuration on edge leaf")) // PROJECTION = 4,              
+      (SuccessBin::createReason ("--SteeringMethod"))                           // STEERING_METHOD = 5,         
+      (SuccessBin::createReason ("--Path validation returned length 0"))        // PATH_VALIDATION_ZERO = 6,    
+      (SuccessBin::createReason ("--Path could not be projected at all"));      // PATH_PROJECTION_ZERO = 7     
 
     ManipulationPlannerPtr_t ManipulationPlanner::create (const core::Problem& problem,
         const core::RoadmapPtr_t& roadmap)

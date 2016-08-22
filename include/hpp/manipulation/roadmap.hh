@@ -18,11 +18,10 @@
 # define HPP_MANIPULATION_ROADMAP_HH
 
 # include <hpp/core/roadmap.hh>
-# include <hpp/core/constraint-set.hh>
 
+# include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
-# include "hpp/manipulation/graph/statistics.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -86,10 +85,10 @@ namespace hpp {
         virtual void addEdge (const core::EdgePtr_t& edge);
 
       private:
-        typedef std::list < graph::HistogramPtr_t > Histograms;
+        typedef graph::Histograms_t Histograms_t;
         /// Keep track of the leaf that are explored.
         /// There should be one histogram per foliation.
-        Histograms histograms_;
+        Histograms_t histograms_;
         graph::GraphPtr_t graph_;
         RoadmapWkPtr_t weak_;
         SymbolicComponents_t symbolicCCs_;

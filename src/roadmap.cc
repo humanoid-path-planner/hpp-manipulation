@@ -22,9 +22,10 @@
 #include <hpp/core/distance.hh>
 
 #include <hpp/manipulation/roadmap.hh>
-#include <hpp/manipulation/graph/node.hh>
 #include <hpp/manipulation/roadmap-node.hh>
 #include <hpp/manipulation/symbolic-component.hh>
+#include <hpp/manipulation/graph/node.hh>
+#include <hpp/manipulation/graph/statistics.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -42,9 +43,13 @@ namespace hpp {
     void Roadmap::clear ()
     {
       Parent::clear ();
-      for (Histograms::iterator it = histograms_.begin();
-          it != histograms_.end(); ++it) {
+      Histograms_t::const_iterator it;
+      for (it = histograms_.begin(); it != histograms_.end(); ++it)
         (*it)->clear ();
+      if (graph_) {
+        const Histograms_t& hs = graph_->histograms();
+        for (it = hs.begin(); it != hs.end(); ++it)
+          (*it)->clear ();
       }
     }
 
@@ -59,28 +64,30 @@ namespace hpp {
 
     void Roadmap::statInsert (const RoadmapNodePtr_t& n)
     {
-      Histograms::iterator it;
-      for (it = histograms_.begin(); it != histograms_.end(); ++it) {
+      Histograms_t::const_iterator it;
+      for (it = histograms_.begin(); it != histograms_.end(); ++it)
         (*it)->add (n);
+      if (graph_) {
+        const Histograms_t& hs = graph_->histograms();
+        for (it = hs.begin(); it != hs.end(); ++it)
+          (*it)->add (n);
       }
     }
 
     void Roadmap::insertHistogram (const graph::HistogramPtr_t hist)
     {
       histograms_.push_back (hist);
+      core::Nodes_t::const_iterator _node;
+      for (_node = nodes().begin(); _node != nodes().end(); ++_node)
+        hist->add (static_cast <const RoadmapNodePtr_t>(*_node));
     }
 
     void Roadmap::constraintGraph (const graph::GraphPtr_t& graph)
     {
       graph_ = graph;
-      Histograms::iterator it = histograms_.begin();
-      for (; it != histograms_.end();) {
-        if (HPP_DYNAMIC_PTR_CAST (graph::NodeHistogram, *it))
-          it = histograms_.erase (it);
-        else
-          ++it;
-      }
-      insertHistogram (graph::HistogramPtr_t (new graph::NodeHistogram (graph)));
+      // FIXME Add the current nodes() to the graph->histograms()
+      // The main issue is that new histograms may be added to
+      // graph->histograms() and this class will not know it.
     }
 
     RoadmapNodePtr_t Roadmap::nearestNode (const ConfigurationPtr_t& configuration,

@@ -18,8 +18,8 @@
 
 #include <hpp/util/debug.hh>
 
-#include <hpp/manipulation/roadmap-node.hh>
 #include <hpp/manipulation/device.hh>
+#include <hpp/manipulation/roadmap-node.hh>
 #include <hpp/manipulation/graph/graph.hh>
 #include <hpp/manipulation/graph/edge.hh>
 

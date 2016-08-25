@@ -19,9 +19,10 @@
 # define HPP_MANIPULATION_DISTANCE_HH
 
 # include <hpp/core/weighed-distance.hh>
+
 # include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/graph/fwd.hh>
 # include <hpp/manipulation/config.hh>
+# include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
   namespace manipulation {

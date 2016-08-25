@@ -18,16 +18,12 @@
 #ifndef HPP_MANIPULATION_GRAPH_STEERING_METHOD_HH
 # define HPP_MANIPULATION_GRAPH_STEERING_METHOD_HH
 
-# include <hpp/manipulation/config.hh>
-
-# include "hpp/core/problem-solver.hh" // SteeringMethodBuilder_t
+# include <hpp/core/problem-solver.hh> // SteeringMethodBuilder_t
 # include <hpp/core/steering-method.hh>
-# include <hpp/core/weighed-distance.hh>
-# include <hpp/model/device.hh>
 
-# include "hpp/manipulation/fwd.hh"
-# include "hpp/manipulation/graph/fwd.hh"
-# include "hpp/manipulation/problem.hh"
+# include <hpp/manipulation/config.hh>
+# include <hpp/manipulation/fwd.hh>
+# include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
   namespace manipulation {

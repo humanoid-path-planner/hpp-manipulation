@@ -18,11 +18,11 @@
 
 #include <hpp/util/pointer.hh>
 
-#include <hpp/core/distance.hh>
 #include <hpp/core/straight-path.hh>
 
-#include "hpp/manipulation/graph/graph.hh"
-#include "hpp/manipulation/graph/edge.hh"
+#include <hpp/manipulation/problem.hh>
+#include <hpp/manipulation/graph/graph.hh>
+#include <hpp/manipulation/graph/edge.hh>
 
 namespace hpp {
   namespace manipulation {

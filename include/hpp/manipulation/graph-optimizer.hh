@@ -18,16 +18,12 @@
 #ifndef HPP_MANIPULATION_GRAPHOPTIMIZER_HH
 # define HPP_MANIPULATION_GRAPHOPTIMIZER_HH
 
-# include <hpp/core/path.hh>
-# include <hpp/core/path-vector.hh>
 # include <hpp/core/path-optimizer.hh>
-# include <hpp/core/problem.hh>
-# include <hpp/core/problem-solver.hh>
+# include <hpp/core/problem-solver.hh> // PathOptimizerBuilder_t
 
 # include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/graph/fwd.hh>
 # include <hpp/manipulation/config.hh>
-# include <hpp/manipulation/constraint-set.hh>
+# include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
   namespace manipulation {

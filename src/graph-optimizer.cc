@@ -16,6 +16,11 @@
 
 #include <hpp/manipulation/graph-optimizer.hh>
 
+#include <hpp/core/path.hh>
+#include <hpp/core/path-vector.hh>
+#include <hpp/core/problem.hh>
+
+#include <hpp/manipulation/constraint-set.hh>
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph-path-validation.hh>
 

@@ -23,11 +23,15 @@
 #include <hpp/util/timer.hh>
 #include <hpp/util/assertion.hh>
 
+#include <hpp/pinocchio/configuration.hh>
+
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/connected-component.hh>
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/projection-error.hh>
 #include <hpp/core/nearest-neighbor.hh>
+#include <hpp/core/roadmap.hh>
+#include <hpp/core/basic-configuration-shooter.hh>
 
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/device.hh"
@@ -220,7 +224,7 @@ namespace hpp {
     {
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       PathProjectorPtr_t pathProjector = problem_.pathProjector ();
-      model::DevicePtr_t robot (problem_.robot ());
+      pinocchio::DevicePtr_t robot (problem_.robot ());
       value_type eps (graph->errorThreshold ());
       // Select next node in the constraint graph.
       const ConfigurationPtr_t q_near = n_near->configuration ();
@@ -239,7 +243,7 @@ namespace hpp {
         es.addFailure (reasons_[PROJECTION]);
         return false;
       }
-      if (model::isApprox (robot, qProj_, *q_near, eps)) {
+      if (pinocchio::isApprox (robot, qProj_, *q_near, eps)) {
         es.addFailure (reasons_[FAILURE]);
 	es.addFailure (reasons_[PATH_PROJECTION_ZERO]);
 	return false;

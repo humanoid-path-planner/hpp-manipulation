@@ -17,10 +17,7 @@
 #ifndef HPP_MANIPULATION_MANIPULATION_PLANNER_HH
 # define HPP_MANIPULATION_MANIPULATION_PLANNER_HH
 
-#include <hpp/model/configuration.hh>
-#include <hpp/core/basic-configuration-shooter.hh>
 #include <hpp/core/path-planner.hh>
-#include <hpp/core/roadmap.hh>
 
 #include <hpp/statistics/success-bin.hh>
 

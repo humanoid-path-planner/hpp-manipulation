@@ -76,7 +76,7 @@ namespace hpp {
         /// Add grasp
         void addGrasp (const NumericalConstraintPtr_t& constraint,
             const GripperPtr_t& gripper,
-            const HandlePtr_t& handle)
+            const HandlePtr_t& handle) HPP_MANIPULATION_DEPRECATED
         {
           Grasp_t* ptr = new Grasp_t (gripper, handle);
           GraspPtr_t shPtr (ptr);
@@ -84,7 +84,7 @@ namespace hpp {
         }
 
         /// get grapsMap
-        GraspsMap_t& grasps()
+        GraspsMap_t& grasps() HPP_MANIPULATION_DEPRECATED
         {
           return graspsMap_;
         }
@@ -92,7 +92,7 @@ namespace hpp {
         /// get graps by name
         ///
         /// return NULL if no grasp named graspName
-        GraspPtr_t grasp(const NumericalConstraintPtr_t& constraint) const;
+        GraspPtr_t grasp(const NumericalConstraintPtr_t& constraint) const HPP_MANIPULATION_DEPRECATED;
 
 	/// Create placement constraint
 	/// \param name name of the placement constraint,

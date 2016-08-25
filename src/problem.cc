@@ -20,6 +20,7 @@
 
 #include <hpp/manipulation/weighed-distance.hh>
 #include <hpp/manipulation/graph-steering-method.hh>
+#include <hpp/manipulation/graph-path-validation.hh>
 
 namespace hpp {
   namespace manipulation {

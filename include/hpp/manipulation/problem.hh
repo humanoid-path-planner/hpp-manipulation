@@ -18,12 +18,11 @@
 # define HPP_MANIPULATION_PROBLEM_HH
 
 # include <hpp/core/problem.hh>
-# include <hpp/core/problem-solver.hh>
+# include <hpp/core/problem-solver.hh> // PathValidationBuilder_t
 
-# include "hpp/manipulation/fwd.hh"
-# include "hpp/manipulation/device.hh"
-# include "hpp/manipulation/graph/graph.hh"
-# include "hpp/manipulation/graph-path-validation.hh"
+# include <hpp/manipulation/fwd.hh>
+# include <hpp/manipulation/device.hh>
+# include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
   namespace manipulation {

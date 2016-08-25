@@ -22,24 +22,21 @@
 
 # include <map>
 # include <hpp/core/fwd.hh>
-# include <hpp/fcl/shape/geometric_shapes.h>
-
-# include <hpp/manipulation/deprecated.hh>
 
 namespace hpp {
   namespace manipulation {
     HPP_PREDEF_CLASS (Device);
     typedef boost::shared_ptr <Device> DevicePtr_t;
     typedef boost::shared_ptr <const Device> DeviceConstPtr_t;
-    typedef model::Joint Joint;
-    typedef model::JointPtr_t JointPtr_t;
-    typedef model::JointConstPtr_t JointConstPtr_t;
-    typedef model::Transform3f Transform3f;
-    typedef model::Configuration_t Configuration_t;
-    typedef model::ConfigurationIn_t ConfigurationIn_t;
-    typedef model::ConfigurationOut_t ConfigurationOut_t;
-    typedef boost::shared_ptr < model::Configuration_t > ConfigurationPtr_t;
-    typedef model::GripperPtr_t GripperPtr_t;
+    typedef pinocchio::Joint Joint;
+    typedef pinocchio::JointPtr_t JointPtr_t;
+    typedef pinocchio::JointIndex JointIndex;
+    typedef pinocchio::Transform3f Transform3f;
+    typedef pinocchio::Configuration_t Configuration_t;
+    typedef pinocchio::ConfigurationIn_t ConfigurationIn_t;
+    typedef pinocchio::ConfigurationOut_t ConfigurationOut_t;
+    typedef core::ConfigurationPtr_t ConfigurationPtr_t;
+    typedef pinocchio::GripperPtr_t GripperPtr_t;
     HPP_PREDEF_CLASS (AxialHandle);
     typedef boost::shared_ptr <AxialHandle> AxialHandlePtr_t;
     HPP_PREDEF_CLASS (Handle);
@@ -72,12 +69,12 @@ namespace hpp {
     typedef constraints::RelativeTransformation RelativeTransformation;
     typedef constraints::RelativeTransformationPtr_t
     RelativeTransformationPtr_t;
-    typedef model::value_type value_type;
-    typedef model::size_type size_type;
-    typedef model::Transform3f Transform3f;
-    typedef model::vector_t vector_t;
-    typedef model::vectorIn_t vectorIn_t;
-    typedef model::vectorOut_t vectorOut_t;
+    typedef core::value_type value_type;
+    typedef core::size_type size_type;
+    typedef core::Transform3f Transform3f;
+    typedef core::vector_t vector_t;
+    typedef core::vectorIn_t vectorIn_t;
+    typedef core::vectorOut_t vectorOut_t;
     HPP_PREDEF_CLASS (ManipulationPlanner);
     typedef boost::shared_ptr < ManipulationPlanner > ManipulationPlannerPtr_t;
     HPP_PREDEF_CLASS (SymbolicPlanner);
@@ -94,7 +91,7 @@ namespace hpp {
     typedef boost::shared_ptr < GraphNodeOptimizer > GraphNodeOptimizerPtr_t;
     typedef core::PathProjectorPtr_t PathProjectorPtr_t;
 
-    typedef std::vector <model::DevicePtr_t> Devices_t;
+    typedef std::vector <pinocchio::DevicePtr_t> Devices_t;
     typedef std::vector <ObjectPtr_t> Objects_t;
     typedef std::map <JointConstPtr_t, JointPtr_t> JointMap_t;
     typedef core::Constraint Constraint;
@@ -128,9 +125,6 @@ namespace hpp {
     typedef std::pair <JointPtr_t, Shape_t> JointAndShape_t;
     typedef std::list <JointAndShape_t> JointAndShapes_t;
     typedef std::list <std::string> StringList_t;
-    typedef HPP_MANIPULATION_DEPRECATED Shape_t Triangle;
-    typedef HPP_MANIPULATION_DEPRECATED JointAndShape_t JointAndTriangle_t;
-    typedef HPP_MANIPULATION_DEPRECATED JointAndShapes_t JointAndTriangles_t;
 
     namespace pathOptimization {
       HPP_PREDEF_CLASS (SmallSteps);

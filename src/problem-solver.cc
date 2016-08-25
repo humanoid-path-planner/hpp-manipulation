@@ -22,7 +22,7 @@
 #include <hpp/util/pointer.hh>
 #include <hpp/util/debug.hh>
 
-#include <hpp/model/gripper.hh>
+#include <hpp/pinocchio/gripper.hh>
 
 #include <hpp/constraints/convex-shape-contact.hh>
 

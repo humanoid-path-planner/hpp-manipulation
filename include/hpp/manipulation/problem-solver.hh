@@ -75,7 +75,7 @@ namespace hpp {
 
         /// Add grasp
         void addGrasp (const NumericalConstraintPtr_t& constraint,
-            const model::GripperPtr_t& gripper,
+            const GripperPtr_t& gripper,
             const HandlePtr_t& handle)
         {
           Grasp_t* ptr = new Grasp_t (gripper, handle);

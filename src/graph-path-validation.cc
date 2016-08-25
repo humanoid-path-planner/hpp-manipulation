@@ -16,6 +16,10 @@
 
 #include "hpp/manipulation/graph-path-validation.hh"
 
+#include <hpp/core/path.hh>
+#include <hpp/core/path-vector.hh>
+
+#include <hpp/manipulation/graph/graph.hh>
 #include <hpp/manipulation/constraint-set.hh>
 
 namespace hpp {

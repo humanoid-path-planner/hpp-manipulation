@@ -18,13 +18,10 @@
 #ifndef HPP_MANIPULATION_GRAPHPATHVALIDATOR_HH
 # define HPP_MANIPULATION_GRAPHPATHVALIDATOR_HH
 
-# include <hpp/core/path.hh>
-# include <hpp/core/path-vector.hh>
 # include <hpp/core/path-validation.hh>
 
-# include "hpp/manipulation/fwd.hh"
-# include "hpp/manipulation/graph/graph.hh"
-# include "hpp/manipulation/graph/node.hh"
+# include <hpp/manipulation/fwd.hh>
+# include <hpp/manipulation/config.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -34,7 +31,6 @@ namespace hpp {
     using hpp::core::PathPtr_t;
     using hpp::core::PathVector;
     using hpp::core::PathVectorPtr_t;
-    using graph::GraphPtr_t;
 
     /// \addtogroup validation
     /// \{
@@ -127,7 +123,7 @@ namespace hpp {
         /// The encapsulated PathValidation.
         PathValidationPtr_t pathValidation_;
         /// Pointer to the constraint graph.
-        GraphPtr_t constraintGraph_;
+        graph::GraphPtr_t constraintGraph_;
     };
 
     template <typename T>

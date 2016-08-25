@@ -17,42 +17,27 @@
 // hpp-manipulation. If not, see
 // <http://www.gnu.org/licenses/>.
 
-#include <hpp/model/gripper.hh>
 #include <hpp/manipulation/device.hh>
-#include <hpp/manipulation/handle.hh>
 
-#include <hpp/model/joint.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/gripper.hh>
+
+#include <hpp/manipulation/handle.hh>
 
 namespace hpp {
   namespace manipulation {
-        void Device::didInsertRobot (const std::string& name)
-        {
-          if (!didPrepare_) {
-            hppDout (error, "You must call prepareInsertRobot before.");
-          }
-          didPrepare_ = false;
-          /// Build list of new joints
-          const model::JointVector_t jv = getJointVector ();
-          model::JointVector_t newj;
-          newj.reserve (jv.size () - jointCache_.size ());
-          model::JointVector_t::const_iterator retFind, it1, it2;
-          for (it1 = jv.begin (); it1 != jv.end (); ++it1) {
-            retFind = find (jointCache_.begin (), jointCache_.end (), *it1);
-            if (retFind == jointCache_.end ())
-              newj.push_back (*it1);
-          }
-          /// Add collision between old joints and new ones.
-          for (it1 = newj.begin (); it1 != newj.end (); ++it1) {
-            if (!(*it1)->linkedBody ()) continue;
-            for (it2 = jointCache_.begin (); it2 != jointCache_.end (); ++it2) {
-              if (!(*it2)->linkedBody ()) continue;
-              addCollisionPairs (*it1, *it2, model::COLLISION);
-              addCollisionPairs (*it1, *it2, model::DISTANCE);
-            }
-          }
-          jointCache_.clear ();
-          add (name, newj);
-        }
+    void Device::didInsertRobot (const std::string& name)
+    {
+      /// Build list of new joints
+      std::size_t jvSize = model().joints.size();
+      assert (jvSize >= jointCacheSize_);
+      JointIndexes_t newJ (jvSize - jointCacheSize_);
+      for (std::size_t i = jointCacheSize_; i < jvSize; ++i) newJ[i] = i;
+
+      jointCacheSize_ = model().joints.size();
+      add (name, newJ);
+    }
+
     std::ostream& Device::print (std::ostream& os) const
     {
       Parent_t::print (os);
@@ -61,7 +46,7 @@ namespace hpp {
       Containers_t::print <HandlePtr_t> (os);
       // print grippers
       os << "Grippers:" << std::endl;
-      Containers_t::print <model::GripperPtr_t> (os);
+      Containers_t::print <GripperPtr_t> (os);
       return os;
     }
 

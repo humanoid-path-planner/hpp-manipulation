@@ -19,15 +19,15 @@
 
 #include <hpp/manipulation/handle.hh>
 
-#include <hpp/util/debug.hh>
-#include <hpp/model/device.hh>
-
 #include <boost/assign/list_of.hpp>
 
-#include <hpp/fcl/math/transform.h>
+#include <pinocchio/multibody/joint/joint-free-flyer.hpp>
 
-#include <hpp/model/joint.hh>
-#include <hpp/model/gripper.hh>
+#include <hpp/util/debug.hh>
+
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/gripper.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
 
@@ -58,9 +58,8 @@ namespace hpp {
 
     bool isHandleOnR3SO3 (const Handle& handle)
     {
-      if ((dynamic_cast <model::JointSO3*> (handle.joint ())) &&
-	  (dynamic_cast <model::JointTranslation <3>* >
-	   (handle.joint ()->parentJoint ()))) {
+      if (handle.joint()->jointModel().shortname() == se3::JointModelFreeFlyer::classname()
+          && handle.joint ()->parentJoint ()) {
 	return true;
       }
       return false;

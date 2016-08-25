@@ -20,14 +20,13 @@
 #ifndef HPP_MANIPULATION_HANDLE_HH
 # define HPP_MANIPULATION_HANDLE_HH
 
-# include <hpp/fcl/math/transform.h>
-# include <hpp/manipulation/config.hh>
 # include <hpp/manipulation/fwd.hh>
+# include <hpp/manipulation/config.hh>
 
 namespace hpp {
   namespace manipulation {
     /// Part of an object that is aimed at being grasped
-    class Handle
+    class HPP_MANIPULATION_DLLAPI Handle
     {
     public:
       /// Create constraint corresponding to a gripper grasping this object

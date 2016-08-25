@@ -14,7 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include "hpp/manipulation/roadmap.hh"
+#include <hpp/manipulation/roadmap.hh>
 
 #include <hpp/util/pointer.hh>
 
@@ -24,6 +24,7 @@
 #include <hpp/manipulation/roadmap.hh>
 #include <hpp/manipulation/roadmap-node.hh>
 #include <hpp/manipulation/symbolic-component.hh>
+#include <hpp/manipulation/connected-component.hh>
 #include <hpp/manipulation/graph/node.hh>
 #include <hpp/manipulation/graph/statistics.hh>
 

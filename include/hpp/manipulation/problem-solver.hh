@@ -118,20 +118,6 @@ namespace hpp {
                                            const value_type& width,
                                            const value_type& margin = 1e-4);
 
-        /// Reset constraint set and put back the disable collisions
-        /// between gripper and handle
-        virtual void resetConstraints ();
-
-        /// Add differential function to the config projector
-        /// \param constraintName Name given to config projector if created by
-        ///        this method.
-        /// \param functionName name of the function as stored in internal map.
-        /// Build the config projector if not yet constructed.
-        /// If constraint is a graps, deactivate collision between gripper and
-        /// object.
-        virtual void addFunctionToConfigProjector
-          (const std::string& constraintName, const std::string& functionName);
-
         virtual void pathValidationType (const std::string& type,
                                          const value_type& tolerance);
 

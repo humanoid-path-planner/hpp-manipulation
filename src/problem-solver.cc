@@ -257,48 +257,6 @@ namespace hpp {
       addNumericalConstraint (name, NumericalConstraint::create (cvxShape));
     }
 
-    void ProblemSolver::resetConstraints ()
-    {
-      if (robot_)
-	constraints_ = ConstraintSet::create (robot_,
-                                              "Default constraint set");
-      GraspsMap_t graspsMap = grasps();
-      for (GraspsMap_t::const_iterator itGrasp = graspsMap.begin();
-             itGrasp != graspsMap.end(); ++itGrasp) {
-        GraspPtr_t grasp = itGrasp->second;
-        GripperPtr_t gripper = grasp->first;
-        HandlePtr_t handle = grasp->second;
-        JointPtr_t joint = handle->joint();
-        model::JointVector_t joints = gripper->getDisabledCollisions();
-        for (model::JointVector_t::iterator itJoint = joints.begin() ;
-               itJoint != joints.end(); ++itJoint) {
-          robot()->addCollisionPairs(joint, *itJoint, hpp::model::COLLISION);
-          robot()->addCollisionPairs(joint, *itJoint, hpp::model::DISTANCE);
-        }
-      }
-    }
-
-    void ProblemSolver::addFunctionToConfigProjector
-    (const std::string& constraintName, const std::string& functionName)
-    {
-      core::ProblemSolver::addFunctionToConfigProjector (constraintName,
-                                                         functionName);
-      NumericalConstraintPtr_t constraint (numericalConstraint (functionName));
-      if (GraspPtr_t g = grasp (constraint)) {
-        GripperPtr_t gripper = g->first;
-        HandlePtr_t handle = g->second;
-        JointPtr_t joint1 = handle->joint();
-        model::JointVector_t joints = gripper->getDisabledCollisions();
-        for (model::JointVector_t::iterator itJoint = joints.begin() ;
-               itJoint != joints.end(); ++itJoint++) {
-          robot()->removeCollisionPairs(joint1, *itJoint,
-                                        hpp::model::COLLISION);
-          robot()->removeCollisionPairs(joint1, *itJoint,
-                                        hpp::model::DISTANCE);
-        }
-      }
-    }
-
     void ProblemSolver::pathValidationType (const std::string& type,
         const value_type& tolerance)
     {

@@ -19,12 +19,11 @@
 #ifndef HPP_MANIPULATION_ROADMAP_NODE_HH
 # define HPP_MANIPULATION_ROADMAP_NODE_HH
 
-# include <hpp/manipulation/config.hh>
-
 # include <hpp/core/node.hh>
+
 # include <hpp/manipulation/fwd.hh>
+# include <hpp/manipulation/config.hh>
 # include <hpp/manipulation/graph/fwd.hh>
-# include <hpp/manipulation/connected-component.hh>
 
 namespace hpp {
   namespace manipulation {

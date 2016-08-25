@@ -26,7 +26,7 @@ namespace hpp {
   namespace manipulation {
     /// Handle symmetric around its z-axis. The constraint defined for a grasp
     /// by a gripper is free to rotate around z-axis.
-    class AxialHandle : public Handle
+    class HPP_MANIPULATION_DLLAPI AxialHandle : public Handle
     {
     public:
       /// Create constraint corresponding to a gripper grasping this object

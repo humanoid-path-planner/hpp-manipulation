@@ -21,10 +21,8 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include <hpp/fcl/math/transform.h>
-
-#include <hpp/model/joint.hh>
-#include <hpp/model/gripper.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/gripper.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
 

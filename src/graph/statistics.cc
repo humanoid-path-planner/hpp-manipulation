@@ -248,7 +248,7 @@ namespace hpp {
       {
         statistics::DiscreteDistribution < RoadmapNodePtr_t > distrib;
         for (const_iterator bin = begin(); bin != end (); ++bin) {
-          unsigned int w = bin->freq ();
+          std::size_t w = bin->freq ();
           if (w == 0)
             continue;
           distrib.insert (bin->nodes ().front (), w);

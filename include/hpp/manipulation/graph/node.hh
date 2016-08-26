@@ -22,6 +22,7 @@
 #include <hpp/core/locked-joint.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
+#include <hpp/core/numerical-constraint.hh>
 
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/deprecated.hh"

@@ -17,7 +17,7 @@
 #include "hpp/manipulation/graph/guided-node-selector.hh"
 
 #include <hpp/util/assertion.hh>
-#include <hpp/model/configuration.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/steering-method.hh>
 
 #include "../astar.hh"

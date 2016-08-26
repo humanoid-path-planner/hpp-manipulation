@@ -16,7 +16,7 @@
 
 #include <hpp/core/node.hh>
 
-#include <hpp/model/configuration.hh>
+#include <hpp/pinocchio/configuration.hh>
 #include "hpp/manipulation/roadmap-node.hh"
 #include "hpp/manipulation/graph/node-selector.hh"
 
@@ -80,7 +80,7 @@ namespace hpp {
             return it->second;
 	}
 	std::stringstream oss;
-	oss << "A configuration has no node:" << model::displayConfig (config);
+	oss << "A configuration has no node:" << pinocchio::displayConfig (config);
 	throw std::logic_error (oss.str ());
       }
 

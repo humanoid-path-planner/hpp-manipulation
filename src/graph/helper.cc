@@ -26,11 +26,12 @@
 
 #include <hpp/util/debug.hh>
 
-#include <hpp/model/gripper.hh>
+#include <hpp/pinocchio/gripper.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
 
 #include <hpp/manipulation/handle.hh>
+#include <hpp/manipulation/device.hh>
 #include <hpp/manipulation/graph/node.hh>
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/node-selector.hh>
@@ -1035,9 +1036,9 @@ namespace hpp {
               }
             }
             // Create object lock
-            using model::JointVector_t;
-            assert (robot.has <JointVector_t> (od.name));
-            BOOST_FOREACH (const JointPtr_t& oj, robot.get<JointVector_t> (od.name)) {
+            assert (robot.has <JointIndexes_t> (od.name));
+            BOOST_FOREACH (const JointIndex& j, robot.get<JointIndexes_t> (od.name)) {
+              JointPtr_t oj (new Joint (ps->robot(), j));
               LockedJointPtr_t lj = core::LockedJoint::create (oj,
                   robot.currentConfiguration()
                   .segment (oj->rankInConfiguration (), oj->configSize ()));

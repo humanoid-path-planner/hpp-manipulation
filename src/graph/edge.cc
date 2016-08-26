@@ -19,6 +19,7 @@
 #include <sstream>
 
 #include <hpp/core/path-vector.hh>
+#include <hpp/core/path-validation.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
 

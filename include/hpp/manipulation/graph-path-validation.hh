@@ -22,6 +22,7 @@
 
 # include <hpp/manipulation/fwd.hh>
 # include <hpp/manipulation/config.hh>
+# include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -92,7 +93,7 @@ namespace hpp {
 
         template <typename T>
           static GraphPathValidationPtr_t create (
-              const model::DevicePtr_t& robot, const value_type& stepSize);
+              const pinocchio::DevicePtr_t& robot, const value_type& stepSize);
 
         void addObstacle (const hpp::core::CollisionObjectPtr_t&);
 
@@ -103,7 +104,7 @@ namespace hpp {
         /// obstacles. This virtual method does nothing for configuration
         /// validation methods that do not care about obstacles.
         virtual void removeObstacleFromJoint (const JointPtr_t& joint,
-            const model::CollisionObjectPtr_t& obstacle)
+            const pinocchio::CollisionObjectPtr_t& obstacle)
         {
           assert (pathValidation_);
           pathValidation_->removeObstacleFromJoint (joint, obstacle);
@@ -128,7 +129,7 @@ namespace hpp {
 
     template <typename T>
       GraphPathValidationPtr_t GraphPathValidation::create
-      (const model::DevicePtr_t& robot, const value_type& stepSize)
+      (const pinocchio::DevicePtr_t& robot, const value_type& stepSize)
     {
       return GraphPathValidation::create (T::create (robot, stepSize));
     }

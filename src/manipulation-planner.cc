@@ -245,7 +245,9 @@ namespace hpp {
         es.addFailure (reasons_[PROJECTION]);
         return false;
       }
-      if (pinocchio::isApprox (robot, qProj_, *q_near, eps)) {
+#pragma message ("hpp-pinocchio")
+      // TODO if (pinocchio::isApprox (robot, qProj_, *q_near, eps)) {
+      if (qProj_.isApprox(*q_near, eps)) {
         es.addFailure (reasons_[FAILURE]);
 	es.addFailure (reasons_[PATH_PROJECTION_ZERO]);
 	return false;

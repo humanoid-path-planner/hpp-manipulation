@@ -37,11 +37,7 @@ namespace hpp {
         {}
 
         RoadmapNode (const ConfigurationPtr_t& configuration,
-            ConnectedComponentPtr_t cc) :
-          core::Node (configuration, cc),
-          cacheSystem_ (defaultCachingSystem),
-          node_ ()
-        {}
+            ConnectedComponentPtr_t cc);
 
         /// \name Cache system
         /// \{

@@ -20,6 +20,8 @@
 #ifndef HPP_MANIPULATION_HANDLE_HH
 # define HPP_MANIPULATION_HANDLE_HH
 
+# include <pinocchio/spatial/se3.hpp>
+
 # include <hpp/manipulation/fwd.hh>
 # include <hpp/manipulation/config.hh>
 

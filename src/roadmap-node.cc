@@ -16,8 +16,17 @@
 
 #include "hpp/manipulation/roadmap-node.hh"
 
+#include <hpp/manipulation/connected-component.hh>
+
 namespace hpp {
   namespace manipulation {
     RoadmapNode::CachingSystem RoadmapNode::defaultCachingSystem = RoadmapNode::CACHE_DISABLED;
+
+    RoadmapNode::RoadmapNode (const ConfigurationPtr_t& configuration,
+        ConnectedComponentPtr_t cc) :
+      core::Node (configuration, cc),
+      cacheSystem_ (defaultCachingSystem),
+      node_ ()
+    {}
   } // namespace manipulation
 } // namespace hpp

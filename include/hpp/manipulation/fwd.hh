@@ -31,7 +31,7 @@ namespace hpp {
     typedef pinocchio::Joint Joint;
     typedef pinocchio::JointPtr_t JointPtr_t;
     typedef pinocchio::JointIndex JointIndex;
-    typedef pinocchio::Transform3f Transform3f;
+    typedef std::vector<JointIndex> JointIndexes_t;
     typedef pinocchio::Configuration_t Configuration_t;
     typedef pinocchio::ConfigurationIn_t ConfigurationIn_t;
     typedef pinocchio::ConfigurationOut_t ConfigurationOut_t;
@@ -93,7 +93,6 @@ namespace hpp {
 
     typedef std::vector <pinocchio::DevicePtr_t> Devices_t;
     typedef std::vector <ObjectPtr_t> Objects_t;
-    typedef std::map <JointConstPtr_t, JointPtr_t> JointMap_t;
     typedef core::Constraint Constraint;
     typedef core::ConstraintPtr_t ConstraintPtr_t;
     typedef core::LockedJoint LockedJoint;
@@ -108,6 +107,7 @@ namespace hpp {
     typedef core::ConfigurationShooter ConfigurationShooter;
     typedef core::ConfigurationShooterPtr_t ConfigurationShooterPtr_t;
     typedef core::ValidationReport ValidationReport;
+    typedef core::PathValidationPtr_t PathValidationPtr_t;
     typedef core::PathValidationReportPtr_t PathValidationReportPtr_t;
     typedef core::matrix_t matrix_t;
     typedef core::matrixIn_t matrixIn_t;
@@ -115,6 +115,7 @@ namespace hpp {
     typedef core::size_type size_type;
     typedef core::value_type value_type;
     typedef core::vector3_t vector3_t;
+    typedef core::matrix3_t matrix3_t;
 
     typedef std::list < NumericalConstraintPtr_t > NumericalConstraints_t;
     typedef std::pair< GripperPtr_t, HandlePtr_t> Grasp_t;

@@ -19,7 +19,7 @@
 # define HPP_MANIPULATION_PROBLEM_SOLVER_HH
 
 # include <map>
-# include <hpp/model/device.hh>
+# include <hpp/pinocchio/device.hh>
 # include <hpp/core/problem-solver.hh>
 # include <hpp/core/container.hh>
 # include "hpp/manipulation/fwd.hh"

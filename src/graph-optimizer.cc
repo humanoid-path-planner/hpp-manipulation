@@ -19,6 +19,7 @@
 #include <hpp/core/path.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
+#include <hpp/core/config-projector.hh>
 
 #include <hpp/manipulation/constraint-set.hh>
 #include <hpp/manipulation/graph/edge.hh>

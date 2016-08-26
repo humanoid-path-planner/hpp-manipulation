@@ -19,6 +19,8 @@
 
 #include <hpp/manipulation/device.hh>
 
+#include <pinocchio/multibody/model.hpp>
+
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/gripper.hh>
 

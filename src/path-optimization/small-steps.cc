@@ -17,6 +17,7 @@
 #include <hpp/manipulation/path-optimization/small-steps.hh>
 
 #include <hpp/core/problem.hh>
+#include <hpp/core/path-vector.hh>
 
 #include <hpp/wholebody-step/small-steps.hh>
 

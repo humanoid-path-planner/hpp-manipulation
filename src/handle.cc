@@ -21,6 +21,7 @@
 
 #include <boost/assign/list_of.hpp>
 
+#include <pinocchio/multibody/joint/joint.hpp>
 #include <pinocchio/multibody/joint/joint-free-flyer.hpp>
 
 #include <hpp/util/debug.hh>
@@ -38,6 +39,8 @@
 namespace hpp {
   namespace manipulation {
     namespace {
+      static const matrix3_t I3 = matrix3_t::Identity();
+
       struct ZeroDiffFunc : public constraints::DifferentiableFunction {
         ZeroDiffFunc (size_type sIn, size_type sInD,
             std::string name=std::string("Empty function"))
@@ -106,7 +109,7 @@ namespace hpp {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(true);
       Transform3f transform = gripper->objectPositionInJoint ()
-        * Transform3f (fcl::Vec3f (shift,0,0));
+        * Transform3f (I3, vector3_t (shift,0,0));
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
 				      ("Pregrasp_(1,1,1,1,1,1)_" + name ()

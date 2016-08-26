@@ -30,6 +30,7 @@
 
 namespace hpp {
   namespace manipulation {
+    static const matrix3_t I3 = matrix3_t::Identity();
 
     NumericalConstraintPtr_t AxialHandle::createGrasp
     (const GripperPtr_t& gripper) const
@@ -69,7 +70,7 @@ namespace hpp {
       using boost::assign::list_of;
       std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(false);
       Transform3f transform = gripper->objectPositionInJoint ()
-        * Transform3f (fcl::Vec3f (shift,0,0));
+        * Transform3f (I3, vector3_t (shift,0,0));
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
 				      ("Transformation_(1,1,1,1,1,0)_" + name ()
@@ -89,7 +90,7 @@ namespace hpp {
       std::vector <bool> mask = list_of (true)(false)(false)(false)(false)
         (false);
       Transform3f transform = gripper->objectPositionInJoint ()
-        * Transform3f (fcl::Vec3f (shift,0,0));
+        * Transform3f (I3, vector3_t (shift,0,0));
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
 				      ("Transformation_(1,0,0,0,0,0)_" + name ()

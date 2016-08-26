@@ -58,9 +58,9 @@ namespace hpp {
     PathValidationPtr_t Problem::pathValidationFactory () const
     {
       PathValidationPtr_t pv (pvFactory_ (robot(), pvTol_));
-      const core::ObjectVector_t& obstacles (collisionObstacles ());
+      const core::ObjectStdVector_t& obstacles (collisionObstacles ());
       // Insert obstacles in path validation object
-      for (core::ObjectVector_t::const_iterator _obs = obstacles.begin ();
+      for (core::ObjectStdVector_t::const_iterator _obs = obstacles.begin ();
 	   _obs != obstacles.end (); ++_obs)
 	pv->addObstacle (*_obs);
       return pv;

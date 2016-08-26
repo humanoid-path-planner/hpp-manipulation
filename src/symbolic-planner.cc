@@ -23,8 +23,8 @@
 #include <hpp/util/timer.hh>
 #include <hpp/util/assertion.hh>
 
-#include <hpp/model/configuration.hh>
-#include <hpp/model/collision-object.hh>
+#include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/collision-object.hh>
 
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/distance.hh>
@@ -43,6 +43,7 @@
 #include "hpp/manipulation/roadmap.hh"
 #include "hpp/manipulation/roadmap-node.hh"
 #include "hpp/manipulation/symbolic-component.hh"
+#include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/graph/node-selector.hh"
@@ -55,7 +56,7 @@ namespace hpp {
   namespace manipulation {
     using core::CollisionValidationReport;
     using core::CollisionValidationReportPtr_t;
-    using core::CollisionObjectPtr_t;
+    using core::CollisionObjectConstPtr_t;
     typedef graph::Edge::RelativeMotion RelativeMotion;
 
     namespace {
@@ -566,14 +567,14 @@ namespace hpp {
                 colRep = HPP_DYNAMIC_PTR_CAST(CollisionValidationReport,
                     extend.validationReport->configurationReport);
                 if (colRep) {
-                  CollisionObjectPtr_t o1 = colRep->object1, o2 = colRep->object2;
+                  CollisionObjectConstPtr_t o1 = colRep->object1, o2 = colRep->object2;
                   // If it is a collision between the robot and an unactuated object,
                   // which cannot move in this state.
                   if (o1->joint() != NULL && o2->joint() != NULL) {
                     // TODO: Currently, the RelativeMotion matrix does not cover cases
                     // like ConvexShapeContact (2 function making a 6D constraints).
                     RelativeMotion::matrix_type m = extend.edge->relativeMotion();
-                    size_type i0 = RelativeMotion::idx(NULL);
+                    size_type i0 = RelativeMotion::idx(JointPtr_t());
                     size_type i1 = RelativeMotion::idx(o1->joint());
                     size_type i2 = RelativeMotion::idx(o2->joint());
                     if (m(i0, i1) == RelativeMotion::Parameterized
@@ -607,14 +608,14 @@ namespace hpp {
           colRep = HPP_DYNAMIC_PTR_CAST(CollisionValidationReport,
                 extend.validationReport->configurationReport);
           if (colRep) {
-            CollisionObjectPtr_t o1 = colRep->object1, o2 = colRep->object2;
+            CollisionObjectConstPtr_t o1 = colRep->object1, o2 = colRep->object2;
             // If it is a collision between the robot and an unactuated object,
             // which cannot move in this state.
             if (o1->joint() != NULL && o2->joint() != NULL) {
               // TODO: Currently, the RelativeMotion matrix does not cover cases
               // like ConvexShapeContact (2 function making a 6D constraints).
               RelativeMotion::matrix_type m = extend.edge->relativeMotion();
-              size_type i0 = RelativeMotion::idx(NULL);
+              size_type i0 = RelativeMotion::idx(JointPtr_t());
               size_type i1 = RelativeMotion::idx(o1->joint());
               size_type i2 = RelativeMotion::idx(o2->joint());
               if (m(i0, i1) == RelativeMotion::Parameterized

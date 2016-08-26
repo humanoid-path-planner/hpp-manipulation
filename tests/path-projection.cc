@@ -14,10 +14,6 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/core/path-projector/progressive.hh>
-#include <hpp/core/steering-method-straight.hh>
-#include <hpp/core/numerical-constraint.hh>
-
 #define ARM_LENGTH 1
 #define FOREARM_LENGTH 1
 #define STEP_PATH (value_type)0.01
@@ -26,15 +22,19 @@
 
 #include <boost/assign/list_of.hpp>
 
+#include <pinocchio/multibody/model.hpp>
+
+#include <hpp/pinocchio/device.hh>
+#include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/configuration.hh>
+
+#include <hpp/core/path-projector/progressive.hh>
+#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/numerical-constraint.hh>
 #include <hpp/core/weighed-distance.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/problem.hh>
-
-#include <hpp/model/device.hh>
-#include <hpp/model/joint.hh>
-#include <hpp/model/configuration.hh>
-#include <hpp/model/object-factory.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
 
@@ -45,12 +45,13 @@
   }}\
   while (0)
 
-using hpp::model::Device;
-using hpp::model::DevicePtr_t;
-using hpp::model::JointPtr_t;
-using hpp::model::BodyPtr_t;
-using hpp::model::Configuration_t;
-using hpp::model::value_type;
+using hpp::pinocchio::Device;
+using hpp::pinocchio::DevicePtr_t;
+using hpp::pinocchio::JointPtr_t;
+using hpp::pinocchio::BodyPtr_t;
+using hpp::pinocchio::Configuration_t;
+using hpp::pinocchio::value_type;
+using hpp::pinocchio::Transform3f;
 
 using hpp::constraints::Position;
 using hpp::constraints::PositionPtr_t;
@@ -79,47 +80,45 @@ using hpp::core::pathProjector::Progressive;
 using hpp::core::Problem;
 using hpp::core::ProblemPtr_t;
 
-hpp::model::ObjectFactory objectFactory;
+const matrix3_t I3 (matrix3_t::Identity());
 
 namespace hpp_test {
+
+  template<typename JointModel>
+    static void addJointAndBody(se3::Model & model,
+        const se3::JointModelBase<JointModel> & joint,
+        const vector3_t shift,
+        const se3::JointIndex & parent,
+        const std::string & name)
+    {
+      typedef typename JointModel::ConfigVector_t CV;
+      typedef typename JointModel::TangentVector_t TV;
+
+      se3::JointIndex idx;
+
+      idx = model.addJoint(parent, joint, se3::SE3 (I3, shift), name,
+          TV::Random() + TV::Constant(1),
+          TV::Random() + TV::Constant(1),
+          CV::Random() - CV::Constant(1),
+          CV::Random() + CV::Constant(1));
+
+      model.appendBodyToJoint(idx,se3::Inertia::Random(),se3::SE3::Identity(),name + "_BODY");
+    }
+
   DevicePtr_t createRobot ()
   {
     DevicePtr_t robot = Device::create ("test");
-    BodyPtr_t body;
-    fcl::Transform3f pos;
-    fcl::Matrix3f orient;
-    orient (0,0) = 1; orient (0,1) = 0; orient (0,2) = 0;
-    orient (1,0) = 0; orient (1,1) = 1; orient (1,2) = 0;
-    orient (2,0) = 0; orient (2,1) = 0; orient (2,2) = 1;
-    pos.setRotation (orient);
-    // Arm joint
-    pos.setTranslation (fcl::Vec3f (0, 0, 0));
-    JointPtr_t arm = objectFactory.createBoundedJointRotation (pos);
-    robot->rootJoint (arm);
-    arm->name ("ARM");
-    body = objectFactory.createBody ();
-    body->name ("ARM_BODY");
-    arm->setLinkedBody (body);
-    // Forearm joint
-    pos.setTranslation (fcl::Vec3f (0, ARM_LENGTH, 0));
-    JointPtr_t forearm = objectFactory.createBoundedJointRotation (pos);
-    forearm->name ("FOREARM");
-    arm->addChildJoint (forearm);
-    body = objectFactory.createBody ();
-    body->name ("FOREARM_BODY");
-    forearm->setLinkedBody (body);
-    // End effector joint
-    pos.setTranslation (fcl::Vec3f (0, FOREARM_LENGTH, 0));
-    JointPtr_t ee = objectFactory.createJointAnchor (pos);
-    ee->name ("EE");
-    body = objectFactory.createBody ();
-    body->name ("EE");
-    ee->setLinkedBody (body);
-    forearm->addChildJoint (ee);
-    //body = objectFactory.createBody ();
-    //body->name ("RLEG_BODY2");
-    //joint->setLinkedBody (body);
+    se3::Model& model = robot->model();
 
+    // lleg
+    addJointAndBody(model,se3::JointModelRX(),vector3_t::Zero(), 0, "ARM");
+    addJointAndBody(model,se3::JointModelRX(),vector3_t(0, ARM_LENGTH, 0), 1, "FOREARM");
+    model.addFrame(se3::Frame("EE", 2, se3::SE3::Identity(), se3::FIXED_JOINT));
+
+    robot->createData();
+    robot->controlComputation((Device::Computation_t) (Device::JOINT_POSITION | Device::JACOBIAN));
+    robot->currentConfiguration(robot->neutralConfiguration());
+    robot->computeForwardKinematics();
     return robot;
   }
 
@@ -175,7 +174,8 @@ int main (int , char**) {
   JointPtr_t ee = r->getJointByName ("FOREARM");
   vector3_t target (0, (ARM_LENGTH + FOREARM_LENGTH ) / 2, 0),
             origin (0, FOREARM_LENGTH, 0);
-  PositionPtr_t c = Position::create ("Pos", r, ee, origin, target,
+  PositionPtr_t c = Position::create ("Pos", r, ee,
+      Transform3f(I3, origin), Transform3f(I3, target),
       list_of (false)(true)(false).convert_to_container<std::vector<bool> >());
   ConstraintSetPtr_t cs = ConstraintSet::create (r, "test-cs");
   ConfigProjectorPtr_t proj = ConfigProjector::create (r, "test", 1e-4, 20);

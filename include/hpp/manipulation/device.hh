@@ -83,7 +83,7 @@ namespace hpp {
         /// \param robot Robots that manipulate objects,
         /// \param objects Set of objects manipulated by the robot.
         Device (const std::string& name) :
-          Parent_t (name), jointCacheSize_ (0)
+          Parent_t (name), jointCacheSize_ (1)
         {}
 
         void init (const DeviceWkPtr_t& self)

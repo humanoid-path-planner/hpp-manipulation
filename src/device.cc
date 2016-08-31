@@ -34,7 +34,7 @@ namespace hpp {
       std::size_t jvSize = model().joints.size();
       assert (jvSize >= jointCacheSize_);
       JointIndexes_t newJ (jvSize - jointCacheSize_);
-      for (std::size_t i = jointCacheSize_; i < jvSize; ++i) newJ[i] = i;
+      for (std::size_t i = jointCacheSize_; i < jvSize; ++i) newJ[i - jointCacheSize_] = i;
 
       jointCacheSize_ = model().joints.size();
       add (name, newJ);

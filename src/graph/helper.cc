@@ -680,7 +680,7 @@ namespace hpp {
             /// Check if an object can be placed
             bool objectCanBePlaced (const Object_t& o) const
             {
-              return o.get<0>().get<0>();
+              return true; // o.get<0>().get<0>();
             }
 
             /// Check is an object is grasped by the GraspV_t

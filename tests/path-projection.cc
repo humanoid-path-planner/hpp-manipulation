@@ -101,8 +101,10 @@ namespace hpp_test {
           TV::Random() + TV::Constant(1),
           CV::Random() - CV::Constant(1),
           CV::Random() + CV::Constant(1));
+      model.addJointFrame (idx);
 
-      model.appendBodyToJoint(idx,se3::Inertia::Random(),se3::SE3::Identity(),name + "_BODY");
+      model.appendBodyToJoint(idx,se3::Inertia::Random(),se3::SE3::Identity());
+      model.addBodyFrame(name + "_BODY", idx);
     }
 
   DevicePtr_t createRobot ()
@@ -113,7 +115,7 @@ namespace hpp_test {
     // lleg
     addJointAndBody(model,se3::JointModelRX(),vector3_t::Zero(), 0, "ARM");
     addJointAndBody(model,se3::JointModelRX(),vector3_t(0, ARM_LENGTH, 0), 1, "FOREARM");
-    model.addFrame(se3::Frame("EE", 2, se3::SE3::Identity(), se3::FIXED_JOINT));
+    model.addFrame(se3::Frame("EE", 2, model.getFrameId("FOREARM"), se3::SE3::Identity(), se3::FIXED_JOINT));
 
     robot->createData();
     robot->controlComputation((Device::Computation_t) (Device::JOINT_POSITION | Device::JACOBIAN));

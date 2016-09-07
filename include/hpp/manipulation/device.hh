@@ -41,7 +41,7 @@ namespace hpp {
         boost::mpl::vector < HandlePtr_t,
                              GripperPtr_t,
                              JointAndShapes_t,
-                             JointIndexes_t> >
+                             FrameIndexes_t> >
     {
       public:
         typedef pinocchio::HumanoidRobot Parent_t;
@@ -50,7 +50,7 @@ namespace hpp {
           boost::mpl::vector < HandlePtr_t,
           pinocchio::GripperPtr_t,
           JointAndShapes_t,
-          JointIndexes_t> > Containers_t;
+          FrameIndexes_t> > Containers_t;
 
         /// Constructor
         /// \param name of the new instance,
@@ -64,6 +64,9 @@ namespace hpp {
 
         /// Print object in a stream
         virtual std::ostream& print (std::ostream& os) const;
+
+        void setRobotRootPosition (const std::string& robotName,
+                                   const Transform3f& positionWRTParentJoint);
 
         /// \name Collisions
         /// \{
@@ -83,7 +86,7 @@ namespace hpp {
         /// \param robot Robots that manipulate objects,
         /// \param objects Set of objects manipulated by the robot.
         Device (const std::string& name) :
-          Parent_t (name), jointCacheSize_ (1)
+          Parent_t (name), frameCacheSize_ (1)
         {}
 
         void init (const DeviceWkPtr_t& self)
@@ -95,7 +98,7 @@ namespace hpp {
       private:
         DeviceWkPtr_t self_;
 
-        std::size_t jointCacheSize_;
+        std::size_t frameCacheSize_;
     }; // class Device
   } // namespace manipulation
 } // namespace hpp

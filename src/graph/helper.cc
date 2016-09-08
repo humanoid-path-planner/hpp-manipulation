@@ -562,10 +562,12 @@ namespace hpp {
             const Grippers_t& gs;
             const Objects_t& ohs;
             CompiledRules_t rules;
+            CompiledRule::Result defaultAcceptationPolicy;
             mutable Eigen::MatrixXi rulesCache;
 
             Result (const Grippers_t& grippers, const Objects_t& objects, GraphPtr_t g) :
-              graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects)
+              graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects),
+              defaultAcceptationPolicy (CompiledRule::Refuse)
             {
               BOOST_FOREACH (const Object_t& o, objects) {
                 nOH += o.get<1>().size();
@@ -591,12 +593,21 @@ namespace hpp {
                 const std::string& g = gs[i]->name(),
                                    h = (idxOH[i] == nOH) ? "" : handle (idxOH[i])->name ();
                 if ((CompiledRule::Result)rulesCache(i, idxOH[i]) == CompiledRule::Undefined) {
-                  CompiledRule::Result status = CompiledRule::Accept;
+                  CompiledRule::Result status = (idxOH[i] == nOH ? CompiledRule::Accept : defaultAcceptationPolicy);
                   for (std::size_t r = 0; r < rules.size(); ++r) {
-                    status = rules[r].check(g,h);
-                    if (status == CompiledRule::Accept) break;
-                    else if (status == CompiledRule::Refuse) break;
-                    status = CompiledRule::Accept;
+                    switch (rules[r].check(g,h)) {
+                      case CompiledRule::Accept:
+                        status = CompiledRule::Accept;
+                        break; // Exit loop
+                      case CompiledRule::Refuse:
+                        status = CompiledRule::Refuse;
+                        break; // Exit loop
+                      case CompiledRule::NoMatch:
+                        continue; // Check next rule
+                      default:
+                        throw std::invalid_argument ("Rules are ill-defined.");
+                    }
+                    break;
                   }
                   rulesCache(i, idxOH[i]) = status;
                 }

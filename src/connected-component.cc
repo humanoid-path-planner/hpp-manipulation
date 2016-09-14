@@ -25,6 +25,25 @@ namespace hpp {
   namespace manipulation {
     RoadmapNodes_t ConnectedComponent::empty_ = RoadmapNodes_t();
 
+    bool ConnectedComponent::check () const
+    {
+      std::set <core::NodePtr_t> s1;
+      for (core::NodeVector_t::const_iterator it = nodes ().begin ();
+	   it != nodes ().end (); ++it) {
+	s1.insert (*it);
+      }
+      std::set <core::NodePtr_t> s2;
+      for (GraphStates_t::const_iterator it = graphStateMap_.begin();
+	   it != graphStateMap_.end(); ++it ) {
+	for (RoadmapNodes_t::const_iterator itNodes = it->second.begin ();
+	     itNodes != it->second.end (); ++itNodes) {
+	  s2.insert (*itNodes);
+	}
+      }
+      if (s1.size () == 0) return false;
+      if (s1 == s2) return true;
+    }
+
     ConnectedComponentPtr_t ConnectedComponent::create(const RoadmapWkPtr_t& roadmap)
     {
       ConnectedComponent* ptr = new ConnectedComponent ();
@@ -40,46 +59,47 @@ namespace hpp {
     {
       core::ConnectedComponent::merge(otherCC);
       const ConnectedComponentPtr_t other = boost::static_pointer_cast <ConnectedComponent> (otherCC);
-      /// take all graph nodes in other->graphNodeMap_ and put them in this->graphNodeMap_
-      /// if they already exist in this->graphNodeMap_, append roadmap nodes from other graph node
-      /// to graph node in this. 
-      for (GraphNodes_t::iterator otherIt = other->graphNodeMap_.begin(); 
-	otherIt != other->graphNodeMap_.end(); otherIt++)
+      /// take all graph states in other->graphStateMap_ and put them in this->graphStateMap_
+      /// if they already exist in this->graphStateMap_, append roadmap nodes from other graph state
+      /// to graph state in this. 
+      for (GraphStates_t::iterator otherIt = other->graphStateMap_.begin(); 
+	otherIt != other->graphStateMap_.end(); otherIt++)
       {
-	// find other graph node in this-graphNodeMap_ -> merge their roadmap nodes
-	GraphNodes_t::iterator mapIt = this->graphNodeMap_.find(otherIt->first);
-	if (mapIt != this->graphNodeMap_.end())	{
+	// find other graph state in this-graphStateMap_ -> merge their roadmap nodes
+	GraphStates_t::iterator mapIt = this->graphStateMap_.find(otherIt->first);
+	if (mapIt != this->graphStateMap_.end())	{
 	  mapIt->second.insert(mapIt->second.end(), otherIt->second.begin(), otherIt->second.end());
 	} else {
-	  this->graphNodeMap_.insert(*otherIt);
+	  this->graphStateMap_.insert(*otherIt);
 	}
       }
-      other->graphNodeMap_.clear();
+      other->graphStateMap_.clear();
+      assert (check ());
     } 
 
     void ConnectedComponent::addNode(const core::NodePtr_t& node)      
     {
       core::ConnectedComponent::addNode(node);
-      // Find right graph node in map and add roadmap node to corresponding vector
+      // Find right graph state in map and add roadmap node to corresponding vector
       const RoadmapNodePtr_t& n = static_cast <const RoadmapNodePtr_t> (node);
-      GraphNodes_t::iterator mapIt = graphNodeMap_.find(roadmap_->getNode(n));
-      if (mapIt != graphNodeMap_.end()) {
+      GraphStates_t::iterator mapIt = graphStateMap_.find(roadmap_->getState(n));
+      if (mapIt != graphStateMap_.end()) {
         mapIt->second.push_back(n);
-      // if graph node not found, add new map element with one roadmap node
+      // if graph state not found, add new map element with one roadmap node
       } else {
 	RoadmapNodes_t newRoadmapNodeVector;
 	newRoadmapNodeVector.push_back(n);
-	graphNodeMap_.insert(std::pair<graph::NodePtr_t, RoadmapNodes_t>
-	  (roadmap_->getNode(n), newRoadmapNodeVector));
+	graphStateMap_.insert(std::pair<graph::StatePtr_t, RoadmapNodes_t>
+	  (roadmap_->getState(n), newRoadmapNodeVector));
       }
-
+      assert (check ());
     }
 
     const RoadmapNodes_t& ConnectedComponent::getRoadmapNodes (
-        const graph::NodePtr_t graphNode) const
+        const graph::StatePtr_t graphState) const
     {
-      GraphNodes_t::const_iterator mapIt = graphNodeMap_.find(graphNode);
-      if (mapIt != graphNodeMap_.end())
+      GraphStates_t::const_iterator mapIt = graphStateMap_.find(graphState);
+      if (mapIt != graphStateMap_.end())
         return mapIt->second;
       return empty_;
     }

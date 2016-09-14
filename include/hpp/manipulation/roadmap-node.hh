@@ -34,14 +34,14 @@ namespace hpp {
         RoadmapNode (const ConfigurationPtr_t& configuration) :
           core::Node (configuration),
           cacheSystem_ (defaultCachingSystem),
-          node_ ()
+          state_ ()
         {}
 
         RoadmapNode (const ConfigurationPtr_t& configuration,
             ConnectedComponentPtr_t cc) :
           core::Node (configuration, cc),
           cacheSystem_ (defaultCachingSystem),
-          node_ ()
+          state_ ()
         {}
 
         /// \name Cache system
@@ -65,19 +65,35 @@ namespace hpp {
           return cacheSystem_;
         }
 
-        /// Getter for the graph::Node.
-        graph::NodePtr_t graphNode () const
+        /// Getter for the graph::State.
+	/// \deprecated use graphState instead.
+        graph::StatePtr_t graphNode () const HPP_MANIPULATION_DEPRECATED
         {
-          return node_;
+          return state_;
         }
 
-        /// Setter for the graph::Node.
-        void graphNode (const graph::NodePtr_t& node)
+        /// Getter for the graph::State.
+        graph::StatePtr_t graphState () const
+        {
+          return state_;
+        }
+
+        /// Setter for the graph::State.
+	/// \deprecated use graphState instead
+        void graphNode (const graph::StatePtr_t& state)
+	  HPP_MANIPULATION_DEPRECATED
         {
           if (cacheSystem_ != CACHE_DISABLED) cacheSystem_ = CACHE_UP_TO_DATE;
-          node_ = node;
+          state_ = state;
         }
 
+        /// Setter for the graph::State.
+        void graphState (const graph::StatePtr_t& state)
+	  HPP_MANIPULATION_DEPRECATED
+        {
+          if (cacheSystem_ != CACHE_DISABLED) cacheSystem_ = CACHE_UP_TO_DATE;
+          state_ = state;
+        }
         /// \}
 
         void symbolicComponent (const SymbolicComponentPtr_t& sc)
@@ -93,7 +109,7 @@ namespace hpp {
       private:
         CachingSystem cacheSystem_;
 
-        graph::NodePtr_t node_;
+        graph::StatePtr_t state_;
         SymbolicComponentPtr_t symbolicCC_;
     };
   } // namespace manipulation

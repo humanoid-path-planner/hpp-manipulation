@@ -75,7 +75,7 @@ namespace hpp {
             return both;
           }
 
-          void addToNode (NodePtr_t comp) const;
+          void addToState (StatePtr_t comp) const;
           void addToEdge (EdgePtr_t comp) const;
           void specifyFoliation (LevelSetEdgePtr_t lse) const;
 
@@ -120,7 +120,7 @@ namespace hpp {
         template < int gCase >
           Edges_t createEdges (
               const std::string& forwName,   const std::string& backName,
-              const NodePtr_t& from,         const NodePtr_t& to,
+              const StatePtr_t& from,         const StatePtr_t& to,
               const size_type& wForw,        const size_type& wBack,
               const FoliatedManifold& grasp, const FoliatedManifold& pregrasp,
               const FoliatedManifold& place, const FoliatedManifold& preplace,
@@ -130,7 +130,7 @@ namespace hpp {
 
         EdgePtr_t createLoopEdge (
               const std::string& loopName,
-              const NodePtr_t& node,
+              const StatePtr_t& state,
               const size_type& w,
               const bool levelSet,
               const FoliatedManifold& submanifoldDef = FoliatedManifold ()

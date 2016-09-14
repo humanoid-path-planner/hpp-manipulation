@@ -25,26 +25,27 @@ namespace hpp {
   namespace manipulation {
     namespace graph {
       HPP_PREDEF_CLASS (Graph);
-      HPP_PREDEF_CLASS (Node);
       HPP_PREDEF_CLASS (Edge);
+      HPP_PREDEF_CLASS (State);
       HPP_PREDEF_CLASS (WaypointEdge);
       HPP_PREDEF_CLASS (LevelSetEdge);
-      HPP_PREDEF_CLASS (NodeSelector);
-      HPP_PREDEF_CLASS (GuidedNodeSelector);
+      HPP_PREDEF_CLASS (StateSelector);
       HPP_PREDEF_CLASS (GraphComponent);
+      HPP_PREDEF_CLASS (GuidedStateSelector);
       typedef boost::shared_ptr < Graph > GraphPtr_t;
-      typedef boost::shared_ptr < Node > NodePtr_t;
+      typedef boost::shared_ptr < State > StatePtr_t;
       typedef boost::shared_ptr < Edge > EdgePtr_t;
       typedef boost::shared_ptr < WaypointEdge > WaypointEdgePtr_t;
       typedef boost::shared_ptr < LevelSetEdge > LevelSetEdgePtr_t;
-      typedef boost::shared_ptr < NodeSelector > NodeSelectorPtr_t;
-      typedef boost::shared_ptr < GuidedNodeSelector > GuidedNodeSelectorPtr_t;
+      typedef boost::shared_ptr < StateSelector > StateSelectorPtr_t;
+      typedef boost::shared_ptr < GuidedStateSelector >
+      GuidedStateSelectorPtr_t;
       typedef boost::shared_ptr < GraphComponent > GraphComponentPtr_t;
-      typedef std::vector < NodePtr_t > Nodes_t;
+      typedef std::vector < StatePtr_t > States_t;
       typedef std::vector < EdgePtr_t > Edges_t;
       typedef ::hpp::statistics::DiscreteDistribution< EdgePtr_t >::Weight_t Weight_t;
       typedef ::hpp::statistics::DiscreteDistribution< EdgePtr_t > Neighbors_t;
-      typedef std::vector < NodeSelectorPtr_t > NodeSelectors_t;
+      typedef std::vector < StateSelectorPtr_t > StateSelectors_t;
 
       typedef hpp::core::Constraint Constraint;
       typedef hpp::core::ConstraintPtr_t ConstraintPtr_t;
@@ -61,10 +62,10 @@ namespace hpp {
       typedef hpp::core::LockedJoints_t LockedJoints_t;
 
       class Histogram;
-      class NodeHistogram;
+      class StateHistogram;
       class LeafHistogram;
       typedef boost::shared_ptr <Histogram> HistogramPtr_t;
-      typedef boost::shared_ptr <NodeHistogram> NodeHistogramPtr_t;
+      typedef boost::shared_ptr <StateHistogram> StateHistogramPtr_t;
       typedef boost::shared_ptr <LeafHistogram> LeafHistogramPtr_t;
       typedef std::list < HistogramPtr_t > Histograms_t;
     } // namespace graph

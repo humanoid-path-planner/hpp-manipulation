@@ -17,77 +17,14 @@
 #ifndef HPP_MANIPULATION_GRAPH_NODE_SELECTOR_HH
 # define HPP_MANIPULATION_GRAPH_NODE_SELECTOR_HH
 
-#include "hpp/manipulation/config.hh"
-#include "hpp/manipulation/fwd.hh"
-#include "hpp/manipulation/graph/graph.hh"
-#include "hpp/manipulation/graph/node.hh"
+#include "hpp/manipulation/graph/state-selector.hh"
 
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      /// This class is used to get the state of a configuration. States have to
-      /// be ordered because a configuration can be in several states.
-      class HPP_MANIPULATION_DLLAPI NodeSelector : public GraphComponent
-      {
-        public:
-          /// Create a new NodeSelector.
-          static NodeSelectorPtr_t create(const std::string& name);
-
-          /// Create an empty node
-          NodePtr_t createNode (const std::string& name, bool waypoint = false,
-              const int w = 0);
-
-          /// Returns the state of a configuration.
-          NodePtr_t getNode(ConfigurationIn_t config) const;
-
-          /// Returns the state of a roadmap node
-          NodePtr_t getNode(RoadmapNodePtr_t node) const;
-
-          /// Returns a list of all the nodes
-          Nodes_t getNodes () const;
-
-          /// Select randomly an outgoing edge of the given node.
-          virtual EdgePtr_t chooseEdge(RoadmapNodePtr_t from) const;
-
-          /// Should never be called.
-          void addNumericalConstraint (
-              const core::NumericalConstraintPtr_t& /* function */,
-              const SizeIntervals_t& /* passiveDofs */ = SizeIntervals_t ())
-          {
-            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
-          }
-
-          /// Should never be called.
-          void addLockedJointConstraint
-	    (const core::LockedJoint& /* constraint */)
-          {
-            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
-          }
-
-          /// Print the object in a stream.
-          virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
-
-        protected:
-          /// Initialization of the object.
-          void init (const NodeSelectorPtr_t& weak);
-
-          /// Constructor
-          NodeSelector (const std::string& name) : GraphComponent (name)
-          {}
-
-          /// Print the object in a stream.
-          virtual std::ostream& print (std::ostream& os) const;
-
-          /// List of the states of one end-effector, ordered by priority.
-          typedef std::pair <int, NodePtr_t> WeighedNode_t;
-          typedef std::list <WeighedNode_t> WeighedNodes_t;
-          WeighedNodes_t orderedStates_;
-          Nodes_t waypoints_;
-
-        private:
-          /// Weak pointer to itself.
-          NodeSelectorPtr_t wkPtr_;
-      }; // Class NodeSelector
+      typedef StateSelector NodeSelector HPP_MANIPULATION_DEPRECATED;
+      typedef boost::shared_ptr < NodeSelector > NodeSelectorPtr_t;
+      typedef std::vector < NodeSelectorPtr_t > NodeSelectors_t;
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

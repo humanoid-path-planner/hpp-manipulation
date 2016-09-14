@@ -35,9 +35,9 @@ namespace hpp {
       ///
       /// One must make sure not to create loop with shared pointers.
       /// To ensure that, the classes are defined as follow:
-      /// - A Graph owns (i.e. has a shared pointer to) the NodeSelector s
-      /// - A NodeSelector owns the Node s related to one gripper.
-      /// - A Node owns its outgoing Edge s.
+      /// - A Graph owns (i.e. has a shared pointer to) the StateSelector s
+      /// - A StateSelector owns the Node s related to one gripper.
+      /// - A State owns its outgoing Edge s.
       /// - An Edge does not own anything.
       class HPP_MANIPULATION_DLLAPI Graph : public GraphComponent
       {
@@ -49,54 +49,96 @@ namespace hpp {
 	  static GraphPtr_t create(const std::string& name, DevicePtr_t robot,
 				   const ProblemPtr_t& problem);
 
-          /// Create and insert a NodeSelector inside the graph.
-          NodeSelectorPtr_t createNodeSelector (const std::string& name);
+          /// Create and insert a state selector inside the graph.
+	  /// \deprecated use createStateSelector instead
+          StateSelectorPtr_t createNodeSelector (const std::string& name)
+	    HPP_MANIPULATION_DEPRECATED;
 
-          /// Set the nodeSelector
+          /// Create and insert a state selector inside the graph.
+          StateSelectorPtr_t createStateSelector (const std::string& name);
+
+          /// Set the state selector
           /// \warning This should be done before adding nodes to the node
           /// selector otherwise the pointer to the parent graph will NOT be
           /// valid.
-          void nodeSelector (NodeSelectorPtr_t ns);
+	  /// \deprecated use stateSelector instead
+          void nodeSelector (StateSelectorPtr_t ns) HPP_MANIPULATION_DEPRECATED;
 
-          /// Get the nodeSelector
-          NodeSelectorPtr_t nodeSelector () const
+          /// Set the state selector
+          /// \warning This should be done before adding nodes to the node
+          /// selector otherwise the pointer to the parent graph will NOT be
+          /// valid.
+          void stateSelector (StateSelectorPtr_t ns);
+
+          /// Get the state selector
+	  /// \deprecated use stateSelector instead
+          StateSelectorPtr_t nodeSelector () const HPP_MANIPULATION_DEPRECATED
           {
-            return nodeSelector_;
+            return stateSelector_;
+          }
+
+          /// Get the state selector
+          StateSelectorPtr_t stateSelector () const
+          {
+            return stateSelector_;
           }
 
           /// Returns the states of a configuration.
-          NodePtr_t getNode (ConfigurationIn_t config) const;
+	  /// \deprecated use getState instead
+          StatePtr_t getNode (ConfigurationIn_t config) const
+	    HPP_MANIPULATION_DEPRECATED;
+
+          /// Returns the state of a configuration.
+          StatePtr_t getState (ConfigurationIn_t config) const;
 
           /// Returns the state of a roadmap node
-          NodePtr_t getNode(RoadmapNodePtr_t node) const;
+	  /// \deprecated use getState instead
+          StatePtr_t getNode(RoadmapNodePtr_t node) const;
+
+          /// Returns the state of a roadmap node
+          StatePtr_t getState (RoadmapNodePtr_t node) const;
 
           /// Get possible edges between two nodes.
-          Edges_t getEdges (const NodePtr_t& from, const NodePtr_t& to) const;
+          Edges_t getEdges (const StatePtr_t& from, const StatePtr_t& to) const;
 
           /// Select randomly outgoing edge of the given node.
           EdgePtr_t chooseEdge(RoadmapNodePtr_t node) const;
 
           /// Constraint to project onto the Node.
-          /// \param the Node_t on which to project.
+          /// \param state the state on which to project.
           /// \return The initialized projector.
-          ConstraintSetPtr_t configConstraint (const NodePtr_t& node);
+          ConstraintSetPtr_t configConstraint (const StatePtr_t& state);
 
           /// Constraint to project onto the same leaf as config.
           /// \param edges a list of edges defining the foliation.
           /// \return The constraint.
           ConstraintSetPtr_t configConstraint (const EdgePtr_t& edge);
 
-	  /// Get error of a config with respect to a node constraint
+	  /// Get error of a config with respect to a state constraint
 	  ///
 	  /// \param config Configuration,
-	  /// \param node node containing the constraint to check config against
-	  /// \retval error the error of the node constraint for the
+	  /// \param state state containing the constraint to check config against
+	  /// \retval error the error of the state constraint for the
 	  ///         configuration
-	  /// \return whether the configuration belongs to the node.
-	  /// Call method core::ConstraintSet::isSatisfied for the node
+	  /// \return whether the configuration belongs to the state.
+	  /// Call method core::ConstraintSet::isSatisfied for the state
 	  /// constraints.
+	  /// \deprecated use getConfigErrorForState instead
 	  bool getConfigErrorForNode (ConfigurationIn_t config,
-				      const NodePtr_t& node, vector_t& error);
+				      const StatePtr_t& state, vector_t& error)
+	    HPP_MANIPULATION_DEPRECATED;
+
+	  /// Get error of a config with respect to a state constraint
+	  ///
+	  /// \param config Configuration,
+	  /// \param state state containing the constraint to check config against
+	  /// \retval error the error of the state constraint for the
+	  ///         configuration
+	  /// \return whether the configuration belongs to the state.
+	  /// Call method core::ConstraintSet::isSatisfied for the state
+	  /// constraints.
+	  bool getConfigErrorForState (ConfigurationIn_t config,
+				      const StatePtr_t& state, vector_t& error);
 
 	  /// Get error of a config with respect to an edge constraint
 	  ///
@@ -178,8 +220,8 @@ namespace hpp {
           std::ostream& print (std::ostream& os) const;
 
         private:
-          /// This list contains a node selector for each end-effector.
-          NodeSelectorPtr_t nodeSelector_;
+          /// This list contains a state selector for each end-effector.
+          StateSelectorPtr_t stateSelector_;
 
           /// A set of constraints that will always be used, for example
           /// stability constraints.
@@ -191,10 +233,10 @@ namespace hpp {
           /// Weak pointer to itself.
           GraphWkPtr_t wkPtr_;
 
-          /// Map of constraint sets (from Node).
-          typedef std::map  < NodePtr_t, ConstraintSetPtr_t > MapFromNode;
-          typedef std::pair < NodePtr_t, ConstraintSetPtr_t > PairNodeConstraints;
-          MapFromNode constraintSetMapFromNode_;
+          /// Map of constraint sets (from State).
+          typedef std::map  < StatePtr_t, ConstraintSetPtr_t > MapFromState;
+          typedef std::pair < StatePtr_t, ConstraintSetPtr_t > PairStateConstraints;
+          MapFromState constraintSetMapFromState_;
 
           /// List of histograms
           Histograms_t hists_;

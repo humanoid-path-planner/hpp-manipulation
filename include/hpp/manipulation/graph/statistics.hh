@@ -25,7 +25,7 @@
 # include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/graph.hh"
-# include "hpp/manipulation/graph/node.hh"
+# include "hpp/manipulation/graph/state.hh"
 # include <hpp/manipulation/roadmap-node.hh>
 
 namespace hpp {
@@ -71,7 +71,7 @@ namespace hpp {
       {
         public :
           typedef ::hpp::statistics::Bin Parent;
-          NodeBin(const NodePtr_t& n);
+          NodeBin(const StatePtr_t& n);
 
           void push_back(const RoadmapNodePtr_t& n);
 
@@ -79,12 +79,12 @@ namespace hpp {
 
           bool operator==(const NodeBin& rhs) const;
 
-          const NodePtr_t& node () const;
+          const StatePtr_t& state () const;
 
           std::ostream& print (std::ostream& os) const;
 
         private:
-          NodePtr_t node_;
+          StatePtr_t state_;
 
           typedef std::list <RoadmapNodePtr_t> RoadmapNodes_t;
           RoadmapNodes_t roadmapNodes_;
@@ -158,7 +158,7 @@ namespace hpp {
 
         protected:
           /// Constructor
-          /// \param node defines the submanifold containing the foliation.
+          /// \param state defines the submanifold containing the foliation.
           /// \param constraint The constraint that create the foliation being
           ///        studied.
           LeafHistogram (const Foliation f);
@@ -170,15 +170,15 @@ namespace hpp {
           value_type threshold_;
       };
 
-      class HPP_MANIPULATION_DLLLOCAL NodeHistogram : public ::hpp::statistics::Statistics < NodeBin >
+      class HPP_MANIPULATION_DLLLOCAL StateHistogram : public ::hpp::statistics::Statistics < NodeBin >
                                                       , public Histogram
       {
         public:
           typedef ::hpp::statistics::Statistics < NodeBin > Parent;
           /// Constructor
-          /// \param graph The constraint graph used to get the nodes from
+          /// \param graph The constraint graph used to get the states from
           ///        a configuration.
-          NodeHistogram (const graph::GraphPtr_t& graph);
+          StateHistogram (const graph::GraphPtr_t& graph);
 
           /// Insert an occurence of a value in the histogram
           void add (const RoadmapNodePtr_t& n);
@@ -195,6 +195,8 @@ namespace hpp {
           /// The constraint graph
           graph::GraphPtr_t graph_;
       };
+      typedef StateHistogram NodeHistogram HPP_MANIPULATION_DEPRECATED;
+      typedef boost::shared_ptr <StateHistogram> NodeHistogramPtr_t;
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

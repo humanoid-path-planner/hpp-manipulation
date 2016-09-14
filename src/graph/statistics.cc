@@ -98,8 +98,8 @@ namespace hpp {
         return os;
       }
 
-      NodeBin::NodeBin(const NodePtr_t& n):
-        node_(n), roadmapNodes_()
+      NodeBin::NodeBin(const StatePtr_t& n):
+        state_(n), roadmapNodes_()
       {}
 
       void NodeBin::push_back(const RoadmapNodePtr_t& n)
@@ -109,17 +109,17 @@ namespace hpp {
 
       bool NodeBin::operator<(const NodeBin& rhs) const
       {
-        return node_->id () < rhs.node ()->id ();
+        return state_->id () < rhs.state ()->id ();
       }
 
       bool NodeBin::operator==(const NodeBin& rhs) const
       {
-        return node_ == rhs.node ();
+        return state_ == rhs.state ();
       }
 
-      const NodePtr_t& NodeBin::node () const
+      const StatePtr_t& NodeBin::state () const
       {
-        return node_;
+        return state_;
       }
 
       std::ostream& NodeBin::print (std::ostream& os) const
@@ -152,7 +152,7 @@ namespace hpp {
 
       std::ostream& NodeBin::printValue (std::ostream& os) const
       {
-        return os << "NodeBin (" << node_->name () << ")";
+        return os << "NodeBin (" << state_->name () << ")";
       }
 
       LeafHistogramPtr_t LeafHistogram::create (const Foliation f)
@@ -193,32 +193,32 @@ namespace hpp {
         return HistogramPtr_t (new LeafHistogram (f_));
       }
 
-      NodeHistogram::NodeHistogram (const graph::GraphPtr_t& graph) :
+      StateHistogram::StateHistogram (const graph::GraphPtr_t& graph) :
         graph_ (graph) {}
 
-      void NodeHistogram::add (const RoadmapNodePtr_t& n)
+      void StateHistogram::add (const RoadmapNodePtr_t& n)
       {
-        iterator it = insert (NodeBin (graph_->getNode (n)));
+        iterator it = insert (NodeBin (graph_->getState (n)));
         it->push_back (n);
         if (numberOfObservations()%10 == 0) {
           hppDout (info, *this);
         }
       }
 
-      std::ostream& NodeHistogram::print (std::ostream& os) const
+      std::ostream& StateHistogram::print (std::ostream& os) const
       {
-        os << "Graph Node Histogram contains: " << std::endl;
+        os << "Graph State Histogram contains: " << std::endl;
         return Parent::print (os);
       }
 
-      const graph::GraphPtr_t& NodeHistogram::constraintGraph () const
+      const graph::GraphPtr_t& StateHistogram::constraintGraph () const
       {
         return graph_;
       }
 
-      HistogramPtr_t NodeHistogram::clone () const
+      HistogramPtr_t StateHistogram::clone () const
       {
-        return HistogramPtr_t (new NodeHistogram (graph_));
+        return HistogramPtr_t (new StateHistogram (graph_));
       }
 
       unsigned int LeafBin::numberOfObsOutOfConnectedComponent (const core::ConnectedComponentPtr_t& cc) const

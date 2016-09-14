@@ -21,7 +21,7 @@
 #include <hpp/core/path.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/manipulation/device.hh>
-#include <hpp/manipulation/graph/node.hh>
+#include <hpp/manipulation/graph/state.hh>
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/constraint-set.hh>
 

@@ -26,7 +26,7 @@
 
 # include <hpp/manipulation/fwd.hh>
 # include <hpp/manipulation/roadmap-node.hh>
-# include <hpp/manipulation/graph/node-selector.hh>
+# include <hpp/manipulation/graph/state-selector.hh>
 //# include <hpp/core/path-vector.hh>
 
 namespace hpp {
@@ -44,44 +44,44 @@ namespace hpp {
 	{ return cost_ [n1] < val; }
       }; // struc CostMapCompFunctor
 
-      typedef std::list <graph::NodePtr_t> Nodes_t;
+      typedef std::list <graph::StatePtr_t> States_t;
       typedef std::list <RoadmapNodePtr_t> RoadmapNodes_t;
       typedef std::list <core::EdgePtr_t> RoadmapEdges_t;
       typedef std::map <RoadmapNodePtr_t, core::EdgePtr_t> Parent_t;
 
       Astar (const core::DistancePtr_t distance,
-          const graph::NodeSelectorPtr_t& nodeSelector, RoadmapNodePtr_t from) :
-	distance_ (distance), selector_ (nodeSelector),
+          const graph::StateSelectorPtr_t& stateSelector, RoadmapNodePtr_t from) :
+	distance_ (distance), selector_ (stateSelector),
         from_ (from)
       {
         open_.push_back (from);
         costFromStart_ [from] = 0;
       }
 
-      Nodes_t solution (RoadmapNodePtr_t to)
+      States_t solution (RoadmapNodePtr_t to)
       {
 	if (parent_.find (to) != parent_.end () ||
             findPath (to))
         {
           RoadmapNodePtr_t node = to;
-          Nodes_t nodes;
+          States_t states;
 
-          nodes.push_front (selector_->getNode (to));
+          states.push_front (selector_->getState (to));
           while (node) {
             Parent_t::const_iterator itNode = parent_.find (node);
             if (itNode != parent_.end ()) {
               node = static_cast <RoadmapNodePtr_t> (itNode->second->from ());
-              nodes.push_front (selector_->getNode (node));
+              states.push_front (selector_->getState (node));
             }
             else node = RoadmapNodePtr_t (0);
           }
           // We may want to clean it a little
-          // std::unique (nodes.begin(), nodes.end ());
+          // std::unique (states.begin(), states.end ());
 
-          nodes.push_front (selector_->getNode (from_));
-          return nodes;
+          states.push_front (selector_->getState (from_));
+          return states;
         }
-        return Nodes_t();
+        return States_t();
       }
 
     private:
@@ -157,7 +157,7 @@ namespace hpp {
       std::map <RoadmapNodePtr_t, value_type> estimatedCostToGoal_;
       Parent_t parent_;
       core::DistancePtr_t distance_;
-      graph::NodeSelectorPtr_t selector_;
+      graph::StateSelectorPtr_t selector_;
       RoadmapNodePtr_t from_;
 
     }; // class Astar

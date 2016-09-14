@@ -14,7 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include "hpp/manipulation/graph/guided-node-selector.hh"
+#include "hpp/manipulation/graph/guided-state-selector.hh"
 
 #include <hpp/util/assertion.hh>
 #include <hpp/model/configuration.hh>
@@ -29,30 +29,30 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      GuidedNodeSelectorPtr_t GuidedNodeSelector::create(const std::string& name,
+      GuidedStateSelectorPtr_t GuidedStateSelector::create(const std::string& name,
           const core::RoadmapPtr_t& roadmap)
       {
-        GuidedNodeSelector* ptr = new GuidedNodeSelector (name, roadmap);
-        GuidedNodeSelectorPtr_t shPtr (ptr);
+        GuidedStateSelector* ptr = new GuidedStateSelector (name, roadmap);
+        GuidedStateSelectorPtr_t shPtr (ptr);
         ptr->init (shPtr);
         return shPtr;
       }
 
-      void GuidedNodeSelector::init (const GuidedNodeSelectorPtr_t& weak)
+      void GuidedStateSelector::init (const GuidedStateSelectorPtr_t& weak)
       {
-        NodeSelector::init (weak);
+        StateSelector::init (weak);
         wkPtr_ = weak;
       }
 
-      void GuidedNodeSelector::setNodeList (const Nodes_t& nodeList)
+      void GuidedStateSelector::setStateList (const States_t& stateList)
       {
-        nodeList_ = nodeList;
+        stateList_ = stateList;
       }
 
-      EdgePtr_t GuidedNodeSelector::chooseEdge(RoadmapNodePtr_t from) const
+      EdgePtr_t GuidedStateSelector::chooseEdge(RoadmapNodePtr_t from) const
       {
-        if (nodeList_.empty ()) return NodeSelector::chooseEdge (from);
-        Astar::Nodes_t list;
+        if (stateList_.empty ()) return StateSelector::chooseEdge (from);
+        Astar::States_t list;
         bool reverse = false;
         if (from->connectedComponent () == roadmap_->initNode ()->connectedComponent ()) {
           Astar alg (roadmap_->distance (), wkPtr_.lock(), static_cast <RoadmapNodePtr_t> (roadmap_->initNode ()));
@@ -72,13 +72,13 @@ namespace hpp {
           list = alg.solution (static_cast <RoadmapNodePtr_t> (*itg));
         }
         list.erase (std::unique (list.begin(), list.end ()), list.end ());
-        // Check if the beginning of nodeList is list
-        if (list.size() <= nodeList_.size()) {
+        // Check if the beginning of stateList is list
+        if (list.size() <= stateList_.size()) {
           Neighbors_t nn;
           if (reverse) {
-            Nodes_t::const_reverse_iterator it1 = nodeList_.rbegin ();
-            Astar::Nodes_t::const_reverse_iterator it2 = list.rbegin();
-            Astar::Nodes_t::const_reverse_iterator itEnd2 = list.rend();
+            States_t::const_reverse_iterator it1 = stateList_.rbegin ();
+            Astar::States_t::const_reverse_iterator it2 = list.rbegin();
+            Astar::States_t::const_reverse_iterator itEnd2 = list.rend();
             do {
               if (*it1 != *it2) {
                 hppDout (error, "The target sequence of nodes does not end with "
@@ -87,23 +87,23 @@ namespace hpp {
               }
               ++it1;
             } while (++it2 != itEnd2);
-            NodePtr_t node = getNode (from);
-            HPP_ASSERT (node == list.front ());
-            const Neighbors_t& n = node->neighbors();
-            /// You stay in the same node
+            StatePtr_t state = getState (from);
+            HPP_ASSERT (state == list.front ());
+            const Neighbors_t& n = state->neighbors();
+            /// You stay in the same state
             for (Neighbors_t::const_iterator it = n.begin (); it != n.end (); ++it)
-              if (it->second->to () == node)
+              if (it->second->to () == state)
                 nn.insert (it->second, it->first);
-            /// Go from node it1 to node
-            // The path will be build from node. So we must find an edge from
-            // node to it1, that will be reversely 
+            /// Go from state it1 to state
+            // The path will be build from state. So we must find an edge from
+            // state to it1, that will be reversely 
             for (Neighbors_t::const_iterator it = n.begin (); it != n.end (); ++it)
               if (it->second->to () == *it1)
                 nn.insert (it->second, it->first);
           } else {
-            Nodes_t::const_iterator it1 = nodeList_.begin ();
-            Astar::Nodes_t::const_iterator it2 = list.begin();
-            Astar::Nodes_t::const_iterator itEnd2 = list.end();
+            States_t::const_iterator it1 = stateList_.begin ();
+            Astar::States_t::const_iterator it2 = list.begin();
+            Astar::States_t::const_iterator itEnd2 = list.end();
             do {
               if (*it1 != *it2) {
                 hppDout (error, "The target sequence of nodes does not start with "
@@ -112,35 +112,35 @@ namespace hpp {
               }
               ++it1;
             } while (++it2 != itEnd2);
-            NodePtr_t node = getNode (from);
-            HPP_ASSERT (node == list.back ());
-            const Neighbors_t& n = node->neighbors();
+            StatePtr_t state = getState (from);
+            HPP_ASSERT (state == list.back ());
+            const Neighbors_t& n = state->neighbors();
             for (Neighbors_t::const_iterator it = n.begin (); it != n.end (); ++it)
-              /// You stay in the same node
-              /// or go from node to node it1 
-              if (it->second->to () == node || it->second->to () == *it1)
+              /// You stay in the same state
+              /// or go from state to state it1 
+              if (it->second->to () == state || it->second->to () == *it1)
                 nn.insert (it->second, it->first);
           }
           if (nn.size () > 0 && nn.totalWeight() > 0)
             return nn ();
-          hppDout (error, "This node has no neighbors to get to an admissible states.");
+          hppDout (error, "This state has no neighbors to get to an admissible states.");
         }
         return EdgePtr_t ();
       }
 
-      std::ostream& GuidedNodeSelector::dotPrint (std::ostream& os, dot::DrawingAttributes) const
+      std::ostream& GuidedStateSelector::dotPrint (std::ostream& os, dot::DrawingAttributes) const
       {
-        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
+        for (WeighedStates_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)
           it->second->dotPrint (os);
         return os;
       }
 
-      std::ostream& GuidedNodeSelector::print (std::ostream& os) const
+      std::ostream& GuidedStateSelector::print (std::ostream& os) const
       {
         os << "|-- ";
         GraphComponent::print (os) << std::endl;
-        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
+        for (WeighedStates_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)
           os << it->first << " " << *it->second;
         return os;

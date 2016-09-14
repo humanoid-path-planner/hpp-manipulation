@@ -24,7 +24,7 @@
 
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/graph.hh"
-# include "hpp/manipulation/graph/node.hh"
+# include "hpp/manipulation/graph/state.hh"
 
 namespace hpp {
   namespace manipulation {

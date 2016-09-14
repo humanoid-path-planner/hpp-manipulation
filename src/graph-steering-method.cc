@@ -68,7 +68,8 @@ namespace hpp {
       graph::Edges_t possibleEdges;
       graph::Graph& graph = *problem_->constraintGraph ();
       try {
-        possibleEdges = graph.getEdges (graph.getNode (q1), graph.getNode (q2));
+        possibleEdges = graph.getEdges
+	  (graph.getState (q1), graph.getState (q2));
       } catch (const std::logic_error& e) {
         hppDout (error, e.what ());
         return PathPtr_t ();

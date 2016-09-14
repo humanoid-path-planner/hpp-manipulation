@@ -19,8 +19,8 @@
 #include <hpp/util/assertion.hh>
 
 #include <hpp/manipulation/constraint-set.hh>
-#include "hpp/manipulation/graph/node-selector.hh"
-#include "hpp/manipulation/graph/node.hh"
+#include "hpp/manipulation/graph/state-selector.hh"
+#include "hpp/manipulation/graph/state.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/statistics.hh"
 
@@ -42,21 +42,34 @@ namespace hpp {
         robot_ = robot;
         wkPtr_ = weak;
         insertHistogram(graph::HistogramPtr_t (
-              new graph::NodeHistogram (wkPtr_.lock()))
+              new graph::StateHistogram (wkPtr_.lock()))
             );
       }
 
-      NodeSelectorPtr_t Graph::createNodeSelector (const std::string& name)
+      StateSelectorPtr_t Graph::createNodeSelector (const std::string& name)
       {
-        nodeSelector_ = NodeSelector::create (name);
-        nodeSelector_->parentGraph (wkPtr_);
-        return nodeSelector_;
+        stateSelector_ = StateSelector::create (name);
+        stateSelector_->parentGraph (wkPtr_);
+        return stateSelector_;
       }
 
-      void Graph::nodeSelector (NodeSelectorPtr_t ns)
+      StateSelectorPtr_t Graph::createStateSelector (const std::string& name)
       {
-        nodeSelector_ = ns;
-        nodeSelector_->parentGraph (wkPtr_);
+        stateSelector_ = StateSelector::create (name);
+        stateSelector_->parentGraph (wkPtr_);
+        return stateSelector_;
+      }
+
+      void Graph::nodeSelector (StateSelectorPtr_t ns)
+      {
+        stateSelector_ = ns;
+        stateSelector_->parentGraph (wkPtr_);
+      }
+
+      void Graph::stateSelector (StateSelectorPtr_t ns)
+      {
+        stateSelector_ = ns;
+        stateSelector_->parentGraph (wkPtr_);
       }
 
       void Graph::maxIterations (size_type iterations)
@@ -89,17 +102,28 @@ namespace hpp {
 	return problem_;
       }
 
-      NodePtr_t Graph::getNode (ConfigurationIn_t config) const
+      StatePtr_t Graph::getNode (ConfigurationIn_t config) const
       {
-        return nodeSelector_->getNode (config);
+        return stateSelector_->getState (config);
       }
 
-      NodePtr_t Graph::getNode(RoadmapNodePtr_t coreNode) const
+      StatePtr_t Graph::getState (ConfigurationIn_t config) const
       {
-        return nodeSelector_->getNode (coreNode);
+        return stateSelector_->getState (config);
       }
 
-      Edges_t Graph::getEdges (const NodePtr_t& from, const NodePtr_t& to) const
+      StatePtr_t Graph::getNode(RoadmapNodePtr_t coreNode) const
+      {
+        return stateSelector_->getState (coreNode);
+      }
+
+      StatePtr_t Graph::getState(RoadmapNodePtr_t coreNode) const
+      {
+        return stateSelector_->getState (coreNode);
+      }
+
+      Edges_t Graph::getEdges (const StatePtr_t& from, const StatePtr_t& to)
+	const
       {
         Edges_t edges;
         for (Neighbors_t::const_iterator it = from->neighbors ().begin ();
@@ -112,18 +136,26 @@ namespace hpp {
 
       EdgePtr_t Graph::chooseEdge (RoadmapNodePtr_t from) const
       {
-        return nodeSelector_->chooseEdge (from);
+        return stateSelector_->chooseEdge (from);
       }
 
-      ConstraintSetPtr_t Graph::configConstraint (const NodePtr_t& node)
+      ConstraintSetPtr_t Graph::configConstraint (const StatePtr_t& state)
       {
-        return node->configConstraint ();
+        return state->configConstraint ();
       }
 
       bool Graph::getConfigErrorForNode (ConfigurationIn_t config,
-					 const NodePtr_t& node, vector_t& error)
+					 const StatePtr_t& state,
+					 vector_t& error)
       {
-	return configConstraint (node)->isSatisfied (config, error);
+	return configConstraint (state)->isSatisfied (config, error);
+      }
+
+      bool Graph::getConfigErrorForState (ConfigurationIn_t config,
+					  const StatePtr_t& state,
+					  vector_t& error)
+      {
+	return configConstraint (state)->isSatisfied (config, error);
       }
 
       bool Graph::getConfigErrorForEdge (ConfigurationIn_t config,
@@ -164,14 +196,14 @@ namespace hpp {
         populateTooltip (tp);
         da.insertWithQuote ("tooltip", tp.toStr());
         os << "digraph " << id() << " {" << da;
-        nodeSelector_->dotPrint (os);
+        stateSelector_->dotPrint (os);
         os << "}" << std::endl;
         return os;
       }
 
       std::ostream& Graph::print (std::ostream& os) const
       {
-        return GraphComponent::print (os) << std::endl << *nodeSelector_;
+        return GraphComponent::print (os) << std::endl << *stateSelector_;
       }
     } // namespace graph
   } // namespace manipulation

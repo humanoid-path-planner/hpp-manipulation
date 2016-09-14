@@ -45,7 +45,7 @@
 #include "hpp/manipulation/symbolic-component.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/graph.hh"
-#include "hpp/manipulation/graph/node-selector.hh"
+#include "hpp/manipulation/graph/state-selector.hh"
 
 #define CastToWSC_ptr(var, scPtr) \
   WeighedSymbolicComponentPtr_t var = \

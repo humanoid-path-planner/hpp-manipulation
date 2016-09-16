@@ -62,7 +62,7 @@ namespace hpp {
     bool isHandleOnR3SO3 (const Handle& handle)
     {
       if (handle.joint()->jointModel().shortname() == se3::JointModelFreeFlyer::classname()
-          && handle.joint ()->parentJoint ()) {
+          && !handle.joint ()->parentJoint ()) {
 	return true;
       }
       return false;

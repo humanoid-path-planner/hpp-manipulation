@@ -678,7 +678,7 @@ namespace hpp {
             }
 
             /// Check if an object can be placed
-            bool objectCanBePlaced (const Object_t& o) const
+            bool objectCanBePlaced (const Object_t&) const
             {
               return true; // o.get<0>().get<0>();
             }

@@ -339,7 +339,7 @@ namespace hpp {
         indexPerEdgeStatistics_.resize (id + 1, -1);
       }
       if (indexPerEdgeStatistics_[id] < 0) {
-        indexPerEdgeStatistics_[id] = perEdgeStatistics_.size();
+        indexPerEdgeStatistics_[id] = (int) perEdgeStatistics_.size();
         perEdgeStatistics_.push_back (SuccessStatistics (edge->name (), 2));
       }
       return perEdgeStatistics_[indexPerEdgeStatistics_[id]];

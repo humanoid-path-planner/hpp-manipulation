@@ -42,8 +42,8 @@ namespace hpp {
       assert (path);
       bool success = impl_validate (path, reverse, validPart, report);
       assert (constraintGraph_);
-      assert (constraintGraph_->getNode (validPart->initial ()));
-      assert (constraintGraph_->getNode (validPart->end     ()));
+      assert (constraintGraph_->getState (validPart->initial ()));
+      assert (constraintGraph_->getState (validPart->end     ()));
       return success;
     }
 
@@ -112,11 +112,11 @@ namespace hpp {
       Configuration_t q (newPath.outputSize());
       if (!newPath (q, newTR.first))
         throw std::logic_error ("Initial configuration of the valid part cannot be projected.");
-      const graph::NodePtr_t& origNode = constraintGraph_->getNode (q);
+      const graph::StatePtr_t& origState = constraintGraph_->getState (q);
       if (!newPath (q, newTR.second))
         throw std::logic_error ("End configuration of the valid part cannot be projected.");
       // This may throw in the following case:
-      // - node constraints: object_placement + other_function
+      // - state constraints: object_placement + other_function
       // - path constraints: other_function, object_lock
       // This is semantically correct but for a path going from q0 to q1,
       // we ensure that
@@ -130,27 +130,27 @@ namespace hpp {
       // And not:
       // - other_function (q(s)) + object_placement (q(s)) < eps
       // In this case, there is no good way to recover. Just return failure.
-      graph::NodePtr_t destNode;
+      graph::StatePtr_t destState;
       try {
-        destNode = constraintGraph_->getNode (q);
+        destState = constraintGraph_->getState (q);
       } catch (const std::logic_error& e) {
         ConstraintSetPtr_t c = HPP_DYNAMIC_PTR_CAST(ConstraintSet, path->constraints());
         hppDout (error, "Edge " << c->edge()->name()
             << " generated an error: " << e.what());
         hppDout (error, "Likely, the constraints for paths are relaxed. If "
             "this problem occurs often, you may want to use the same "
-            "constraints for node and paths in " << c->edge()->node()->name());
+            "constraints for state and paths in " << c->edge()->state()->name());
         validPart = path->extract (std::make_pair (oldTR.first,oldTR.first));
         return false;
       }
       if (!oldPath (q, oldTR.first))
         throw std::logic_error ("Initial configuration of the path to be validated cannot be projected.");
-      const graph::NodePtr_t& oldOnode = constraintGraph_->getNode (q);
+      const graph::StatePtr_t& oldOstate = constraintGraph_->getState (q);
       if (!oldPath (q, oldTR.second))
         throw std::logic_error ("End configuration of the path to be validated cannot be projected.");
-      const graph::NodePtr_t& oldDnode = constraintGraph_->getNode (q);
+      const graph::StatePtr_t& oldDstate = constraintGraph_->getState (q);
 
-      if (origNode == oldOnode && destNode == oldDnode) {
+      if (origState == oldOstate && destState == oldDstate) {
         validPart = pathNoCollision;
         return false;
       }

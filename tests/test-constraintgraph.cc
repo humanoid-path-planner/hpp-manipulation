@@ -22,8 +22,8 @@
 #include <hpp/constraints/position.hh>
 #include <hpp/constraints/relative-com.hh>
 
-#include "hpp/manipulation/graph/node.hh"
-#include "hpp/manipulation/graph/node-selector.hh"
+#include "hpp/manipulation/graph/state.hh"
+#include "hpp/manipulation/graph/state-selector.hh"
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/device.hh"

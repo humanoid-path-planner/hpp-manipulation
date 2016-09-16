@@ -37,12 +37,12 @@ SET(SOURCES
   graph-steering-method.cc
   graph-optimizer.cc
 
-  graph/node.cc
+  graph/state.cc
   graph/edge.cc
   graph/graph.cc
   graph/graph-component.cc
-  graph/node-selector.cc
-  graph/guided-node-selector.cc
+  graph/state-selector.cc
+  graph/guided-state-selector.cc
   graph/statistics.cc
   graph/helper.cc
 

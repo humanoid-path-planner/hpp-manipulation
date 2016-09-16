@@ -26,7 +26,7 @@ namespace hpp {
         ConnectedComponentPtr_t cc) :
       core::Node (configuration, cc),
       cacheSystem_ (defaultCachingSystem),
-      node_ ()
+      state_ ()
     {}
   } // namespace manipulation
 } // namespace hpp

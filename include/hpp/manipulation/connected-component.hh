@@ -27,13 +27,13 @@
 namespace hpp {
   namespace manipulation {
     /// Extension of hpp::core::connected-component. Adds a list of roadmap nodes for
-    /// every contraint graph node within the connected component. Thus every roadmap
-    /// node is assigned to a grahp node, which minimises computation time.
+    /// every contraint graph state within the connected component. Thus every roadmap
+    /// node is assigned to a grahp state, which minimises computation time.
 class HPP_MANIPULATION_DLLAPI ConnectedComponent : public core::ConnectedComponent 
 { 
   public:
-      /// Map of graph nodes within the connected component
-      typedef std::map <graph::NodePtr_t, RoadmapNodes_t> GraphNodes_t;
+      /// Map of graph states within the connected component
+      typedef std::map <graph::StatePtr_t, RoadmapNodes_t> GraphStates_t;
      
       ConnectedComponent() {}
 
@@ -49,11 +49,12 @@ class HPP_MANIPULATION_DLLAPI ConnectedComponent : public core::ConnectedCompone
       /// \param roadmap node to be added
       void addNode (const core::NodePtr_t& node);
 
-      const RoadmapNodes_t& getRoadmapNodes (const graph::NodePtr_t graphNode) const;
+      const RoadmapNodes_t& getRoadmapNodes (const graph::StatePtr_t graphState) const;
      
   protected:
   private:
-	GraphNodes_t graphNodeMap_;
+      bool check () const;
+	GraphStates_t graphStateMap_;
 	RoadmapPtr_t roadmap_;
         static RoadmapNodes_t empty_;
     }; // class ConnectedComponent

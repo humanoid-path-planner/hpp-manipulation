@@ -58,7 +58,7 @@ namespace hpp {
       /// \addtogroup constraint_graph
       /// \{
 
-      /// Transition between two nodes of a constraint graph
+      /// Transition between two states of a constraint graph
       ///
       /// An edge stores two types of constraints.
 
@@ -72,16 +72,16 @@ namespace hpp {
       /// the object can be at different positions.
       /// \sa method pathConstraint.
       /// \li <b> Configuration constraints </b> are constraints that
-      /// configurations in the destination node should satisfy and
+      /// configurations in the destination state should satisfy and
       /// the constraints that paths should satisfy. For instance, if
-      /// the edge links a node where the robot does not hold the
-      /// object to a node where the robot holds the object, the
+      /// the edge links a state where the robot does not hold the
+      /// object to a state where the robot holds the object, the
       /// configuration constraints represent a fixed relative
       /// position of the object with respect to the gripper and a
       /// stable position of the object. Configuration constraints are
       /// necessary to generate a configuration in the destination
-      /// node of the edge that is reachable from a given
-      /// configuration in the start node by an admissible path.
+      /// state of the edge that is reachable from a given
+      /// configuration in the start state by an admissible path.
       class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent
       {
         public:
@@ -94,8 +94,8 @@ namespace hpp {
           static EdgePtr_t create
 	    (const std::string& name,
 	     const GraphWkPtr_t& graph,
-	     const NodeWkPtr_t& from,
-	     const NodeWkPtr_t& to);
+	     const StateWkPtr_t& from,
+	     const StateWkPtr_t& to);
 
 	  /// Apply edge constraint
 	  ///
@@ -122,33 +122,47 @@ namespace hpp {
               ConfigurationIn_t q2) const;
 
           /// Get the destination
-          NodePtr_t to () const;
+          StatePtr_t to () const;
 
           /// Get the origin
-          NodePtr_t from () const;
+          StatePtr_t from () const;
 
-          /// Get the node in which path is.
-          NodePtr_t node () const
+          /// Get the state in which path is.
+          StatePtr_t state () const
           {
-            return node_.lock();
+            return state_.lock();
           }
 
-          void node (NodePtr_t node)
+          void state (StatePtr_t state)
           {
-            node_ = node;
+            state_ = state;
           }
 
-          /// \deprecated use node(NodePtr_t) instead.
+          /// Get the state in which path is.
+	  /// \deprecated use StatePtr_t state () const instead
+          StatePtr_t node () const
+          {
+            return state_.lock();
+          }
+
+	  /// Set state
+	  /// \deprecated use void state (StatePtr_t state) instead
+          void node (StatePtr_t state)
+          {
+            state_ = state;
+          }
+
+          /// \deprecated use state(StatePtr_t) instead.
           void isInNodeFrom (bool iinf) HPP_MANIPULATION_DEPRECATED
           {
-            if (iinf) node_ = from_;
-            else      node_ = to_;
+            if (iinf) state_ = from_;
+            else      state_ = to_;
           }
 
-          /// \deprecated see NodePtr_t node() const
+          /// \deprecated see StatePtr_t state() const
           bool isInNodeFrom () const HPP_MANIPULATION_DEPRECATED
           {
-            return node_.lock() == from_.lock();
+            return state_.lock() == from_.lock();
           }
 
 	  /// Get steering method associated to the edge.
@@ -180,7 +194,7 @@ namespace hpp {
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
-          /// Constraint of the destination node and of the path
+          /// Constraint of the destination state and of the path
           ConstraintSetPtr_t configConstraint() const;
 
           void setShort (bool isShort) {
@@ -193,8 +207,8 @@ namespace hpp {
 
         protected:
           /// Initialization of the object.
-          void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
-              const NodeWkPtr_t& to);
+          void init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const StateWkPtr_t& from,
+              const StateWkPtr_t& to);
 
           /// Constructor
           Edge (const std::string& name);
@@ -225,10 +239,10 @@ namespace hpp {
           Constraint_t* configConstraints_;
 
           /// The two ends of the transition.
-          NodeWkPtr_t from_, to_;
+          StateWkPtr_t from_, to_;
 
-          /// True if this path is in node from, False if in node to
-          NodeWkPtr_t node_;
+          /// True if this path is in state from, False if in state to
+          StateWkPtr_t state_;
 
 	  /// Steering method used to create paths associated to the edge
 	  SteeringMethod_t* steeringMethod_;
@@ -245,17 +259,17 @@ namespace hpp {
 
       /// Edge with waypoint.
       /// Waypoints are handled recursively, i.e.\ class WaypointEdge contains only a
-      /// Node and an Edge, the second Edge being itself.
-      /// In this package, the Node in a WaypointEdge is semantically different from other Node
+      /// State and an Edge, the second Edge being itself.
+      /// In this package, the State in a WaypointEdge is semantically different from other State
       /// because it does not correspond to a state with different manipulation rules. It has
-      /// the same rules as another Node (either Edge::from() or Edge::to()).
+      /// the same rules as another State (either Edge::from() or Edge::to()).
       ///
-      /// Semantically, a waypoint Node is fully part of the WaypointEdge. When a corresponding path
+      /// Semantically, a waypoint State is fully part of the WaypointEdge. When a corresponding path
       /// reaches it, no planning is required to know what to do next. To the contrary, when a path reaches
       /// Edge::from() or Edge::to(), there may be several possibilities.
       ///
       /// \note
-      ///   Implementation details: let's say, between the two nodes \f$N_f\f$ and \f$N_t\f$,
+      ///   Implementation details: let's say, between the two states \f$N_f\f$ and \f$N_t\f$,
       ///   two waypoints are required:
       ///   \f$ N_f \xrightarrow{e_0} n_0 \xrightarrow{e_1} n_1 \xrightarrow{E} N_t\f$.
       ///   The outmost WaypointEdg contains:
@@ -275,8 +289,8 @@ namespace hpp {
           /// Create a new WaypointEdge.
 	static WaypointEdgePtr_t create
 	  (const std::string& name,
-	   const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
-	   const NodeWkPtr_t& to);
+	   const GraphWkPtr_t& graph, const StateWkPtr_t& from,
+	   const StateWkPtr_t& to);
 
           virtual bool direction (const core::PathPtr_t& path) const;
 
@@ -303,11 +317,15 @@ namespace hpp {
           }
 
           /// Set waypoint index with wEdge and wTo.
-          /// \param wTo is the destination node of wEdge
-          void setWaypoint (const std::size_t index, const EdgePtr_t wEdge, const NodePtr_t wTo);
+          /// \param wTo is the destination state of wEdge
+          void setWaypoint (const std::size_t index, const EdgePtr_t wEdge, const StatePtr_t wTo);
 
-          /// Get the node in which path after the waypoint is.
-          NodePtr_t node () const;
+          /// Get the state in which path after the waypoint is.
+	  /// \deprecated use StatePtr_t state () const instead
+          StatePtr_t node () const;
+
+          /// Get the state in which path after the waypoint is.
+          StatePtr_t state () const;
 
         protected:
 	  WaypointEdge (const std::string& name) :
@@ -315,14 +333,14 @@ namespace hpp {
 	    {
 	    }
           /// Initialization of the object.
-          void init (const WaypointEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
-              const NodeWkPtr_t& to);
+          void init (const WaypointEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const StateWkPtr_t& from,
+              const StateWkPtr_t& to);
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
 
         private:
-          typedef std::pair < EdgePtr_t, NodePtr_t > Waypoint_t;
+          typedef std::pair < EdgePtr_t, StatePtr_t > Waypoint_t;
           typedef std::vector <Waypoint_t> Waypoints_t;
 
           Waypoints_t waypoints_;
@@ -342,8 +360,8 @@ namespace hpp {
           /// Create a new LevelSetEdge.
           static LevelSetEdgePtr_t create
 	    (const std::string& name,
-	     const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
-	     const NodeWkPtr_t& to);
+	     const GraphWkPtr_t& graph, const StateWkPtr_t& from,
+	     const StateWkPtr_t& to);
 
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
@@ -387,8 +405,8 @@ namespace hpp {
 
         protected:
           /// Initialization of the object.
-          void init (const LevelSetEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
-              const NodeWkPtr_t& to);
+          void init (const LevelSetEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const StateWkPtr_t& from,
+              const StateWkPtr_t& to);
 
 	  LevelSetEdge (const std::string& name);
 

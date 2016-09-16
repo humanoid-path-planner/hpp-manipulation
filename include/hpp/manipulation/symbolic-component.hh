@@ -77,7 +77,7 @@ namespace hpp {
           weak_ = shPtr;
         }
 
-        graph::NodePtr_t state_;
+        graph::StatePtr_t state_;
         RoadmapNodes_t nodes_;
 
       private:

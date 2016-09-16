@@ -41,7 +41,7 @@
 #include "hpp/manipulation/roadmap-node.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph/edge.hh"
-#include "hpp/manipulation/graph/node-selector.hh"
+#include "hpp/manipulation/graph/state-selector.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -134,9 +134,9 @@ namespace hpp {
 
       DevicePtr_t robot = HPP_DYNAMIC_PTR_CAST(Device, problem ().robot ());
       HPP_ASSERT(robot);
-      const graph::Nodes_t& graphNodes = problem_.constraintGraph ()
-        ->nodeSelector ()->getNodes ();
-      graph::Nodes_t::const_iterator itNode;
+      const graph::States_t& graphStates = problem_.constraintGraph ()
+        ->stateSelector ()->getStates ();
+      graph::States_t::const_iterator itState;
       core::Nodes_t newNodes;
       core::PathPtr_t path;
 
@@ -154,9 +154,9 @@ namespace hpp {
           itcc != roadmap ()->connectedComponents ().end (); ++itcc) {
         // Find the nearest neighbor.
         core::value_type distance;
-        for (itNode = graphNodes.begin (); itNode != graphNodes.end (); ++itNode) {
+        for (itState = graphStates.begin (); itState != graphStates.end (); ++itState) {
           HPP_START_TIMECOUNTER(nearestNeighbor);
-          RoadmapNodePtr_t near = roadmap_->nearestNode (q_rand, HPP_STATIC_PTR_CAST(ConnectedComponent,*itcc), *itNode, distance);
+          RoadmapNodePtr_t near = roadmap_->nearestNode (q_rand, HPP_STATIC_PTR_CAST(ConnectedComponent,*itcc), *itState, distance);
           HPP_STOP_TIMECOUNTER(nearestNeighbor);
           HPP_DISPLAY_LAST_TIMECOUNTER(nearestNeighbor);
           if (!near) continue;

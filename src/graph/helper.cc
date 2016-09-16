@@ -31,11 +31,10 @@
 #include <hpp/constraints/differentiable-function.hh>
 
 #include <hpp/manipulation/handle.hh>
-#include <hpp/manipulation/device.hh>
-#include <hpp/manipulation/graph/node.hh>
+#include <hpp/manipulation/graph/state.hh>
 #include <hpp/manipulation/graph/edge.hh>
-#include <hpp/manipulation/graph/node-selector.hh>
-#include <hpp/manipulation/graph/guided-node-selector.hh>
+#include <hpp/manipulation/graph/state-selector.hh>
+#include <hpp/manipulation/graph/guided-state-selector.hh>
 #include <hpp/manipulation/problem-solver.hh>
 
 namespace hpp {
@@ -47,10 +46,10 @@ namespace hpp {
           (GraphComponentPtr_t comp) const
         {
           if (nc.empty ()) return;
-          NodePtr_t n;
+          StatePtr_t n;
           if (forPath) {
-            n = HPP_DYNAMIC_PTR_CAST (Node, comp);
-            if (!n) throw std::logic_error ("Wrong type: expect a Node");
+            n = HPP_DYNAMIC_PTR_CAST (State, comp);
+            if (!n) throw std::logic_error ("Wrong type: expect a State");
           }
           NumericalConstraints_t::const_iterator it;
           IntervalsContainer_t::const_iterator itpdof = pdof.begin ();
@@ -80,7 +79,7 @@ namespace hpp {
           assert (itpdof == pdof.end ());
         }
 
-        void FoliatedManifold::addToNode (NodePtr_t comp) const
+        void FoliatedManifold::addToState (StatePtr_t comp) const
         {
           nc.addToComp <false> (comp);
           for (LockedJoints_t::const_iterator it = lj.begin ();
@@ -122,7 +121,7 @@ namespace hpp {
               // It should be
               // static const bool intersec = !((gCase & NoGrasp) || (gCase & NoPlace));
               // but when NoPlace | WithPreGrasp, we need a LevelSetEdge after
-              // the pregrasp waypoint node. Sadly the current implementation of
+              // the pregrasp waypoint state. Sadly the current implementation of
               // WaypointEdge does not allow the last edge of type other than Edge.
               static const bool intersec = pregrasp || preplace || ((gCase & GraspOnly) && (gCase & PlaceOnly));
 
@@ -132,20 +131,20 @@ namespace hpp {
                 && !((gCase & NoGrasp) && (gCase & NoPlace));
 
               static const std::size_t nbWaypoints = (pregrasp?1:0) + (intersec?1:0) + (preplace?1:0);
-              static const std::size_t Nnodes = 2 + nbWaypoints;
+              static const std::size_t Nstates = 2 + nbWaypoints;
               static const std::size_t Nedges = 1 + nbWaypoints;
               // static const std::size_t iNpregrasp = pregrasp?1 + 1:nbWaypoints;
               // static const std::size_t iNpreplace = pregrasp?1 + 1:nbWaypoints;
-              typedef boost::array <NodePtr_t, Nnodes> NodeArray;
+              typedef boost::array <StatePtr_t, Nstates> StateArray;
               typedef boost::array <EdgePtr_t, Nedges> EdgeArray;
 
-              static inline const NodePtr_t& Npregrasp (const NodeArray& n) { assert (pregrasp); return n[1]; }
-              static inline const NodePtr_t& Nintersec (const NodeArray& n) { assert (intersec); return n[1 + (pregrasp?1:0)]; }
-              static inline const NodePtr_t& Npreplace (const NodeArray& n) { assert (preplace); return n[1 + (pregrasp?1:0) + (intersec?1:0)]; }
+              static inline const StatePtr_t& Npregrasp (const StateArray& n) { assert (pregrasp); return n[1]; }
+              static inline const StatePtr_t& Nintersec (const StateArray& n) { assert (intersec); return n[1 + (pregrasp?1:0)]; }
+              static inline const StatePtr_t& Npreplace (const StateArray& n) { assert (preplace); return n[1 + (pregrasp?1:0) + (intersec?1:0)]; }
 
               static inline EdgePtr_t makeWE (
                   const std::string& name,
-                  const NodePtr_t& from, const NodePtr_t& to,
+                  const StatePtr_t& from, const StatePtr_t& to,
                   const size_type& w)
               {
                 if (Nedges > 1) {
@@ -156,29 +155,29 @@ namespace hpp {
                 } else return from->linkTo (name, to, w, Edge::create);
               }
 
-              static inline NodeArray makeWaypoints (
-                  const NodePtr_t& from, const NodePtr_t& to,
+              static inline StateArray makeWaypoints (
+                  const StatePtr_t& from, const StatePtr_t& to,
                   const std::string& name)
               {
-                NodeSelectorPtr_t ns = from->parentGraph ()->nodeSelector ();
-                NodeArray nodes;
+                StateSelectorPtr_t ns = from->parentGraph ()->stateSelector ();
+                StateArray states;
                 std::size_t r = 0;
-                nodes[r] = from; ++r;
+                states[r] = from; ++r;
                 if (pregrasp) {
-                  nodes[r] = ns->createNode (name + "_pregrasp", true); ++r;
+                  states[r] = ns->createState (name + "_pregrasp", true); ++r;
                 }
                 if (intersec) {
-                  nodes[r] = ns->createNode (name + "_intersec", true); ++r;
+                  states[r] = ns->createState (name + "_intersec", true); ++r;
                 }
                 if (preplace) {
-                  nodes[r] = ns->createNode (name + "_preplace", true); ++r;
+                  states[r] = ns->createState (name + "_preplace", true); ++r;
                 }
-                nodes[r] = to;
-                return nodes;
+                states[r] = to;
+                return states;
               }
 
               static inline EdgePtr_t makeLSEgrasp (const std::string& name,
-                  const NodeArray& n, const EdgeArray& e,
+                  const StateArray& n, const EdgeArray& e,
                   const size_type w, LevelSetEdgePtr_t& gls)
               {
                 if (Nedges > 1) {
@@ -191,7 +190,7 @@ namespace hpp {
                   for (std::size_t i = 0; i < Nedges - 1; ++i)
                     we->setWaypoint (i, e[i], n[i]);
                   we->setWaypoint (T-1, gls, n[T]);
-                  gls->node (n.front());
+                  gls->state (n.front());
                   gls->setShort (pregrasp);
                   return we;
                 } else {
@@ -205,7 +204,7 @@ namespace hpp {
               }
 
               static inline EdgePtr_t makeLSEplace (const std::string& name,
-                  const NodeArray& n, const EdgeArray& e,
+                  const StateArray& n, const EdgeArray& e,
                   const size_type w, LevelSetEdgePtr_t& pls)
               {
                 if (Nedges > 1) {
@@ -218,7 +217,7 @@ namespace hpp {
                   for (std::size_t i = Nedges - 1; i != 0; --i)
                     we->setWaypoint (Nedges - 1 - i, e[i], n[i]);
                   we->setWaypoint (Nedges - 1 - T, pls, n[T]);
-                  pls->node (n.back ());
+                  pls->state (n.back ());
                   pls->setShort (preplace);
                   return we;
                 } else {
@@ -233,7 +232,7 @@ namespace hpp {
 
               template <typename EdgeType>
               static inline boost::shared_ptr<EdgeType> linkWaypoint (
-                  const NodeArray& nodes,
+                  const StateArray& states,
                   const std::size_t& iF, const std::size_t& iT,
                   const std::string& prefix,
                   const std::string& suffix = "")
@@ -242,31 +241,31 @@ namespace hpp {
                 ss << prefix << "_" << iF << iT;
                 if (suffix.length () > 0) ss << "_" << suffix;
                 return boost::static_pointer_cast <EdgeType>
-                    (nodes[iF]->linkTo (ss.str(), nodes[iT], -1, EdgeType::create));
+                    (states[iF]->linkTo (ss.str(), states[iT], -1, EdgeType::create));
               }
 
               template <bool forward>
               static inline EdgeArray linkWaypoints (
-                  const NodeArray& nodes, const EdgePtr_t& edge,
+                  const StateArray& states, const EdgePtr_t& edge,
                   const std::string& name)
               {
                 EdgeArray e;
                 WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST(WaypointEdge, edge);
                 if (forward)
                   for (std::size_t i = 0; i < Nedges - 1; ++i) {
-                    e[i] = linkWaypoint <Edge> (nodes, i, i + 1, name);
-                    we->setWaypoint (i, e[i], nodes[i+1]);
+                    e[i] = linkWaypoint <Edge> (states, i, i + 1, name);
+                    we->setWaypoint (i, e[i], states[i+1]);
                   }
                 else
                   for (std::size_t i = Nedges - 1; i != 0; --i) {
-                    e[i] = linkWaypoint <Edge> (nodes, i + 1, i, name);
-                    we->setWaypoint (Nedges - 1 - i, e[i], nodes[i]);
+                    e[i] = linkWaypoint <Edge> (states, i + 1, i, name);
+                    we->setWaypoint (Nedges - 1 - i, e[i], states[i]);
                   }
                 e[(forward?Nedges - 1:0)] = we;
                 return e;
               }
 
-              static inline void setNodeConstraints (const NodeArray& n,
+              static inline void setStateConstraints (const StateArray& n,
                   const FoliatedManifold& g, const FoliatedManifold& pg,
                   const FoliatedManifold& p, const FoliatedManifold& pp,
                   const FoliatedManifold& m)
@@ -274,19 +273,19 @@ namespace hpp {
                 // From and to are not populated automatically
                 // to avoid duplicates.
                 if (pregrasp) {
-                  p .addToNode (Npregrasp (n));
-                  pg.addToNode (Npregrasp (n));
-                  m .addToNode (Npregrasp (n));
+                  p .addToState (Npregrasp (n));
+                  pg.addToState (Npregrasp (n));
+                  m .addToState (Npregrasp (n));
                 }
                 if (intersec) {
-                  p .addToNode (Nintersec (n));
-                  g .addToNode (Nintersec (n));
-                  m .addToNode (Nintersec (n));
+                  p .addToState (Nintersec (n));
+                  g .addToState (Nintersec (n));
+                  m .addToState (Nintersec (n));
                 }
                 if (preplace) {
-                  pp.addToNode (Npreplace (n));
-                  g .addToNode (Npreplace (n));
-                  m .addToNode (Npreplace (n));
+                  pp.addToState (Npreplace (n));
+                  g .addToState (Npreplace (n));
+                  m .addToState (Npreplace (n));
                 }
               }
 
@@ -303,7 +302,7 @@ namespace hpp {
 
               template <bool forward>
               static inline void setEdgeProp
-              (const EdgeArray& e, const NodeArray& n)
+              (const EdgeArray& e, const StateArray& n)
               {
                 /// Last is short
                 const std::size_t K = (forward?1:0);
@@ -315,15 +314,15 @@ namespace hpp {
                   B = 0;
                 else // There is a grasp
                   B = 1 + (pregrasp?1:0);
-                for (std::size_t i = 0; i < B     ; ++i) e[i]->node (n[0]);
-                for (std::size_t i = B; i < Nedges; ++i) e[i]->node (n[Nnodes-1]);
+                for (std::size_t i = 0; i < B     ; ++i) e[i]->state (n[0]);
+                for (std::size_t i = B; i < Nedges; ++i) e[i]->state (n[Nstates-1]);
               }
             };
         }
 
         template <int gCase> Edges_t createEdges (
               const std::string& forwName,   const std::string& backName,
-              const NodePtr_t& from,         const NodePtr_t& to,
+              const StatePtr_t& from,         const StatePtr_t& to,
               const size_type& wForw,        const size_type& wBack,
               const FoliatedManifold& grasp, const FoliatedManifold& pregrasp,
               const FoliatedManifold& place, const FoliatedManifold& preplace,
@@ -332,7 +331,7 @@ namespace hpp {
           {
             typedef CaseTraits<gCase> T;
             assert (T::valid && "Not a valid case.");
-            typedef typename T::NodeArray NodeArray;
+            typedef typename T::StateArray StateArray;
             typedef typename T::EdgeArray EdgeArray;
 
             // Create the edges
@@ -341,15 +340,15 @@ namespace hpp {
                       weForwLs, weBackLs;
 
             std::string name = forwName;
-            NodeArray n = T::makeWaypoints (from, to, name);
+            StateArray n = T::makeWaypoints (from, to, name);
 
             EdgeArray eF = T::template linkWaypoints <true> (n, weForw, name);
 
-            // Set the nodes constraints
-            // Note that submanifold is not taken into account for nodes
+            // Set the states constraints
+            // Note that submanifold is not taken into account for states
             // because the edges constraints will enforce configuration to stay
             // in a leaf, and so in the manifold itself.
-            T::setNodeConstraints (n, grasp, pregrasp, place, preplace,
+            T::setStateConstraints (n, grasp, pregrasp, place, preplace,
                 submanifoldDef);
 
             // Set the edges properties
@@ -410,7 +409,7 @@ namespace hpp {
 
         EdgePtr_t createLoopEdge (
               const std::string& loopName,
-              const NodePtr_t& node,
+              const StatePtr_t& state,
               const size_type& w,
               const bool levelSet,
               const FoliatedManifold& submanifoldDef)
@@ -418,10 +417,10 @@ namespace hpp {
           // Create the edges
           EdgePtr_t loop;
           if (levelSet)
-               loop = node->linkTo (loopName, node, w, LevelSetEdge::create);
-          else loop = node->linkTo (loopName, node, w, Edge::create);
+               loop = state->linkTo (loopName, state, w, LevelSetEdge::create);
+          else loop = state->linkTo (loopName, state, w, Edge::create);
 
-          loop->node (node);
+          loop->state (state);
           submanifoldDef.addToEdge (loop);
 
           if (levelSet) {
@@ -514,9 +513,9 @@ namespace hpp {
           typedef std::vector <index_t> IndexV_t;
           typedef std::list <index_t> IndexL_t;
           typedef std::pair <index_t, index_t> Grasp_t;
-          typedef boost::tuple <NodePtr_t,
+          typedef boost::tuple <StatePtr_t,
                   FoliatedManifold>
-                    NodeAndManifold_t;
+                    StateAndManifold_t;
           //typedef std::vector <index_t, index_t> GraspV_t;
           /// GraspV_t corresponds to a unique ID of a  permutation.
           /// - its size is the number of grippers,
@@ -546,9 +545,9 @@ namespace hpp {
 
           struct Result {
             GraphPtr_t graph;
-            typedef unsigned long nodeid_type;
-            std::tr1::unordered_map<nodeid_type, NodeAndManifold_t> nodes;
-            typedef std::pair<nodeid_type, nodeid_type> edgeid_type;
+            typedef unsigned long stateid_type;
+            std::tr1::unordered_map<stateid_type, StateAndManifold_t> states;
+            typedef std::pair<stateid_type, stateid_type> edgeid_type;
             struct edgeid_hash {
               std::tr1::hash<edgeid_type::first_type> first;
               std::tr1::hash<edgeid_type::second_type> second;
@@ -607,14 +606,14 @@ namespace hpp {
               return true;
             }
 
-            inline nodeid_type nodeid (const GraspV_t& iG)
+            inline stateid_type stateid (const GraspV_t& iG)
             {
-              nodeid_type iGOH = iG[0];
-              nodeid_type res;
+              stateid_type iGOH = iG[0];
+              stateid_type res;
               for (index_t i = 1; i < nG; ++i) {
                 res = iGOH + dims[i] * (iG[i]);
                 if (res < iGOH) {
-                  hppDout (info, "Node ID overflowed. There are too many states...");
+                  hppDout (info, "State ID overflowed. There are too many states...");
                 }
                 iGOH = res;
                 // iGOH += dims[i] * (iG[i]);
@@ -622,24 +621,24 @@ namespace hpp {
               return iGOH;
             }
 
-            bool hasNode (const GraspV_t& iG)
+            bool hasState (const GraspV_t& iG)
             {
-              return nodes.count(nodeid(iG)) > 0;
+              return states.count(stateid(iG)) > 0;
             }
 
-            NodeAndManifold_t& operator() (const GraspV_t& iG)
+            StateAndManifold_t& operator() (const GraspV_t& iG)
             {
-              return nodes [nodeid(iG)];
+              return states [stateid(iG)];
             }
 
             bool hasEdge (const GraspV_t& g1, const GraspV_t& g2)
             {
-              return edges.count(edgeid_type(nodeid(g1), nodeid(g2))) > 0;
+              return edges.count(edgeid_type(stateid(g1), stateid(g2))) > 0;
             }
 
             void addEdge (const GraspV_t& g1, const GraspV_t& g2)
             {
-              edges.insert(edgeid_type(nodeid(g1), nodeid(g2)));
+              edges.insert(edgeid_type(stateid(g1), stateid(g2)));
             }
 
             inline boost::array<NumericalConstraintPtr_t,3>& graspConstraint (
@@ -681,7 +680,7 @@ namespace hpp {
             /// Check if an object can be placed
             bool objectCanBePlaced (const Object_t& o) const
             {
-              return o.get<0>().get<0>();
+              return true; // o.get<0>().get<0>();
             }
 
             /// Check is an object is grasped by the GraspV_t
@@ -696,7 +695,7 @@ namespace hpp {
               return false;
             }
 
-            /// Get a node name from a set of grasps
+            /// Get a state name from a set of grasps
             std::string name (const GraspV_t& idxOH, bool abbrev = false) const {
               assert (idxOH.size () == nG);
               std::stringstream ss;
@@ -759,13 +758,13 @@ namespace hpp {
             }
           };
 
-          const NodeAndManifold_t& makeNode (Result& r, const GraspV_t& g,
+          const StateAndManifold_t& makeState (Result& r, const GraspV_t& g,
               const int priority)
           {
-            NodeAndManifold_t& nam = r (g);
+            StateAndManifold_t& nam = r (g);
             if (!nam.get<0>()) {
-              hppDout (info, "Creating node " << r.name (g));
-              nam.get<0>() = r.graph->nodeSelector ()->createNode
+              hppDout (info, "Creating state " << r.name (g));
+              nam.get<0>() = r.graph->stateSelector ()->createState
                 (r.name (g), false, priority);
               // Loop over the grippers and create grasping constraints if required
               FoliatedManifold unused;
@@ -792,7 +791,7 @@ namespace hpp {
                       o.get<0>().get<2>(),
                       nam.get<1>(), unused);
               }
-              nam.get<1>().addToNode (nam.get<0>());
+              nam.get<1>().addToState (nam.get<0>());
 
               createLoopEdge (r.nameLoopEdge (g),
                   nam.get<0>(), 0, 
@@ -815,8 +814,8 @@ namespace hpp {
                   << r.name (gFrom) << "\nto " << r.name (gTo));
               return;
             }
-            const NodeAndManifold_t& from = makeNode (r, gFrom, priority),
-                                     to   = makeNode (r, gTo, priority+1);
+            const StateAndManifold_t& from = makeState (r, gFrom, priority),
+                                     to   = makeState (r, gTo, priority+1);
             const Object_t& o = r.object (gTo[iG]);
 
             // Detect when grasping an object already grasped.
@@ -936,7 +935,7 @@ namespace hpp {
             IndexV_t nIdx_g (idx_g.size() - 1);
             IndexV_t nIdx_oh (idx_oh.size() - 1);
             bool curGraspIsAllowed = r.graspIsAllowed(grasps);
-            if (curGraspIsAllowed) makeNode (r, grasps, depth);
+            if (curGraspIsAllowed) makeState (r, grasps, depth);
 
             for (IndexV_t::const_iterator itx_g = idx_g.begin ();
                 itx_g != idx_g.end (); ++itx_g) {
@@ -951,7 +950,7 @@ namespace hpp {
                 nGrasps [*itx_g] = *itx_oh;
 
                 bool nextGraspIsAllowed = r.graspIsAllowed(nGrasps);
-                if (nextGraspIsAllowed) makeNode (r, nGrasps, depth + 1);
+                if (nextGraspIsAllowed) makeState (r, nGrasps, depth + 1);
 
                 if (curGraspIsAllowed && nextGraspIsAllowed)
                   makeEdge (r, grasps, nGrasps, *itx_g, depth);
@@ -974,8 +973,8 @@ namespace hpp {
             const Rules_t& rules)
         {
           if (!graph) throw std::logic_error ("The graph must be initialized");
-          NodeSelectorPtr_t ns = graph->nodeSelector ();
-          if (!ns) throw std::logic_error ("The graph does not have a NodeSelector");
+          StateSelectorPtr_t ns = graph->stateSelector ();
+          if (!ns) throw std::logic_error ("The graph does not have a StateSelector");
 
           Result r (grippers, objects, graph);
           r.setRules (rules);
@@ -988,7 +987,7 @@ namespace hpp {
 
           recurseGrippers (r, availG, availOH, iG, 0);
 
-          hppDout (info, "Created a graph with " << r.nodes.size() << " states "
+          hppDout (info, "Created a graph with " << r.states.size() << " states "
               "and " << r.edges.size() << " edges.");
         }
 
@@ -1049,8 +1048,8 @@ namespace hpp {
           }
           GraphPtr_t graph = Graph::create (graphName,
               ps->robot(), ps->problem());
-          graph->nodeSelector (
-              GuidedNodeSelector::create ("nodeSelector",
+          graph->stateSelector (
+              GuidedStateSelector::create ("stateSelector",
               ps->roadmap ()));
           graph->maxIterations  (ps->maxIterations ());
           graph->errorThreshold (ps->errorThreshold ());

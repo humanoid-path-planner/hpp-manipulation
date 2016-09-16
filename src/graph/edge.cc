@@ -50,12 +50,12 @@ namespace hpp {
         if (pathValidation_   ) delete pathValidation_;
       }
 
-      NodePtr_t Edge::to () const
+      StatePtr_t Edge::to () const
       {
         return to_.lock();
       }
 
-      NodePtr_t Edge::from () const
+      StatePtr_t Edge::from () const
       {
         return from_.lock();
       }
@@ -73,10 +73,10 @@ namespace hpp {
               || (src_contains_q1 && dst_contains_q0)
               )) {
           if (src_contains_q0) {
-            assert (node ()->contains (q1));
+            assert (state ()->contains (q1));
             return false;
           } else if (src_contains_q1) {
-            assert (node ()->contains (q0));
+            assert (state ()->contains (q0));
             return true;
           }
           throw std::runtime_error ("This path does not seem to have been "
@@ -107,10 +107,10 @@ namespace hpp {
               || (src_contains_q1 && dst_contains_q0)
               )) {
           if (src_contains_q0) {
-            assert (node ()->contains (q1));
+            assert (state ()->contains (q1));
             return false;
           } else if (src_contains_q1) {
-            assert (node ()->contains (q0));
+            assert (state ()->contains (q0));
             return true;
           }
           throw std::runtime_error ("This path does not seem to have been "
@@ -129,28 +129,28 @@ namespace hpp {
         
         g->insertNumericalConstraints (proj);
         insertNumericalConstraints (proj);
-        node ()->insertNumericalConstraints (proj);
+        state ()->insertNumericalConstraints (proj);
 
         g->insertLockedJoints (proj);
         insertLockedJoints (proj);
-        node ()->insertLockedJoints (proj);
+        state ()->insertLockedJoints (proj);
 
         if (wkPtr_.lock() == other) // No intersection to be computed.
           return false;
 
-        bool nodeB_Eq_nodeA = (node() == other->node());
+        bool stateB_Eq_stateA = (state() == other->state());
 
         other->insertNumericalConstraints (proj);
-        if (!nodeB_Eq_nodeA) other->node()->insertNumericalConstraints (proj);
+        if (!stateB_Eq_stateA) other->state()->insertNumericalConstraints (proj);
         other->insertLockedJoints (proj);
-        if (!nodeB_Eq_nodeA) other->node()->insertLockedJoints (proj);
+        if (!stateB_Eq_stateA) other->state()->insertLockedJoints (proj);
 
         return true;
       }
 
       EdgePtr_t Edge::create (const std::string& name,
 			      const GraphWkPtr_t& graph,
-			      const NodeWkPtr_t& from, const NodeWkPtr_t& to)
+			      const StateWkPtr_t& from, const StateWkPtr_t& to)
       {
         Edge* ptr = new Edge (name);
         EdgePtr_t shPtr (ptr);
@@ -158,15 +158,15 @@ namespace hpp {
         return shPtr;
       }
 
-      void Edge::init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
-          const NodeWkPtr_t& to)
+      void Edge::init (const EdgeWkPtr_t& weak, const GraphWkPtr_t& graph,
+		       const StateWkPtr_t& from, const StateWkPtr_t& to)
       {
         GraphComponent::init (weak);
         parentGraph (graph);
         wkPtr_ = weak;
         from_ = from;
         to_ = to;
-        node_ = to;
+        state_ = to;
       }
 
       std::ostream& Edge::print (std::ostream& os) const
@@ -208,16 +208,16 @@ namespace hpp {
         g->insertNumericalConstraints (proj);
         insertNumericalConstraints (proj);
         to ()->insertNumericalConstraints (proj);
-	if (node () != to ()) {
-	  node ()->insertNumericalConstraints (proj);
+	if (state () != to ()) {
+	  state ()->insertNumericalConstraints (proj);
 	}
         constraint->addConstraint (proj);
 
         g->insertLockedJoints (proj);
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
-	if (node () != to ()) {
-	  node ()->insertLockedJoints (proj);
+	if (state () != to ()) {
+	  state ()->insertLockedJoints (proj);
 	}
 
         constraint->edge (wkPtr_.lock ());
@@ -243,12 +243,12 @@ namespace hpp {
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
         g->insertNumericalConstraints (proj);
         insertNumericalConstraints (proj);
-        node ()->insertNumericalConstraintsForPath (proj);
+        state ()->insertNumericalConstraintsForPath (proj);
         constraint->addConstraint (proj);
 
         g->insertLockedJoints (proj);
         insertLockedJoints (proj);
-        node ()->insertLockedJoints (proj);
+        state ()->insertLockedJoints (proj);
 
         constraint->edge (wkPtr_.lock ());
 
@@ -337,8 +337,8 @@ namespace hpp {
       }
 
       WaypointEdgePtr_t WaypointEdge::create (const std::string& name,
-       const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
-       const NodeWkPtr_t& to)
+       const GraphWkPtr_t& graph, const StateWkPtr_t& from,
+       const StateWkPtr_t& to)
       {
         WaypointEdge* ptr = new WaypointEdge (name);
         WaypointEdgePtr_t shPtr (ptr);
@@ -346,8 +346,10 @@ namespace hpp {
         return shPtr;
       }
 
-      void WaypointEdge::init (const WaypointEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
-          const NodeWkPtr_t& to)
+      void WaypointEdge::init (const WaypointEdgeWkPtr_t& weak,
+			       const GraphWkPtr_t& graph,
+			       const StateWkPtr_t& from,
+			       const StateWkPtr_t& to)
       {
         Edge::init (weak, graph, from, to);
         wkPtr_ = weak;
@@ -441,13 +443,15 @@ namespace hpp {
         result_ = Configuration_t (nbDof);
       }
 
-      void WaypointEdge::setWaypoint (const std::size_t index, const EdgePtr_t wEdge, const NodePtr_t wTo)
+      void WaypointEdge::setWaypoint (const std::size_t index,
+				      const EdgePtr_t wEdge,
+				      const StatePtr_t wTo)
       {
         assert (index < waypoints_.size());
         waypoints_[index] = Waypoint_t (wEdge, wTo);
       }
 
-      NodePtr_t WaypointEdge::node () const
+      StatePtr_t WaypointEdge::state () const
       {
         if (isInNodeFrom ()) return waypoints_.back().second;
         else return to ();
@@ -605,8 +609,10 @@ namespace hpp {
         return false;
       }
 
-      void LevelSetEdge::init (const LevelSetEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const NodeWkPtr_t& from,
-          const NodeWkPtr_t& to)
+      void LevelSetEdge::init (const LevelSetEdgeWkPtr_t& weak,
+			       const GraphWkPtr_t& graph,
+			       const StateWkPtr_t& from,
+			       const StateWkPtr_t& to)
       {
         Edge::init (weak, graph, from, to);
         wkPtr_ = weak;
@@ -614,7 +620,7 @@ namespace hpp {
 
       LevelSetEdgePtr_t LevelSetEdge::create
       (const std::string& name, const GraphWkPtr_t& graph,
-       const NodeWkPtr_t& from, const NodeWkPtr_t& to)
+       const StateWkPtr_t& from, const StateWkPtr_t& to)
       {
         LevelSetEdge* ptr = new LevelSetEdge (name);
         LevelSetEdgePtr_t shPtr (ptr);
@@ -661,7 +667,7 @@ namespace hpp {
         // TODO: We assumed that this part of the code can only be reached by
         // configurations that are valid.
         // It would be wiser to make sure configurations are valid, for instance
-        // by considering only configurations in the destination node of this
+        // by considering only configurations in the destination state of this
         // edge.
         ConstraintSetPtr_t cond = ConstraintSet::create (g->robot (), "Set " + n);
         proj = ConfigProjector::create(g->robot(), "projCond_" + n, g->errorThreshold(), g->maxIterations());
@@ -710,8 +716,8 @@ namespace hpp {
 
         insertNumericalConstraints (proj);
         to ()->insertNumericalConstraints (proj);
-        if (node () != to ()) {
-	  node ()->insertNumericalConstraints (proj);
+        if (state () != to ()) {
+	  state ()->insertNumericalConstraints (proj);
 	}
         constraint->addConstraint (proj);
 
@@ -722,8 +728,8 @@ namespace hpp {
         }
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
-        if (node () != to ()) {
-	  node ()->insertLockedJoints (proj);
+        if (state () != to ()) {
+	  state ()->insertLockedJoints (proj);
 	}
 
         constraint->edge (wkPtr_.lock ());

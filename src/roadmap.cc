@@ -24,8 +24,7 @@
 #include <hpp/manipulation/roadmap.hh>
 #include <hpp/manipulation/roadmap-node.hh>
 #include <hpp/manipulation/symbolic-component.hh>
-#include <hpp/manipulation/connected-component.hh>
-#include <hpp/manipulation/graph/node.hh>
+#include <hpp/manipulation/graph/state.hh>
 #include <hpp/manipulation/graph/statistics.hh>
 
 namespace hpp {
@@ -93,12 +92,15 @@ namespace hpp {
 
     RoadmapNodePtr_t Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
         const ConnectedComponentPtr_t& connectedComponent,
-        const graph::NodePtr_t& node,
+        const graph::StatePtr_t& state,
         value_type& minDistance) const
     {
       core::NodePtr_t result = NULL;
       minDistance = std::numeric_limits <value_type>::infinity ();
-      const RoadmapNodes_t& roadmapNodes = connectedComponent->getRoadmapNodes (node);
+      const RoadmapNodes_t& roadmapNodes = connectedComponent->getRoadmapNodes (state);
+      // std::cout << "State: "  << state->name () << std::endl;
+      // std::cout << "roadmapNodes.size () = " << roadmapNodes.size ()
+      // 		<< std::endl;
       for (RoadmapNodes_t::const_iterator itNode = roadmapNodes.begin ();
           itNode != roadmapNodes.end (); ++itNode) {
         value_type d = (*distance()) (*(*itNode)->configuration (),
@@ -121,9 +123,9 @@ namespace hpp {
       return node;
     }
 
-    graph::NodePtr_t Roadmap::getNode(RoadmapNodePtr_t node)
+    graph::StatePtr_t Roadmap::getState(RoadmapNodePtr_t node)
     {
-      return graph_->getNode(node);
+      return graph_->getState(node);
     }
 
     void Roadmap::addEdge (const core::EdgePtr_t& edge)

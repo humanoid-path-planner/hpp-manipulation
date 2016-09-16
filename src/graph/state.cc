@@ -14,7 +14,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include "hpp/manipulation/graph/node.hh"
+#include "hpp/manipulation/graph/state.hh"
 
 #include <hpp/constraints/differentiable-function.hh>
 
@@ -26,31 +26,31 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      Node::Node (const std::string& name) :
+      State::State (const std::string& name) :
 	GraphComponent (name), configConstraints_ (new Constraint_t()),
         isWaypoint_ (false)
       {}
 
-      Node::~Node ()
+      State::~State ()
       {
         if (configConstraints_) delete configConstraints_;
       }
 
-      NodePtr_t Node::create (const std::string& name)
+      StatePtr_t State::create (const std::string& name)
       {
-        Node* node = new Node (name);
-        NodePtr_t shPtr(node);
+        State* state = new State (name);
+        StatePtr_t shPtr(state);
         shPtr->init(shPtr);
         return shPtr;
       }
 
-      void Node::init (const NodeWkPtr_t& weak)
+      void State::init (const StateWkPtr_t& weak)
       {
         GraphComponent::init (weak);
         wkPtr_ = weak;
       }
 
-      EdgePtr_t Node::linkTo(const std::string& name, const NodePtr_t& to,
+      EdgePtr_t State::linkTo(const std::string& name, const StatePtr_t& to,
 			     const size_type& w, EdgeFactory create)
       {
         EdgePtr_t newEdge = create(name, graph_, wkPtr_, to);
@@ -59,16 +59,16 @@ namespace hpp {
         return newEdge;
       }
 
-      bool Node::contains (ConfigurationIn_t config) const
+      bool State::contains (ConfigurationIn_t config) const
       {
         return configConstraint()->isSatisfied (config);
       }
 
-      std::ostream& Node::dotPrint (std::ostream& os, dot::DrawingAttributes da) const
+      std::ostream& State::dotPrint (std::ostream& os, dot::DrawingAttributes da) const
       {
         da.insertWithQuote ("label", name ());
         da.insert ("style","filled");
-        dot::Tooltip tp; tp.addLine ("Node contains:");
+        dot::Tooltip tp; tp.addLine ("State contains:");
         populateTooltip (tp);
         da.insertWithQuote ("tooltip", tp.toStr());
         os << id () << " " << da << ";" << std::endl;
@@ -86,7 +86,7 @@ namespace hpp {
         return os;
       }
 
-      void Node::populateTooltip (dot::Tooltip& tp) const
+      void State::populateTooltip (dot::Tooltip& tp) const
       {
         GraphComponent::populateTooltip (tp);
         tp.addLine ("");
@@ -97,7 +97,7 @@ namespace hpp {
         }
       }
 
-      std::ostream& Node::print (std::ostream& os) const
+      std::ostream& State::print (std::ostream& os) const
       {
         os << "|   |-- ";
         GraphComponent::print (os) << std::endl;
@@ -107,7 +107,7 @@ namespace hpp {
         return os;
       }
 
-      ConstraintSetPtr_t Node::configConstraint() const
+      ConstraintSetPtr_t State::configConstraint() const
       {
         if (!*configConstraints_) {
           std::string n = "(" + name () + ")";
@@ -126,7 +126,7 @@ namespace hpp {
         return configConstraints_->get ();
       }
 
-      void Node::updateWeight (const EdgePtr_t& e, const Weight_t& w)
+      void State::updateWeight (const EdgePtr_t& e, const Weight_t& w)
       {
         for (Neighbors_t::const_iterator it = neighbors_.begin();
             it != neighbors_.end(); ++it) {
@@ -138,7 +138,7 @@ namespace hpp {
         hppDout (error, "Edge not found");
       }
 
-      Weight_t Node::getWeight (const EdgePtr_t& e)
+      Weight_t State::getWeight (const EdgePtr_t& e)
       {
         for (Neighbors_t::const_iterator it = neighbors_.begin();
             it != neighbors_.end(); ++it)

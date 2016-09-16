@@ -17,52 +17,14 @@
 #ifndef HPP_MANIPULATION_GRAPH_GUIDED_NODE_SELECTOR_HH
 # define HPP_MANIPULATION_GRAPH_GUIDED_NODE_SELECTOR_HH
 
-#include "hpp/manipulation/fwd.hh"
-#include "hpp/manipulation/graph/fwd.hh"
-#include "hpp/manipulation/graph/node-selector.hh"
+#include "hpp/manipulation/graph/guided-state-selector.hh"
 
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      class HPP_MANIPULATION_DLLAPI GuidedNodeSelector : public NodeSelector
-      {
-        public:
-          /// Create a new GuidedNodeSelector.
-          static GuidedNodeSelectorPtr_t create(const std::string& name,
-              const core::RoadmapPtr_t& roadmap);
-
-          /// Set the target
-          void setNodeList (const Nodes_t& nodeList);
-
-          /// Select randomly an outgoing edge of the given node.
-          virtual EdgePtr_t chooseEdge(RoadmapNodePtr_t from) const;
-
-          /// Print the object in a stream.
-          std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
-
-        protected:
-          /// Initialization of the object.
-          void init (const GuidedNodeSelectorPtr_t& weak);
-
-          /// Constructor
-          GuidedNodeSelector (const std::string& name,
-              const core::RoadmapPtr_t roadmap) :
-            NodeSelector (name), roadmap_ (roadmap)
-          {}
-
-          /// Print the object in a stream.
-          std::ostream& print (std::ostream& os) const;
-
-        private:
-          /// The target
-          Nodes_t nodeList_;
-
-          /// The roadmap
-          core::RoadmapPtr_t roadmap_;
-
-          /// Weak pointer to itself.
-          GuidedNodeSelectorWkPtr_t wkPtr_;
-      }; // Class NodeSelector
+      typedef GuidedStateSelector GuidedNodeSelector
+      HPP_MANIPULATION_DEPRECATED;
+      typedef boost::shared_ptr < GuidedNodeSelector > GuidedNodeSelectorPtr_t;
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

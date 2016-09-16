@@ -18,63 +18,63 @@
 
 #include <hpp/pinocchio/configuration.hh>
 #include "hpp/manipulation/roadmap-node.hh"
-#include "hpp/manipulation/graph/node-selector.hh"
+#include "hpp/manipulation/graph/state-selector.hh"
 
 #include <cstdlib>
 
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      NodeSelectorPtr_t NodeSelector::create(const std::string& name)
+      StateSelectorPtr_t StateSelector::create(const std::string& name)
       {
-        NodeSelector* ptr = new NodeSelector (name);
-        NodeSelectorPtr_t shPtr (ptr);
+        StateSelector* ptr = new StateSelector (name);
+        StateSelectorPtr_t shPtr (ptr);
         ptr->init (shPtr);
         return shPtr;
       }
 
-      void NodeSelector::init (const NodeSelectorPtr_t& weak)
+      void StateSelector::init (const StateSelectorPtr_t& weak)
       {
         GraphComponent::init (weak);
         wkPtr_ = weak;
       }
 
-      NodePtr_t NodeSelector::createNode (const std::string& name,
+      StatePtr_t StateSelector::createState (const std::string& name,
           bool waypoint, const int w)
       {
-        NodePtr_t newNode = Node::create (name);
-        newNode->nodeSelector(wkPtr_);
-        newNode->parentGraph(graph_);
-        newNode->isWaypoint (waypoint);
-        if (waypoint) waypoints_.push_back(newNode);
+        StatePtr_t newState = State::create (name);
+        newState->stateSelector(wkPtr_);
+        newState->parentGraph(graph_);
+        newState->isWaypoint (waypoint);
+        if (waypoint) waypoints_.push_back(newState);
         else {
           bool found = false;
-          for (WeighedNodes_t::iterator it = orderedStates_.begin();
+          for (WeighedStates_t::iterator it = orderedStates_.begin();
               it != orderedStates_.end (); ++it) {
             if (it->first < w) {
-              orderedStates_.insert (it, WeighedNode_t(w,newNode));
+              orderedStates_.insert (it, WeighedState_t(w,newState));
               found = true;
               break;
             }
           }
           if (!found) 
-            orderedStates_.push_back (WeighedNode_t(w,newNode));
+            orderedStates_.push_back (WeighedState_t(w,newState));
         }
-        return newNode;
+        return newState;
       }
 
-      Nodes_t NodeSelector::getNodes () const
+      States_t StateSelector::getStates () const
       {
-        Nodes_t ret;
-        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
+        States_t ret;
+        for (WeighedStates_t::const_iterator it = orderedStates_.begin();
             it != orderedStates_.end (); ++it)
           ret.push_back (it->second);
         return ret;
       }
 
-      NodePtr_t NodeSelector::getNode(ConfigurationIn_t config) const
+      StatePtr_t StateSelector::getState(ConfigurationIn_t config) const
       {
-        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
+        for (WeighedStates_t::const_iterator it = orderedStates_.begin();
 	     orderedStates_.end() != it; ++it) {
           if (it->second->contains(config))
             return it->second;
@@ -84,49 +84,49 @@ namespace hpp {
 	throw std::logic_error (oss.str ());
       }
 
-      NodePtr_t NodeSelector::getNode(RoadmapNodePtr_t node) const
+      StatePtr_t StateSelector::getState(RoadmapNodePtr_t node) const
       {
-        NodePtr_t n;
+        StatePtr_t n;
         switch (node->cachingSystem ()) {
           case RoadmapNode::CACHE_UP_TO_DATE:
-            n = node->graphNode ();
+            n = node->graphState ();
             break;
           case RoadmapNode::CACHE_DISABLED:
           case RoadmapNode::CACHE_NEED_UPDATE:
-            n = getNode (*(node->configuration ()));
-            node->graphNode (n);
+            n = getState (*(node->configuration ()));
+            node->graphState (n);
             break;
           default:
-            n = getNode (*(node->configuration ()));
+            n = getState (*(node->configuration ()));
             hppDout (error, "Unimplemented caching system.");
             break;
         }
         return n;
       }
 
-      EdgePtr_t NodeSelector::chooseEdge(RoadmapNodePtr_t from) const
+      EdgePtr_t StateSelector::chooseEdge(RoadmapNodePtr_t from) const
       {
-        NodePtr_t node = getNode (from);
-        const Neighbors_t neighborPicker = node->neighbors();
+        StatePtr_t state = getState (from);
+        const Neighbors_t neighborPicker = state->neighbors();
         if (neighborPicker.totalWeight () == 0) {
           return EdgePtr_t ();
         }
         return neighborPicker ();
       }
 
-      std::ostream& NodeSelector::dotPrint (std::ostream& os, dot::DrawingAttributes) const
+      std::ostream& StateSelector::dotPrint (std::ostream& os, dot::DrawingAttributes) const
       {
-        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
+        for (WeighedStates_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)
           it->second->dotPrint (os);
         return os;
       }
 
-      std::ostream& NodeSelector::print (std::ostream& os) const
+      std::ostream& StateSelector::print (std::ostream& os) const
       {
         os << "|-- ";
         GraphComponent::print (os) << std::endl;
-        for (WeighedNodes_t::const_iterator it = orderedStates_.begin();
+        for (WeighedStates_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)
           os << it->first << " " << *it->second;
         return os;

@@ -19,9 +19,10 @@
 
 # include <hpp/core/roadmap.hh>
 
-# include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/config.hh>
-# include <hpp/manipulation/graph/fwd.hh>
+# include "hpp/manipulation/config.hh"
+# include "hpp/manipulation/fwd.hh"
+# include "hpp/manipulation/graph/fwd.hh"
+# include <hpp/manipulation/deprecated.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -55,11 +56,15 @@ namespace hpp {
         /// ConnectedComponent.
         RoadmapNodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
             const ConnectedComponentPtr_t& connectedComponent,
-            const graph::NodePtr_t& node,
+            const graph::StatePtr_t& state,
             value_type& minDistance) const;
 
-	/// Get graph node corresponding to given roadmap node
- 	graph::NodePtr_t getNode(RoadmapNodePtr_t node);
+	/// Get graph state corresponding to given roadmap node
+	/// \deprecated use getState instead
+	graph::StatePtr_t getNode(RoadmapNodePtr_t node) HPP_MANIPULATION_DEPRECATED;
+
+	/// Get graph state corresponding to given roadmap node
+	graph::StatePtr_t getState(RoadmapNodePtr_t node);
 
         /// Get the symbolic components
         const SymbolicComponents_t& symbolicComponents () const

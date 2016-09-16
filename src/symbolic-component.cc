@@ -17,7 +17,7 @@
 #include <hpp/manipulation/symbolic-component.hh>
 
 #include <hpp/manipulation/roadmap.hh>
-#include <hpp/manipulation/graph/node.hh>
+#include <hpp/manipulation/graph/state.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -32,7 +32,7 @@ namespace hpp {
     void SymbolicComponent::addNode (const RoadmapNodePtr_t& node)
     {
       assert(state_);
-      graph::NodePtr_t state = roadmap_->getNode(node);
+      graph::StatePtr_t state = roadmap_->getState(node);
 
       // Sanity check
       if (state_ == state) // Oops
@@ -44,7 +44,7 @@ namespace hpp {
     void SymbolicComponent::setFirstNode (const RoadmapNodePtr_t& node)
     {
       assert(!state_);
-      state_ = roadmap_->getNode(node);
+      state_ = roadmap_->getState(node);
       nodes_.push_back(node);
     }
 

@@ -270,6 +270,8 @@ namespace hpp {
     {
       if (!problem ())
         throw std::runtime_error ("The problem is not defined.");
+      if (roadmap())
+        roadmap()->clear();
       RoadmapPtr_t r (Roadmap::create (problem ()->distance (), problem ()->robot ()));
       if (constraintGraph_) r->constraintGraph (constraintGraph_);
       roadmap (r);

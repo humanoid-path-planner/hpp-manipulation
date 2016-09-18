@@ -27,6 +27,7 @@
 #include <hpp/util/debug.hh>
 
 #include <hpp/pinocchio/gripper.hh>
+#include <pinocchio/multibody/model.hpp>
 
 #include <hpp/constraints/differentiable-function.hh>
 
@@ -1035,14 +1036,23 @@ namespace hpp {
               }
             }
             // Create object lock
-            assert (robot.has <JointIndexes_t> (od.name));
-            BOOST_FOREACH (const JointIndex& j, robot.get<JointIndexes_t> (od.name)) {
-              JointPtr_t oj (new Joint (ps->robot(), j));
-              LockedJointPtr_t lj = core::LockedJoint::create (oj,
-                  robot.currentConfiguration()
-                  .segment (oj->rankInConfiguration (), oj->configSize ()));
-              ps->ProblemSolver::ThisC_t::add <LockedJointPtr_t> ("lock_" + oj->name (), lj);
-              objects[i].get<0> ().get<2> ().push_back (lj);
+	    // Loop over all frames of object, detect joint and create locked
+	    // joint.
+            assert (robot.has <FrameIndexes_t> (od.name));
+            BOOST_FOREACH (const FrameIndex& j, robot.get<FrameIndexes_t> (od.name)) {
+	      const se3::Frame& frame (robot.model ().frames [j]);
+	      if (frame.type == se3::JOINT) {
+		JointIndex jointId (robot.model ().getJointId (frame.name));
+		hppDout (info, "frame " << j << " with name " << od.name
+			 << " is joint with id " << jointId);
+		JointPtr_t oj (new Joint (ps->robot(), jointId));
+		LockedJointPtr_t lj = core::LockedJoint::create
+		  (oj, robot.currentConfiguration().segment
+		   (oj->rankInConfiguration (), oj->configSize ()));
+		ps->ProblemSolver::ThisC_t::add <LockedJointPtr_t>
+		  ("lock_" + oj->name (), lj);
+		objects[i].get<0> ().get<2> ().push_back (lj);
+	      }
             }
             ++i;
           }

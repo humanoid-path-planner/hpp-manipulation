@@ -23,6 +23,10 @@
 #include <hpp/manipulation/graph/graph.hh>
 #include <hpp/manipulation/constraint-set.hh>
 
+#ifdef HPP_DEBUG
+# include <hpp/manipulation/graph/state.hh>
+#endif
+
 namespace hpp {
   namespace manipulation {
     GraphPathValidationPtr_t GraphPathValidation::create (const PathValidationPtr_t& pathValidation)

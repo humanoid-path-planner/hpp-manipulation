@@ -100,7 +100,7 @@ namespace hpp {
         typedef ::hpp::statistics::SuccessBin SuccessBin;
         typedef ::hpp::statistics::SuccessBin::Reason Reason;
         SuccessStatistics& edgeStat (const graph::EdgePtr_t& edge);
-        std::vector<int> indexPerEdgeStatistics_;
+        std::vector<size_type> indexPerEdgeStatistics_;
         std::vector<SuccessStatistics> perEdgeStatistics_;
 
         /// A Reason is associated to each EdgePtr_t that generated a failure.

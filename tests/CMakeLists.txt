@@ -52,4 +52,4 @@ IF (TEST_UR5)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTEST_UR5")
   PKG_CONFIG_USE_DEPENDENCY(test-constraintgraph hpp-model-urdf)
 ENDIF ()
-ADD_TESTCASE (path-projection FALSE)
+# ADD_TESTCASE (path-projection FALSE) # moved in hpp-core

@@ -22,7 +22,6 @@
 #include <boost/assign/list_of.hpp>
 
 #include <pinocchio/multibody/joint/joint.hpp>
-#include <pinocchio/multibody/joint/joint-free-flyer.hpp>
 
 #include <hpp/util/debug.hh>
 

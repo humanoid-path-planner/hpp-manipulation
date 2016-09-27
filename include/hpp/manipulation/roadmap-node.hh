@@ -89,7 +89,6 @@ namespace hpp {
 
         /// Setter for the graph::State.
         void graphState (const graph::StatePtr_t& state)
-	  HPP_MANIPULATION_DEPRECATED
         {
           if (cacheSystem_ != CACHE_DISABLED) cacheSystem_ = CACHE_UP_TO_DATE;
           state_ = state;

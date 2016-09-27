@@ -42,6 +42,7 @@ namespace hpp {
       }
       if (s1.size () == 0) return false;
       if (s1 == s2) return true;
+      return false;
     }
 
     ConnectedComponentPtr_t ConnectedComponent::create(const RoadmapWkPtr_t& roadmap)

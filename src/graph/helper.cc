@@ -24,6 +24,8 @@
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
 
+#include <pinocchio/multibody/model.hpp>
+
 #include <hpp/util/debug.hh>
 
 #include <hpp/pinocchio/gripper.hh>
@@ -1002,6 +1004,7 @@ namespace hpp {
             const value_type& prePlaceWidth)
         {
           const Device& robot = *(ps->robot ());
+          const pinocchio::Model& model = robot.model();
           Grippers_t grippers (griNames.size());
           index_t i = 0;
           BOOST_FOREACH (const std::string& gn, griNames) {
@@ -1039,20 +1042,15 @@ namespace hpp {
 	    // Loop over all frames of object, detect joint and create locked
 	    // joint.
             assert (robot.has <FrameIndexes_t> (od.name));
-            BOOST_FOREACH (const FrameIndex& j, robot.get<FrameIndexes_t> (od.name)) {
-	      const se3::Frame& frame (robot.model ().frames [j]);
-	      if (frame.type == se3::JOINT) {
-		JointIndex jointId (robot.model ().getJointId (frame.name));
-		hppDout (info, "frame " << j << " with name " << od.name
-			 << " is joint with id " << jointId);
-		JointPtr_t oj (new Joint (ps->robot(), jointId));
-		LockedJointPtr_t lj = core::LockedJoint::create
-		  (oj, robot.currentConfiguration().segment
-		   (oj->rankInConfiguration (), oj->configSize ()));
-		ps->ProblemSolver::ThisC_t::add <LockedJointPtr_t>
-		  ("lock_" + oj->name (), lj);
-		objects[i].get<0> ().get<2> ().push_back (lj);
-	      }
+            BOOST_FOREACH (const se3::FrameIndex& f, robot.get<FrameIndexes_t> (od.name)) {
+              if (model.frames[f].type != se3::JOINT) continue;
+              const JointIndex j = model.frames[f].parent;
+              JointPtr_t oj (new Joint (ps->robot(), j));
+              LockedJointPtr_t lj = core::LockedJoint::create (oj,
+                  robot.currentConfiguration()
+                  .segment (oj->rankInConfiguration (), oj->configSize ()));
+              ps->ProblemSolver::ThisC_t::add <LockedJointPtr_t> ("lock_" + oj->name (), lj);
+              objects[i].get<0> ().get<2> ().push_back (lj);
             }
             ++i;
           }

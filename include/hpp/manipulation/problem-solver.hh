@@ -50,7 +50,7 @@ namespace hpp {
 
         /// Set robot
         /// Check that robot is of type hpp::manipulation::Device
-        virtual void robot (const DevicePtr_t& robot)
+        virtual void robot (const core::DevicePtr_t& robot)
         {
           robot_ = HPP_DYNAMIC_PTR_CAST (Device, robot);
           assert (robot_);

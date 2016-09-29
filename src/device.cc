@@ -32,6 +32,14 @@ namespace hpp {
     using se3::Frame;
     using se3::FrameIndex;
 
+    pinocchio::DevicePtr_t Device::clone () const
+    {
+      Device* ptr = new Device(*this);
+      DevicePtr_t shPtr (ptr);
+      ptr->initCopy (shPtr, *this);
+      return shPtr;
+    }
+
     void Device::setRobotRootPosition (const std::string& rn,
         const Transform3f& t)
     {
@@ -99,6 +107,5 @@ namespace hpp {
       Containers_t::print <GripperPtr_t> (os);
       return os;
     }
-
   } // namespace manipulation
 } // namespace hpp

@@ -68,6 +68,8 @@ namespace hpp {
         void setRobotRootPosition (const std::string& robotName,
                                    const Transform3f& positionWRTParentJoint);
 
+        virtual pinocchio::DevicePtr_t clone () const;
+
         /// \name Collisions
         /// \{
 
@@ -92,6 +94,12 @@ namespace hpp {
         void init (const DeviceWkPtr_t& self)
         {
           Parent_t::init (self);
+          self_ = self;
+        }
+
+        void initCopy (const DeviceWkPtr_t& self, const Device& other)
+        {
+          Parent_t::initCopy (self, other);
           self_ = self;
         }
 

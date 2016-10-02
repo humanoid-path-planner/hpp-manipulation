@@ -950,7 +950,7 @@ namespace hpp {
             if (idx_g.empty () || idx_oh.empty ()) return;
             IndexV_t nIdx_g (idx_g.size() - 1);
             IndexV_t nIdx_oh (idx_oh.size() - 1);
-            bool curGraspIsAllowed = (depth != 0) && r.graspIsAllowed(grasps);
+            bool curGraspIsAllowed = r.graspIsAllowed(grasps);
             if (curGraspIsAllowed) makeState (r, grasps, depth);
 
             for (IndexV_t::const_iterator itx_g = idx_g.begin ();

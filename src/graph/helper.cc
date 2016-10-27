@@ -525,23 +525,27 @@ namespace hpp {
           /// - the values correpond to the index of the handle (0..nbHandle-1), or
           ///   nbHandle to mean no handle. 
           typedef std::vector <index_t> GraspV_t;
+          struct Result;
           struct CompiledRule {
-            enum Result {
+            enum Status {
               Accept,
               Refuse,
               NoMatch,
               Undefined
             };
-            boost::regex gripper, handle;
-            bool link;
-            CompiledRule (const Rule& r) :
-              gripper (r.gripper_), handle (r.handle_), link (r.link_) {}
-            Result check (const std::string& g, const std::string& h) const
+            std::vector<boost::regex> handles;
+            Status status;
+            CompiledRule (const Result& res, const Rule& r);
+            Status check (const std::vector<std::string>& names, const GraspV_t& g) const
             {
-              if (boost::regex_match(g, gripper))
-                if (boost::regex_match(h, handle))
-                  return (link ? Accept : Refuse);
-              return NoMatch;
+              const std::size_t nG = g.size();
+              assert(nG == handles.size());
+              for (std::size_t i = 0; i < nG; ++i) {
+                if (handles[i].empty()) continue;
+                if (!boost::regex_match(names[g[i]], handles[i]))
+                  return NoMatch;
+              }
+              return status;
             }
           };
           typedef std::vector<CompiledRule> CompiledRules_t;
@@ -564,49 +568,46 @@ namespace hpp {
             GraspV_t dims;
             const Grippers_t& gs;
             const Objects_t& ohs;
+            std::vector<std::string> handleNames;
             CompiledRules_t rules;
-            mutable Eigen::MatrixXi rulesCache;
+            CompiledRule::Status defaultAcceptationPolicy;
 
             Result (const Grippers_t& grippers, const Objects_t& objects, GraphPtr_t g) :
-              graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects)
+              graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects),
+              defaultAcceptationPolicy (CompiledRule::Refuse)
             {
               BOOST_FOREACH (const Object_t& o, objects) {
                 nOH += o.get<1>().size();
+                BOOST_FOREACH (const HandlePtr_t& h, o.get<1>()) {
+                  handleNames.push_back(h->name());
+                }
               }
+              handleNames.push_back("");
               dims.resize (nG);
               dims[0] = nOH + 1;
               for (index_t i = 1; i < nG; ++i)
                 dims[i] = dims[i-1] * (nOH + 1);
               graspCs.resize (nG * nOH);
-              rulesCache = Eigen::MatrixXi::Constant(nG, nOH + 1, CompiledRule::Undefined);
             }
 
             void setRules (const Rules_t& r)
             {
               for (Rules_t::const_iterator _r = r.begin(); _r != r.end(); ++_r)
-                rules.push_back (CompiledRule(*_r));
+                rules.push_back (CompiledRule(*this, *_r));
             }
 
             bool graspIsAllowed (const GraspV_t& idxOH) const
             {
               assert (idxOH.size () == nG);
-              for (std::size_t i = 0; i < nG; ++i) {
-                const std::string& g = gs[i]->name(),
-                                   h = (idxOH[i] == nOH) ? "" : handle (idxOH[i])->name ();
-                if ((CompiledRule::Result)rulesCache(i, idxOH[i]) == CompiledRule::Undefined) {
-                  CompiledRule::Result status = CompiledRule::Accept;
-                  for (std::size_t r = 0; r < rules.size(); ++r) {
-                    status = rules[r].check(g,h);
-                    if (status == CompiledRule::Accept) break;
-                    else if (status == CompiledRule::Refuse) break;
-                    status = CompiledRule::Accept;
-                  }
-                  rulesCache(i, idxOH[i]) = status;
+              for (std::size_t r = 0; r < rules.size(); ++r) {
+                switch (rules[r].check(handleNames,idxOH)) {
+                  case CompiledRule::Accept : return true;
+                  case CompiledRule::Refuse : return false;
+                  case CompiledRule::NoMatch: continue; // Check next rule
+                  default: throw std::invalid_argument ("Rules are ill-defined.");
                 }
-                bool keep = ((CompiledRule::Result)rulesCache(i, idxOH[i]) == CompiledRule::Accept);
-                if (!keep) return false;
               }
-              return true;
+              return (defaultAcceptationPolicy == CompiledRule::Accept);
             }
 
             inline stateid_type stateid (const GraspV_t& iG)
@@ -760,6 +761,21 @@ namespace hpp {
               pregrasp.nc_path.pdof.push_back (SizeIntervals_t());
             }
           };
+
+          CompiledRule::CompiledRule (const Result& res, const Rule& r) :
+            handles(res.nG), status (r.link_ ? Accept : Refuse)
+          {
+            assert(r.grippers_.size() == r.handles_.size());
+            for (std::size_t j = 0; j < r.grippers_.size(); ++j) {
+              boost::regex gripper (r.grippers_[j]);
+              for (std::size_t i = 0; i < res.nG; ++i) {
+                if (boost::regex_match(res.gs[i]->name(), gripper)) {
+                  assert(handles[i].empty() && "Two gripper regex match the different gripper names.");
+                  handles[i] = r.handles_[j];
+                }
+              }
+            }
+          }
 
           const StateAndManifold_t& makeState (Result& r, const GraspV_t& g,
               const int priority)

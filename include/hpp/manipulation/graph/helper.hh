@@ -99,15 +99,10 @@ namespace hpp {
         };
 
 	struct Rule {
-	  std::string gripper_;
-	  std::string handle_;
+          std::vector<std::string> grippers_;
+          std::vector<std::string> handles_;
 	  bool link_;
-	  Rule() : gripper_(""), handle_(""), link_(false) {}
-	  Rule(std::string gripper, std::string handle, bool link) {
-	    gripper_ = gripper;
-	    handle_ = handle;
-	    link_ = link;
-	  }
+	  Rule() : grippers_(), handles_(), link_(false) {}
 	};
 
         typedef std::vector<Rule> Rules_t;

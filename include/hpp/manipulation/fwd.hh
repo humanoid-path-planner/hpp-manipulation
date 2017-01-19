@@ -120,9 +120,6 @@ namespace hpp {
     typedef core::matrix3_t matrix3_t;
 
     typedef std::list < NumericalConstraintPtr_t > NumericalConstraints_t;
-    typedef std::pair< GripperPtr_t, HandlePtr_t> Grasp_t;
-    typedef boost::shared_ptr <Grasp_t> GraspPtr_t;
-    typedef std::map <NumericalConstraintPtr_t, GraspPtr_t> GraspsMap_t;
 
     typedef std::vector<core::vector3_t> Shape_t;
     typedef std::pair <JointPtr_t, Shape_t> JointAndShape_t;

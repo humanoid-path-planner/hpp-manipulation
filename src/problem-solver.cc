@@ -78,7 +78,7 @@ namespace hpp {
     }
 
     ProblemSolver::ProblemSolver () :
-      core::ProblemSolver (), robot_ (), problem_ (0x0), graspsMap_()
+      core::ProblemSolver (), robot_ (), problem_ (0x0)
     {
       parent_t::add<core::PathPlannerBuilder_t>
         ("M-RRT", ManipulationPlanner::create);
@@ -147,18 +147,6 @@ namespace hpp {
     graph::GraphPtr_t ProblemSolver::constraintGraph () const
     {
       return constraintGraph_;
-    }
-
-    GraspPtr_t ProblemSolver::grasp
-    (const NumericalConstraintPtr_t& constraint) const
-    {
-      GraspsMap_t::const_iterator it =
-	graspsMap_.find (constraint);
-      if (it == graspsMap_.end ()) {
-        GraspPtr_t grasp;
-	return grasp;
-      }
-      return it->second;
     }
 
     void ProblemSolver::createPlacementConstraint

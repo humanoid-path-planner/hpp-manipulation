@@ -116,6 +116,10 @@ namespace hpp {
         virtual void initializeProblem (ProblemPtr_t problem);
 
       private:
+        /// Keep track of the created components in order to retrieve them
+        /// easily.
+        graph::GraphComponents_t components_;
+
         DevicePtr_t robot_;
         /// The pointer should point to the same object as core::Problem.
         ProblemPtr_t problem_;

@@ -41,6 +41,7 @@ namespace hpp {
         GraphComponent::init (weak);
         robot_ = robot;
         wkPtr_ = weak;
+        parentGraph(wkPtr_);
         insertHistogram(graph::HistogramPtr_t (
               new graph::StateHistogram (wkPtr_.lock()))
             );
@@ -185,6 +186,18 @@ namespace hpp {
       ConstraintSetPtr_t Graph::pathConstraint (const EdgePtr_t& edge)
       {
         return edge->pathConstraint ();
+      }
+
+      GraphComponentWkPtr_t Graph::get(std::size_t id) const
+      {
+        if (id >= components_.size())
+          throw std::out_of_range ("ID out of range.");
+        return components_[id];
+      }
+
+      GraphComponents_t& Graph::components ()
+      {
+        return components_;
       }
 
       std::ostream& Graph::dotPrint (std::ostream& os, dot::DrawingAttributes da) const

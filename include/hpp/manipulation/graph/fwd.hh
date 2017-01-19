@@ -41,6 +41,7 @@ namespace hpp {
       typedef boost::shared_ptr < GuidedStateSelector >
       GuidedStateSelectorPtr_t;
       typedef boost::shared_ptr < GraphComponent > GraphComponentPtr_t;
+      typedef std::vector < GraphComponentWkPtr_t > GraphComponents_t;
       typedef std::vector < StatePtr_t > States_t;
       typedef std::vector < EdgePtr_t > Edges_t;
       typedef ::hpp::statistics::DiscreteDistribution< EdgePtr_t >::Weight_t Weight_t;

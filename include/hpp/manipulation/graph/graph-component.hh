@@ -41,19 +41,8 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI GraphComponent
       {
         public:
-          /// Get the component by its ID. The validity of the GraphComponent
-          /// is not checked.
-          static GraphComponentWkPtr_t get(std::size_t id);
-
-          /// The list of elements
-          static const std::vector < GraphComponentWkPtr_t >& components ();
-
           /// Get the component name.
           const std::string& name() const;
-
-          /// Set the component name.
-	  /// \deprecated The name given at construction cannot be modified.
-          void name(const std::string& name) HPP_MANIPULATION_DEPRECATED;
 
           /// Return the component id.
 	  const std::size_t& id () const
@@ -133,10 +122,6 @@ namespace hpp {
           virtual void populateTooltip (dot::Tooltip& tp) const;
 
         private:
-          /// Keep track of the created components in order to retrieve them
-          /// easily.
-          static std::vector < GraphComponentWkPtr_t > components_;
-
           /// Name of the component.
           std::string name_;
           /// Weak pointer to itself.

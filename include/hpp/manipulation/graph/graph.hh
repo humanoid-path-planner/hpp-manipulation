@@ -203,6 +203,14 @@ namespace hpp {
             return hists_;
           }
 
+          /// Get the component by its ID.
+          GraphComponentWkPtr_t get(std::size_t id) const;
+
+          std::size_t nbComponents () const
+          {
+            return components_.size();
+          }
+
           /// Print the component in DOT language.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
@@ -220,6 +228,12 @@ namespace hpp {
           std::ostream& print (std::ostream& os) const;
 
         private:
+          /// The list of elements
+          GraphComponents_t& components ();
+
+          /// Keep track of the created components
+          GraphComponents_t components_;
+
           /// This list contains a state selector for each end-effector.
           StateSelectorPtr_t stateSelector_;
 
@@ -248,6 +262,8 @@ namespace hpp {
 	  ProblemPtr_t problem_;
           value_type errorThreshold_;
           size_type maxIterations_;
+
+          friend class GraphComponent;
       }; // Class Graph
 
       /// \}

@@ -1075,7 +1075,7 @@ namespace hpp {
           graph->stateSelector (
               GuidedStateSelector::create ("stateSelector",
               ps->roadmap ()));
-          graph->maxIterations  (ps->maxIterations ());
+          graph->maxIterations  (ps->maxIterProjection ());
           graph->errorThreshold (ps->errorThreshold ());
 
           graphBuilder (objects, grippers, graph, rules);

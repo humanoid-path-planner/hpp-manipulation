@@ -23,33 +23,14 @@
 
 #include <hpp/constraints/differentiable-function.hh>
 
+#include "hpp/manipulation/graph/graph.hh"
+
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      std::vector < GraphComponentWkPtr_t > GraphComponent::components_ = std::vector < GraphComponentWkPtr_t >();
-
       const std::string& GraphComponent::name() const
       {
         return name_;
-      }
-
-      void GraphComponent::name(const std::string& name)
-      {
-        name_ = name;
-      }
-
-      GraphComponentWkPtr_t GraphComponent::get(std::size_t id)
-      {
-# ifdef HPP_DEBUG
-        if (id >= components_.size())
-          throw std::out_of_range ("ID out of range.");
-# endif // HPP_DEBUG
-        return components_[id];
-      }
-
-      const std::vector <GraphComponentWkPtr_t>& GraphComponent::components ()
-      {
-        return components_;
       }
 
       std::ostream& GraphComponent::print (std::ostream& os) const
@@ -136,13 +117,15 @@ namespace hpp {
       void GraphComponent::parentGraph(const GraphWkPtr_t& parent)
       {
         graph_ = parent;
+        GraphPtr_t g = graph_.lock();
+        assert(g);
+        id_ = g->components().size();
+        g->components().push_back (wkPtr_);
       }
 
       void GraphComponent::init (const GraphComponentWkPtr_t& weak)
       {
         wkPtr_ = weak;
-        id_ = components_.size();
-        components_.push_back (wkPtr_);
       }
 
       std::ostream& operator<< (std::ostream& os,

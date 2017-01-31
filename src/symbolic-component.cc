@@ -99,7 +99,7 @@ namespace hpp {
     {
       WeighedSymbolicComponentPtr_t other =
         HPP_DYNAMIC_PTR_CAST(WeighedSymbolicComponent, otherCC);
-      value_type r = nodes_.size() / (nodes_.size() + other->nodes_.size());
+      value_type r = ((value_type)nodes_.size()) / (value_type)(nodes_.size() + other->nodes_.size());
 
       SymbolicComponent::merge(otherCC);
       weight_ *= other->weight_; // TODO a geometric mean would be more natural.

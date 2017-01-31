@@ -73,27 +73,6 @@ namespace hpp {
         graph::GraphPtr_t constraintGraph () const;
         /// \}
 
-        /// Add grasp
-        void addGrasp (const NumericalConstraintPtr_t& constraint,
-            const GripperPtr_t& gripper,
-            const HandlePtr_t& handle) HPP_MANIPULATION_DEPRECATED
-        {
-          Grasp_t* ptr = new Grasp_t (gripper, handle);
-          GraspPtr_t shPtr (ptr);
-          graspsMap_[constraint] = shPtr;
-        }
-
-        /// get grapsMap
-        GraspsMap_t& grasps() HPP_MANIPULATION_DEPRECATED
-        {
-          return graspsMap_;
-        }
-
-        /// get graps by name
-        ///
-        /// return NULL if no grasp named graspName
-        GraspPtr_t grasp(const NumericalConstraintPtr_t& constraint) const HPP_MANIPULATION_DEPRECATED;
-
 	/// Create placement constraint
 	/// \param name name of the placement constraint,
 	/// \param triangleName name of the first list of triangles,
@@ -137,12 +116,14 @@ namespace hpp {
         virtual void initializeProblem (ProblemPtr_t problem);
 
       private:
+        /// Keep track of the created components in order to retrieve them
+        /// easily.
+        graph::GraphComponents_t components_;
+
         DevicePtr_t robot_;
         /// The pointer should point to the same object as core::Problem.
         ProblemPtr_t problem_;
         graph::GraphPtr_t constraintGraph_;
-
-        GraspsMap_t graspsMap_;
     }; // class ProblemSolver
   } // namespace manipulation
 } // namespace hpp

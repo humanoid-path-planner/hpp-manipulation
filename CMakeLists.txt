@@ -45,6 +45,10 @@ SET (TEST_UR5 FALSE CACHE BOOL "Activate tests using ur5")
 # Ask Doxygen to create a tree view in html documentation
 SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
 
+SET(BOOST_BUILD_COMPONENTS unit_test_framework)
+SET(BOOST_INSTALL_COMPONENTS regex)
+SET(BOOST_COMPONENTS ${BOOST_INSTALL_COMPONENTS} ${BOOST_BUILD_COMPONENTS})
+
 SEARCH_FOR_BOOST()
 ADD_DOC_DEPENDENCY("hpp-pinocchio")
 ADD_DOC_DEPENDENCY("hpp-fcl")
@@ -105,5 +109,6 @@ ADD_SUBDIRECTORY(tests)
 
 # Add dependency toward hpp-manipulation library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-manipulation")
+PKG_CONFIG_APPEND_BOOST_LIBS(${BOOST_INSTALL_COMPONENTS})
 
 SETUP_PROJECT_FINALIZE()

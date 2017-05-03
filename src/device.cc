@@ -94,6 +94,8 @@ namespace hpp {
 
       frameCacheSize_ = model().frames.size();
       add (name, newF);
+      createData();
+      createGeomData();
     }
 
     std::ostream& Device::print (std::ostream& os) const

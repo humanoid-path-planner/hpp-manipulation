@@ -45,6 +45,9 @@ SET (TEST_UR5 FALSE CACHE BOOL "Activate tests using ur5")
 # Ask Doxygen to create a tree view in html documentation
 SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
 
+SET(HPP_MANIPULATION_HAS_WHOLEBODY_STEP TRUE
+  CACHE BOOL "Compile with dependency to hpp-wholebody-step")
+
 SET(BOOST_BUILD_COMPONENTS unit_test_framework)
 SET(BOOST_INSTALL_COMPONENTS regex)
 SET(BOOST_COMPONENTS ${BOOST_INSTALL_COMPONENTS} ${BOOST_BUILD_COMPONENTS})
@@ -55,13 +58,12 @@ ADD_DOC_DEPENDENCY("hpp-fcl >= 0.4.3")
 ADD_REQUIRED_DEPENDENCY("hpp-core >= 4")
 ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 4")
 ADD_REQUIRED_DEPENDENCY("hpp-statistics >= 1.1")
-ADD_OPTIONAL_DEPENDENCY("hpp-wholebody-step >= 4")
+IF (HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
+   ADD_REQUIRED_DEPENDENCY("hpp-wholebody-step >= 4")
+ENDIF ()
 IF (TEST_UR5)
   ADD_REQUIRED_DEPENDENCY(hpp-model-urdf >= 3.0.0)
 ENDIF ()
-
-SET(HPP_MANIPULATION_HAS_WHOLEBODY_STEP TRUE
-  CACHE BOOL "Compile with dependency to hpp-wholebody-step")
 
 CONFIG_FILES (doc/main.hh
   include/hpp/manipulation/package-config.hh)

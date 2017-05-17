@@ -58,7 +58,7 @@ namespace hpp {
           Astar alg (roadmap_->distance (), wkPtr_.lock(), static_cast <RoadmapNodePtr_t> (roadmap_->initNode ()));
           list = alg.solution (from);
         } else {
-          core::Nodes_t::const_iterator itg = roadmap_->goalNodes ().begin ();
+          core::NodeVector_t::const_iterator itg = roadmap_->goalNodes ().begin ();
           for (; itg != roadmap_->goalNodes ().end (); ++itg)
             if ((*itg)->connectedComponent () == from->connectedComponent ())
               break;

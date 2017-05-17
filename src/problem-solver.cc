@@ -48,6 +48,7 @@
 #include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/path-optimization/config-optimization.hh"
 #include "hpp/manipulation/path-optimization/keypoints.hh"
+#include "hpp/manipulation/problem-target/state.hh"
 
 #if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
 #include <hpp/wholebody-step/small-steps.hh>
@@ -263,6 +264,13 @@ namespace hpp {
       RoadmapPtr_t r (Roadmap::create (problem ()->distance (), problem ()->robot ()));
       if (constraintGraph_) r->constraintGraph (constraintGraph_);
       roadmap (r);
+    }
+
+    void ProblemSolver::setTargetState (const graph::StatePtr_t state)
+    {
+      problemTarget::StatePtr_t t =  problemTarget::State::create(NULL);
+      t->target(state);
+      target_ = t;
     }
   } // namespace manipulation
 } // namespace hpp

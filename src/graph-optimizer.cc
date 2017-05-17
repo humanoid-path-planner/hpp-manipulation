@@ -75,7 +75,7 @@ namespace hpp {
           toConcat = pathOptimizer_->optimize (toOpt);
         }
         i_s = i_e;
-        opted->concatenate (*toConcat);
+        opted->concatenate (toConcat);
       }
       pathOptimizer_.reset ();
       return opted;

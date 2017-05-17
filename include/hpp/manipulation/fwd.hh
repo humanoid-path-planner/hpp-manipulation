@@ -132,6 +132,11 @@ namespace hpp {
       HPP_PREDEF_CLASS (Keypoints);
       typedef boost::shared_ptr < Keypoints > KeypointsPtr_t;
     } // namespace pathOptimization
+
+    namespace problemTarget {
+      HPP_PREDEF_CLASS (State);
+      typedef boost::shared_ptr < State > StatePtr_t;
+    } // namespace problemTarget
   } // namespace manipulation
 } // namespace hpp
 

@@ -112,6 +112,8 @@ namespace hpp {
           return problem_;
         }
 
+        void setTargetState (const graph::StatePtr_t state);
+
       protected:
         virtual void initializeProblem (ProblemPtr_t problem);
 

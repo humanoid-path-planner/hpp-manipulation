@@ -50,6 +50,8 @@ SET(SOURCES
 
   path-optimization/config-optimization.cc
   path-optimization/keypoints.cc
+
+  problem-target/state.cc
   )
 
 IF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)

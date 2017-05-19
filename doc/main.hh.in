@@ -8,7 +8,7 @@ namespace hpp {
 
  This package implements a solver for manipulation planning problems. A
  manipulation planning problem is defined by:
- \li Device: a collection of several \LModel{Device} with \ref Gripper
+ \li Device: a collection of several \LPinocchio{Device} with \ref Gripper
  "grippers" and \ref Handle "handles",
  \li Graph: A graph of constraints defining the rules of a manipulation
  problem.

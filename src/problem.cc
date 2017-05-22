@@ -30,6 +30,8 @@ namespace hpp {
       Parent::steeringMethod (GraphSteeringMethod::create (this));
       distance (WeighedDistance::create (robot, graph_));
       setPathValidationFactory(core::DiscretizedCollisionChecking::create, 0.05);
+
+      // add<boost::any>("ManipulationPlanner/ExtendStep", (value_type)1);
     }
 
     void Problem::constraintGraph (const graph::GraphPtr_t& graph)

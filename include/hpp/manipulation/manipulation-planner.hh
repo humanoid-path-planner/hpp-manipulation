@@ -116,7 +116,7 @@ namespace hpp {
         };
         static const std::vector<Reason> reasons_;
 
-        const value_type extendStep_;
+        value_type extendStep_;
 
         mutable Configuration_t qProj_;
     };

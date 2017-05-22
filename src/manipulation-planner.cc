@@ -449,7 +449,7 @@ namespace hpp {
       core::PathPlanner (problem, roadmap),
       shooter_ (problem.configurationShooter()),
       problem_ (problem), roadmap_ (roadmap),
-      extendStep_ (1),
+      extendStep_ (problem.getParameter<value_type>("ManipulationPlanner/ExtendStep", 1)),
       qProj_ (problem.robot ()->configSize ())
     {}
 

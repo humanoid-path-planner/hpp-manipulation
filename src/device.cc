@@ -93,6 +93,10 @@ namespace hpp {
       }
 
       frameCacheSize_ = model().frames.size();
+      if (has<FrameIndexes_t>(name)) {
+        const FrameIndexes_t& old = get<FrameIndexes_t>(name);
+        newF.insert(newF.begin(), old.begin(), old.end());
+      }
       add (name, newF);
       createData();
       createGeomData();

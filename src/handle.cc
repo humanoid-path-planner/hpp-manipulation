@@ -67,62 +67,112 @@ namespace hpp {
       return false;
     }
 
+    inline bool is6Dmask (const std::vector<bool>& mask)
+    {
+      for (std::size_t i = 0; i < 6; ++i) if (!mask[i]) return false;
+      return true;
+    }
+
+    inline std::vector<bool> complementMask (const std::vector<bool>& mask)
+    {
+      std::vector<bool> m(6);
+      for (std::size_t i = 0; i < 6; ++i) m[i] = !mask[i];
+      return m;
+    }
+
+    inline std::string maskToStr (const std::vector<bool>& mask)
+    {
+      std::stringstream ss;
+      ss << "(";
+      for (std::size_t i = 0; i < 5; ++i) ss << mask[i] << ",";
+      ss << mask[5] << ")";
+      return ss.str();
+    }
+
+    void Handle::mask (const std::vector<bool>& mask)
+    {
+      assert(mask.size() == 6);
+      std::size_t nRotFree = 3;
+      for (std::size_t i = 3; i < 6; ++i)
+        if (mask[i]) nRotFree--;
+      switch (nRotFree) {
+        case 1: // TODO we should check the axis are properly aligned.
+          break;
+        case 2: // This does not make sense.
+          throw std::logic_error("It is not allowed to constrain only one rotation");
+          break;
+      } 
+      mask_ = mask;
+    }
+
     NumericalConstraintPtr_t Handle::createGrasp
     (const GripperPtr_t& gripper) const
     {
-      using boost::assign::list_of;
       using core::ExplicitRelativeTransformation;
       // If handle is on a freeflying object, create an explicit constraint
-      if (isHandleOnR3SO3 (*this)) {
+      if (is6Dmask(mask_) && isHandleOnR3SO3 (*this)) {
 	return ExplicitRelativeTransformation::create
 	  ("Explicit_relative_transform_" + name () + "_" + gripper->name (),
 	   gripper->joint ()->robot (), gripper->joint (), joint (),
 	   gripper->objectPositionInJoint (), localPosition());
       }
-      std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(true);
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
-				      ("Grasp_(1,1,1,1,1,1)_" + name ()
+				      ("Grasp_" + maskToStr(mask_) + "_" + name ()
 				       + "_" + gripper->name (),
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),
 				       gripper->objectPositionInJoint (),
-				       localPosition(), mask)));
+				       localPosition(), mask_)));
     }
 
     NumericalConstraintPtr_t Handle::createGraspComplement
     (const GripperPtr_t& gripper) const
     {
       core::DevicePtr_t robot = gripper->joint()->robot();
-      return NumericalConstraint::create (
-          boost::shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
-            robot->configSize(), robot->numberDof (),
-            "GraspComp_(0,0,0,0,0,0)_" + name () + "_" + gripper->name ()
-            ))
-          );
+      if (is6Dmask(mask_)) {
+        return NumericalConstraint::create (
+            boost::shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
+                robot->configSize(), robot->numberDof (),
+                "GraspComp_(0,0,0,0,0,0)_" + name () + "_" + gripper->name ()
+                ))
+            );
+      } else {
+        // TODO handle cases where rotations or translation are allowed.
+        std::vector<bool> Cmask = complementMask(mask_);
+        return NumericalConstraintPtr_t
+          (NumericalConstraint::create (RelativeTransformation::create
+                                        ("Transformation_" + maskToStr(Cmask) + "_" + name ()
+                                         + "_" + gripper->name (),
+                                         gripper->joint()->robot(),
+                                         gripper->joint (), joint (),
+                                         gripper->objectPositionInJoint (),
+                                         localPosition(), Cmask),
+                                        core::Equality::create ()));
+      }
     }
 
     NumericalConstraintPtr_t Handle::createPreGrasp
     (const GripperPtr_t& gripper, const value_type& shift) const
     {
       using boost::assign::list_of;
-      std::vector <bool> mask = list_of (true)(true)(true)(true)(true)(true);
       Transform3f transform = gripper->objectPositionInJoint ()
         * Transform3f (I3, vector3_t (shift,0,0));
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
-				      ("Pregrasp_(1,1,1,1,1,1)_" + name ()
+				      ("Pregrasp_ " + maskToStr(mask_) + "_" + name ()
 				       + "_" + gripper->name (),
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),
-                                       transform, localPosition(), mask)));
+                                       transform, localPosition(), mask_)));
     }
 
     HandlePtr_t Handle::clone () const
     {
-      HandlePtr_t self = weakPtr_.lock ();
-      return Handle::create (self->name (), self->localPosition (),
-          self->joint ());
+      HandlePtr_t other = Handle::create (name (), localPosition (), joint ());
+      other->mask(mask_);
+      other->clearance(clearance_);
+      return other;
     }
 
     std::ostream& Handle::print (std::ostream& os) const
@@ -130,6 +180,7 @@ namespace hpp {
       os << "name :" << name () << std::endl;
       os << "local position :" << localPosition () << std::endl;
       os << "joint :" << joint ()->name () << std::endl;
+      os << "mask :" << maskToStr (mask()) << std::endl;
       return os;
     }
 

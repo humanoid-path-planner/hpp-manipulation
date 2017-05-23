@@ -84,6 +84,14 @@ namespace hpp {
 	return localPosition_;
       }
 
+      /// Set constraint mask
+      void mask (const std::vector<bool>& mask);
+
+      /// Get constraint mask
+      /// See mask(const std::vector<bool>&)
+      const std::vector<bool>& mask () const
+      { return mask_; }
+
       /// Create constraint corresponding to a gripper grasping this object
       /// \param gripper object containing the gripper information
       /// \return the constraint of relative transformation between the handle and
@@ -143,6 +151,7 @@ namespace hpp {
 	      const JointPtr_t& joint) : name_ (name),
 					 localPosition_ (localPosition),
 					 joint_ (joint), clearance_ (0),
+                                         mask_ (6, true),
                                          weakPtr_ ()
       {
       }
@@ -161,6 +170,8 @@ namespace hpp {
       JointPtr_t joint_;
       /// Clearance
       value_type clearance_;
+      /// Mask
+      std::vector<bool> mask_;
       /// Weak pointer to itself
       HandleWkPtr_t weakPtr_;
 

@@ -586,13 +586,12 @@ namespace hpp {
 	for (NumericalConstraints_t::const_iterator it =
 	       paramNumericalConstraints_.begin ();
 	     it != paramNumericalConstraints_.end (); ++it) {
-          (*it)->rightHandSideFromConfig (qlevelset);
+          cp->rightHandSideFromConfig (*it, qlevelset);
         }
         for (LockedJoints_t::const_iterator it = paramLockedJoints_.begin ();
 	     it != paramLockedJoints_.end (); ++it) {
-          (*it)->rightHandSideFromConfig (qlevelset);
+          cp->rightHandSideFromConfig (*it, qlevelset);
         }
-	cp->updateRightHandSide ();
 
         // Eventually, do the projection.
         if (isShort_) q = qoffset;

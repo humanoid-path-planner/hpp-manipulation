@@ -114,7 +114,7 @@ namespace hpp {
 	return ExplicitRelativeTransformation::create
 	  ("Explicit_relative_transform_" + name () + "_" + gripper->name (),
 	   gripper->joint ()->robot (), gripper->joint (), joint (),
-	   gripper->objectPositionInJoint (), localPosition());
+	   gripper->objectPositionInJoint (), localPosition())->createNumericalConstraint();
       }
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create

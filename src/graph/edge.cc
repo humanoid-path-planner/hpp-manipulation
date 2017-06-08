@@ -205,14 +205,6 @@ namespace hpp {
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-        g->insertNumericalConstraints (proj);
-        insertNumericalConstraints (proj);
-        to ()->insertNumericalConstraints (proj);
-	if (state () != to ()) {
-	  state ()->insertNumericalConstraints (proj);
-	}
-        constraint->addConstraint (proj);
-
         g->insertLockedJoints (proj);
         insertLockedJoints (proj);
         to ()->insertLockedJoints (proj);
@@ -220,6 +212,14 @@ namespace hpp {
 	  state ()->insertLockedJoints (proj);
 	}
 
+        g->insertNumericalConstraints (proj);
+        insertNumericalConstraints (proj);
+        to ()->insertNumericalConstraints (proj);
+	if (state () != to ()) {
+	  state ()->insertNumericalConstraints (proj);
+	}
+
+        constraint->addConstraint (proj);
         constraint->edge (wkPtr_.lock ());
         return constraint;
       }
@@ -241,15 +241,15 @@ namespace hpp {
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
-        g->insertNumericalConstraints (proj);
-        insertNumericalConstraints (proj);
-        state ()->insertNumericalConstraintsForPath (proj);
-        constraint->addConstraint (proj);
-
         g->insertLockedJoints (proj);
         insertLockedJoints (proj);
         state ()->insertLockedJoints (proj);
 
+        g->insertNumericalConstraints (proj);
+        insertNumericalConstraints (proj);
+        state ()->insertNumericalConstraintsForPath (proj);
+
+        constraint->addConstraint (proj);
         constraint->edge (wkPtr_.lock ());
 
         // Build steering method

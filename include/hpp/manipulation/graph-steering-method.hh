@@ -38,16 +38,16 @@ namespace hpp {
 
       public:
         /// Create instance and return shared pointer
-        /// \warning core::ProblemPtr_t will be casted to ProblemPtr_t
+        /// \warning core::Problem will be casted to Problem
         static GraphSteeringMethodPtr_t create
-          (const core::ProblemPtr_t& problem);
+          (const core::Problem& problem);
 
         template <typename T>
           static GraphSteeringMethodPtr_t create
-          (const core::ProblemPtr_t& problem);
+          (const core::Problem& problem);
 
         /// Create instance and return shared pointer
-        static GraphSteeringMethodPtr_t create (const ProblemPtr_t& problem);
+        static GraphSteeringMethodPtr_t create (const Problem& problem);
 
         /// Create copy and return shared pointer
         static GraphSteeringMethodPtr_t createCopy
@@ -71,7 +71,7 @@ namespace hpp {
 
       protected:
         /// Constructor
-        GraphSteeringMethod (const ProblemPtr_t& problem);
+        GraphSteeringMethod (const Problem& problem);
 
         /// Copy constructor
         GraphSteeringMethod (const GraphSteeringMethod&);
@@ -86,7 +86,7 @@ namespace hpp {
 
       private:
         /// A pointer to the problem
-        ProblemPtr_t problem_;
+        const Problem& problem_;
         /// Weak pointer to itself
         GraphSteeringMethodWkPtr_t weak_;
         /// The encapsulated steering method
@@ -95,7 +95,7 @@ namespace hpp {
 
     template <typename T>
       GraphSteeringMethodPtr_t GraphSteeringMethod::create
-      (const core::ProblemPtr_t& problem)
+      (const core::Problem& problem)
     {
       GraphSteeringMethodPtr_t gsm = GraphSteeringMethod::create (problem);
       gsm->innerSteeringMethod (T::create (problem));

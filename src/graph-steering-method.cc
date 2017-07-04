@@ -27,16 +27,15 @@
 namespace hpp {
   namespace manipulation {
     GraphSteeringMethodPtr_t GraphSteeringMethod::create
-      (const core::ProblemPtr_t& problem)
+      (const core::Problem& problem)
     {
-      assert (dynamic_cast <const ProblemPtr_t> (problem) != NULL
-          && "Cast to const ProblemPtr_t failed");
-      const ProblemPtr_t& p = static_cast <const ProblemPtr_t> (problem);
+      dynamic_cast <const Problem&> (problem);
+      const Problem& p = static_cast <const Problem&> (problem);
       return create (p);
     }
 
     GraphSteeringMethodPtr_t GraphSteeringMethod::create
-    (const ProblemPtr_t& problem)
+    (const Problem& problem)
     {
       GraphSteeringMethod* ptr = new GraphSteeringMethod (problem);
       GraphSteeringMethodPtr_t shPtr (ptr);
@@ -53,7 +52,7 @@ namespace hpp {
       return shPtr;
     }
 
-    GraphSteeringMethod::GraphSteeringMethod (const ProblemPtr_t& problem) :
+    GraphSteeringMethod::GraphSteeringMethod (const Problem& problem) :
       SteeringMethod (problem), problem_ (problem), weak_ ()
     {
     }
@@ -66,7 +65,7 @@ namespace hpp {
     PathPtr_t GraphSteeringMethod::impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const
     {
       graph::Edges_t possibleEdges;
-      graph::Graph& graph = *problem_->constraintGraph ();
+      const graph::Graph& graph = *problem_.constraintGraph ();
       try {
         possibleEdges = graph.getEdges
 	  (graph.getState (q1), graph.getState (q2));

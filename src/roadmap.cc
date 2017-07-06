@@ -51,6 +51,7 @@ namespace hpp {
         for (it = hs.begin(); it != hs.end(); ++it)
           (*it)->clear ();
       }
+      symbolicCCs_.clear();
     }
 
     void Roadmap::push_node (const core::NodePtr_t& n)

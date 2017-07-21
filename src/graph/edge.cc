@@ -18,6 +18,7 @@
 
 #include <sstream>
 
+#include <hpp/pinocchio/configuration.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/path-validation.hh>
 
@@ -282,6 +283,7 @@ namespace hpp {
 			ConfigurationIn_t q2)
 	const
       {
+        using pinocchio::displayConfig;
 	core::SteeringMethodPtr_t sm (steeringMethod_->get());
 	if (!sm) {
 	  buildPathConstraint ();
@@ -304,7 +306,8 @@ namespace hpp {
 	  }
         } else {
 	  std::ostringstream oss;
-	  oss << "The initial configuration does not satisfy the constraints of"
+	  oss << "The initial configuration " << displayConfig (q1)
+              << " does not satisfy the constraints of"
 	    " edge " << name () << "." << std::endl;
 	  oss << "The graph is probably malformed";
 	  throw std::runtime_error (oss.str ().c_str ());

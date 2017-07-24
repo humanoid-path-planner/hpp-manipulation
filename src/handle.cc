@@ -140,15 +140,18 @@ namespace hpp {
       } else {
         // TODO handle cases where rotations or translation are allowed.
         std::vector<bool> Cmask = complementMask(mask_);
-        return NumericalConstraintPtr_t
-          (NumericalConstraint::create (RelativeTransformation::create
-                                        ("Transformation_" + maskToStr(Cmask) + "_" + name ()
-                                         + "_" + gripper->name (),
-                                         gripper->joint()->robot(),
-                                         gripper->joint (), joint (),
-                                         gripper->objectPositionInJoint (),
-                                         localPosition(), Cmask),
-                                        core::Equality::create ()));
+        RelativeTransformationPtr_t function = RelativeTransformation::create
+          ("Transformation_" + maskToStr(Cmask) + "_" + name ()
+           + "_" + gripper->name (),
+           gripper->joint()->robot(),
+           gripper->joint (), joint (),
+           gripper->objectPositionInJoint (),
+           localPosition(), Cmask);
+        return NumericalConstraintPtr_t (NumericalConstraint::create
+            (function,
+             core::ComparisonTypes::create(function->outputSize(),
+                                           core::ComparisonType::Equality)
+             ));
       }
     }
 

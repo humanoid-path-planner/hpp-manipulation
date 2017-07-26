@@ -75,6 +75,7 @@ namespace hpp {
         assert (init->numberPaths() == splines.size() && ss.size() == splines.size());
 
         const std::size_t last = splines.size() - 1;
+        bool prevReversed;
         for (std::size_t i = 0; i < last; ++i) {
           core::PathPtr_t path = init->pathAtRank(i);
           ConstraintSetPtr_t set = HPP_STATIC_PTR_CAST (ConstraintSet, splines[i]->constraints ());
@@ -89,6 +90,10 @@ namespace hpp {
 
           // The path should always go through the start and end states of the
           // transition.
+          // FIXME problem of waypoint edges...
+          graph::WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, transition);
+          if (we) reversed = prevReversed;
+          graph::StatePtr_t from = (we ? we->waypoint<graph::Edge>(we->nbWaypoints() - 1)->to() : transition->from());
           if (reversed && transition->state() != from) {
             // Do something different
             constrainEndIntoState (path, i, splines[i], from, lc);
@@ -96,6 +101,7 @@ namespace hpp {
             // Do something different
             constrainEndIntoState (path, i, splines[i], transition->to(), lc);
           }
+          prevReversed = reversed;
         }
         this->addProblemConstraintOnPath (init->pathAtRank(last), last, splines[last], lc, ss[last]);
       }

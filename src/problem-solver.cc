@@ -48,6 +48,7 @@
 #include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/path-optimization/config-optimization.hh"
 #include "hpp/manipulation/path-optimization/keypoints.hh"
+#include "hpp/manipulation/path-optimization/spline-gradient-based.hh"
 #include "hpp/manipulation/problem-target/state.hh"
 
 #if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
@@ -100,6 +101,14 @@ namespace hpp {
           GraphConfigOptimizationTraits
             <pathOptimization::ConfigOptimizationTraits>
             >);
+
+      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 1>::createFromCore);
+      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 2>::createFromCore);
+      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 3>::createFromCore);
+      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier1",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 1>::createFromCore);
+      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 2>::createFromCore);
+      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 3>::createFromCore);
+
       using core::SteeringMethodBuilder_t;
       parent_t::add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
           GraphSteeringMethod::create <core::SteeringMethodStraight>);

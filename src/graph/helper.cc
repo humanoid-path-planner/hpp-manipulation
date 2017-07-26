@@ -1041,17 +1041,32 @@ namespace hpp {
               ++it;
             }
             // Create placement
-            if (!envNames.empty() && !od.shapes.empty ()) {
-              const std::string placeN = "place_" + od.name;
+            const std::string placeN = "place_" + od.name;
+            const std::string preplaceN = "pre" + placeN;
+            // If user provides constraint "place_objectName",
+            // then
+            //   use this as placement and use "preplace_objectName" for
+            //   pre-placement if defined.
+            // else if contact surfaces are defined and selected
+            //   create default placement constraint using the ProblemSolver
+            //   methods createPlacementConstraint and createPrePlacementConstraint
+            if (ps->core::ProblemSolver::has<NumericalConstraintPtr_t>(placeN)) {
+              objects[i].get<0> ().get<0> () =
+                ps->core::ProblemSolver::get <NumericalConstraintPtr_t> (placeN);
+              if (ps->core::ProblemSolver::has<NumericalConstraintPtr_t>(preplaceN)) {
+                objects[i].get<0> ().get<1> () =
+                  ps->core::ProblemSolver::get <NumericalConstraintPtr_t> (preplaceN);
+              }
+            } else if (!envNames.empty() && !od.shapes.empty ()) {
               ps->createPlacementConstraint (placeN,
                   od.shapes, envNames, margin);
               objects[i].get<0> ().get<0> () =
                 ps->core::ProblemSolver::get <NumericalConstraintPtr_t> (placeN);
               if (prePlace) {
-                ps->createPrePlacementConstraint ("pre" + placeN,
+                ps->createPrePlacementConstraint (preplaceN,
                     od.shapes, envNames, margin, prePlaceWidth);
                 objects[i].get<0> ().get<1> () =
-                  ps->core::ProblemSolver::get <NumericalConstraintPtr_t> ("pre" + placeN);
+                  ps->core::ProblemSolver::get <NumericalConstraintPtr_t> (preplaceN);
               }
             }
             // Create object lock

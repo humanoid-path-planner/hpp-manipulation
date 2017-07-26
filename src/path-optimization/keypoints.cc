@@ -62,7 +62,7 @@ namespace hpp {
           PathVectorPtr_t output = PathVector::create (path->outputSize (),
               path->outputDerivativeSize ());
           for (std::size_t j = 0; j < paths.size(); ++j)
-            output->concatenate (*paths[j].path);
+            output->concatenate (paths[j].path);
         }
         return output;
       }
@@ -89,7 +89,7 @@ namespace hpp {
               hppDout(info, "No manipulation::ConstraintSet");
               break;
             }
-            if (c && ikpp.edge->node() != c->edge ()->node()) break;
+            if (c && ikpp.edge->state() != c->edge ()->state()) break;
             if (ikpp.isShort != c->edge()->isShort()) // We do not optimize edges marked as short
               break;
             ikpp.path->appendPath (current);
@@ -120,7 +120,7 @@ namespace hpp {
         graph::Edges_t edges;
         graph::Graph& graph = *problem_.constraintGraph ();
         try {
-          edges = graph.getEdges (ikpp1.edge->node(), ikpp2.edge->node());
+          edges = graph.getEdges (ikpp1.edge->state(), ikpp2.edge->state());
         } catch (const std::logic_error& e) {
           hppDout (error, e.what ());
           return PathVectorPtr_t ();
@@ -169,12 +169,12 @@ namespace hpp {
 
                   PathVectorPtr_t tmp = PathVector::create (ikpp1.path->outputSize (),
                       ikpp1.path->outputDerivativeSize ());
-                  tmp->concatenate (*(ikpp1.path->extract
-                        (make_pair (t0, t1))-> as <PathVector> ()));
+                  tmp->concatenate (ikpp1.path->extract
+                        (make_pair (t0, t1))-> as <PathVector> ());
                   tmp->appendPath (short1);
                   tmp->appendPath (short2);
-                  tmp->concatenate (*(ikpp2.path->extract
-                        (make_pair (t4, t5))-> as <PathVector> ()));
+                  tmp->concatenate (ikpp2.path->extract
+                        (make_pair (t4, t5))-> as <PathVector> ());
 
                   if (cur_length >= tmp->length()) {
                     cur_length = tmp->length();
@@ -199,10 +199,10 @@ namespace hpp {
         PathVectorPtr_t output = PathVector::create (shortcut->outputSize (),
             shortcut->outputDerivativeSize ());
         for (std::size_t j = 0; j < i1; ++j)
-          output->concatenate (*input[j].path);
-        output->concatenate (*flat);
+          output->concatenate (input[j].path);
+        output->concatenate (flat);
         for (std::size_t j = i2 + 1; j < input.size(); ++j)
-          output->concatenate (*input[j].path);
+          output->concatenate (input[j].path);
 
         return split (output);
       }

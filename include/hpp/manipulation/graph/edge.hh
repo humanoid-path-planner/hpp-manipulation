@@ -138,33 +138,6 @@ namespace hpp {
             state_ = state;
           }
 
-          /// Get the state in which path is.
-	  /// \deprecated use StatePtr_t state () const instead
-          StatePtr_t node () const
-          {
-            return state_.lock();
-          }
-
-	  /// Set state
-	  /// \deprecated use void state (StatePtr_t state) instead
-          void node (StatePtr_t state)
-          {
-            state_ = state;
-          }
-
-          /// \deprecated use state(StatePtr_t) instead.
-          void isInNodeFrom (bool iinf) HPP_MANIPULATION_DEPRECATED
-          {
-            if (iinf) state_ = from_;
-            else      state_ = to_;
-          }
-
-          /// \deprecated see StatePtr_t state() const
-          bool isInNodeFrom () const HPP_MANIPULATION_DEPRECATED
-          {
-            return state_.lock() == from_.lock();
-          }
-
 	  /// Get steering method associated to the edge.
 	  const core::SteeringMethodPtr_t& steeringMethod () const
 	  {
@@ -319,13 +292,6 @@ namespace hpp {
           /// Set waypoint index with wEdge and wTo.
           /// \param wTo is the destination state of wEdge
           void setWaypoint (const std::size_t index, const EdgePtr_t wEdge, const StatePtr_t wTo);
-
-          /// Get the state in which path after the waypoint is.
-	  /// \deprecated use StatePtr_t state () const instead
-          StatePtr_t node () const;
-
-          /// Get the state in which path after the waypoint is.
-          StatePtr_t state () const;
 
         protected:
 	  WaypointEdge (const std::string& name) :

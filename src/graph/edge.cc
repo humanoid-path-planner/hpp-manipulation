@@ -436,12 +436,6 @@ namespace hpp {
         waypoints_[index] = Waypoint_t (wEdge, wTo);
       }
 
-      StatePtr_t WaypointEdge::state () const
-      {
-        if (isInNodeFrom ()) return waypoints_.back().second;
-        else return to ();
-      }
-
       template <>
       EdgePtr_t WaypointEdge::waypoint <Edge> (const std::size_t index) const
       {

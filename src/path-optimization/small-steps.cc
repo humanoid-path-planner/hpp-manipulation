@@ -61,12 +61,12 @@ namespace hpp {
             current = flat->pathAtRank (i_e);
             c = HPP_DYNAMIC_PTR_CAST (ConstraintSet, current->constraints ());
             if (!c && edge) break;
-            if (c && edge->node() != c->edge ()->node()) break;
+            if (c && edge->state() != c->edge ()->state()) break;
             toOpt->appendPath (current);
           }
           toConcat = step.optimize (toOpt);
           i_s = i_e;
-          opted->concatenate (*toConcat);
+          opted->concatenate (toConcat);
         }
 
         const_cast <core::Problem&>(this->problem ()).pathValidation (gpv);

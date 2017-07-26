@@ -59,7 +59,7 @@ namespace hpp {
             hppDout(info, "No manipulation::ConstraintSet");
             break;
           }
-          if (c && edge->node() != c->edge ()->node()) break;
+          if (c && edge->state() != c->edge ()->state()) break;
           if (isShort != c->edge()->isShort()) // We do not optimize edges marked as short
             break;
           toOpt->appendPath (current);

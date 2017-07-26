@@ -512,6 +512,7 @@ namespace hpp {
         }
 
         namespace {
+          boost::regex::flag_type regex_type = boost::regex_constants::basic; //
           typedef std::size_t index_t;
           typedef std::vector <index_t> IndexV_t;
           typedef std::list <index_t> IndexL_t;
@@ -767,11 +768,11 @@ namespace hpp {
           {
             assert(r.grippers_.size() == r.handles_.size());
             for (std::size_t j = 0; j < r.grippers_.size(); ++j) {
-              boost::regex gripper (r.grippers_[j]);
+              boost::regex gripper (r.grippers_[j], regex_type);
               for (std::size_t i = 0; i < res.nG; ++i) {
                 if (boost::regex_match(res.gs[i]->name(), gripper)) {
                   assert(handles[i].empty() && "Two gripper regex match the different gripper names.");
-                  handles[i] = r.handles_[j];
+                  handles[i].assign(r.handles_[j], regex_type);
                 }
               }
             }

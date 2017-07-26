@@ -77,7 +77,7 @@ namespace hpp {
         bool zeroDerivative = this->problem().getParameter ("SplineGradientBased/zeroDerivativesAtStateIntersection", false);
 
         const std::size_t last = splines.size() - 1;
-        bool prevReversed = false;
+        graph::StatePtr_t stateOfStart;
         for (std::size_t i = 0; i < last; ++i) {
           core::PathPtr_t path = init->pathAtRank(i);
           ConstraintSetPtr_t set = HPP_STATIC_PTR_CAST (ConstraintSet, splines[i]->constraints ());
@@ -88,25 +88,81 @@ namespace hpp {
 
           this->addProblemConstraintOnPath (path, i, splines[i], lc, ss[i]);
 
-          bool reversed = transition->direction (path);
-
           // The path should always go through the start and end states of the
           // transition.
           // FIXME problem of waypoint edges...
           graph::WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, transition);
-          if (we) reversed = prevReversed;
           graph::StatePtr_t from = (we ? we->waypoint<graph::Edge>(we->nbWaypoints() - 1)->to() : transition->from());
-          if (reversed && transition->state() != from) {
-            // Do something different
-            constrainEndIntoState (path, i, splines[i], from, lc);
-          } else if (!reversed && transition->state() != transition->to()) {
-            // Do something different
-            constrainEndIntoState (path, i, splines[i], transition->to(), lc);
+          graph::StatePtr_t to = transition->to();
+          graph::StatePtr_t from2 = from, to2 = to;
+
+          Configuration_t q0 = path->initial (),
+                          q1 = path->end ();
+          const bool src_contains_q0 = from->contains (q0);
+          const bool dst_contains_q0 = to  ->contains (q0);
+          const bool src_contains_q1 = from->contains (q1);
+          const bool dst_contains_q1 = to  ->contains (q1);
+
+          bool use_direct  = src_contains_q0 && dst_contains_q1;
+          bool use_reverse = src_contains_q1 && dst_contains_q0;
+          if (use_direct && use_reverse) {
+            if (i == 0 || stateOfStart == from)
+              use_reverse = false;
+            else if (stateOfStart == to)
+              use_direct = false;
+            else if (stateOfStart) {
+              if (stateOfStart->contains(q0))
+                use_reverse = false;
+              else
+                use_direct = false; // assumes stateOfStart->contains(q0)
+            } else
+              use_reverse = false; // default if we don't know what to do...
           }
-          if (zeroDerivative && from != transition->to()) {
-            constraintDerivativesAtEndOfSpline (i, splines[i], lc);
+          if (use_direct) {
+            // Nominal case
+            if (transition->state() != to) {
+              constrainEndIntoState (path, i, splines[i], transition->to(), lc);
+            }
+            stateOfStart = to;
+          } else if (use_reverse) {
+            // Reversed nominal case
+            if (transition->state() != from) {
+              constrainEndIntoState (path, i, splines[i], from, lc);
+            }
+            stateOfStart = from;
+          } else {
+            if (src_contains_q0) { // q1 must stay in state
+              to2 = transition->state();
+              stateOfStart = to;
+            } else if (dst_contains_q0) { // q1 must stay in state
+              from2 = transition->state();
+              stateOfStart = from;
+            } else if (src_contains_q1) { // q1 must stay in src
+              to2 = transition->state();
+              stateOfStart = from;
+              if (transition->state() != from) {
+                constrainEndIntoState (path, i, splines[i], from, lc);
+              }
+            } else if (dst_contains_q1) { // q1 must stay in dst
+              from2 = transition->state();
+              stateOfStart = to;
+              if (transition->state() != to) {
+                constrainEndIntoState (path, i, splines[i], to, lc);
+              }
+            } else {
+              // q0 and q1 are in state. We add no constraint.
+              hppDout (warning, "Add no constraint for this path.");
+              from2 = transition->state();
+              to2 = transition->state();
+              stateOfStart.reset();
+            }
+          if (zeroDerivative) {
+            if (   !(use_reverse && src_contains_q0 && src_contains_q1)
+                && !(use_direct  && dst_contains_q0 && dst_contains_q1)
+                && from2 != to2                         ) {
+              constraintDerivativesAtEndOfSpline (i, splines[i], lc);
+            }
           }
-          prevReversed = reversed;
         }
         this->addProblemConstraintOnPath (init->pathAtRank(last), last, splines[last], lc, ss[last]);
       }
@@ -169,8 +225,13 @@ namespace hpp {
           lc.J.block  (row, col + k * rDof, nOutVar, rDof) = B1(k) * I;
         lc.b.segment(row, nOutVar).setZero();
 
-        assert ((lc.J.block(row, col, nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
-            .isApprox(lc.b.segment(row, nOutVar)));
+        if (!(lc.J.block(row, col, nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
+            .isApprox(lc.b.segment(row, nOutVar)))
+        {
+          hppDout (error, "The velocity should already be zero:\n"
+              << (lc.J.block(row, col, nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters()).transpose()
+              );
+        }
       }
 
       // ----------- Optimize ----------------------------------------------- //

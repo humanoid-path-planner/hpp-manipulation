@@ -67,6 +67,9 @@ namespace hpp {
           virtual void constrainEndIntoState (const core::PathPtr_t& path,
               const size_type& idxSpline, const SplinePtr_t& spline,
               const graph::StatePtr_t state, LinearConstraint& lc) const;
+
+          virtual void constraintDerivativesAtEndOfSpline (const size_type& idxSpline,
+              const SplinePtr_t& spline, LinearConstraint& lc) const;
       }; // SplineGradientBased
     } // namespace pathOptimization
   }  // namespace manipulation

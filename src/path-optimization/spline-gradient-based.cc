@@ -74,8 +74,10 @@ namespace hpp {
       {
         assert (init->numberPaths() == splines.size() && ss.size() == splines.size());
 
+        bool zeroDerivative = this->problem().getParameter ("SplineGradientBased/zeroDerivativesAtStateIntersection", false);
+
         const std::size_t last = splines.size() - 1;
-        bool prevReversed;
+        bool prevReversed = false;
         for (std::size_t i = 0; i < last; ++i) {
           core::PathPtr_t path = init->pathAtRank(i);
           ConstraintSetPtr_t set = HPP_STATIC_PTR_CAST (ConstraintSet, splines[i]->constraints ());
@@ -100,6 +102,9 @@ namespace hpp {
           } else if (!reversed && transition->state() != transition->to()) {
             // Do something different
             constrainEndIntoState (path, i, splines[i], transition->to(), lc);
+          }
+          if (zeroDerivative && from != transition->to()) {
+            constraintDerivativesAtEndOfSpline (i, splines[i], lc);
           }
           prevReversed = reversed;
         }
@@ -132,6 +137,37 @@ namespace hpp {
         for (size_type k = 0; k < Spline::NbCoeffs; ++k)
           lc.J.block  (row, col + k * rDof, nOutVar, rDof) = B1(k) * I;
         lc.b.segment(row, nOutVar) = select.rview(spline->parameters().transpose() * B1);
+
+        assert ((lc.J.block(row, col, nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
+            .isApprox(lc.b.segment(row, nOutVar)));
+      }
+
+      template <int _PB, int _SO>
+      void SplineGradientBased<_PB, _SO>::constraintDerivativesAtEndOfSpline
+      (const size_type& idxSpline, const SplinePtr_t& spline,
+       LinearConstraint& lc) const
+      {
+        typename Spline::BasisFunctionVector_t B1;
+        spline->basisFunctionDerivative(1, 1, B1);
+
+        // ConstraintSetPtr_t set = state->configConstraint();
+        // value_type guessThreshold = this->problem().getParameter ("SplineGradientBased/guessThreshold", value_type(-1));
+        // Eigen::RowBlockIndexes select =
+          // this->computeActiveParameters (path, set->configProjector()->solver(), guessThreshold);
+
+        const size_type rDof = this->robot_->numberDof(),
+                        col  = idxSpline * Spline::NbCoeffs * rDof,
+                        row = lc.J.rows(),
+                        // nOutVar = select.nbIndexes();
+                        nOutVar = rDof;
+
+        // Add nOutVar constraints
+        lc.addRows(nOutVar);
+        // matrix_t I = select.rview(matrix_t::Identity(rDof, rDof));
+        matrix_t I (matrix_t::Identity(rDof, rDof));
+        for (size_type k = 0; k < Spline::NbCoeffs; ++k)
+          lc.J.block  (row, col + k * rDof, nOutVar, rDof) = B1(k) * I;
+        lc.b.segment(row, nOutVar).setZero();
 
         assert ((lc.J.block(row, col, nOutVar, rDof * Spline::NbCoeffs) * spline->rowParameters())
             .isApprox(lc.b.segment(row, nOutVar)));

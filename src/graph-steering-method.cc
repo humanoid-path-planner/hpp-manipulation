@@ -19,6 +19,7 @@
 #include <hpp/util/pointer.hh>
 
 #include <hpp/core/straight-path.hh>
+#include <hpp/core/steering-method-straight.hh>
 
 #include <hpp/manipulation/problem.hh>
 #include <hpp/manipulation/graph/graph.hh>
@@ -53,12 +54,14 @@ namespace hpp {
     }
 
     GraphSteeringMethod::GraphSteeringMethod (const Problem& problem) :
-      SteeringMethod (problem), problem_ (problem), weak_ ()
+      SteeringMethod (problem), problem_ (problem), weak_ (),
+      steeringMethod_ (core::SteeringMethodStraight::create (problem))
     {
     }
 
     GraphSteeringMethod::GraphSteeringMethod (const GraphSteeringMethod& other):
-      SteeringMethod (other), problem_ (other.problem_)
+      SteeringMethod (other), problem_ (other.problem_), steeringMethod_
+      (other.steeringMethod_)
     {
     }
 

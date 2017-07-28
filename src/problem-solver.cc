@@ -28,6 +28,10 @@
 
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
+#include "hpp/core/path-projector/progressive.hh"
+#include "hpp/core/path-projector/dichotomy.hh"
+#include "hpp/core/path-projector/global.hh"
+#include "hpp/core/path-projector/recursive-hermite.hh"
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/comparison-type.hh>
@@ -72,6 +76,18 @@ namespace hpp {
               createWithTraits <InnerConfigOptimizationTraits> (problem);
           }
         };
+
+      template <typename PathProjectorType>
+      core::PathProjectorPtr_t createPathProjector
+      (const core::Problem& problem, const value_type& step)
+      {
+        GraphSteeringMethodPtr_t gsm =
+          HPP_DYNAMIC_PTR_CAST (GraphSteeringMethod, problem.steeringMethod());
+        if (!gsm) throw std::logic_error ("The steering method should be of type"
+            " GraphSteeringMethod");
+        return PathProjectorType::create (problem.distance(),
+            gsm->innerSteeringMethod(), step);
+      }
     }
 
     std::ostream& operator<< (std::ostream& os, const Device& robot)
@@ -101,6 +117,15 @@ namespace hpp {
           GraphConfigOptimizationTraits
             <pathOptimization::ConfigOptimizationTraits>
             >);
+
+      parent_t::add <core::PathProjectorBuilder_t> ("Progressive",
+          createPathProjector <core::pathProjector::Progressive>);
+      parent_t::add <core::PathProjectorBuilder_t> ("Dichotomy",
+          createPathProjector <core::pathProjector::Dichotomy>);
+      parent_t::add <core::PathProjectorBuilder_t> ("Global",
+          createPathProjector <core::pathProjector::Global>);
+      parent_t::add <core::PathProjectorBuilder_t> ("RecursiveHermite",
+          createPathProjector <core::pathProjector::RecursiveHermite>);
 
       parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 1>::createFromCore);
       parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 2>::createFromCore);

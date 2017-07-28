@@ -156,6 +156,7 @@ namespace hpp {
               to2 = transition->state();
               stateOfStart.reset();
             }
+          }
           if (zeroDerivative) {
             if (   !(use_reverse && src_contains_q0 && src_contains_q1)
                 && !(use_direct  && dst_contains_q0 && dst_contains_q1)

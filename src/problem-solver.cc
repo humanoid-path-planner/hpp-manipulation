@@ -28,10 +28,10 @@
 
 #include <hpp/core/random-shortcut.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
-#include "hpp/core/path-projector/progressive.hh"
-#include "hpp/core/path-projector/dichotomy.hh"
-#include "hpp/core/path-projector/global.hh"
-#include "hpp/core/path-projector/recursive-hermite.hh"
+#include <hpp/core/path-projector/progressive.hh>
+#include <hpp/core/path-projector/dichotomy.hh>
+#include <hpp/core/path-projector/global.hh>
+#include <hpp/core/path-projector/recursive-hermite.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method-straight.hh>
 #include <hpp/core/comparison-type.hh>

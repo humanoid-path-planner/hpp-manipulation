@@ -181,7 +181,7 @@ namespace hpp {
         ConstraintSetPtr_t set = state->configConstraint();
         value_type guessThreshold = this->problem().getParameter ("SplineGradientBased/guessThreshold", value_type(-1));
         Eigen::RowBlockIndexes select =
-          this->computeActiveParameters (path, set->configProjector()->solver(), guessThreshold);
+          this->computeActiveParameters (path, set->configProjector()->solver(), guessThreshold, true);
 
         const size_type rDof = this->robot_->numberDof(),
                         col  = idxSpline * Spline::NbCoeffs * rDof,

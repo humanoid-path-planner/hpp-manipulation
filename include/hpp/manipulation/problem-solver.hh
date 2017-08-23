@@ -71,6 +71,9 @@ namespace hpp {
 
         /// Get the constraint graph
         graph::GraphPtr_t constraintGraph () const;
+
+        /// Should be called before any call on the graph is made.
+        void initConstraintGraph ();
         /// \}
 
 	/// Create placement constraint

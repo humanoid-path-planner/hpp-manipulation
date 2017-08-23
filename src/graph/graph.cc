@@ -47,6 +47,14 @@ namespace hpp {
             );
       }
 
+      void Graph::initialize ()
+      {
+        hists_.clear ();
+        assert(components_.size() >= 1 && components_[0].lock() == wkPtr_.lock());
+        for (std::size_t i = 1; i < components_.size(); ++i)
+          components_[i].lock()->initialize();
+      }
+
       StateSelectorPtr_t Graph::createNodeSelector (const std::string& name)
       {
         stateSelector_ = StateSelector::create (name);

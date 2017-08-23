@@ -184,6 +184,14 @@ namespace hpp {
       return constraintGraph_;
     }
 
+    void ProblemSolver::initConstraintGraph ()
+    {
+      if (!constraintGraph_)
+        throw std::runtime_error ("The graph is not defined.");
+      initSteeringMethod();
+      constraintGraph_->initialize();
+    }
+
     void ProblemSolver::createPlacementConstraint
     (const std::string& name, const StringList_t& surface1,
      const StringList_t& surface2, const value_type& margin)

@@ -29,32 +29,6 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      /// \cond
-      /// Cache mechanism that enable const-correctness of member functions.
-      template <typename C>
-        class HPP_MANIPULATION_LOCAL Cache
-      {
-        public:
-          void set (const C& c)
-          {
-            c_ = c;
-          }
-
-          operator bool() const
-          {
-            return (bool)c_;
-          }
-
-          const C& get () const
-          {
-            return c_;
-          }
-
-        private:
-          C c_;
-      };
-      /// \endcond
-
       /// \addtogroup constraint_graph
       /// \{
 
@@ -141,13 +115,13 @@ namespace hpp {
 	  /// Get steering method associated to the edge.
 	  const core::SteeringMethodPtr_t& steeringMethod () const
 	  {
-	    return steeringMethod_->get();
+	    return steeringMethod_;
 	  }
 
 	  /// Get path validation associated to the edge.
 	  const core::PathValidationPtr_t& pathValidation () const
 	  {
-	    return pathValidation_->get();
+	    return pathValidation_;
 	  }
 
           const RelativeMotion::matrix_type& relativeMotion () const
@@ -190,9 +164,11 @@ namespace hpp {
           /// \return The initialized constraint.
           ConstraintSetPtr_t pathConstraint() const;
 
-          virtual ConstraintSetPtr_t buildConfigConstraint() const;
+          virtual ConstraintSetPtr_t buildConfigConstraint();
 
-          virtual ConstraintSetPtr_t buildPathConstraint() const;
+          virtual ConstraintSetPtr_t buildPathConstraint();
+
+          virtual void initialize ();
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
@@ -200,16 +176,12 @@ namespace hpp {
           bool isShort_;
 
         private:
-          typedef Cache < ConstraintSetPtr_t > Constraint_t;
-          typedef Cache < core::SteeringMethodPtr_t > SteeringMethod_t;
-          typedef Cache < core::PathValidationPtr_t > PathValidation_t;
-
           /// See pathConstraint member function.
-          Constraint_t* pathConstraints_;
+          ConstraintSetPtr_t pathConstraints_;
 
           /// Constraint ensuring that a q_proj will be in to_ and in the
           /// same leaf of to_ as the configuration used for initialization.
-          Constraint_t* configConstraints_;
+          ConstraintSetPtr_t configConstraints_;
 
           /// The two ends of the transition.
           StateWkPtr_t from_, to_;
@@ -218,11 +190,11 @@ namespace hpp {
           StateWkPtr_t state_;
 
 	  /// Steering method used to create paths associated to the edge
-	  SteeringMethod_t* steeringMethod_;
+          core::SteeringMethodPtr_t steeringMethod_;
 
 	  /// Path validation associated to the edge
           mutable RelativeMotion::matrix_type relMotion_;
-	  PathValidation_t* pathValidation_;
+          core::PathValidationPtr_t pathValidation_;
 
           /// Weak pointer to itself.
           EdgeWkPtr_t wkPtr_;
@@ -334,7 +306,7 @@ namespace hpp {
 
           virtual bool applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const;
 
-          virtual ConstraintSetPtr_t buildConfigConstraint() const;
+          virtual ConstraintSetPtr_t buildConfigConstraint();
 
           void buildHistogram ();
 
@@ -382,6 +354,8 @@ namespace hpp {
 
           /// Populate DrawingAttributes tooltip
           virtual void populateTooltip (dot::Tooltip& tp) const;
+
+          virtual void initialize ();
 
         private:
           bool applyConstraintsWithOffset (ConfigurationIn_t qoffset,

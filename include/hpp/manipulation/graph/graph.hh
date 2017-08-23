@@ -214,6 +214,8 @@ namespace hpp {
           /// Print the component in DOT language.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
+          virtual void initialize ();
+
         protected:
           /// Initialization of the object.
           void init (const GraphWkPtr_t& weak, DevicePtr_t robot);

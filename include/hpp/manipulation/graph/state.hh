@@ -104,7 +104,10 @@ namespace hpp {
           Weight_t getWeight (const EdgePtr_t&edge);
 
           /// Constraint to project onto this state.
-          ConstraintSetPtr_t configConstraint() const;
+          ConstraintSetPtr_t configConstraint() const
+          {
+            return configConstraints_;
+          }
 
           /// Add core::NumericalConstraint to the component.
           virtual void addNumericalConstraintForPath (const NumericalConstraintPtr_t& nm,
@@ -156,6 +159,8 @@ namespace hpp {
 
           virtual void populateTooltip (dot::Tooltip& tp) const;
 
+          virtual void initialize ();
+
         private:
           /// List of possible motions from this state (i.e. the outgoing
           /// vertices).
@@ -163,8 +168,7 @@ namespace hpp {
           std::vector <EdgePtr_t> hiddenNeighbors_;
 
           /// Set of constraints to be statisfied.
-          typedef Cache < ConstraintSetPtr_t > Constraint_t;
-          Constraint_t* configConstraints_;
+          ConstraintSetPtr_t configConstraints_;
 
           /// Stores the numerical constraints for path.
           NumericalConstraints_t numericalConstraintsForPath_;

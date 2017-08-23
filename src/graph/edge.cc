@@ -38,19 +38,14 @@ namespace hpp {
     namespace graph {
       Edge::Edge (const std::string& name) :
 	GraphComponent (name), isShort_ (false),
-        pathConstraints_ (new Constraint_t()),
-	configConstraints_ (new Constraint_t()),
-        steeringMethod_ (new SteeringMethod_t()),
-        pathValidation_ (new PathValidation_t())
+        pathConstraints_ (),
+	configConstraints_ (),
+        steeringMethod_ (),
+        pathValidation_ ()
       {}
 
       Edge::~Edge ()
-      {
-        if (pathConstraints_  ) delete pathConstraints_;
-        if (configConstraints_) delete configConstraints_;
-        if (steeringMethod_   ) delete steeringMethod_;
-        if (pathValidation_   ) delete pathValidation_;
-      }
+      {}
 
       StatePtr_t Edge::to () const
       {
@@ -159,6 +154,12 @@ namespace hpp {
         state_ = to;
       }
 
+      void Edge::initialize ()
+      {
+        configConstraints_ = buildConfigConstraint ();
+        pathConstraints_ = buildPathConstraint ();
+      }
+
       std::ostream& Edge::print (std::ostream& os) const
       {
         os << "|   |   |-- ";
@@ -181,13 +182,10 @@ namespace hpp {
 
       ConstraintSetPtr_t Edge::configConstraint() const
       {
-        if (!*configConstraints_) {
-          configConstraints_->set (buildConfigConstraint ());
-        }
-        return configConstraints_->get ();
+        return configConstraints_;
       }
 
-      ConstraintSetPtr_t Edge::buildConfigConstraint() const
+      ConstraintSetPtr_t Edge::buildConfigConstraint()
       {
         std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();
@@ -216,14 +214,10 @@ namespace hpp {
 
       ConstraintSetPtr_t Edge::pathConstraint() const
       {
-        if (!*pathConstraints_) {
-	  ConstraintSetPtr_t pathConstraints (buildPathConstraint ());
-          pathConstraints_->set (pathConstraints);
-        }
-        return pathConstraints_->get ();
+        return pathConstraints_;
       }
 
-      ConstraintSetPtr_t Edge::buildPathConstraint() const
+      ConstraintSetPtr_t Edge::buildPathConstraint()
       {
         std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();
@@ -244,16 +238,15 @@ namespace hpp {
 
         // Build steering method
         const ProblemPtr_t& problem (g->problem());
-        steeringMethod_->set(problem->steeringMethod()
-          ->innerSteeringMethod()->copy());
-        steeringMethod_->get()->constraints (constraint);
+        steeringMethod_ = problem->steeringMethod()->innerSteeringMethod()->copy();
+        steeringMethod_->constraints (constraint);
         // Build path validation and relative motion matrix
         // TODO this path validation will not contain obstacles added after
         // its creation.
-        pathValidation_->set(problem->pathValidationFactory ());
+        pathValidation_ = problem->pathValidationFactory ();
         relMotion_ = RelativeMotion::matrix (g->robot());
         RelativeMotion::fromConstraint (relMotion_, g->robot(), constraint);
-        pathValidation_->get()->filterCollisionPairs (relMotion_);
+        pathValidation_->filterCollisionPairs (relMotion_);
         return constraint;
       }
 
@@ -273,12 +266,7 @@ namespace hpp {
 	const
       {
         using pinocchio::displayConfig;
-	core::SteeringMethodPtr_t sm (steeringMethod_->get());
-	if (!sm) {
-	  buildPathConstraint ();
-	}
-	sm = (steeringMethod_->get());
-	if (!sm) {
+	if (!steeringMethod_) {
 	  std::ostringstream oss;
 	  oss << "No steering method set in edge " << name () << ".";
 	  throw std::runtime_error (oss.str ().c_str ());
@@ -287,7 +275,7 @@ namespace hpp {
         constraints->configProjector ()->rightHandSideFromConfig(q1);
         if (constraints->isSatisfied (q1)) {
           if (constraints->isSatisfied (q2)) {
-            path = (*sm) (q1, q2);
+            path = (*steeringMethod_) (q1, q2);
             return (bool)path;
           } else {
 	    hppDout(info, "q2 = " << displayConfig (q2)
@@ -686,7 +674,13 @@ namespace hpp {
         g->insertHistogram (hist_);
       }
 
-      ConstraintSetPtr_t LevelSetEdge::buildConfigConstraint() const
+      void LevelSetEdge::initialize ()
+      {
+        Edge::initialize();
+        buildHistogram ();
+      }
+
+      ConstraintSetPtr_t LevelSetEdge::buildConfigConstraint()
       {
         std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();

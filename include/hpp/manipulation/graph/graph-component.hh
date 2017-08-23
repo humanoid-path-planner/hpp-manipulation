@@ -121,6 +121,8 @@ namespace hpp {
           /// Populate DrawingAttributes tooltip
           virtual void populateTooltip (dot::Tooltip& tp) const;
 
+          virtual void initialize () = 0;
+
         private:
           /// Name of the component.
           std::string name_;
@@ -128,6 +130,8 @@ namespace hpp {
           GraphComponentWkPtr_t wkPtr_;
           /// ID of the component (index in components vector).
 	  std::size_t id_;
+
+          friend class Graph;
       };
 
       std::ostream& operator<< (std::ostream& os, const GraphComponent& graphComp);

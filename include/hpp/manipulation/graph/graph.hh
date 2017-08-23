@@ -107,12 +107,12 @@ namespace hpp {
           /// Constraint to project onto the Node.
           /// \param state the state on which to project.
           /// \return The initialized projector.
-          ConstraintSetPtr_t configConstraint (const StatePtr_t& state);
+          ConstraintSetPtr_t configConstraint (const StatePtr_t& state) const;
 
           /// Constraint to project onto the same leaf as config.
           /// \param edges a list of edges defining the foliation.
           /// \return The constraint.
-          ConstraintSetPtr_t configConstraint (const EdgePtr_t& edge);
+          ConstraintSetPtr_t configConstraint (const EdgePtr_t& edge) const;
 
 	  /// Get error of a config with respect to a state constraint
 	  ///
@@ -125,7 +125,7 @@ namespace hpp {
 	  /// constraints.
 	  /// \deprecated use getConfigErrorForState instead
 	  bool getConfigErrorForNode (ConfigurationIn_t config,
-				      const StatePtr_t& state, vector_t& error)
+				      const StatePtr_t& state, vector_t& error) const
 	    HPP_MANIPULATION_DEPRECATED;
 
 	  /// Get error of a config with respect to a state constraint
@@ -138,7 +138,7 @@ namespace hpp {
 	  /// Call method core::ConstraintSet::isSatisfied for the state
 	  /// constraints.
 	  bool getConfigErrorForState (ConfigurationIn_t config,
-				      const StatePtr_t& state, vector_t& error);
+				      const StatePtr_t& state, vector_t& error) const;
 
 	  /// Get error of a config with respect to an edge constraint
 	  ///
@@ -152,7 +152,7 @@ namespace hpp {
 	  /// input configuration and method core::ConstraintSet::isSatisfied
 	  /// for the edge constraint.
 	  bool getConfigErrorForEdge (ConfigurationIn_t config,
-				      const EdgePtr_t& edge, vector_t& error);
+				      const EdgePtr_t& edge, vector_t& error) const;
 
 	  /// Get error of a config with respect to an edge foliation leaf
 	  ///
@@ -166,12 +166,12 @@ namespace hpp {
 	  /// on the edge constraints.
 	  bool getConfigErrorForEdgeLeaf
 	    (ConfigurationIn_t leafConfig, ConfigurationIn_t config,
-	     const EdgePtr_t& edge, vector_t& error);
+	     const EdgePtr_t& edge, vector_t& error) const;
 
           /// Constraint to project a path.
           /// \param edge a list of edges defining the foliation.
           /// \return The constraint.
-          ConstraintSetPtr_t pathConstraint (const EdgePtr_t& edge);
+          ConstraintSetPtr_t pathConstraint (const EdgePtr_t& edge) const;
 
           /// Set maximal number of iterations
           void maxIterations (size_type iterations);

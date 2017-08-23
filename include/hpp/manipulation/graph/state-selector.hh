@@ -84,7 +84,7 @@ namespace hpp {
           WeighedStates_t orderedStates_;
           States_t waypoints_;
 
-          virtual void initialize () {};
+          virtual void initialize () { isInit_ = true; };
 
         private:
           /// Weak pointer to itself.

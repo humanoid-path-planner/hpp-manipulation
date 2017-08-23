@@ -106,6 +106,7 @@ namespace hpp {
           /// Constraint to project onto this state.
           ConstraintSetPtr_t configConstraint() const
           {
+            throwIfNotInitialized ();
             return configConstraints_;
           }
 
@@ -113,6 +114,7 @@ namespace hpp {
           virtual void addNumericalConstraintForPath (const NumericalConstraintPtr_t& nm,
               const SizeIntervals_t& passiveDofs = SizeIntervals_t ())
           {
+            isInit_ = false;
             numericalConstraintsForPath_.push_back (nm);
             passiveDofsForPath_.push_back (passiveDofs);
           }
@@ -121,6 +123,7 @@ namespace hpp {
           virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq)
             HPP_MANIPULATION_DEPRECATED
           {
+            isInit_ = false;
             numericalConstraintsForPath_.push_back (NumericalConstraint::create (function,ineq));
           }
 

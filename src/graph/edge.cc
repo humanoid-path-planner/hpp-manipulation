@@ -158,6 +158,7 @@ namespace hpp {
       {
         configConstraints_ = buildConfigConstraint ();
         pathConstraints_ = buildPathConstraint ();
+        isInit_ = true;
       }
 
       std::ostream& Edge::print (std::ostream& os) const
@@ -182,6 +183,7 @@ namespace hpp {
 
       ConstraintSetPtr_t Edge::configConstraint() const
       {
+        throwIfNotInitialized ();
         return configConstraints_;
       }
 
@@ -214,6 +216,7 @@ namespace hpp {
 
       ConstraintSetPtr_t Edge::pathConstraint() const
       {
+        throwIfNotInitialized ();
         return pathConstraints_;
       }
 
@@ -722,29 +725,34 @@ namespace hpp {
       void LevelSetEdge::insertParamConstraint (const NumericalConstraintPtr_t& nm,
               const SizeIntervals_t& passiveDofs)
       {
+        isInit_ = false;
         paramNumericalConstraints_.push_back (nm);
         paramPassiveDofs_.push_back (passiveDofs);
       }
 
       void LevelSetEdge::insertParamConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)
       {
+        isInit_ = false;
         insertParamConstraint (NumericalConstraint::create (function, ineq));
       }
 
       void LevelSetEdge::insertParamConstraint (const LockedJointPtr_t lockedJoint)
       {
+        isInit_ = false;
         paramLockedJoints_.push_back (lockedJoint);
       }
 
       void LevelSetEdge::insertConditionConstraint (const NumericalConstraintPtr_t& nm,
               const SizeIntervals_t& passiveDofs)
       {
+        isInit_ = false;
         condNumericalConstraints_.push_back (nm);
         condPassiveDofs_.push_back (passiveDofs);
       }
 
       void LevelSetEdge::insertConditionConstraint (const LockedJointPtr_t lockedJoint)
       {
+        isInit_ = false;
         condLockedJoints_.push_back (lockedJoint);
       }
 

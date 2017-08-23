@@ -107,6 +107,8 @@ namespace hpp {
 
       void State::initialize()
       {
+        isInit_ = true;
+
         std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();
         configConstraints_ = ConstraintSet::create (g->robot (), "Set " + n);

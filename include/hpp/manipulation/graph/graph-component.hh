@@ -102,7 +102,9 @@ namespace hpp {
           /// Initialize the component
           void init (const GraphComponentWkPtr_t& weak);
 
-          GraphComponent(const std::string& name) : name_ (name), id_(-1)
+          GraphComponent(const std::string& name) : isInit_(false)
+                                                    , name_ (name)
+                                                    , id_(-1)
           {}
 
           /// Stores the numerical constraints.
@@ -113,6 +115,13 @@ namespace hpp {
           LockedJoints_t lockedJoints_;
           /// A weak pointer to the parent graph.
           GraphWkPtr_t graph_;
+
+          bool isInit_;
+
+          void throwIfNotInitialized () const
+          {
+            if (!isInit_) throw std::logic_error ("The graph should have been initialized first.");
+          }
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;

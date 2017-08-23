@@ -48,6 +48,7 @@ namespace hpp {
       void GraphComponent::addNumericalConstraint (const NumericalConstraintPtr_t& nm,
           const SizeIntervals_t& passiveDofs)
       {
+        isInit_ = false;
         numericalConstraints_.push_back(nm);
         passiveDofs_.push_back (passiveDofs);
       }
@@ -59,6 +60,7 @@ namespace hpp {
 
       void GraphComponent::resetNumericalConstraints ()
       {
+        isInit_ = false;
 	numericalConstraints_.clear();
         passiveDofs_.clear();
       }
@@ -66,11 +68,13 @@ namespace hpp {
       void GraphComponent::addLockedJointConstraint
       (const LockedJointPtr_t& constraint)
       {
+        isInit_ = false;
         lockedJoints_.push_back (constraint);
       }
 
       void GraphComponent::resetLockedJoints ()
       {
+        isInit_ = false;
 	lockedJoints_.clear();
       }
 

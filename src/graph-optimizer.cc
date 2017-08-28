@@ -39,6 +39,7 @@ namespace hpp {
       core::Problem p (problem().robot());
       p.distance(problem().distance());
       p.pathValidation(gpv->innerValidation());
+      p.pathProjector(problem().pathProjector());
 
       path->flatten (expanded);
       ConstraintSetPtr_t c;

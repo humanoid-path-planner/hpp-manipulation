@@ -290,7 +290,9 @@ namespace hpp {
             path = (*sm) (q1, q2);
             return (bool)path;
           } else {
-	    hppDout(info, "q2 does not satisfy the constraints");
+	    hppDout(info, "q2 = " << displayConfig (q2)
+                    << " does not satisfy the constraints of edge "
+                    << name ());
 	    return false;
 	  }
         } else {

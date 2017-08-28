@@ -38,7 +38,10 @@ namespace hpp {
               this->problem().pathValidation ());
       core::Problem p (problem().robot());
       p.distance(problem().distance());
-      p.pathValidation(gpv->innerValidation());
+      // It should be ok to use the path validation of each edge because it
+      // corresponds to the global path validation minus the collision pairs
+      // disabled using the edge constraint.
+      // p.pathValidation(gpv->innerValidation());
       p.pathProjector(problem().pathProjector());
 
       path->flatten (expanded);
@@ -72,6 +75,7 @@ namespace hpp {
           p.constraints(edge->steeringMethod()->constraints());
           p.constraints()->configProjector()->rightHandSideFromConfig(toOpt->initial());
           p.steeringMethod(edge->steeringMethod());
+          p.pathValidation(edge->pathValidation());
           pathOptimizer_ = factory_ (p);
           toConcat = pathOptimizer_->optimize (toOpt);
         }

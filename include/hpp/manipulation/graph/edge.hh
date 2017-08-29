@@ -311,6 +311,7 @@ namespace hpp {
 
           Waypoints_t waypoints_;
 
+          mutable Configuration_t init_;
           mutable matrix_t configs_;
           mutable Configuration_t result_;
 

@@ -364,7 +364,7 @@ namespace hpp {
            graph_.lock ()->robot ()->numberDof ());
         // Many times, this will be called rigth after WaypointEdge::applyConstraints so config_
         // already satisfies the constraints.
-        bool useCache = result_.isApprox (q2);
+        bool useCache = init_.isApprox (q1) && result_.isApprox (q2);
         if (!useCache) configs_.col (0) = q2;
 
         assert (waypoints_[0].first);
@@ -425,6 +425,7 @@ namespace hpp {
           }
         }
         bool success = Edge::applyConstraints (configs_.col (configs_.cols()-1), q);
+        init_ = qoffset;
         result_ = q;
         return success;
       }
@@ -434,6 +435,7 @@ namespace hpp {
         waypoints_.resize (number);
         const size_type nbDof = graph_.lock ()->robot ()->configSize ();
         configs_ = matrix_t (nbDof, number);
+        init_   = Configuration_t (nbDof);
         result_ = Configuration_t (nbDof);
       }
 

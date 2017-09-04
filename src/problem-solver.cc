@@ -288,6 +288,34 @@ namespace hpp {
       addNumericalConstraint (name, NumericalConstraint::create (cvxShape));
     }
 
+    void ProblemSolver::createGraspConstraint
+    (const std::string& name, const std::string& gripper,
+     const std::string& handle)
+    {
+      GripperPtr_t g = robot_->get <GripperPtr_t> (gripper);
+      if (!g) throw std::runtime_error ("No gripper with name " + gripper + ".");
+      HandlePtr_t h = robot_->get <HandlePtr_t> (handle);
+      if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
+      NumericalConstraintPtr_t constraint (h->createGrasp (g));
+      NumericalConstraintPtr_t complement (h->createGraspComplement (g));
+      addNumericalConstraint (name, constraint);
+      addNumericalConstraint (name + "/complement", complement);
+    }
+
+    void ProblemSolver::createPreGraspConstraint
+    (const std::string& name, const std::string& gripper,
+     const std::string& handle)
+    {
+      GripperPtr_t g = robot_->get <GripperPtr_t> (gripper);
+      if (!g) throw std::runtime_error ("No gripper with name " + gripper + ".");
+      HandlePtr_t h = robot_->get <HandlePtr_t> (handle);
+      if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
+
+      value_type c = h->clearance () + g->clearance ();
+      NumericalConstraintPtr_t constraint = h->createPreGrasp (g, c);
+      addNumericalConstraint (name, constraint);
+    }
+
     void ProblemSolver::pathValidationType (const std::string& type,
         const value_type& tolerance)
     {

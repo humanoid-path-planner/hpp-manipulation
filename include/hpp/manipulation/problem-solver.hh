@@ -100,6 +100,27 @@ namespace hpp {
                                            const value_type& width,
                                            const value_type& margin = 1e-4);
 
+	/// Create the grasp constraint and its complement
+	/// \param name name of the grasp constraint,
+	/// \param gripper gripper's name
+	/// \param handle handle's name
+	/// 
+        /// Two constraints are created:
+        /// - "name" corresponds to the grasp constraint.
+        /// - "name/complement" corresponds to the complement.
+        void createGraspConstraint (const std::string& name,
+                                    const std::string& gripper,
+                                    const std::string& handle);
+
+	/// Create pre-grasp constraint
+	/// \param name name of the grasp constraint,
+	/// \param gripper gripper's name
+	/// \param handle handle's name
+	/// 
+        void createPreGraspConstraint (const std::string& name,
+                                       const std::string& gripper,
+                                       const std::string& handle);
+
         virtual void pathValidationType (const std::string& type,
                                          const value_type& tolerance);
 

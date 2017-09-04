@@ -551,6 +551,7 @@ namespace hpp {
           typedef std::vector<CompiledRule> CompiledRules_t;
 
           struct Result {
+            ProblemSolverPtr_t ps;
             GraphPtr_t graph;
             typedef unsigned long stateid_type;
             std::tr1::unordered_map<stateid_type, StateAndManifold_t> states;
@@ -572,8 +573,8 @@ namespace hpp {
             CompiledRules_t rules;
             CompiledRule::Status defaultAcceptationPolicy;
 
-            Result (const Grippers_t& grippers, const Objects_t& objects, GraphPtr_t g) :
-              graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects),
+            Result (const ProblemSolverPtr_t problem, const Grippers_t& grippers, const Objects_t& objects, GraphPtr_t g) :
+              ps (problem), graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects),
               defaultAcceptationPolicy (CompiledRule::Refuse)
             {
               BOOST_FOREACH (const Object_t& o, objects) {
@@ -648,6 +649,8 @@ namespace hpp {
             inline boost::array<NumericalConstraintPtr_t,3>& graspConstraint (
                 const index_t& iG, const index_t& iOH)
             {
+              typedef core::ProblemSolver CPS_t;
+
               boost::array<NumericalConstraintPtr_t,3>& gcs =
                 graspCs [iG * nOH + iOH];
               if (!gcs[0]) {
@@ -655,10 +658,17 @@ namespace hpp {
                     << iG << ", " << iOH << ")");
                 const GripperPtr_t& g (gs[iG]);
                 const HandlePtr_t& h (handle (iOH));
-                gcs[0] = h->createGrasp (g);
-                gcs[1] = h->createGraspComplement (g);
-                const value_type c = h->clearance () + g->clearance ();
-                gcs[2] = h->createPreGrasp (g, c);
+                const std::string& grasp = g->name() + " grasps " + h->name();
+                if (!ps->CPS_t::has<NumericalConstraintPtr_t>(grasp)) {
+                  ps->createGraspConstraint (grasp, g->name(), h->name());
+                }
+                gcs[0] = ps->CPS_t::get<NumericalConstraintPtr_t>(grasp);
+                gcs[1] = ps->CPS_t::get<NumericalConstraintPtr_t>(grasp + "/complement");
+                const std::string& pregrasp = g->name() + " pregrasps " + h->name();
+                if (!ps->CPS_t::has<NumericalConstraintPtr_t>(pregrasp)) {
+                  ps->createPreGraspConstraint (pregrasp, g->name(), h->name());
+                }
+                gcs[2] = ps->CPS_t::get<NumericalConstraintPtr_t>(pregrasp);
               }
               return gcs;
             }
@@ -986,6 +996,7 @@ namespace hpp {
         }
 
         void graphBuilder (
+            const ProblemSolverPtr_t& ps,
             const Objects_t& objects,
             const Grippers_t& grippers,
             GraphPtr_t graph,
@@ -995,7 +1006,7 @@ namespace hpp {
           StateSelectorPtr_t ns = graph->stateSelector ();
           if (!ns) throw std::logic_error ("The graph does not have a StateSelector");
 
-          Result r (grippers, objects, graph);
+          Result r (ps, grippers, objects, graph);
           r.setRules (rules);
 
           IndexV_t availG (r.nG), availOH (r.nOH);
@@ -1093,7 +1104,7 @@ namespace hpp {
           graph->maxIterations  (ps->maxIterProjection ());
           graph->errorThreshold (ps->errorThreshold ());
 
-          graphBuilder (objects, grippers, graph, rules);
+          graphBuilder (ps, objects, grippers, graph, rules);
           ps->constraintGraph (graph);
           return graph;
         }

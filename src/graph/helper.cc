@@ -444,20 +444,20 @@ namespace hpp {
             const GripperPtr_t& gripper, const HandlePtr_t& handle,
             FoliatedManifold& grasp, FoliatedManifold& pregrasp)
         {
-          NumericalConstraintPtr_t gc  = handle->createGrasp (gripper);
+          NumericalConstraintPtr_t gc  = handle->createGrasp (gripper, "");
           grasp.nc.nc.push_back (gc);
           grasp.nc.pdof.push_back (SizeIntervals_t ());
           grasp.nc_path.nc.push_back (gc);
           // TODO: see function declaration
           grasp.nc_path.pdof.push_back (SizeIntervals_t ());
-          NumericalConstraintPtr_t gcc = handle->createGraspComplement (gripper);
+          NumericalConstraintPtr_t gcc = handle->createGraspComplement (gripper, "");
           if (gcc->function ().outputSize () > 0) {
             grasp.nc_fol.nc.push_back (gcc);
             grasp.nc_fol.pdof.push_back (SizeIntervals_t());
           }
 
           const value_type c = handle->clearance () + gripper->clearance ();
-          NumericalConstraintPtr_t pgc = handle->createPreGrasp (gripper, c);
+          NumericalConstraintPtr_t pgc = handle->createPreGrasp (gripper, c, "");
           pregrasp.nc.nc.push_back (pgc);
           pregrasp.nc.pdof.push_back (SizeIntervals_t());
           pregrasp.nc_path.nc.push_back (pgc);

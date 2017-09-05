@@ -296,10 +296,11 @@ namespace hpp {
       if (!g) throw std::runtime_error ("No gripper with name " + gripper + ".");
       HandlePtr_t h = robot_->get <HandlePtr_t> (handle);
       if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
-      NumericalConstraintPtr_t constraint (h->createGrasp (g));
-      NumericalConstraintPtr_t complement (h->createGraspComplement (g));
-      addNumericalConstraint (name, constraint);
-      addNumericalConstraint (name + "/complement", complement);
+      const std::string cname = name + "/complement";
+      NumericalConstraintPtr_t constraint (h->createGrasp (g, name));
+      NumericalConstraintPtr_t complement (h->createGraspComplement (g, cname));
+      addNumericalConstraint ( name, constraint);
+      addNumericalConstraint (cname, complement);
     }
 
     void ProblemSolver::createPreGraspConstraint
@@ -312,7 +313,7 @@ namespace hpp {
       if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
 
       value_type c = h->clearance () + g->clearance ();
-      NumericalConstraintPtr_t constraint = h->createPreGrasp (g, c);
+      NumericalConstraintPtr_t constraint = h->createPreGrasp (g, c, name);
       addNumericalConstraint (name, constraint);
     }
 

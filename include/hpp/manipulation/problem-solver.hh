@@ -30,13 +30,9 @@
 namespace hpp {
   namespace manipulation {
     class HPP_MANIPULATION_DLLAPI ProblemSolver :
-      public core::ProblemSolver,
-      public core::Containers <
-        boost::mpl::vector <LockedJointPtr_t, JointAndShapes_t> >
+      public core::ProblemSolver
     {
       public:
-        typedef core::Containers < boost::mpl::vector
-          <LockedJointPtr_t, JointAndShapes_t> > ThisC_t;
         typedef core::ProblemSolver parent_t;
         typedef std::vector <std::string> Names_t;
 

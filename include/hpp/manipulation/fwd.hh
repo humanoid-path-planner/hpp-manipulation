@@ -121,9 +121,10 @@ namespace hpp {
 
     typedef std::list < NumericalConstraintPtr_t > NumericalConstraints_t;
 
-    typedef std::vector<core::vector3_t> Shape_t;
-    typedef std::pair <JointPtr_t, Shape_t> JointAndShape_t;
-    typedef std::list <JointAndShape_t> JointAndShapes_t;
+    typedef core::Shape_t Shape_t;
+    typedef core::JointAndShape_t JointAndShape_t;
+    typedef core::JointAndShapes_t JointAndShapes_t;
+
     typedef std::list <std::string> StringList_t;
 
     namespace pathOptimization {

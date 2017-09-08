@@ -33,7 +33,7 @@
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/recursive-hermite.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/comparison-type.hh>
 
 #include "hpp/manipulation/package-config.hh" // HPP_MANIPULATION_HAS_WHOLEBODY_STEP
@@ -217,8 +217,8 @@ namespace hpp {
         if (robot_->has <JointAndShapes_t> (*it2))
           l = robot_->get <JointAndShapes_t> (*it2);
         // and then environment triangles.
-        else if (ThisC_t::has <JointAndShapes_t> (*it2))
-          l = ThisC_t::get <JointAndShapes_t> (*it2);
+        else if (core::ProblemSolver::has <JointAndShapes_t> (*it2))
+          l = core::ProblemSolver::get <JointAndShapes_t> (*it2);
         else throw std::runtime_error ("Second list of triangles not found.");
         for (JointAndShapes_t::const_iterator it = l.begin ();
             it != l.end(); ++it) {
@@ -265,8 +265,8 @@ namespace hpp {
         if (robot_->has <JointAndShapes_t> (*it2))
           l = robot_->get <JointAndShapes_t> (*it2);
         // and then environment triangles.
-        else if (ThisC_t::has <JointAndShapes_t> (*it2))
-          l = ThisC_t::get <JointAndShapes_t> (*it2);
+        else if (has <JointAndShapes_t> (*it2))
+          l = get <JointAndShapes_t> (*it2);
         else throw std::runtime_error ("Second list of triangles not found.");
 
         for (JointAndShapes_t::const_iterator it = l.begin ();

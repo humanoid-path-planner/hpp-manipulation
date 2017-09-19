@@ -33,6 +33,7 @@
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/recursive-hermite.hh>
 #include <hpp/core/roadmap.hh>
+#include <hpp/core/steering-method/hermite.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/comparison-type.hh>
 
@@ -137,6 +138,10 @@ namespace hpp {
       using core::SteeringMethodBuilder_t;
       parent_t::add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
           GraphSteeringMethod::create <core::SteeringMethodStraight>);
+      parent_t::add <SteeringMethodBuilder_t> ("Graph-Straight",
+          GraphSteeringMethod::create <core::steeringMethod::Straight>);
+      parent_t::add <SteeringMethodBuilder_t> ("Graph-Hermite",
+          GraphSteeringMethod::create <core::steeringMethod::Hermite>);
 
       parent_t::add <PathOptimizerBuilder_t> ("KeypointsShortcut",
           pathOptimization::Keypoints::create);

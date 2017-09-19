@@ -1091,7 +1091,7 @@ namespace hpp {
               LockedJointPtr_t lj = core::LockedJoint::create (oj,
                   robot.currentConfiguration()
                   .segment (oj->rankInConfiguration (), oj->configSize ()));
-              ps->ProblemSolver::ThisC_t::add <LockedJointPtr_t> ("lock_" + oj->name (), lj);
+              ps->add <LockedJointPtr_t> ("lock_" + oj->name (), lj);
               objects[i].get<0> ().get<2> ().push_back (lj);
             }
             ++i;

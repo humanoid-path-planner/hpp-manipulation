@@ -43,7 +43,7 @@ namespace hpp {
     void Device::setRobotRootPosition (const std::string& rn,
         const Transform3f& t)
     {
-      FrameIndexes_t idxs = get<JointIndexes_t> (rn);
+      FrameIndices_t idxs = get<JointIndices_t> (rn);
       pinocchio::Model& m = model();
       pinocchio::GeomModel& gm = geomModel();
       // The root frame should be the first frame.
@@ -83,7 +83,7 @@ namespace hpp {
       /// Build list of new joints
       std::size_t fvSize = model().frames.size();
       assert (fvSize >= frameCacheSize_);
-      FrameIndexes_t newF (fvSize - frameCacheSize_);
+      FrameIndices_t newF (fvSize - frameCacheSize_);
       for (std::size_t i = frameCacheSize_; i < fvSize; ++i) {
         assert (
             (model().frames[i].name.compare(0, name.size(), name) == 0)
@@ -93,8 +93,8 @@ namespace hpp {
       }
 
       frameCacheSize_ = model().frames.size();
-      if (has<FrameIndexes_t>(name)) {
-        const FrameIndexes_t& old = get<FrameIndexes_t>(name);
+      if (has<FrameIndices_t>(name)) {
+        const FrameIndices_t& old = get<FrameIndices_t>(name);
         newF.insert(newF.begin(), old.begin(), old.end());
       }
       add (name, newF);

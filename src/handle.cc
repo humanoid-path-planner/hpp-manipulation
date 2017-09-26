@@ -43,12 +43,12 @@ namespace hpp {
       struct ZeroDiffFunc : public constraints::DifferentiableFunction {
         ZeroDiffFunc (size_type sIn, size_type sInD,
             std::string name=std::string("Empty function"))
-          : DifferentiableFunction (sIn, sInD, 0, 0, name)
+          : DifferentiableFunction (sIn, sInD, LiegroupSpace::empty (), name)
         {
           context ("Grasp complement");
         }
 
-        inline void impl_compute (vectorOut_t, vectorIn_t) const {}
+        inline void impl_compute (LiegroupElement&, vectorIn_t) const {}
         inline void impl_jacobian (matrixOut_t, vectorIn_t) const {}
       };
     }

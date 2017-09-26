@@ -41,7 +41,7 @@ namespace hpp {
         boost::mpl::vector < HandlePtr_t,
                              GripperPtr_t,
                              JointAndShapes_t,
-                             FrameIndexes_t> >
+                             FrameIndices_t> >
     {
       public:
         typedef pinocchio::HumanoidRobot Parent_t;
@@ -50,7 +50,7 @@ namespace hpp {
           boost::mpl::vector < HandlePtr_t,
           pinocchio::GripperPtr_t,
           JointAndShapes_t,
-          FrameIndexes_t> > Containers_t;
+          FrameIndices_t> > Containers_t;
 
         /// Constructor
         /// \param name of the new instance,

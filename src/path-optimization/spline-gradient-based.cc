@@ -180,13 +180,13 @@ namespace hpp {
 
         ConstraintSetPtr_t set = state->configConstraint();
         value_type guessThreshold = this->problem().getParameter ("SplineGradientBased/guessThreshold", value_type(-1));
-        Eigen::RowBlockIndexes select =
+        Eigen::RowBlockIndices select =
           this->computeActiveParameters (path, set->configProjector()->solver(), guessThreshold, true);
 
         const size_type rDof = this->robot_->numberDof(),
                         col  = idxSpline * Spline::NbCoeffs * rDof,
                         row = lc.J.rows(),
-                        nOutVar = select.nbIndexes();
+                        nOutVar = select.nbIndices();
 
         // Add nOutVar constraints
         lc.addRows(nOutVar);
@@ -209,13 +209,13 @@ namespace hpp {
 
         // ConstraintSetPtr_t set = state->configConstraint();
         // value_type guessThreshold = this->problem().getParameter ("SplineGradientBased/guessThreshold", value_type(-1));
-        // Eigen::RowBlockIndexes select =
+        // Eigen::RowBlockIndices select =
           // this->computeActiveParameters (path, set->configProjector()->solver(), guessThreshold);
 
         const size_type rDof = this->robot_->numberDof(),
                         col  = idxSpline * Spline::NbCoeffs * rDof,
                         row = lc.J.rows(),
-                        // nOutVar = select.nbIndexes();
+                        // nOutVar = select.nbIndices();
                         nOutVar = rDof;
 
         // Add nOutVar constraints

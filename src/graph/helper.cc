@@ -1072,14 +1072,16 @@ namespace hpp {
             // Create object lock
 	    // Loop over all frames of object, detect joint and create locked
 	    // joint.
-            assert (robot.has <FrameIndexes_t> (od.name));
-            BOOST_FOREACH (const se3::FrameIndex& f, robot.get<FrameIndexes_t> (od.name)) {
+            assert (robot.has <FrameIndices_t> (od.name));
+            BOOST_FOREACH (const se3::FrameIndex& f, robot.get<FrameIndices_t> (od.name)) {
               if (model.frames[f].type != se3::JOINT) continue;
               const JointIndex j = model.frames[f].parent;
               JointPtr_t oj (new Joint (ps->robot(), j));
-              LockedJointPtr_t lj = core::LockedJoint::create (oj,
-                  robot.currentConfiguration()
-                  .segment (oj->rankInConfiguration (), oj->configSize ()));
+              LiegroupSpacePtr_t space (oj->configurationSpace ());
+              LiegroupElement lge (robot.currentConfiguration()
+                                   .segment (oj->rankInConfiguration (),
+                                             oj->configSize ()), space);
+              LockedJointPtr_t lj = core::LockedJoint::create (oj, lge);
               ps->add <LockedJointPtr_t> ("lock_" + oj->name (), lj);
               objects[i].get<0> ().get<2> ().push_back (lj);
             }

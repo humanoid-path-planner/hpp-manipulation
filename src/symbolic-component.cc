@@ -32,7 +32,7 @@ namespace hpp {
     void SymbolicComponent::addNode (const RoadmapNodePtr_t& node)
     {
       assert(state_);
-      graph::StatePtr_t state = roadmap_->getState(node);
+      graph::StatePtr_t state = roadmap_.lock()->getState(node);
 
       // Sanity check
       if (state_ == state) // Oops
@@ -44,7 +44,7 @@ namespace hpp {
     void SymbolicComponent::setFirstNode (const RoadmapNodePtr_t& node)
     {
       assert(!state_);
-      state_ = roadmap_->getState(node);
+      state_ = roadmap_.lock()->getState(node);
       nodes_.push_back(node);
     }
 

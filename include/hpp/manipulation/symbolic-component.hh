@@ -81,7 +81,7 @@ namespace hpp {
         RoadmapNodes_t nodes_;
 
       private:
-        RoadmapPtr_t roadmap_;
+        RoadmapWkPtr_t roadmap_;
         SymbolicComponents_t to_, from_;
         SymbolicComponentWkPtr_t weak_;
     }; // class SymbolicComponent

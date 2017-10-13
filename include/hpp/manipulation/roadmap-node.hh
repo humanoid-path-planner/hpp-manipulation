@@ -66,13 +66,13 @@ namespace hpp {
 	/// \deprecated use graphState instead.
         graph::StatePtr_t graphNode () const HPP_MANIPULATION_DEPRECATED
         {
-          return state_;
+          return state_.lock();
         }
 
         /// Getter for the graph::State.
         graph::StatePtr_t graphState () const
         {
-          return state_;
+          return state_.lock();
         }
 
         /// Setter for the graph::State.
@@ -97,16 +97,16 @@ namespace hpp {
           symbolicCC_ = sc;
         }
 
-        const SymbolicComponentPtr_t& symbolicComponent () const
+        SymbolicComponentPtr_t symbolicComponent () const
         {
-          return symbolicCC_;
+          return symbolicCC_.lock();
         }
 
       private:
         CachingSystem cacheSystem_;
 
-        graph::StatePtr_t state_;
-        SymbolicComponentPtr_t symbolicCC_;
+        graph::StateWkPtr_t state_;
+        SymbolicComponentWkPtr_t symbolicCC_;
     };
   } // namespace manipulation
 } // namespace hpp

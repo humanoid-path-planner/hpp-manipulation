@@ -19,7 +19,7 @@
 #include <hpp/util/pointer.hh>
 
 #include <hpp/core/straight-path.hh>
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 
 #include <hpp/manipulation/problem.hh>
 #include <hpp/manipulation/graph/graph.hh>

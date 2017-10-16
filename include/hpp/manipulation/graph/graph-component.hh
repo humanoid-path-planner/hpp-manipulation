@@ -41,6 +41,8 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI GraphComponent
       {
         public:
+          virtual ~GraphComponent () {};
+
           /// Get the component name.
           const std::string& name() const;
 

@@ -95,6 +95,8 @@ namespace hpp {
       class HPP_MANIPULATION_DLLLOCAL Histogram
       {
         public:
+          virtual ~Histogram () {};
+
           virtual void add (const RoadmapNodePtr_t& node) = 0;
 
           virtual HistogramPtr_t clone () const = 0;

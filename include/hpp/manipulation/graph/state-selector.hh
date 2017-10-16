@@ -30,6 +30,8 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI StateSelector : public GraphComponent
       {
         public:
+          virtual ~StateSelector () {};
+
           /// Create a new StateSelector.
           static StateSelectorPtr_t create(const std::string& name);
 

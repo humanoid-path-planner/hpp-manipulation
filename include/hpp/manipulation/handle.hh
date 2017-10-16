@@ -31,6 +31,8 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI Handle
     {
     public:
+      virtual ~Handle () {};
+
       /// Create constraint corresponding to a gripper grasping this object
       /// \param robot the robot that grasps the handle,
       /// \param grasp object containing the grasp information

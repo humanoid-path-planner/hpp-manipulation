@@ -52,18 +52,18 @@ namespace hpp {
     {
       if (otherCC->state_ != state_) return false;
       SymbolicComponents_t::const_iterator it = std::find
-        (to_.begin(), to_.end(), otherCC);
+        (to_.begin(), to_.end(), otherCC.get());
       if (it == to_.end()) return false;
       it = std::find
-        (from_.begin(), from_.end(), otherCC);
+        (from_.begin(), from_.end(), otherCC.get());
       if (it == from_.end()) return false;
       return true;
     }
 
     void SymbolicComponent::canReach (const SymbolicComponentPtr_t& otherCC)
     {
-      to_.insert(otherCC);
-      otherCC->from_.insert(weak_.lock());
+      to_.insert(otherCC.get());
+      otherCC->from_.insert(this);
     }
 
     void SymbolicComponent::merge (SymbolicComponentPtr_t other)
@@ -79,11 +79,11 @@ namespace hpp {
       // Add other's nodes to this list.
       nodes_.insert (nodes_.end (), other->nodes_.begin(), other->nodes_.end());
 
-      from_.erase (other);
-      other->from_.erase (weak_.lock());
+      from_.erase (other.get());
+      other->from_.erase (this);
       from_.insert (other->from_.begin(), other->from_.end());
-      to_.erase (other);
-      other->to_.erase (weak_.lock());
+      to_.erase (other.get());
+      other->to_.erase (this);
       to_.insert (other->to_.begin(), other->to_.end());
     }
 

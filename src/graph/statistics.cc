@@ -119,7 +119,7 @@ namespace hpp {
 
       const StatePtr_t& NodeBin::state () const
       {
-        return state_.lock();
+        return state_;
       }
 
       std::ostream& NodeBin::print (std::ostream& os) const
@@ -213,7 +213,7 @@ namespace hpp {
 
       const graph::GraphPtr_t& StateHistogram::constraintGraph () const
       {
-        return graph_.lock();
+        return graph_;
       }
 
       HistogramPtr_t StateHistogram::clone () const

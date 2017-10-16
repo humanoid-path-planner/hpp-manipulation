@@ -84,7 +84,7 @@ namespace hpp {
           std::ostream& print (std::ostream& os) const;
 
         private:
-          StateWkPtr_t state_;
+          StatePtr_t state_;
 
           typedef std::list <RoadmapNodePtr_t> RoadmapNodes_t;
           RoadmapNodes_t roadmapNodes_;
@@ -195,7 +195,7 @@ namespace hpp {
 
         private:
           /// The constraint graph
-          graph::GraphWkPtr_t graph_;
+          graph::GraphPtr_t graph_;
       };
       typedef StateHistogram NodeHistogram HPP_MANIPULATION_DEPRECATED;
       typedef boost::shared_ptr <StateHistogram> NodeHistogramPtr_t;

@@ -99,14 +99,14 @@ namespace hpp {
 
         SymbolicComponentPtr_t symbolicComponent () const
         {
-          return symbolicCC_.lock();
+          return symbolicCC_;
         }
 
       private:
         CachingSystem cacheSystem_;
 
         graph::StateWkPtr_t state_;
-        SymbolicComponentWkPtr_t symbolicCC_;
+        SymbolicComponentPtr_t symbolicCC_;
     };
   } // namespace manipulation
 } // namespace hpp

@@ -90,9 +90,8 @@ namespace hpp {
 
           // The path should always go through the start and end states of the
           // transition.
-          // FIXME problem of waypoint edges...
-          graph::WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, transition);
-          graph::StatePtr_t from = (we ? we->waypoint<graph::Edge>(we->nbWaypoints() - 1)->to() : transition->from());
+          assert(!HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, transition));
+          graph::StatePtr_t from = transition->from();
           graph::StatePtr_t to = transition->to();
           graph::StatePtr_t from2 = from, to2 = to;
 

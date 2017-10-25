@@ -190,7 +190,7 @@ namespace hpp {
                                         WaypointEdge::create));
                   we->nbWaypoints (nbWaypoints);
                   gls = linkWaypoint <LevelSetEdge> (n, T-1, T, name, "ls");
-                  for (std::size_t i = 0; i < Nedges - 1; ++i)
+                  for (std::size_t i = 0; i < Nedges; ++i)
                     we->setWaypoint (i, e[i], n[i]);
                   we->setWaypoint (T-1, gls, n[T]);
                   gls->state (n.front());
@@ -217,8 +217,11 @@ namespace hpp {
                                        WaypointEdge::create));
                   we->nbWaypoints (nbWaypoints);
                   pls = linkWaypoint <LevelSetEdge> (n, T+1, T, name, "ls");
-                  for (std::size_t i = Nedges - 1; i != 0; --i)
+                  // for (std::size_t i = Nedges - 1; i != 0; --i)
+                  for (std::size_t k = 0; k < Nedges; ++k) {
+                    std::size_t i = Nedges  - 1 - k;
                     we->setWaypoint (Nedges - 1 - i, e[i], n[i]);
+                  }
                   we->setWaypoint (Nedges - 1 - T, pls, n[T]);
                   pls->state (n.back ());
                   pls->setShort (preplace);
@@ -255,16 +258,17 @@ namespace hpp {
                 EdgeArray e;
                 WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST(WaypointEdge, edge);
                 if (forward)
-                  for (std::size_t i = 0; i < Nedges - 1; ++i) {
+                  for (std::size_t i = 0; i < Nedges; ++i) {
                     e[i] = linkWaypoint <Edge> (states, i, i + 1, name);
                     we->setWaypoint (i, e[i], states[i+1]);
                   }
                 else
-                  for (std::size_t i = Nedges - 1; i != 0; --i) {
+                  // for (std::size_t i = Nedges - 1; i != 0; --i) {
+                  for (std::size_t k = 0; k < Nedges; ++k) {
+                    std::size_t i = Nedges  - 1 - k;
                     e[i] = linkWaypoint <Edge> (states, i + 1, i, name);
                     we->setWaypoint (Nedges - 1 - i, e[i], states[i]);
                   }
-                e[(forward?Nedges - 1:0)] = we;
                 return e;
               }
 

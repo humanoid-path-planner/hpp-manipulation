@@ -216,18 +216,13 @@ namespace hpp {
       /// \note
       ///   Implementation details: let's say, between the two states \f$N_f\f$ and \f$N_t\f$,
       ///   two waypoints are required:
-      ///   \f$ N_f \xrightarrow{e_0} n_0 \xrightarrow{e_1} n_1 \xrightarrow{E} N_t\f$.
-      ///   The outmost WaypointEdg contains:
+      ///   \f$ N_f \xrightarrow{e_0} n_0 \xrightarrow{e_1} n_1 \xrightarrow{e_2} N_t\f$.
+      ///   The WaypointEdge contains:
       ///   \li from: \f$N_f\f$,
       ///   \li to: \f$N_t\f$,
-      ///   \li constraints: those of edge \f$E\f$,
-      ///   \li waypoint: \f$(E_1, n_1)\f$.
-      ///
-      ///   where \f$E_1\f$ is an instance of class WaypointEdge containing:
-      ///   \li from: \f$N_f\f$,
-      ///   \li to: \f$n_1\f$,
-      ///   \li constraints: those of edge \f$e_1\f$,
-      ///   \li waypoint: \f$(e_0, n_0)\f$.
+      ///   \li states: \f$(n_0, n_1)\f$
+      ///   \li transitions: \f$(e_0, e_1, e_2)\f$
+      ///   \li constraints: any calls to the constraints throw,
       class HPP_MANIPULATION_DLLAPI WaypointEdge : public Edge
       {
         public:
@@ -258,7 +253,7 @@ namespace hpp {
 
           std::size_t nbWaypoints () const
           {
-            return waypoints_.size ();
+            return edges_.size () - 1;
           }
 
           /// Set waypoint index with wEdge and wTo.
@@ -278,14 +273,10 @@ namespace hpp {
           virtual std::ostream& print (std::ostream& os) const;
 
         private:
-          typedef std::pair < EdgePtr_t, StatePtr_t > Waypoint_t;
-          typedef std::vector <Waypoint_t> Waypoints_t;
+          Edges_t edges_;
+          States_t states_;
 
-          Waypoints_t waypoints_;
-
-          mutable Configuration_t init_;
           mutable matrix_t configs_;
-          mutable Configuration_t result_;
 
           WaypointEdgeWkPtr_t wkPtr_;
       }; // class WaypointEdge

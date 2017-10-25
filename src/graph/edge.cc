@@ -337,13 +337,16 @@ namespace hpp {
 			       const StateWkPtr_t& to)
       {
         Edge::init (weak, graph, from, to);
+        nbWaypoints(0);
         wkPtr_ = weak;
       }
 
       bool WaypointEdge::canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const
       {
         /// TODO: This is not correct
-        return waypoints_.back().first->canConnect (q1, q2) && Edge::canConnect (q1, q2);
+        for (std::size_t i = 0; i < edges_.size (); ++i)
+          if (!edges_[i]->canConnect(q1, q2)) return false;
+        return true;
       }
 
       bool WaypointEdge::build (core::PathPtr_t& path, ConfigurationIn_t q1,
@@ -355,34 +358,23 @@ namespace hpp {
            graph_.lock ()->robot ()->numberDof ());
         // Many times, this will be called rigth after WaypointEdge::applyConstraints so config_
         // already satisfies the constraints.
-        bool useCache = init_.isApprox (q1) && result_.isApprox (q2);
-        if (!useCache) configs_.col (0) = q2;
-
-        assert (waypoints_[0].first);
-        if (!waypoints_[0].first->applyConstraints (q1, configs_.col (0))) {
-          hppDout (info, "Waypoint edge " << name() << ": applyConstraints failed at waypoint 0."
-              << "\nUse cache: " << useCache
-              );
-          return false;
+        size_type n = edges_.size() - 1;
+        bool useCache = configs_.col(0).isApprox (q1)
+          &&            configs_.col(n).isApprox (q2);
+        if (!useCache) {
+          configs_.col(0) = q1;
+          configs_.col(n) = q2;
         }
-        if (!waypoints_[0].first->build (p, q1, configs_.col (0))) {
-          hppDout (info, "Waypoint edge " << name() << ": build failed at waypoint 0."
-              << "\nUse cache: " << useCache
-              );
-          return false;
-        }
-        pv->appendPath (p);
 
-        for (std::size_t i = 1; i < waypoints_.size (); ++i) {
-          assert (waypoints_[i].first);
-          if (!useCache) configs_.col (i) = q2;
-          if (!waypoints_[i].first->applyConstraints (configs_.col(i-1), configs_.col (i))) {
+        for (std::size_t i = 0; i < edges_.size (); ++i) {
+          if (!useCache) configs_.col (i+1) = q2;
+          if (!edges_[i]->applyConstraints (configs_.col(i), configs_.col (i+1))) {
             hppDout (info, "Waypoint edge " << name() << ": applyConstraints failed at waypoint " << i << "."
                 << "\nUse cache: " << useCache
                 );
             return false;
           }
-          if (!waypoints_[i].first->build (p, configs_.col(i-1), configs_.col (i))) {
+          if (!edges_[i]->build (p, configs_.col(i), configs_.col (i+1))) {
             hppDout (info, "Waypoint edge " << name() << ": build failed at waypoint " << i << "."
                 << "\nUse cache: " << useCache
                 );
@@ -391,65 +383,60 @@ namespace hpp {
           pv->appendPath (p);
         }
 
-        if (!Edge::build (p, configs_.col (configs_.cols()-1), q2))
-          return false;
-        pv->appendPath (p);
-
         path = pv;
         return true;
       }
 
       bool WaypointEdge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
       {
-        assert (waypoints_[0].first);
-        configs_.col (0) = q;
-        if (!waypoints_[0].first->applyConstraints (qoffset, configs_.col (0))) {
-          q = configs_.col(0);
-          return false;
-        }
-        for (std::size_t i = 1; i < waypoints_.size (); ++i) {
-          assert (waypoints_[i].first);
-          configs_.col (i) = q;
-          if (!waypoints_[i].first->applyConstraints (configs_.col(i-1), configs_.col (i))) {
-            q = configs_.col(i);
+        assert (configs_.cols() == size_type(edges_.size() + 1));
+        configs_.col(0) = qoffset;
+        for (std::size_t i = 0; i < edges_.size (); ++i) {
+          configs_.col (i+1) = q;
+          if (!edges_[i]->applyConstraints (configs_.col(i), configs_.col (i+1))) {
+            q = configs_.col(i+1);
             return false;
           }
         }
-        bool success = Edge::applyConstraints (configs_.col (configs_.cols()-1), q);
-        init_ = qoffset;
-        result_ = q;
-        return success;
+        q = configs_.col(edges_.size());
+        return true;
       }
 
       void WaypointEdge::nbWaypoints (const size_type number)
       {
-        waypoints_.resize (number);
+        edges_.resize (number + 1);
+        states_.resize (number + 1);
+        states_.back() = to();
         const size_type nbDof = graph_.lock ()->robot ()->configSize ();
-        configs_ = matrix_t (nbDof, number);
-        init_   = Configuration_t (nbDof);
-        result_ = Configuration_t (nbDof);
+        configs_ = matrix_t (nbDof, number + 2);
       }
 
       void WaypointEdge::setWaypoint (const std::size_t index,
 				      const EdgePtr_t wEdge,
 				      const StatePtr_t wTo)
       {
-        assert (index < waypoints_.size());
-        waypoints_[index] = Waypoint_t (wEdge, wTo);
+        assert (edges_.size() == states_.size());
+        assert (index < edges_.size());
+        if (index == states_.size() - 1) {
+          assert (!wTo || wTo == to());
+        } else {
+          states_[index] = wTo;
+        }
+        edges_[index] = wEdge;
       }
 
       template <>
       EdgePtr_t WaypointEdge::waypoint <Edge> (const std::size_t index) const
       {
-        assert (index < waypoints_.size()); 
-        return waypoints_[index].first;
+        assert (index < edges_.size()); 
+        return edges_[index];
       }
 
       template <>
       WaypointEdgePtr_t WaypointEdge::waypoint <WaypointEdge> (const std::size_t index) const
       {
-        assert (index < waypoints_.size()); 
-        return HPP_DYNAMIC_PTR_CAST (WaypointEdge, waypoints_[index].first);
+        assert (index < edges_.size()); 
+        return HPP_DYNAMIC_PTR_CAST (WaypointEdge, edges_[index]);
       }
 
       std::ostream& WaypointEdge::print (std::ostream& os) const
@@ -464,29 +451,18 @@ namespace hpp {
       {
         // First print the waypoint node, then the first edge.
         da ["style"]="dashed";
-        for (std::size_t i = 0; i < waypoints_.size (); ++i)
-          waypoints_[i].second->dotPrint (os, da);
+        for (std::size_t i = 0; i < states_.size () - 1; ++i)
+          states_[i]->dotPrint (os, da);
 
         da ["style"]="solid";
-        for (std::size_t i = 0; i < waypoints_.size (); ++i)
-          waypoints_[i].first->dotPrint (os, da) << std::endl;
+        for (std::size_t i = 0; i < edges_.size (); ++i)
+          edges_[i]->dotPrint (os, da) << std::endl;
 
         da ["style"]="dotted";
         da ["dir"] = "both";
         da ["arrowtail"]="dot";
-        // TODO: This is very ugly. There ought to be a better way of 
-        // getting the real from() Node.
-        // We should be using Edge::dotPrint (...) instead of the following
-        // paragraph.
-        da.insert ("shape", "onormal");
-        da.insertWithQuote ("label", name());
-        dot::Tooltip tp; tp.addLine ("Edge constains:");
-        populateTooltip (tp);
-        da.insertWithQuote ("tooltip", tp.toStr());
-        da.insertWithQuote ("labeltooltip", tp.toStr());
-        os << waypoints_.back().second->id () << " -> " << to()->id () << " " << da << ";";
 
-        return os;
+        return Edge::dotPrint (os, da);
       }
 
       std::ostream& LevelSetEdge::print (std::ostream& os) const

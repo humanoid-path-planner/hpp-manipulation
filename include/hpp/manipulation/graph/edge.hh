@@ -232,8 +232,6 @@ namespace hpp {
 	   const GraphWkPtr_t& graph, const StateWkPtr_t& from,
 	   const StateWkPtr_t& to);
 
-          virtual bool direction (const core::PathPtr_t& path) const;
-
           virtual bool canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
           virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2) const;

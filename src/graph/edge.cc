@@ -85,28 +85,6 @@ namespace hpp {
         return !(src_contains_q0 && (!src_contains_q1 || dst_contains_q1));
       }
 
-      bool WaypointEdge::direction (const core::PathPtr_t& path) const
-      {
-        Configuration_t q0 = path->initial (),
-                        q1 = path->end ();
-        const bool src_contains_q0 = waypoints_.back().second->contains (q0);
-        const bool dst_contains_q0 = to  ()->contains (q0);
-        const bool src_contains_q1 = waypoints_.back().second->contains (q1);
-        const bool dst_contains_q1 = to  ()->contains (q1);
-
-        /// See Edge::direction for Karnaugh table
-        /// true if reverse
-        if (   (!src_contains_q0 && !src_contains_q1)
-            || (!dst_contains_q0 && !dst_contains_q1)
-            || (!src_contains_q0 && !dst_contains_q0))
-          HPP_THROW (std::runtime_error,
-              "Edge " << name() << " does not seem to have generated path from"
-              << pinocchio::displayConfig(q0) << " to "
-              << pinocchio::displayConfig(q1)
-              );
-        return !(src_contains_q0 && (!src_contains_q1 || dst_contains_q1));
-      }
-
       bool Edge::intersectionConstraint (const EdgePtr_t& other,
           ConfigProjectorPtr_t proj) const
       {

@@ -258,7 +258,8 @@ namespace hpp {
 
         protected:
 	  WaypointEdge (const std::string& name) :
-	    Edge (name)
+	    Edge (name),
+            lastSucceeded_ (false)
 	    {
 	    }
           /// Initialization of the object.
@@ -273,6 +274,7 @@ namespace hpp {
           States_t states_;
 
           mutable matrix_t configs_;
+          mutable bool lastSucceeded_;
 
           WaypointEdgeWkPtr_t wkPtr_;
       }; // class WaypointEdge

@@ -336,32 +336,35 @@ namespace hpp {
            graph_.lock ()->robot ()->numberDof ());
         // Many times, this will be called rigth after WaypointEdge::applyConstraints so config_
         // already satisfies the constraints.
-        size_type n = edges_.size() - 1;
-        bool useCache = configs_.col(0).isApprox (q1)
-          &&            configs_.col(n).isApprox (q2);
-        if (!useCache) {
-          configs_.col(0) = q1;
-          configs_.col(n) = q2;
-        }
+        size_type n = edges_.size();
+        assert (configs_.cols() == n + 1);
+        bool useCache = lastSucceeded_
+          && configs_.col(0).isApprox (q1)
+          && configs_.col(n).isApprox (q2);
+        configs_.col(0) = q1;
+        configs_.col(n) = q2;
 
-        for (std::size_t i = 0; i < edges_.size (); ++i) {
-          if (!useCache) configs_.col (i+1) = q2;
-          if (!edges_[i]->applyConstraints (configs_.col(i), configs_.col (i+1))) {
+        for (size_type i = 0; i < n; ++i) {
+          if (i < (n-1) && !useCache) configs_.col (i+1) = q2;
+          if (i < (n-1) && !edges_[i]->applyConstraints (configs_.col(i), configs_.col (i+1))) {
             hppDout (info, "Waypoint edge " << name() << ": applyConstraints failed at waypoint " << i << "."
                 << "\nUse cache: " << useCache
                 );
+            lastSucceeded_ = false;
             return false;
           }
           if (!edges_[i]->build (p, configs_.col(i), configs_.col (i+1))) {
             hppDout (info, "Waypoint edge " << name() << ": build failed at waypoint " << i << "."
                 << "\nUse cache: " << useCache
                 );
+            lastSucceeded_ = false;
             return false;
           }
           pv->appendPath (p);
         }
 
         path = pv;
+        lastSucceeded_ = true;
         return true;
       }
 
@@ -373,10 +376,12 @@ namespace hpp {
           configs_.col (i+1) = q;
           if (!edges_[i]->applyConstraints (configs_.col(i), configs_.col (i+1))) {
             q = configs_.col(i+1);
+            lastSucceeded_ = false;
             return false;
           }
         }
         q = configs_.col(edges_.size());
+        lastSucceeded_ = true;
         return true;
       }
 

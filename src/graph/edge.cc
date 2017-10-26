@@ -403,18 +403,10 @@ namespace hpp {
         edges_[index] = wEdge;
       }
 
-      template <>
-      EdgePtr_t WaypointEdge::waypoint <Edge> (const std::size_t index) const
+      const EdgePtr_t& WaypointEdge::waypoint (const std::size_t index) const
       {
         assert (index < edges_.size()); 
         return edges_[index];
-      }
-
-      template <>
-      WaypointEdgePtr_t WaypointEdge::waypoint <WaypointEdge> (const std::size_t index) const
-      {
-        assert (index < edges_.size()); 
-        return HPP_DYNAMIC_PTR_CAST (WaypointEdge, edges_[index]);
       }
 
       std::ostream& WaypointEdge::print (std::ostream& os) const

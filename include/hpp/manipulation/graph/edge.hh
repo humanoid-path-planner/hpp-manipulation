@@ -238,10 +238,8 @@ namespace hpp {
 
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
-          /// Return the inner waypoint.
-          /// \param EdgeType is either Edge or WaypointEdge
-          template <class EdgeType>
-          boost::shared_ptr <EdgeType> waypoint (const std::size_t index) const;
+          /// Return the index-th edge.
+          const EdgePtr_t& waypoint (const std::size_t index) const;
 
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;

@@ -40,6 +40,8 @@
 #include <hpp/manipulation/graph/guided-state-selector.hh>
 #include <hpp/manipulation/problem-solver.hh>
 
+#define CASE_TO_STRING(var, value) ( (var & value) ? std::string(#value) : std::string() )
+
 namespace hpp {
   namespace manipulation {
     namespace graph {
@@ -138,6 +140,17 @@ namespace hpp {
               static inline const StatePtr_t& Npregrasp (const StateArray& n) { assert (pregrasp); return n[1]; }
               static inline const StatePtr_t& Nintersec (const StateArray& n) { assert (intersec); return n[1 + (pregrasp?1:0)]; }
               static inline const StatePtr_t& Npreplace (const StateArray& n) { assert (preplace); return n[1 + (pregrasp?1:0) + (intersec?1:0)]; }
+
+              static inline std::string caseToString ()
+              {
+                return CASE_TO_STRING (gCase, NoGrasp)
+                  +    CASE_TO_STRING (gCase, GraspOnly)
+                  +    CASE_TO_STRING (gCase, WithPreGrasp)
+                  + " - "
+                  +    CASE_TO_STRING (gCase, NoPlace)
+                  +    CASE_TO_STRING (gCase, PlaceOnly)
+                  +    CASE_TO_STRING (gCase, WithPrePlace);
+              }
 
               static inline EdgePtr_t makeWE (
                   const std::string& name,
@@ -331,6 +344,8 @@ namespace hpp {
               const FoliatedManifold& submanifoldDef)
           {
             typedef CaseTraits<gCase> T;
+            hppDout (info, "Creating edges " << forwName << " and " << backName
+               << "\ncase is " << T::caseToString ());
             assert (T::valid && "Not a valid case.");
             typedef typename T::StateArray StateArray;
             typedef typename T::EdgeArray EdgeArray;

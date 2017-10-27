@@ -120,13 +120,7 @@ namespace hpp {
             struct CaseTraits {
               static const bool pregrasp = (gCase & WithPreGrasp);
               static const bool preplace = (gCase & WithPrePlace);
-              /// FIXME
-              // It should be
-              // static const bool intersec = !((gCase & NoGrasp) || (gCase & NoPlace));
-              // but when NoPlace | WithPreGrasp, we need a LevelSetEdge after
-              // the pregrasp waypoint state. Sadly the current implementation of
-              // WaypointEdge does not allow the last edge of type other than Edge.
-              static const bool intersec = pregrasp || preplace || ((gCase & GraspOnly) && (gCase & PlaceOnly));
+              static const bool intersec = !((gCase & NoGrasp) || (gCase & NoPlace));
 
               static const bool valid =
                    ( (gCase & WithPreGrasp) || (gCase & GraspOnly) || (gCase & NoGrasp) )

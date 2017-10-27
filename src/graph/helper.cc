@@ -690,9 +690,10 @@ namespace hpp {
             }
 
             /// Check if an object can be placed
-            bool objectCanBePlaced (const Object_t&) const
+            bool objectCanBePlaced (const Object_t& o) const
             {
-              return true; // o.get<0>().get<0>();
+              // If the object has no joint, then it cannot be placed.
+              return (o.get<0>().get<2>().size() > 0);
             }
 
             /// Check is an object is grasped by the GraspV_t

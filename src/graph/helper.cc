@@ -191,7 +191,7 @@ namespace hpp {
                   we->nbWaypoints (nbWaypoints);
                   gls = linkWaypoint <LevelSetEdge> (n, T-1, T, name, "ls");
                   for (std::size_t i = 0; i < Nedges; ++i)
-                    we->setWaypoint (i, e[i], n[i]);
+                    we->setWaypoint (i, e[i], n[i+1]);
                   we->setWaypoint (T-1, gls, n[T]);
                   gls->state (n.front());
                   gls->setShort (pregrasp);

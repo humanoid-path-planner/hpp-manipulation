@@ -244,7 +244,11 @@ namespace hpp {
       addNumericalConstraint (name, NumericalConstraint::create
 			      (constraints.first));
       addNumericalConstraint (complementName, NumericalConstraint::create
-			      (constraints.second, core::Equality::create ()));
+			      (constraints.second,
+                               core::ComparisonTypes::create
+                               (constraints.second->outputSize(),
+                                core::ComparisonType::Equality))
+                              );
     }
 
     void ProblemSolver::createPrePlacementConstraint

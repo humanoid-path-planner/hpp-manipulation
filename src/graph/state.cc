@@ -27,14 +27,12 @@ namespace hpp {
   namespace manipulation {
     namespace graph {
       State::State (const std::string& name) :
-	GraphComponent (name), configConstraints_ (new Constraint_t()),
+	GraphComponent (name), configConstraints_ (),
         isWaypoint_ (false)
       {}
 
       State::~State ()
-      {
-        if (configConstraints_) delete configConstraints_;
-      }
+      {}
 
       StatePtr_t State::create (const std::string& name)
       {
@@ -107,23 +105,21 @@ namespace hpp {
         return os;
       }
 
-      ConstraintSetPtr_t State::configConstraint() const
+      void State::initialize()
       {
-        if (!*configConstraints_) {
-          std::string n = "(" + name () + ")";
-          GraphPtr_t g = graph_.lock ();
-          ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
+        isInit_ = true;
 
-          ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj " + n, g->errorThreshold(), g->maxIterations());
-          g->insertNumericalConstraints (proj);
-          insertNumericalConstraints (proj);
-          constraint->addConstraint (proj);
+        std::string n = "(" + name () + ")";
+        GraphPtr_t g = graph_.lock ();
+        configConstraints_ = ConstraintSet::create (g->robot (), "Set " + n);
 
-          g->insertLockedJoints (proj);
-          insertLockedJoints (proj);
-          configConstraints_->set (constraint);
-        }
-        return configConstraints_->get ();
+        ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj " + n, g->errorThreshold(), g->maxIterations());
+        g->insertNumericalConstraints (proj);
+        insertNumericalConstraints (proj);
+        configConstraints_->addConstraint (proj);
+
+        g->insertLockedJoints (proj);
+        insertLockedJoints (proj);
       }
 
       void State::updateWeight (const EdgePtr_t& e, const Weight_t& w)

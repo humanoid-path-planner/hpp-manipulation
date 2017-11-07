@@ -33,6 +33,7 @@
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/recursive-hermite.hh>
 #include <hpp/core/roadmap.hh>
+#include <hpp/core/steering-method/hermite.hh>
 #include <hpp/core/steering-method/straight.hh>
 #include <hpp/core/comparison-type.hh>
 
@@ -127,16 +128,20 @@ namespace hpp {
       parent_t::add <core::PathProjectorBuilder_t> ("RecursiveHermite",
           createPathProjector <core::pathProjector::RecursiveHermite>);
 
-      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 1>::createFromCore);
-      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 2>::createFromCore);
-      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 3>::createFromCore);
+      // parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 1>::createFromCore);
+      // parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 2>::createFromCore);
+      // parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 3>::createFromCore);
       parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier1",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 1>::createFromCore);
-      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 2>::createFromCore);
+      // parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 2>::createFromCore);
       parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 3>::createFromCore);
 
       using core::SteeringMethodBuilder_t;
       parent_t::add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
           GraphSteeringMethod::create <core::SteeringMethodStraight>);
+      parent_t::add <SteeringMethodBuilder_t> ("Graph-Straight",
+          GraphSteeringMethod::create <core::steeringMethod::Straight>);
+      parent_t::add <SteeringMethodBuilder_t> ("Graph-Hermite",
+          GraphSteeringMethod::create <core::steeringMethod::Hermite>);
 
       parent_t::add <PathOptimizerBuilder_t> ("KeypointsShortcut",
           pathOptimization::Keypoints::create);
@@ -182,6 +187,14 @@ namespace hpp {
     graph::GraphPtr_t ProblemSolver::constraintGraph () const
     {
       return constraintGraph_;
+    }
+
+    void ProblemSolver::initConstraintGraph ()
+    {
+      if (!constraintGraph_)
+        throw std::runtime_error ("The graph is not defined.");
+      initSteeringMethod();
+      constraintGraph_->initialize();
     }
 
     void ProblemSolver::createPlacementConstraint
@@ -231,7 +244,11 @@ namespace hpp {
       addNumericalConstraint (name, NumericalConstraint::create
 			      (constraints.first));
       addNumericalConstraint (complementName, NumericalConstraint::create
-			      (constraints.second, core::Equality::create ()));
+			      (constraints.second,
+                               core::ComparisonTypes::create
+                               (constraints.second->outputSize(),
+                                core::ComparisonType::Equality))
+                              );
     }
 
     void ProblemSolver::createPrePlacementConstraint
@@ -278,6 +295,35 @@ namespace hpp {
       cvxShape->setNormalMargin (margin + width);
 
       addNumericalConstraint (name, NumericalConstraint::create (cvxShape));
+    }
+
+    void ProblemSolver::createGraspConstraint
+    (const std::string& name, const std::string& gripper,
+     const std::string& handle)
+    {
+      GripperPtr_t g = robot_->get <GripperPtr_t> (gripper);
+      if (!g) throw std::runtime_error ("No gripper with name " + gripper + ".");
+      HandlePtr_t h = robot_->get <HandlePtr_t> (handle);
+      if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
+      const std::string cname = name + "/complement";
+      NumericalConstraintPtr_t constraint (h->createGrasp (g, name));
+      NumericalConstraintPtr_t complement (h->createGraspComplement (g, cname));
+      addNumericalConstraint ( name, constraint);
+      addNumericalConstraint (cname, complement);
+    }
+
+    void ProblemSolver::createPreGraspConstraint
+    (const std::string& name, const std::string& gripper,
+     const std::string& handle)
+    {
+      GripperPtr_t g = robot_->get <GripperPtr_t> (gripper);
+      if (!g) throw std::runtime_error ("No gripper with name " + gripper + ".");
+      HandlePtr_t h = robot_->get <HandlePtr_t> (handle);
+      if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
+
+      value_type c = h->clearance () + g->clearance ();
+      NumericalConstraintPtr_t constraint = h->createPreGrasp (g, c, name);
+      addNumericalConstraint (name, constraint);
     }
 
     void ProblemSolver::pathValidationType (const std::string& type,

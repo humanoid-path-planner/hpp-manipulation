@@ -30,6 +30,8 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI StateSelector : public GraphComponent
       {
         public:
+          virtual ~StateSelector () {};
+
           /// Create a new StateSelector.
           static StateSelectorPtr_t create(const std::string& name);
 
@@ -83,6 +85,8 @@ namespace hpp {
           typedef std::list <WeighedState_t> WeighedStates_t;
           WeighedStates_t orderedStates_;
           States_t waypoints_;
+
+          virtual void initialize () { isInit_ = true; };
 
         private:
           /// Weak pointer to itself.

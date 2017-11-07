@@ -38,19 +38,14 @@ namespace hpp {
     namespace graph {
       Edge::Edge (const std::string& name) :
 	GraphComponent (name), isShort_ (false),
-        pathConstraints_ (new Constraint_t()),
-	configConstraints_ (new Constraint_t()),
-        steeringMethod_ (new SteeringMethod_t()),
-        pathValidation_ (new PathValidation_t())
+        pathConstraints_ (),
+	configConstraints_ (),
+        steeringMethod_ (),
+        pathValidation_ ()
       {}
 
       Edge::~Edge ()
-      {
-        if (pathConstraints_  ) delete pathConstraints_;
-        if (configConstraints_) delete configConstraints_;
-        if (steeringMethod_   ) delete steeringMethod_;
-        if (pathValidation_   ) delete pathValidation_;
-      }
+      {}
 
       StatePtr_t Edge::to () const
       {
@@ -78,28 +73,6 @@ namespace hpp {
         // 11          |  ? |  1 |  * |  0
         // 10          |  ? |  1 |  1 |  1
         // 
-        /// true if reverse
-        if (   (!src_contains_q0 && !src_contains_q1)
-            || (!dst_contains_q0 && !dst_contains_q1)
-            || (!src_contains_q0 && !dst_contains_q0))
-          HPP_THROW (std::runtime_error,
-              "Edge " << name() << " does not seem to have generated path from"
-              << pinocchio::displayConfig(q0) << " to "
-              << pinocchio::displayConfig(q1)
-              );
-        return !(src_contains_q0 && (!src_contains_q1 || dst_contains_q1));
-      }
-
-      bool WaypointEdge::direction (const core::PathPtr_t& path) const
-      {
-        Configuration_t q0 = path->initial (),
-                        q1 = path->end ();
-        const bool src_contains_q0 = waypoints_.back().second->contains (q0);
-        const bool dst_contains_q0 = to  ()->contains (q0);
-        const bool src_contains_q1 = waypoints_.back().second->contains (q1);
-        const bool dst_contains_q1 = to  ()->contains (q1);
-
-        /// See Edge::direction for Karnaugh table
         /// true if reverse
         if (   (!src_contains_q0 && !src_contains_q1)
             || (!dst_contains_q0 && !dst_contains_q1)
@@ -159,6 +132,13 @@ namespace hpp {
         state_ = to;
       }
 
+      void Edge::initialize ()
+      {
+        configConstraints_ = buildConfigConstraint ();
+        pathConstraints_ = buildPathConstraint ();
+        isInit_ = true;
+      }
+
       std::ostream& Edge::print (std::ostream& os) const
       {
         os << "|   |   |-- ";
@@ -181,13 +161,11 @@ namespace hpp {
 
       ConstraintSetPtr_t Edge::configConstraint() const
       {
-        if (!*configConstraints_) {
-          configConstraints_->set (buildConfigConstraint ());
-        }
-        return configConstraints_->get ();
+        throwIfNotInitialized ();
+        return configConstraints_;
       }
 
-      ConstraintSetPtr_t Edge::buildConfigConstraint() const
+      ConstraintSetPtr_t Edge::buildConfigConstraint()
       {
         std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();
@@ -216,14 +194,11 @@ namespace hpp {
 
       ConstraintSetPtr_t Edge::pathConstraint() const
       {
-        if (!*pathConstraints_) {
-	  ConstraintSetPtr_t pathConstraints (buildPathConstraint ());
-          pathConstraints_->set (pathConstraints);
-        }
-        return pathConstraints_->get ();
+        throwIfNotInitialized ();
+        return pathConstraints_;
       }
 
-      ConstraintSetPtr_t Edge::buildPathConstraint() const
+      ConstraintSetPtr_t Edge::buildPathConstraint()
       {
         std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();
@@ -244,16 +219,15 @@ namespace hpp {
 
         // Build steering method
         const ProblemPtr_t& problem (g->problem());
-        steeringMethod_->set(problem->steeringMethod()
-          ->innerSteeringMethod()->copy());
-        steeringMethod_->get()->constraints (constraint);
+        steeringMethod_ = problem->steeringMethod()->innerSteeringMethod()->copy();
+        steeringMethod_->constraints (constraint);
         // Build path validation and relative motion matrix
         // TODO this path validation will not contain obstacles added after
         // its creation.
-        pathValidation_->set(problem->pathValidationFactory ());
+        pathValidation_ = problem->pathValidationFactory ();
         relMotion_ = RelativeMotion::matrix (g->robot());
         RelativeMotion::fromConstraint (relMotion_, g->robot(), constraint);
-        pathValidation_->get()->filterCollisionPairs (relMotion_);
+        pathValidation_->filterCollisionPairs (relMotion_);
         return constraint;
       }
 
@@ -273,12 +247,7 @@ namespace hpp {
 	const
       {
         using pinocchio::displayConfig;
-	core::SteeringMethodPtr_t sm (steeringMethod_->get());
-	if (!sm) {
-	  buildPathConstraint ();
-	}
-	sm = (steeringMethod_->get());
-	if (!sm) {
+	if (!steeringMethod_) {
 	  std::ostringstream oss;
 	  oss << "No steering method set in edge " << name () << ".";
 	  throw std::runtime_error (oss.str ().c_str ());
@@ -287,7 +256,7 @@ namespace hpp {
         constraints->configProjector ()->rightHandSideFromConfig(q1);
         if (constraints->isSatisfied (q1)) {
           if (constraints->isSatisfied (q2)) {
-            path = (*sm) (q1, q2);
+            path = (*steeringMethod_) (q1, q2);
             return (bool)path;
           } else {
 	    hppDout(info, "q2 = " << displayConfig (q2)
@@ -346,13 +315,16 @@ namespace hpp {
 			       const StateWkPtr_t& to)
       {
         Edge::init (weak, graph, from, to);
+        nbWaypoints(0);
         wkPtr_ = weak;
       }
 
       bool WaypointEdge::canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const
       {
         /// TODO: This is not correct
-        return waypoints_.back().first->canConnect (q1, q2) && Edge::canConnect (q1, q2);
+        for (std::size_t i = 0; i < edges_.size (); ++i)
+          if (!edges_[i]->canConnect(q1, q2)) return false;
+        return true;
       }
 
       bool WaypointEdge::build (core::PathPtr_t& path, ConfigurationIn_t q1,
@@ -364,101 +336,82 @@ namespace hpp {
            graph_.lock ()->robot ()->numberDof ());
         // Many times, this will be called rigth after WaypointEdge::applyConstraints so config_
         // already satisfies the constraints.
-        bool useCache = init_.isApprox (q1) && result_.isApprox (q2);
-        if (!useCache) configs_.col (0) = q2;
+        size_type n = edges_.size();
+        assert (configs_.cols() == n + 1);
+        bool useCache = lastSucceeded_
+          && configs_.col(0).isApprox (q1)
+          && configs_.col(n).isApprox (q2);
+        configs_.col(0) = q1;
+        configs_.col(n) = q2;
 
-        assert (waypoints_[0].first);
-        if (!waypoints_[0].first->applyConstraints (q1, configs_.col (0))) {
-          hppDout (info, "Waypoint edge " << name() << ": applyConstraints failed at waypoint 0."
-              << "\nUse cache: " << useCache
-              );
-          return false;
-        }
-        if (!waypoints_[0].first->build (p, q1, configs_.col (0))) {
-          hppDout (info, "Waypoint edge " << name() << ": build failed at waypoint 0."
-              << "\nUse cache: " << useCache
-              );
-          return false;
-        }
-        pv->appendPath (p);
-
-        for (std::size_t i = 1; i < waypoints_.size (); ++i) {
-          assert (waypoints_[i].first);
-          if (!useCache) configs_.col (i) = q2;
-          if (!waypoints_[i].first->applyConstraints (configs_.col(i-1), configs_.col (i))) {
+        for (size_type i = 0; i < n; ++i) {
+          if (i < (n-1) && !useCache) configs_.col (i+1) = q2;
+          if (i < (n-1) && !edges_[i]->applyConstraints (configs_.col(i), configs_.col (i+1))) {
             hppDout (info, "Waypoint edge " << name() << ": applyConstraints failed at waypoint " << i << "."
                 << "\nUse cache: " << useCache
                 );
+            lastSucceeded_ = false;
             return false;
           }
-          if (!waypoints_[i].first->build (p, configs_.col(i-1), configs_.col (i))) {
+          if (!edges_[i]->build (p, configs_.col(i), configs_.col (i+1))) {
             hppDout (info, "Waypoint edge " << name() << ": build failed at waypoint " << i << "."
                 << "\nUse cache: " << useCache
                 );
+            lastSucceeded_ = false;
             return false;
           }
           pv->appendPath (p);
         }
 
-        if (!Edge::build (p, configs_.col (configs_.cols()-1), q2))
-          return false;
-        pv->appendPath (p);
-
         path = pv;
+        lastSucceeded_ = true;
         return true;
       }
 
       bool WaypointEdge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
       {
-        assert (waypoints_[0].first);
-        configs_.col (0) = q;
-        if (!waypoints_[0].first->applyConstraints (qoffset, configs_.col (0))) {
-          q = configs_.col(0);
-          return false;
-        }
-        for (std::size_t i = 1; i < waypoints_.size (); ++i) {
-          assert (waypoints_[i].first);
-          configs_.col (i) = q;
-          if (!waypoints_[i].first->applyConstraints (configs_.col(i-1), configs_.col (i))) {
-            q = configs_.col(i);
+        assert (configs_.cols() == size_type(edges_.size() + 1));
+        configs_.col(0) = qoffset;
+        for (std::size_t i = 0; i < edges_.size (); ++i) {
+          configs_.col (i+1) = q;
+          if (!edges_[i]->applyConstraints (configs_.col(i), configs_.col (i+1))) {
+            q = configs_.col(i+1);
+            lastSucceeded_ = false;
             return false;
           }
         }
-        bool success = Edge::applyConstraints (configs_.col (configs_.cols()-1), q);
-        init_ = qoffset;
-        result_ = q;
-        return success;
+        q = configs_.col(edges_.size());
+        lastSucceeded_ = true;
+        return true;
       }
 
       void WaypointEdge::nbWaypoints (const size_type number)
       {
-        waypoints_.resize (number);
+        edges_.resize (number + 1);
+        states_.resize (number + 1);
+        states_.back() = to();
         const size_type nbDof = graph_.lock ()->robot ()->configSize ();
-        configs_ = matrix_t (nbDof, number);
-        init_   = Configuration_t (nbDof);
-        result_ = Configuration_t (nbDof);
+        configs_ = matrix_t (nbDof, number + 2);
       }
 
       void WaypointEdge::setWaypoint (const std::size_t index,
 				      const EdgePtr_t wEdge,
 				      const StatePtr_t wTo)
       {
-        assert (index < waypoints_.size());
-        waypoints_[index] = Waypoint_t (wEdge, wTo);
+        assert (edges_.size() == states_.size());
+        assert (index < edges_.size());
+        if (index == states_.size() - 1) {
+          assert (!wTo || wTo == to());
+        } else {
+          states_[index] = wTo;
+        }
+        edges_[index] = wEdge;
       }
 
-      template <>
-      EdgePtr_t WaypointEdge::waypoint <Edge> (const std::size_t index) const
+      const EdgePtr_t& WaypointEdge::waypoint (const std::size_t index) const
       {
-        assert (index < waypoints_.size()); 
-        return waypoints_[index].first;
-      }
-
-      template <>
-      WaypointEdgePtr_t WaypointEdge::waypoint <WaypointEdge> (const std::size_t index) const
-      {
-        assert (index < waypoints_.size()); 
-        return HPP_DYNAMIC_PTR_CAST (WaypointEdge, waypoints_[index].first);
+        assert (index < edges_.size()); 
+        return edges_[index];
       }
 
       std::ostream& WaypointEdge::print (std::ostream& os) const
@@ -473,29 +426,18 @@ namespace hpp {
       {
         // First print the waypoint node, then the first edge.
         da ["style"]="dashed";
-        for (std::size_t i = 0; i < waypoints_.size (); ++i)
-          waypoints_[i].second->dotPrint (os, da);
+        for (std::size_t i = 0; i < states_.size () - 1; ++i)
+          states_[i]->dotPrint (os, da);
 
         da ["style"]="solid";
-        for (std::size_t i = 0; i < waypoints_.size (); ++i)
-          waypoints_[i].first->dotPrint (os, da) << std::endl;
+        for (std::size_t i = 0; i < edges_.size (); ++i)
+          edges_[i]->dotPrint (os, da) << std::endl;
 
         da ["style"]="dotted";
         da ["dir"] = "both";
         da ["arrowtail"]="dot";
-        // TODO: This is very ugly. There ought to be a better way of 
-        // getting the real from() Node.
-        // We should be using Edge::dotPrint (...) instead of the following
-        // paragraph.
-        da.insert ("shape", "onormal");
-        da.insertWithQuote ("label", name());
-        dot::Tooltip tp; tp.addLine ("Edge constains:");
-        populateTooltip (tp);
-        da.insertWithQuote ("tooltip", tp.toStr());
-        da.insertWithQuote ("labeltooltip", tp.toStr());
-        os << waypoints_.back().second->id () << " -> " << to()->id () << " " << da << ";";
 
-        return os;
+        return Edge::dotPrint (os, da);
       }
 
       std::ostream& LevelSetEdge::print (std::ostream& os) const
@@ -686,7 +628,13 @@ namespace hpp {
         g->insertHistogram (hist_);
       }
 
-      ConstraintSetPtr_t LevelSetEdge::buildConfigConstraint() const
+      void LevelSetEdge::initialize ()
+      {
+        Edge::initialize();
+        buildHistogram ();
+      }
+
+      ConstraintSetPtr_t LevelSetEdge::buildConfigConstraint()
       {
         std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();
@@ -728,29 +676,34 @@ namespace hpp {
       void LevelSetEdge::insertParamConstraint (const NumericalConstraintPtr_t& nm,
               const segments_t& passiveDofs)
       {
+        isInit_ = false;
         paramNumericalConstraints_.push_back (nm);
         paramPassiveDofs_.push_back (passiveDofs);
       }
 
       void LevelSetEdge::insertParamConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)
       {
+        isInit_ = false;
         insertParamConstraint (NumericalConstraint::create (function, ineq));
       }
 
       void LevelSetEdge::insertParamConstraint (const LockedJointPtr_t lockedJoint)
       {
+        isInit_ = false;
         paramLockedJoints_.push_back (lockedJoint);
       }
 
       void LevelSetEdge::insertConditionConstraint (const NumericalConstraintPtr_t& nm,
               const segments_t& passiveDofs)
       {
+        isInit_ = false;
         condNumericalConstraints_.push_back (nm);
         condPassiveDofs_.push_back (passiveDofs);
       }
 
       void LevelSetEdge::insertConditionConstraint (const LockedJointPtr_t lockedJoint)
       {
+        isInit_ = false;
         condLockedJoints_.push_back (lockedJoint);
       }
 

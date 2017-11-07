@@ -16,7 +16,7 @@
 
 #include <hpp/manipulation/graph-node-optimizer.hh>
 
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
 
 namespace hpp {
   namespace manipulation {

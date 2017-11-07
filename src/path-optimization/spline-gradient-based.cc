@@ -90,9 +90,8 @@ namespace hpp {
 
           // The path should always go through the start and end states of the
           // transition.
-          // FIXME problem of waypoint edges...
-          graph::WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, transition);
-          graph::StatePtr_t from = (we ? we->waypoint<graph::Edge>(we->nbWaypoints() - 1)->to() : transition->from());
+          assert(!HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, transition));
+          graph::StatePtr_t from = transition->from();
           graph::StatePtr_t to = transition->to();
           graph::StatePtr_t from2 = from, to2 = to;
 
@@ -241,11 +240,11 @@ namespace hpp {
 
       // ----------- Instanciate -------------------------------------------- //
 
-      template class SplineGradientBased<core::path::CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
-      template class SplineGradientBased<core::path::CanonicalPolynomeBasis, 2>;
-      template class SplineGradientBased<core::path::CanonicalPolynomeBasis, 3>;
+      // template class SplineGradientBased<core::path::CanonicalPolynomeBasis, 1>; // equivalent to StraightPath
+      // template class SplineGradientBased<core::path::CanonicalPolynomeBasis, 2>;
+      // template class SplineGradientBased<core::path::CanonicalPolynomeBasis, 3>;
       template class SplineGradientBased<core::path::BernsteinBasis, 1>; // equivalent to StraightPath
-      template class SplineGradientBased<core::path::BernsteinBasis, 2>;
+      // template class SplineGradientBased<core::path::BernsteinBasis, 2>;
       template class SplineGradientBased<core::path::BernsteinBasis, 3>;
     } // namespace pathOptimization
   }  // namespace manipulation

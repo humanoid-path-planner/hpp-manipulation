@@ -109,12 +109,12 @@ namespace hpp {
 
       bool NodeBin::operator<(const NodeBin& rhs) const
       {
-        return state_->id () < rhs.state ()->id ();
+        return state()->id () < rhs.state ()->id ();
       }
 
       bool NodeBin::operator==(const NodeBin& rhs) const
       {
-        return state_ == rhs.state ();
+        return state() == rhs.state ();
       }
 
       const StatePtr_t& NodeBin::state () const
@@ -152,7 +152,7 @@ namespace hpp {
 
       std::ostream& NodeBin::printValue (std::ostream& os) const
       {
-        return os << "NodeBin (" << state_->name () << ")";
+        return os << "NodeBin (" << state()->name () << ")";
       }
 
       LeafHistogramPtr_t LeafHistogram::create (const Foliation f)
@@ -198,7 +198,7 @@ namespace hpp {
 
       void StateHistogram::add (const RoadmapNodePtr_t& n)
       {
-        iterator it = insert (NodeBin (graph_->getState (n)));
+        iterator it = insert (NodeBin (constraintGraph()->getState (n)));
         it->push_back (n);
         if (numberOfObservations()%10 == 0) {
           hppDout (info, *this);
@@ -218,7 +218,7 @@ namespace hpp {
 
       HistogramPtr_t StateHistogram::clone () const
       {
-        return HistogramPtr_t (new StateHistogram (graph_));
+        return HistogramPtr_t (new StateHistogram (constraintGraph()));
       }
 
       unsigned int LeafBin::numberOfObsOutOfConnectedComponent (const core::ConnectedComponentPtr_t& cc) const

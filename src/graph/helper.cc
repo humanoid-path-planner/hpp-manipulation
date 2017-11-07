@@ -40,6 +40,8 @@
 #include <hpp/manipulation/graph/guided-state-selector.hh>
 #include <hpp/manipulation/problem-solver.hh>
 
+#define CASE_TO_STRING(var, value) ( (var & value) ? std::string(#value) : std::string() )
+
 namespace hpp {
   namespace manipulation {
     namespace graph {
@@ -120,13 +122,7 @@ namespace hpp {
             struct CaseTraits {
               static const bool pregrasp = (gCase & WithPreGrasp);
               static const bool preplace = (gCase & WithPrePlace);
-              /// FIXME
-              // It should be
-              // static const bool intersec = !((gCase & NoGrasp) || (gCase & NoPlace));
-              // but when NoPlace | WithPreGrasp, we need a LevelSetEdge after
-              // the pregrasp waypoint state. Sadly the current implementation of
-              // WaypointEdge does not allow the last edge of type other than Edge.
-              static const bool intersec = pregrasp || preplace || ((gCase & GraspOnly) && (gCase & PlaceOnly));
+              static const bool intersec = !((gCase & NoGrasp) || (gCase & NoPlace));
 
               static const bool valid =
                    ( (gCase & WithPreGrasp) || (gCase & GraspOnly) || (gCase & NoGrasp) )
@@ -144,6 +140,17 @@ namespace hpp {
               static inline const StatePtr_t& Npregrasp (const StateArray& n) { assert (pregrasp); return n[1]; }
               static inline const StatePtr_t& Nintersec (const StateArray& n) { assert (intersec); return n[1 + (pregrasp?1:0)]; }
               static inline const StatePtr_t& Npreplace (const StateArray& n) { assert (preplace); return n[1 + (pregrasp?1:0) + (intersec?1:0)]; }
+
+              static inline std::string caseToString ()
+              {
+                return CASE_TO_STRING (gCase, NoGrasp)
+                  +    CASE_TO_STRING (gCase, GraspOnly)
+                  +    CASE_TO_STRING (gCase, WithPreGrasp)
+                  + " - "
+                  +    CASE_TO_STRING (gCase, NoPlace)
+                  +    CASE_TO_STRING (gCase, PlaceOnly)
+                  +    CASE_TO_STRING (gCase, WithPrePlace);
+              }
 
               static inline EdgePtr_t makeWE (
                   const std::string& name,
@@ -190,8 +197,8 @@ namespace hpp {
                                         WaypointEdge::create));
                   we->nbWaypoints (nbWaypoints);
                   gls = linkWaypoint <LevelSetEdge> (n, T-1, T, name, "ls");
-                  for (std::size_t i = 0; i < Nedges - 1; ++i)
-                    we->setWaypoint (i, e[i], n[i]);
+                  for (std::size_t i = 0; i < Nedges; ++i)
+                    we->setWaypoint (i, e[i], n[i+1]);
                   we->setWaypoint (T-1, gls, n[T]);
                   gls->state (n.front());
                   gls->setShort (pregrasp);
@@ -217,8 +224,11 @@ namespace hpp {
                                        WaypointEdge::create));
                   we->nbWaypoints (nbWaypoints);
                   pls = linkWaypoint <LevelSetEdge> (n, T+1, T, name, "ls");
-                  for (std::size_t i = Nedges - 1; i != 0; --i)
+                  // for (std::size_t i = Nedges - 1; i != 0; --i)
+                  for (std::size_t k = 0; k < Nedges; ++k) {
+                    std::size_t i = Nedges  - 1 - k;
                     we->setWaypoint (Nedges - 1 - i, e[i], n[i]);
+                  }
                   we->setWaypoint (Nedges - 1 - T, pls, n[T]);
                   pls->state (n.back ());
                   pls->setShort (preplace);
@@ -255,16 +265,17 @@ namespace hpp {
                 EdgeArray e;
                 WaypointEdgePtr_t we = HPP_DYNAMIC_PTR_CAST(WaypointEdge, edge);
                 if (forward)
-                  for (std::size_t i = 0; i < Nedges - 1; ++i) {
+                  for (std::size_t i = 0; i < Nedges; ++i) {
                     e[i] = linkWaypoint <Edge> (states, i, i + 1, name);
                     we->setWaypoint (i, e[i], states[i+1]);
                   }
                 else
-                  for (std::size_t i = Nedges - 1; i != 0; --i) {
+                  // for (std::size_t i = Nedges - 1; i != 0; --i) {
+                  for (std::size_t k = 0; k < Nedges; ++k) {
+                    std::size_t i = Nedges  - 1 - k;
                     e[i] = linkWaypoint <Edge> (states, i + 1, i, name);
                     we->setWaypoint (Nedges - 1 - i, e[i], states[i]);
                   }
-                e[(forward?Nedges - 1:0)] = we;
                 return e;
               }
 
@@ -333,6 +344,8 @@ namespace hpp {
               const FoliatedManifold& submanifoldDef)
           {
             typedef CaseTraits<gCase> T;
+            hppDout (info, "Creating edges " << forwName << " and " << backName
+               << "\ncase is " << T::caseToString ());
             assert (T::valid && "Not a valid case.");
             typedef typename T::StateArray StateArray;
             typedef typename T::EdgeArray EdgeArray;
@@ -444,20 +457,21 @@ namespace hpp {
             const GripperPtr_t& gripper, const HandlePtr_t& handle,
             FoliatedManifold& grasp, FoliatedManifold& pregrasp)
         {
-          NumericalConstraintPtr_t gc  = handle->createGrasp (gripper);
+          NumericalConstraintPtr_t gc  = handle->createGrasp (gripper, "");
           grasp.nc.nc.push_back (gc);
           grasp.nc.pdof.push_back (segments_t ());
           grasp.nc_path.nc.push_back (gc);
           // TODO: see function declaration
           grasp.nc_path.pdof.push_back (segments_t ());
-          NumericalConstraintPtr_t gcc = handle->createGraspComplement (gripper);
+          NumericalConstraintPtr_t gcc = handle->createGraspComplement
+            (gripper, "");
           if (gcc->function ().outputSize () > 0) {
             grasp.nc_fol.nc.push_back (gcc);
             grasp.nc_fol.pdof.push_back (segments_t());
           }
 
           const value_type c = handle->clearance () + gripper->clearance ();
-          NumericalConstraintPtr_t pgc = handle->createPreGrasp (gripper, c);
+          NumericalConstraintPtr_t pgc = handle->createPreGrasp (gripper, c, "");
           pregrasp.nc.nc.push_back (pgc);
           pregrasp.nc.pdof.push_back (segments_t());
           pregrasp.nc_path.nc.push_back (pgc);
@@ -551,6 +565,7 @@ namespace hpp {
           typedef std::vector<CompiledRule> CompiledRules_t;
 
           struct Result {
+            ProblemSolverPtr_t ps;
             GraphPtr_t graph;
             typedef unsigned long stateid_type;
             std::tr1::unordered_map<stateid_type, StateAndManifold_t> states;
@@ -572,8 +587,8 @@ namespace hpp {
             CompiledRules_t rules;
             CompiledRule::Status defaultAcceptationPolicy;
 
-            Result (const Grippers_t& grippers, const Objects_t& objects, GraphPtr_t g) :
-              graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects),
+            Result (const ProblemSolverPtr_t problem, const Grippers_t& grippers, const Objects_t& objects, GraphPtr_t g) :
+              ps (problem), graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects),
               defaultAcceptationPolicy (CompiledRule::Refuse)
             {
               BOOST_FOREACH (const Object_t& o, objects) {
@@ -648,6 +663,8 @@ namespace hpp {
             inline boost::array<NumericalConstraintPtr_t,3>& graspConstraint (
                 const index_t& iG, const index_t& iOH)
             {
+              typedef core::ProblemSolver CPS_t;
+
               boost::array<NumericalConstraintPtr_t,3>& gcs =
                 graspCs [iG * nOH + iOH];
               if (!gcs[0]) {
@@ -655,10 +672,17 @@ namespace hpp {
                     << iG << ", " << iOH << ")");
                 const GripperPtr_t& g (gs[iG]);
                 const HandlePtr_t& h (handle (iOH));
-                gcs[0] = h->createGrasp (g);
-                gcs[1] = h->createGraspComplement (g);
-                const value_type c = h->clearance () + g->clearance ();
-                gcs[2] = h->createPreGrasp (g, c);
+                const std::string& grasp = g->name() + " grasps " + h->name();
+                if (!ps->CPS_t::has<NumericalConstraintPtr_t>(grasp)) {
+                  ps->createGraspConstraint (grasp, g->name(), h->name());
+                }
+                gcs[0] = ps->CPS_t::get<NumericalConstraintPtr_t>(grasp);
+                gcs[1] = ps->CPS_t::get<NumericalConstraintPtr_t>(grasp + "/complement");
+                const std::string& pregrasp = g->name() + " pregrasps " + h->name();
+                if (!ps->CPS_t::has<NumericalConstraintPtr_t>(pregrasp)) {
+                  ps->createPreGraspConstraint (pregrasp, g->name(), h->name());
+                }
+                gcs[2] = ps->CPS_t::get<NumericalConstraintPtr_t>(pregrasp);
               }
               return gcs;
             }
@@ -682,9 +706,10 @@ namespace hpp {
             }
 
             /// Check if an object can be placed
-            bool objectCanBePlaced (const Object_t&) const
+            bool objectCanBePlaced (const Object_t& o) const
             {
-              return true; // o.get<0>().get<0>();
+              // If the object has no joint, then it cannot be placed.
+              return (o.get<0>().get<2>().size() > 0);
             }
 
             /// Check is an object is grasped by the GraspV_t
@@ -986,6 +1011,7 @@ namespace hpp {
         }
 
         void graphBuilder (
+            const ProblemSolverPtr_t& ps,
             const Objects_t& objects,
             const Grippers_t& grippers,
             GraphPtr_t graph,
@@ -995,7 +1021,7 @@ namespace hpp {
           StateSelectorPtr_t ns = graph->stateSelector ();
           if (!ns) throw std::logic_error ("The graph does not have a StateSelector");
 
-          Result r (grippers, objects, graph);
+          Result r (ps, grippers, objects, graph);
           r.setRules (rules);
 
           IndexV_t availG (r.nG), availOH (r.nOH);
@@ -1095,7 +1121,7 @@ namespace hpp {
           graph->maxIterations  (ps->maxIterProjection ());
           graph->errorThreshold (ps->errorThreshold ());
 
-          graphBuilder (objects, grippers, graph, rules);
+          graphBuilder (ps, objects, grippers, graph, rules);
           ps->constraintGraph (graph);
           return graph;
         }

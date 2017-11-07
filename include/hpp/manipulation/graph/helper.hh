@@ -185,6 +185,7 @@ namespace hpp {
         ///
         /// \param[in,out] graph must be an initialized empty Graph.
         void graphBuilder (
+            const ProblemSolverPtr_t& ps,
             const Objects_t& objects,
             const Grippers_t& grippers,
             GraphPtr_t graph,

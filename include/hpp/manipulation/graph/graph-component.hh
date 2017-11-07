@@ -41,6 +41,8 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI GraphComponent
       {
         public:
+          virtual ~GraphComponent () {};
+
           /// Get the component name.
           const std::string& name() const;
 
@@ -102,7 +104,9 @@ namespace hpp {
           /// Initialize the component
           void init (const GraphComponentWkPtr_t& weak);
 
-          GraphComponent(const std::string& name) : name_ (name), id_(-1)
+          GraphComponent(const std::string& name) : isInit_(false)
+                                                    , name_ (name)
+                                                    , id_(-1)
           {}
 
           /// Stores the numerical constraints.
@@ -114,12 +118,21 @@ namespace hpp {
           /// A weak pointer to the parent graph.
           GraphWkPtr_t graph_;
 
+          bool isInit_;
+
+          void throwIfNotInitialized () const
+          {
+            if (!isInit_) throw std::logic_error ("The graph should have been initialized first.");
+          }
+
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
           friend std::ostream& operator<< (std::ostream&, const GraphComponent&);
 
           /// Populate DrawingAttributes tooltip
           virtual void populateTooltip (dot::Tooltip& tp) const;
+
+          virtual void initialize () = 0;
 
         private:
           /// Name of the component.
@@ -128,6 +141,8 @@ namespace hpp {
           GraphComponentWkPtr_t wkPtr_;
           /// ID of the component (index in components vector).
 	  std::size_t id_;
+
+          friend class Graph;
       };
 
       std::ostream& operator<< (std::ostream& os, const GraphComponent& graphComp);

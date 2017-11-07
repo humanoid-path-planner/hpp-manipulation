@@ -34,7 +34,7 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI SymbolicComponent
     {
       public:
-        typedef std::set<SymbolicComponentPtr_t> SymbolicComponents_t;
+        typedef std::set<SymbolicComponent*> SymbolicComponents_t;
 
         /// return a shared pointer to new instance
         static SymbolicComponentPtr_t create (const RoadmapPtr_t& roadmap);
@@ -81,7 +81,7 @@ namespace hpp {
         RoadmapNodes_t nodes_;
 
       private:
-        RoadmapPtr_t roadmap_;
+        RoadmapWkPtr_t roadmap_;
         SymbolicComponents_t to_, from_;
         SymbolicComponentWkPtr_t weak_;
     }; // class SymbolicComponent

@@ -29,32 +29,6 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
-      /// \cond
-      /// Cache mechanism that enable const-correctness of member functions.
-      template <typename C>
-        class HPP_MANIPULATION_LOCAL Cache
-      {
-        public:
-          void set (const C& c)
-          {
-            c_ = c;
-          }
-
-          operator bool() const
-          {
-            return (bool)c_;
-          }
-
-          const C& get () const
-          {
-            return c_;
-          }
-
-        private:
-          C c_;
-      };
-      /// \endcond
-
       /// \addtogroup constraint_graph
       /// \{
 
@@ -141,13 +115,13 @@ namespace hpp {
 	  /// Get steering method associated to the edge.
 	  const core::SteeringMethodPtr_t& steeringMethod () const
 	  {
-	    return steeringMethod_->get();
+	    return steeringMethod_;
 	  }
 
 	  /// Get path validation associated to the edge.
 	  const core::PathValidationPtr_t& pathValidation () const
 	  {
-	    return pathValidation_->get();
+	    return pathValidation_;
 	  }
 
           const RelativeMotion::matrix_type& relativeMotion () const
@@ -190,9 +164,11 @@ namespace hpp {
           /// \return The initialized constraint.
           ConstraintSetPtr_t pathConstraint() const;
 
-          virtual ConstraintSetPtr_t buildConfigConstraint() const;
+          virtual ConstraintSetPtr_t buildConfigConstraint();
 
-          virtual ConstraintSetPtr_t buildPathConstraint() const;
+          virtual ConstraintSetPtr_t buildPathConstraint();
+
+          virtual void initialize ();
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
@@ -200,16 +176,12 @@ namespace hpp {
           bool isShort_;
 
         private:
-          typedef Cache < ConstraintSetPtr_t > Constraint_t;
-          typedef Cache < core::SteeringMethodPtr_t > SteeringMethod_t;
-          typedef Cache < core::PathValidationPtr_t > PathValidation_t;
-
           /// See pathConstraint member function.
-          Constraint_t* pathConstraints_;
+          ConstraintSetPtr_t pathConstraints_;
 
           /// Constraint ensuring that a q_proj will be in to_ and in the
           /// same leaf of to_ as the configuration used for initialization.
-          Constraint_t* configConstraints_;
+          ConstraintSetPtr_t configConstraints_;
 
           /// The two ends of the transition.
           StateWkPtr_t from_, to_;
@@ -218,11 +190,11 @@ namespace hpp {
           StateWkPtr_t state_;
 
 	  /// Steering method used to create paths associated to the edge
-	  SteeringMethod_t* steeringMethod_;
+          core::SteeringMethodPtr_t steeringMethod_;
 
 	  /// Path validation associated to the edge
           mutable RelativeMotion::matrix_type relMotion_;
-	  PathValidation_t* pathValidation_;
+          core::PathValidationPtr_t pathValidation_;
 
           /// Weak pointer to itself.
           EdgeWkPtr_t wkPtr_;
@@ -244,18 +216,13 @@ namespace hpp {
       /// \note
       ///   Implementation details: let's say, between the two states \f$N_f\f$ and \f$N_t\f$,
       ///   two waypoints are required:
-      ///   \f$ N_f \xrightarrow{e_0} n_0 \xrightarrow{e_1} n_1 \xrightarrow{E} N_t\f$.
-      ///   The outmost WaypointEdg contains:
+      ///   \f$ N_f \xrightarrow{e_0} n_0 \xrightarrow{e_1} n_1 \xrightarrow{e_2} N_t\f$.
+      ///   The WaypointEdge contains:
       ///   \li from: \f$N_f\f$,
       ///   \li to: \f$N_t\f$,
-      ///   \li constraints: those of edge \f$E\f$,
-      ///   \li waypoint: \f$(E_1, n_1)\f$.
-      ///
-      ///   where \f$E_1\f$ is an instance of class WaypointEdge containing:
-      ///   \li from: \f$N_f\f$,
-      ///   \li to: \f$n_1\f$,
-      ///   \li constraints: those of edge \f$e_1\f$,
-      ///   \li waypoint: \f$(e_0, n_0)\f$.
+      ///   \li states: \f$(n_0, n_1)\f$
+      ///   \li transitions: \f$(e_0, e_1, e_2)\f$
+      ///   \li constraints: any calls to the constraints throw,
       class HPP_MANIPULATION_DLLAPI WaypointEdge : public Edge
       {
         public:
@@ -265,18 +232,14 @@ namespace hpp {
 	   const GraphWkPtr_t& graph, const StateWkPtr_t& from,
 	   const StateWkPtr_t& to);
 
-          virtual bool direction (const core::PathPtr_t& path) const;
-
           virtual bool canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
           virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
           virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
 
-          /// Return the inner waypoint.
-          /// \param EdgeType is either Edge or WaypointEdge
-          template <class EdgeType>
-          boost::shared_ptr <EdgeType> waypoint (const std::size_t index) const;
+          /// Return the index-th edge.
+          const EdgePtr_t& waypoint (const std::size_t index) const;
 
           /// Print the object in a stream.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
@@ -286,7 +249,7 @@ namespace hpp {
 
           std::size_t nbWaypoints () const
           {
-            return waypoints_.size ();
+            return edges_.size () - 1;
           }
 
           /// Set waypoint index with wEdge and wTo.
@@ -295,7 +258,8 @@ namespace hpp {
 
         protected:
 	  WaypointEdge (const std::string& name) :
-	    Edge (name)
+	    Edge (name),
+            lastSucceeded_ (false)
 	    {
 	    }
           /// Initialization of the object.
@@ -306,14 +270,11 @@ namespace hpp {
           virtual std::ostream& print (std::ostream& os) const;
 
         private:
-          typedef std::pair < EdgePtr_t, StatePtr_t > Waypoint_t;
-          typedef std::vector <Waypoint_t> Waypoints_t;
+          Edges_t edges_;
+          States_t states_;
 
-          Waypoints_t waypoints_;
-
-          mutable Configuration_t init_;
           mutable matrix_t configs_;
-          mutable Configuration_t result_;
+          mutable bool lastSucceeded_;
 
           WaypointEdgeWkPtr_t wkPtr_;
       }; // class WaypointEdge
@@ -334,7 +295,7 @@ namespace hpp {
 
           virtual bool applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const;
 
-          virtual ConstraintSetPtr_t buildConfigConstraint() const;
+          virtual ConstraintSetPtr_t buildConfigConstraint();
 
           void buildHistogram ();
 
@@ -382,6 +343,8 @@ namespace hpp {
 
           /// Populate DrawingAttributes tooltip
           virtual void populateTooltip (dot::Tooltip& tp) const;
+
+          virtual void initialize ();
 
         private:
           bool applyConstraintsWithOffset (ConfigurationIn_t qoffset,

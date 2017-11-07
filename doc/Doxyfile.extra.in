@@ -2,12 +2,6 @@ INPUT     = @CMAKE_SOURCE_DIR@/doc \
             @CMAKE_SOURCE_DIR@/include \
             @CMAKE_BINARY_DIR@/doc
 
-TAGFILES	= @HPP_pinocchio_DOXYGENDOCDIR@/hpp-pinocchio.doxytag=@HPP_pinocchio_DOXYGENDOCDIR@ \
-            @HPP_CORE_DOXYGENDOCDIR@/hpp-core.doxytag=@HPP_CORE_DOXYGENDOCDIR@ \
-            @HPP_CONSTRAINTS_DOXYGENDOCDIR@/hpp-constraints.doxytag=@HPP_CONSTRAINTS_DOXYGENDOCDIR@ \
-            @HPP_FCL_DOXYGENDOCDIR@/hpp-fcl.doxytag=@HPP_FCL_DOXYGENDOCDIR@ \
-            @HPP_STATISTICS_DOXYGENDOCDIR@/hpp-statistics.doxytag=@HPP_STATISTICS_DOXYGENDOCDIR@
-
 HTML_EXTRA_FILES = @CMAKE_SOURCE_DIR@/doc/ObjectManipulation_MasterThesis_JosephMirabel.pdf
 
 ALIASES   += Link{1}="\ref \1"

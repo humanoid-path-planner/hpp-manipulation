@@ -726,7 +726,7 @@ namespace hpp {
       }
 
       void LevelSetEdge::insertParamConstraint (const NumericalConstraintPtr_t& nm,
-              const SizeIntervals_t& passiveDofs)
+              const segments_t& passiveDofs)
       {
         paramNumericalConstraints_.push_back (nm);
         paramPassiveDofs_.push_back (passiveDofs);
@@ -743,7 +743,7 @@ namespace hpp {
       }
 
       void LevelSetEdge::insertConditionConstraint (const NumericalConstraintPtr_t& nm,
-              const SizeIntervals_t& passiveDofs)
+              const segments_t& passiveDofs)
       {
         condNumericalConstraints_.push_back (nm);
         condPassiveDofs_.push_back (passiveDofs);

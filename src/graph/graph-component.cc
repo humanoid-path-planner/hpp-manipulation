@@ -46,7 +46,7 @@ namespace hpp {
       }
 
       void GraphComponent::addNumericalConstraint (const NumericalConstraintPtr_t& nm,
-          const SizeIntervals_t& passiveDofs)
+          const segments_t& passiveDofs)
       {
         numericalConstraints_.push_back(nm);
         passiveDofs_.push_back (passiveDofs);
@@ -99,7 +99,7 @@ namespace hpp {
         return numericalConstraints_;
       }
 
-      const std::vector <SizeIntervals_t>& GraphComponent::passiveDofs() const
+      const std::vector <segments_t>& GraphComponent::passiveDofs() const
       {
         return passiveDofs_;
       }

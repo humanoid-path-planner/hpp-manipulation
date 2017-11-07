@@ -57,8 +57,8 @@ namespace hpp {
       typedef hpp::core::Equality Equality;
       typedef hpp::core::ComparisonTypePtr_t ComparisonTypePtr_t;
       typedef hpp::core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
-      typedef hpp::core::SizeIntervals_t SizeIntervals_t;
-      typedef std::vector <SizeIntervals_t> IntervalsContainer_t;
+      typedef hpp::core::segments_t segments_t;
+      typedef std::vector <segments_t> IntervalsContainer_t;
       typedef hpp::core::NumericalConstraints_t NumericalConstraints_t;
       typedef hpp::core::LockedJoints_t LockedJoints_t;
 

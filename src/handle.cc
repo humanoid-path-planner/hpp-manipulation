@@ -55,8 +55,6 @@ namespace hpp {
 
     using core::ExplicitNumericalConstraint;
     using constraints::DifferentiableFunction;
-    using core::SizeInterval_t;
-    using core::SizeIntervals_t;
 
     bool isHandleOnR3SO3 (const Handle& handle)
     {

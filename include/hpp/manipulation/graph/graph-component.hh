@@ -55,7 +55,7 @@ namespace hpp {
           //         for more information.
           virtual void addNumericalConstraint (
               const NumericalConstraintPtr_t& numConstraint,
-              const SizeIntervals_t& passiveDofs = SizeIntervals_t ());
+              const segments_t& passiveDofs = segments_t ());
 
           /// Add core::DifferentiableFunction to the component.
           virtual void addNumericalConstraint

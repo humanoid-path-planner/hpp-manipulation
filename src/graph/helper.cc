@@ -446,22 +446,22 @@ namespace hpp {
         {
           NumericalConstraintPtr_t gc  = handle->createGrasp (gripper);
           grasp.nc.nc.push_back (gc);
-          grasp.nc.pdof.push_back (SizeIntervals_t ());
+          grasp.nc.pdof.push_back (segments_t ());
           grasp.nc_path.nc.push_back (gc);
           // TODO: see function declaration
-          grasp.nc_path.pdof.push_back (SizeIntervals_t ());
+          grasp.nc_path.pdof.push_back (segments_t ());
           NumericalConstraintPtr_t gcc = handle->createGraspComplement (gripper);
           if (gcc->function ().outputSize () > 0) {
             grasp.nc_fol.nc.push_back (gcc);
-            grasp.nc_fol.pdof.push_back (SizeIntervals_t());
+            grasp.nc_fol.pdof.push_back (segments_t());
           }
 
           const value_type c = handle->clearance () + gripper->clearance ();
           NumericalConstraintPtr_t pgc = handle->createPreGrasp (gripper, c);
           pregrasp.nc.nc.push_back (pgc);
-          pregrasp.nc.pdof.push_back (SizeIntervals_t());
+          pregrasp.nc.pdof.push_back (segments_t());
           pregrasp.nc_path.nc.push_back (pgc);
-          pregrasp.nc_path.pdof.push_back (SizeIntervals_t());
+          pregrasp.nc_path.pdof.push_back (segments_t());
         }
 
         void strictPlacementManifold (
@@ -471,18 +471,18 @@ namespace hpp {
             FoliatedManifold& place, FoliatedManifold& preplace)
         {
           place.nc.nc.push_back (placement);
-          place.nc.pdof.push_back (SizeIntervals_t());
+          place.nc.pdof.push_back (segments_t());
           place.nc_path.nc.push_back (placement);
-          place.nc_path.pdof.push_back (SizeIntervals_t());
+          place.nc_path.pdof.push_back (segments_t());
           if (placementComplement && placementComplement->function().outputSize () > 0) {
             place.nc_fol.nc.push_back (placementComplement);
-            place.nc_fol.pdof.push_back (SizeIntervals_t());
+            place.nc_fol.pdof.push_back (segments_t());
           }
 
           preplace.nc.nc.push_back (preplacement);
-          preplace.nc.pdof.push_back (SizeIntervals_t());
+          preplace.nc.pdof.push_back (segments_t());
           preplace.nc_path.nc.push_back (preplacement);
-          preplace.nc_path.pdof.push_back (SizeIntervals_t());
+          preplace.nc_path.pdof.push_back (segments_t());
         }
 
         void relaxedPlacementManifold (
@@ -493,21 +493,21 @@ namespace hpp {
         {
           if (placement) {
             place.nc.nc.push_back (placement);
-            place.nc.pdof.push_back (SizeIntervals_t());
+            place.nc.pdof.push_back (segments_t());
             // The placement constraints are not required in the path, as long as
             // they are satisfied at both ends and the object does not move. The
             // former condition is ensured by the placement constraints on both
             // ends and the latter is ensure by the LockedJoint constraints.
             place.nc_path.nc.push_back (placement);
-            place.nc_path.pdof.push_back (SizeIntervals_t());
+            place.nc_path.pdof.push_back (segments_t());
           }
           std::copy (objectLocks.begin(), objectLocks.end(), std::back_inserter(place.lj_fol));
 
           if (placement && preplacement) {
             preplace.nc.nc.push_back (preplacement);
-            preplace.nc.pdof.push_back (SizeIntervals_t());
+            preplace.nc.pdof.push_back (segments_t());
             // preplace.nc_path.nc.push_back (preplacement);
-            // preplace.nc_path.pdof.push_back (SizeIntervals_t());
+            // preplace.nc_path.pdof.push_back (segments_t());
           }
         }
 
@@ -746,19 +746,19 @@ namespace hpp {
               boost::array<NumericalConstraintPtr_t,3>& gcs
                 = graspConstraint (iG, iOH);
               grasp.nc.nc.push_back (gcs[0]);
-              grasp.nc.pdof.push_back (SizeIntervals_t ());
+              grasp.nc.pdof.push_back (segments_t ());
               grasp.nc_path.nc.push_back (gcs[0]);
               // TODO: see function declaration
-              grasp.nc_path.pdof.push_back (SizeIntervals_t ());
+              grasp.nc_path.pdof.push_back (segments_t ());
               if (gcs[1]->function ().outputSize () > 0) {
                 grasp.nc_fol.nc.push_back (gcs[1]);
-                grasp.nc_fol.pdof.push_back (SizeIntervals_t());
+                grasp.nc_fol.pdof.push_back (segments_t());
               }
 
               pregrasp.nc.nc.push_back (gcs[2]);
-              pregrasp.nc.pdof.push_back (SizeIntervals_t());
+              pregrasp.nc.pdof.push_back (segments_t());
               pregrasp.nc_path.nc.push_back (gcs[2]);
-              pregrasp.nc_path.pdof.push_back (SizeIntervals_t());
+              pregrasp.nc_path.pdof.push_back (segments_t());
             }
           };
 

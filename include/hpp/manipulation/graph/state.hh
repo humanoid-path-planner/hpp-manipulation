@@ -108,7 +108,7 @@ namespace hpp {
 
           /// Add core::NumericalConstraint to the component.
           virtual void addNumericalConstraintForPath (const NumericalConstraintPtr_t& nm,
-              const SizeIntervals_t& passiveDofs = SizeIntervals_t ())
+              const segments_t& passiveDofs = segments_t ())
           {
             numericalConstraintsForPath_.push_back (nm);
             passiveDofsForPath_.push_back (passiveDofs);

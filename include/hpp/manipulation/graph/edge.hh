@@ -345,7 +345,7 @@ namespace hpp {
 
           /// Insert a NumericalConstraint that parametrizes the foliation
           void insertParamConstraint (const NumericalConstraintPtr_t& nm,
-              const SizeIntervals_t& passiveDofs = SizeIntervals_t ());
+              const segments_t& passiveDofs = segments_t ());
 
           void insertParamConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypePtr_t ineq)
             HPP_MANIPULATION_DEPRECATED;
@@ -358,7 +358,7 @@ namespace hpp {
           /// The manifold represented the foliation is defined by this
           /// constraints.
           void insertConditionConstraint (const NumericalConstraintPtr_t& nm,
-              const SizeIntervals_t& passiveDofs = SizeIntervals_t ());
+              const segments_t& passiveDofs = segments_t ());
 
           /// Insert a LockedJoint that defines the foliation
           ///

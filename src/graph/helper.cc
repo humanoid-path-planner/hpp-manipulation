@@ -975,12 +975,12 @@ namespace hpp {
               const IndexV_t& idx_g, const IndexV_t& idx_oh,
               const GraspV_t& grasps, const int depth)
           {
-            if (idx_g.empty () || idx_oh.empty ()) return;
-            IndexV_t nIdx_g (idx_g.size() - 1);
-            IndexV_t nIdx_oh (idx_oh.size() - 1);
             bool curGraspIsAllowed = r.graspIsAllowed(grasps);
             if (curGraspIsAllowed) makeState (r, grasps, depth);
 
+            if (idx_g.empty () || idx_oh.empty ()) return;
+            IndexV_t nIdx_g (idx_g.size() - 1);
+            IndexV_t nIdx_oh (idx_oh.size() - 1);
             for (IndexV_t::const_iterator itx_g = idx_g.begin ();
                 itx_g != idx_g.end (); ++itx_g) {
               // Copy all element except itx_g

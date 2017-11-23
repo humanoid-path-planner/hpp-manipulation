@@ -56,7 +56,7 @@ namespace hpp {
     using core::ExplicitNumericalConstraint;
     using constraints::DifferentiableFunction;
 
-    bool isHandleOnR3SO3 (const Handle& handle)
+    bool isHandleOnFreeflyer (const Handle& handle)
     {
       if (handle.joint()->jointModel().shortname() == se3::JointModelFreeFlyer::classname()
           && !handle.joint ()->parentJoint ()) {
@@ -108,7 +108,7 @@ namespace hpp {
     {
       using core::ExplicitRelativeTransformation;
       // If handle is on a freeflying object, create an explicit constraint
-      if (is6Dmask(mask_) && isHandleOnR3SO3 (*this)) {
+      if (is6Dmask(mask_) && isHandleOnFreeflyer (*this)) {
         if (n.empty())
           n = "Explicit_relative_transform_" + name() + "_" + gripper->name();
 	return ExplicitRelativeTransformation::create

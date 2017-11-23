@@ -119,12 +119,6 @@ namespace hpp {
       virtual NumericalConstraintPtr_t createPreGrasp
       (const GripperPtr_t& gripper, const value_type& shift, std::string name) const;
 
-      static NumericalConstraintPtr_t createGrasp
-      (const GripperPtr_t& gripper,const HandlePtr_t& handle, std::string name)
-      {
-        return handle->createGrasp(gripper, name);
-      }
-
       /// Get the clearance
       ///
       /// The clearance is a distance, from the center of the gripper and along

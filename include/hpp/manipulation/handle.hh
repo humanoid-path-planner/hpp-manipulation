@@ -99,23 +99,25 @@ namespace hpp {
       /// \param gripper object containing the gripper information
       /// \return the constraint of relative transformation between the handle
       ///         and the gripper.
-      /// \note The 6 DOFs of the relative transformation are constrained.
+      /// The degrees of freedom of the relative transformation that are
+      /// constrained are determined by the mask. \sa NumericalConstraint::mask.
+      /// The constraint is not parameterizable (has constant right hand side).
       virtual NumericalConstraintPtr_t createGrasp
       (const GripperPtr_t& gripper, std::string name) const;
 
       /// Create complement constraint of gripper grasping this handle
       /// \param gripper object containing the gripper information
-      /// \return trivial constraint
-      /// \note for this base class, the complement constraint is trivial, i.e.
-      ///       it is of dimension 0.
+      /// \return complement constraint: constraint combined with its complement
+      ///         constitute a full relative transformation constraint.
+      /// The complement constraint is parameterizable (has non constant right
+      /// hand side).
       virtual NumericalConstraintPtr_t createGraspComplement
       (const GripperPtr_t& gripper, std::string name) const;
 
       /// Create constraint composed of grasp constraint and its complement
       /// \param gripper object containing the gripper information
-      /// \return the composition of grasp constraint and its complement.
-      /// \note for this base class, this constraint is the same as the grasp
-      ///       constraint.
+      /// \return the composition of grasp constraint and its complement, that
+      ///         that is a full relative transformation constraint.
       virtual NumericalConstraintPtr_t createGraspAndComplement
       (const GripperPtr_t& gripper, std::string name) const;
 

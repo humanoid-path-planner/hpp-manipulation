@@ -107,16 +107,15 @@ namespace hpp {
     (const GripperPtr_t& gripper, std::string n) const
     {
       using core::ExplicitRelativeTransformation;
+      if (n.empty()) {
+        n = gripper->name() + "_grasps_" + name() + "_" + maskToStr (mask_);
+      }
       // If handle is on a freeflying object, create an explicit constraint
       if (is6Dmask(mask_) && isHandleOnFreeflyer (*this)) {
-        if (n.empty())
-          n = "Explicit_relative_transform_" + name() + "_" + gripper->name();
 	return ExplicitRelativeTransformation::create
 	  (n, gripper->joint ()->robot (), gripper->joint (), joint (),
 	   gripper->objectPositionInJoint (), localPosition())->createNumericalConstraint();
       }
-      if (n.empty())
-        n = "Grasp_" + maskToStr(mask_) + "_" + name() + "_" + gripper->name();
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
 				      (n,
@@ -129,20 +128,19 @@ namespace hpp {
     NumericalConstraintPtr_t Handle::createGraspComplement
     (const GripperPtr_t& gripper, std::string n) const
     {
+      if (n.empty()) {
+        std::vector<bool> Cmask = complementMask(mask_);
+        n = gripper->name() + "_grasps_" + name() + "/complement_" +
+          maskToStr (Cmask);
+      }
       core::DevicePtr_t robot = gripper->joint()->robot();
       if (is6Dmask(mask_)) {
-        if (n.empty())
-          n = "GraspComp_(0,0,0,0,0,0)_" + name () + "_" + gripper->name ();
         return NumericalConstraint::create (
             boost::shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
                 robot->configSize(), robot->numberDof (), n))
             );
       } else {
-        // TODO handle cases where rotations or translation are allowed.
         std::vector<bool> Cmask = complementMask(mask_);
-        if (n.empty())
-          n = "Transformation_" + maskToStr(Cmask) + "_" + name ()
-            + "_" + gripper->name ();
         RelativeTransformationPtr_t function = RelativeTransformation::create
           (n,
            gripper->joint()->robot(),
@@ -157,10 +155,35 @@ namespace hpp {
       }
     }
 
+    NumericalConstraintPtr_t Handle::createGraspAndComplement
+    (const GripperPtr_t& gripper, std::string n) const
+    {
+      using boost::assign::list_of;
+      using core::ExplicitRelativeTransformation;
+      if (n.empty()) {
+        n = gripper->name() + "_holds_" + name();
+      }
+      // If handle is on a freeflying object, create an explicit constraint
+      if (isHandleOnFreeflyer (*this)) {
+	return ExplicitRelativeTransformation::create
+	  (n, gripper->joint ()->robot (), gripper->joint (), joint (),
+	   gripper->objectPositionInJoint (),
+           localPosition())->createNumericalConstraint();
+      }
+      return NumericalConstraintPtr_t
+	(NumericalConstraint::create (RelativeTransformation::create
+				      (n,
+				       gripper->joint()->robot(),
+				       gripper->joint (), joint (),
+				       gripper->objectPositionInJoint (),
+				       localPosition(),
+                                       list_of (true)(true)(true)(true)(true)
+                                       (true))));
+    }
+
     NumericalConstraintPtr_t Handle::createPreGrasp
     (const GripperPtr_t& gripper, const value_type& shift, std::string n) const
     {
-      using boost::assign::list_of;
       Transform3f transform = gripper->objectPositionInJoint ()
         * Transform3f (I3, vector3_t (shift,0,0));
       if (n.empty())

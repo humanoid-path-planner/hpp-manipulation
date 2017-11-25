@@ -115,6 +115,12 @@ namespace hpp {
 				      DoubleInequality::create (width)));
     }
 
+    NumericalConstraintPtr_t AxialHandle::createGraspAndComplement
+    (const GripperPtr_t& gripper, std::string n) const
+    {
+      return Handle::createGraspAndComplement (gripper, n);
+    }
+
     HandlePtr_t AxialHandle::clone () const
     {
       AxialHandlePtr_t self = weakPtr_.lock ();

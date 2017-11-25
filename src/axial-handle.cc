@@ -30,6 +30,7 @@
 
 namespace hpp {
   namespace manipulation {
+    std::string AxialHandle::className ("AxialHandle");
     static const matrix3_t I3 = matrix3_t::Identity();
 
     AxialHandlePtr_t AxialHandle::create (const std::string& name,

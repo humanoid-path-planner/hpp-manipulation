@@ -31,6 +31,7 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI Handle
     {
     public:
+      static std::string className;
       virtual ~Handle () {};
 
       /// Create constraint corresponding to a gripper grasping this object

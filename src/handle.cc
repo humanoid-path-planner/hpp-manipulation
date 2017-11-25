@@ -37,6 +37,7 @@
 
 namespace hpp {
   namespace manipulation {
+    std::string Handle::className ("Handle");
     namespace {
       static const matrix3_t I3 = matrix3_t::Identity();
 

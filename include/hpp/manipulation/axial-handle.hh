@@ -32,6 +32,7 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI AxialHandle : public Handle
     {
     public:
+      static std::string className;
       /// Create constraint corresponding to a gripper grasping this object
       /// \param robot the robot that grasps the handle,
       /// \param grasp object containing the grasp information

@@ -32,6 +32,16 @@ namespace hpp {
   namespace manipulation {
     static const matrix3_t I3 = matrix3_t::Identity();
 
+    AxialHandlePtr_t AxialHandle::create (const std::string& name,
+                                          const Transform3f& localPosition,
+                                          const JointPtr_t& joint)
+    {
+      AxialHandle* ptr = new AxialHandle (name, localPosition, joint);
+      AxialHandlePtr_t shPtr (ptr);
+      ptr->init (shPtr);
+      return shPtr;
+    }
+
     NumericalConstraintPtr_t AxialHandle::createGrasp
     (const GripperPtr_t& gripper, std::string n) const
     {
@@ -118,6 +128,13 @@ namespace hpp {
       os << "local position :" << localPosition () << std::endl;
       os << "joint :" << joint ()->name () << std::endl;
       return os;
+    }
+
+    AxialHandle::AxialHandle (const std::string& name,
+                              const Transform3f& localPosition,
+                              const JointPtr_t& joint) :
+      Handle (name, localPosition, joint), weakPtr_ ()
+    {
     }
   } // namespace manipulation
 } // namespace hpp

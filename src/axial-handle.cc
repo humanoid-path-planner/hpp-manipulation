@@ -56,14 +56,12 @@ namespace hpp {
         (true);
       if (n.empty())
         n = "Transformation_(0,0,0,0,0,1)_" + name() + "_" + gripper->name();
-      return NumericalConstraintPtr_t
-	(NumericalConstraint::create (RelativeTransformation::create
-				      (n,
-				       gripper->joint()->robot(),
-				       gripper->joint (), joint (),
-				       gripper->objectPositionInJoint (),
-				       localPosition(), mask),
-				      core::Equality::create ()));
+      return NumericalConstraint::create (RelativeTransformation::create
+          (n, gripper->joint()->robot(),
+           gripper->joint (), joint (),
+           gripper->objectPositionInJoint (),
+           localPosition(), mask),
+          ComparisonTypes_t (1, constraints::Equality));
     }
 
     NumericalConstraintPtr_t AxialHandle::createPreGrasp

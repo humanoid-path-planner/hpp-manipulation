@@ -149,11 +149,8 @@ namespace hpp {
            gripper->joint (), joint (),
            gripper->objectPositionInJoint (),
            localPosition(), Cmask);
-        return NumericalConstraintPtr_t (NumericalConstraint::create
-            (function,
-             core::ComparisonTypes::create(function->outputSize(),
-                                           core::ComparisonType::Equality)
-             ));
+        return NumericalConstraint::create (function,
+            ComparisonTypes_t(function->outputSize(), constraints::Equality));
       }
     }
 

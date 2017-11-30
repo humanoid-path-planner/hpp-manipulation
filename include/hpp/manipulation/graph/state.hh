@@ -120,7 +120,7 @@ namespace hpp {
           }
 
           /// Add core::DifferentiableFunction to the component.
-          virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq)
+          virtual void addNumericalConstraintForPath (const DifferentiableFunctionPtr_t& function, const ComparisonTypes_t& ineq)
             HPP_MANIPULATION_DEPRECATED
           {
             isInit_ = false;

@@ -104,6 +104,7 @@ namespace hpp {
     typedef core::LockedJointPtr_t LockedJointPtr_t;
     typedef core::NumericalConstraint NumericalConstraint;
     typedef core::NumericalConstraintPtr_t NumericalConstraintPtr_t;
+    typedef hpp::core::ComparisonTypes_t ComparisonTypes_t;
     typedef core::ConfigProjector ConfigProjector;
     typedef core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
     HPP_PREDEF_CLASS (ConstraintSet);

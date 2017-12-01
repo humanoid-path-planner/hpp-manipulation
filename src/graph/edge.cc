@@ -576,6 +576,12 @@ namespace hpp {
         ConstraintSetPtr_t param = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "projParam_" + n, g->errorThreshold(), g->maxIterations());
+
+        for (LockedJoints_t::const_iterator it = paramLockedJoints_.begin ();
+            it != paramLockedJoints_.end (); ++it) {
+          proj->add (*it);
+        }
+
         IntervalsContainer_t::const_iterator itpdof = paramPassiveDofs_.begin ();
         for (NumericalConstraints_t::const_iterator it = paramNumericalConstraints_.begin ();
             it != paramNumericalConstraints_.end (); ++it) {
@@ -587,11 +593,6 @@ namespace hpp {
         param->addConstraint (proj);
         param->edge (wkPtr_.lock ());
 
-        for (LockedJoints_t::const_iterator it = paramLockedJoints_.begin ();
-            it != paramLockedJoints_.end (); ++it) {
-          proj->add (*it);
-        }
-
         f.parametrizer (param);
 
         // The codition
@@ -602,6 +603,12 @@ namespace hpp {
         // edge.
         ConstraintSetPtr_t cond = ConstraintSet::create (g->robot (), "Set " + n);
         proj = ConfigProjector::create(g->robot(), "projCond_" + n, g->errorThreshold(), g->maxIterations());
+
+        for (LockedJoints_t::const_iterator it = condLockedJoints_.begin ();
+            it != condLockedJoints_.end (); ++it) {
+          proj->add (*it);
+        }
+
         itpdof = condPassiveDofs_.begin ();
         for (NumericalConstraints_t::const_iterator it = condNumericalConstraints_.begin ();
             it != condNumericalConstraints_.end (); ++it) {
@@ -609,10 +616,7 @@ namespace hpp {
           ++itpdof;
         }
         assert (itpdof == condPassiveDofs_.end ());
-        for (LockedJoints_t::const_iterator it = condLockedJoints_.begin ();
-            it != condLockedJoints_.end (); ++it) {
-          proj->add (*it);
-        }
+
         f.condition (cond);
         cond->addConstraint (proj);
 
@@ -642,6 +646,18 @@ namespace hpp {
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+
+        g->insertLockedJoints (proj);
+        for (LockedJoints_t::const_iterator it = paramLockedJoints_.begin ();
+            it != paramLockedJoints_.end (); ++it) {
+          proj->add (*it);
+        }
+        insertLockedJoints (proj);
+        to ()->insertLockedJoints (proj);
+        if (state () != to ()) {
+	  state ()->insertLockedJoints (proj);
+	}
+
         g->insertNumericalConstraints (proj);
         IntervalsContainer_t::const_iterator itpdof = paramPassiveDofs_.begin ();
         for (NumericalConstraints_t::const_iterator it = paramNumericalConstraints_.begin ();
@@ -657,17 +673,6 @@ namespace hpp {
 	  state ()->insertNumericalConstraints (proj);
 	}
         constraint->addConstraint (proj);
-
-        g->insertLockedJoints (proj);
-        for (LockedJoints_t::const_iterator it = paramLockedJoints_.begin ();
-            it != paramLockedJoints_.end (); ++it) {
-          proj->add (*it);
-        }
-        insertLockedJoints (proj);
-        to ()->insertLockedJoints (proj);
-        if (state () != to ()) {
-	  state ()->insertLockedJoints (proj);
-	}
 
         constraint->edge (wkPtr_.lock ());
         return constraint;

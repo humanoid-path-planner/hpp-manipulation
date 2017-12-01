@@ -150,6 +150,32 @@ namespace hpp {
         return stateSelector_->chooseEdge (from);
       }
 
+      void Graph::registerConstraints
+      (const NumericalConstraintPtr_t& constraint,
+       const NumericalConstraintPtr_t& complement,
+       const NumericalConstraintPtr_t& both)
+      {
+        constraintsAndComplements_.push_back (ConstraintAndComplement_t
+                                              (constraint, complement, both));
+      }
+
+      bool Graph::isComplement (const NumericalConstraintPtr_t& constraint,
+                                const NumericalConstraintPtr_t& complement,
+                                NumericalConstraintPtr_t& combinationOfBoth)
+        const
+      {
+        for (ConstraintsAndComplements_t::const_iterator it =
+               constraintsAndComplements_.begin ();
+             it != constraintsAndComplements_.end (); ++it) {
+          if ((it->constraint->functionPtr () == constraint->functionPtr ()) &&
+              (it->complement->functionPtr () == complement->functionPtr ())) {
+            combinationOfBoth = it->both;
+            return true;
+          }
+        }
+        return false;
+      }
+
       ConstraintSetPtr_t Graph::configConstraint (const StatePtr_t& state) const
       {
         return state->configConstraint ();

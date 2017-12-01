@@ -100,10 +100,16 @@ namespace hpp {
     typedef std::vector <ObjectPtr_t> Objects_t;
     typedef core::Constraint Constraint;
     typedef core::ConstraintPtr_t ConstraintPtr_t;
+    typedef core::ExplicitNumericalConstraintPtr_t
+    ExplicitNumericalConstraintPtr_t;
     typedef core::LockedJoint LockedJoint;
     typedef core::LockedJointPtr_t LockedJointPtr_t;
     typedef core::NumericalConstraint NumericalConstraint;
     typedef core::NumericalConstraintPtr_t NumericalConstraintPtr_t;
+    typedef core::ComparisonTypesPtr_t ComparisonTypesPtr_t;
+    typedef core::EqualToZero EqualToZero;
+    typedef core::Equality Equality;
+    typedef core::ComparisonTypes ComparisonTypes;
     typedef core::ConfigProjector ConfigProjector;
     typedef core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
     HPP_PREDEF_CLASS (ConstraintSet);

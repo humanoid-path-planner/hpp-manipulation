@@ -165,6 +165,62 @@ namespace hpp {
         return configConstraints_;
       }
 
+      // Merge constraints of several graph components into a config projectors
+      // Replace constraints and complement by combination of both when
+      // necessary.
+      static void mergeConstraintsIntoConfigProjector
+      (const ConfigProjectorPtr_t& proj,
+       const std::vector <GraphComponentPtr_t>& components,
+       const GraphPtr_t& graph)
+      {
+        NumericalConstraints_t nc;
+        std::vector <segments_t> pdof;
+        for (std::vector <GraphComponentPtr_t>::const_iterator it
+               (components.begin ()); it != components.end (); ++it) {
+          nc.insert (nc.end (), (*it)->numericalConstraints ().begin (),
+                     (*it)->numericalConstraints ().end ());
+          pdof.insert (pdof.end (), (*it)->passiveDofs ().begin (),
+                       (*it)->passiveDofs ().end ());
+        }
+        assert (nc.size () == pdof.size ());
+        NumericalConstraints_t::iterator itnc1 (nc.begin ());
+        std::vector <segments_t>::iterator itpdof1 (pdof.begin ());
+        while (itnc1 != nc.end ()) {
+          NumericalConstraints_t::iterator itnc2 (nc.begin ());
+          std::vector <segments_t>::iterator itpdof2 (pdof.begin ());
+          while (itnc2 != nc.end ()) {
+            bool increment (true);
+            NumericalConstraintPtr_t combination;
+            // Do not check that a constraint is its own complement
+            if (itnc1 != itnc2) {
+              // Remove duplicate constraints
+              if (*itnc1 == *itnc2) {
+                nc.erase (itnc2);
+                pdof.erase (itpdof2);
+                increment = false;
+              } else if (graph->isComplement (*itnc1, *itnc2, combination)) {
+                // Replace constraint by combination of both and remove
+                // complement.
+                *itnc1 = combination;
+                if (itnc1 > itnc2) --itnc1;
+                nc.erase (itnc2);
+                pdof.erase (itpdof2);
+                break;
+              }
+            }
+            if (increment) ++itnc2; ++itpdof2;
+          }
+          ++itnc1; ++itpdof1;
+        }
+        assert (nc.size () == pdof.size ());
+        NumericalConstraints_t::iterator itnc (nc.begin ());
+        std::vector <segments_t>::iterator itpdof (pdof.begin ());
+        while (itnc != nc.end ()) {
+          proj->add (*itnc, *itpdof);
+          ++itnc; ++itpdof;
+        }
+      }
+
       ConstraintSetPtr_t Edge::buildConfigConstraint()
       {
         std::string n = "(" + name () + ")";
@@ -180,12 +236,14 @@ namespace hpp {
 	  state ()->insertLockedJoints (proj);
 	}
 
-        g->insertNumericalConstraints (proj);
-        insertNumericalConstraints (proj);
-        to ()->insertNumericalConstraints (proj);
+        std::vector <GraphComponentPtr_t> components;
+        components.push_back (g);
+        components.push_back (wkPtr_.lock ());
+        components.push_back (to ());
 	if (state () != to ()) {
-	  state ()->insertNumericalConstraints (proj);
+          components.push_back (state ());
 	}
+        mergeConstraintsIntoConfigProjector (proj, components, parentGraph ());
 
         constraint->addConstraint (proj);
         constraint->edge (wkPtr_.lock ());
@@ -210,9 +268,11 @@ namespace hpp {
         insertLockedJoints (proj);
         state ()->insertLockedJoints (proj);
 
-        g->insertNumericalConstraints (proj);
-        insertNumericalConstraints (proj);
-        state ()->insertNumericalConstraintsForPath (proj);
+        std::vector <GraphComponentPtr_t> components;
+        components.push_back (g);
+        components.push_back (wkPtr_.lock ());
+        components.push_back (state ());
+        mergeConstraintsIntoConfigProjector (proj, components, parentGraph ());
 
         constraint->addConstraint (proj);
         constraint->edge (wkPtr_.lock ());

@@ -164,12 +164,25 @@ namespace hpp {
       if (n.empty()) {
         n = gripper->name() + "_holds_" + name();
       }
+      // Create the comparison operator
+      assert (mask_.size () == 6);
+      ComparisonTypes_t comp (6);
+      for (std::size_t i=0; i<6;++i) {
+        if (mask_ [i]) {
+          comp [i] = constraints::EqualToZero;
+        } else {
+          comp [i] = constraints::Equality;
+        }
+      }
       // If handle is on a freeflying object, create an explicit constraint
       if (isHandleOnFreeflyer (*this)) {
-	return ExplicitRelativeTransformation::create
-	  (n, gripper->joint ()->robot (), gripper->joint (), joint (),
-	   gripper->objectPositionInJoint (),
-           localPosition())->createNumericalConstraint();
+        ExplicitNumericalConstraintPtr_t enc
+          (ExplicitRelativeTransformation::create
+           (n, gripper->joint ()->robot (), gripper->joint (), joint (),
+            gripper->objectPositionInJoint (),
+            localPosition())->createNumericalConstraint());
+        enc->comparisonType (comp);
+        return enc;
       }
       return NumericalConstraintPtr_t
 	(NumericalConstraint::create (RelativeTransformation::create
@@ -179,7 +192,7 @@ namespace hpp {
 				       gripper->objectPositionInJoint (),
 				       localPosition(),
                                        list_of (true)(true)(true)(true)(true)
-                                       (true))));
+                                       (true)), comp));
     }
 
     NumericalConstraintPtr_t Handle::createPreGrasp

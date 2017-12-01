@@ -301,15 +301,22 @@ namespace hpp {
     (const std::string& name, const std::string& gripper,
      const std::string& handle)
     {
+      if (!constraintGraph ()) {
+        throw std::runtime_error ("The graph is not defined.");
+      }
       GripperPtr_t g = robot_->get <GripperPtr_t> (gripper);
       if (!g) throw std::runtime_error ("No gripper with name " + gripper + ".");
       HandlePtr_t h = robot_->get <HandlePtr_t> (handle);
       if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
       const std::string cname = name + "/complement";
+      const std::string bname = name + "/hold";
       NumericalConstraintPtr_t constraint (h->createGrasp (g, name));
       NumericalConstraintPtr_t complement (h->createGraspComplement (g, cname));
+      NumericalConstraintPtr_t both (h->createGraspAndComplement (g, bname));
       addNumericalConstraint ( name, constraint);
       addNumericalConstraint (cname, complement);
+      addNumericalConstraint (bname, both);
+      constraintGraph ()->registerConstraints (constraint, complement, both);
     }
 
     void ProblemSolver::createPreGraspConstraint

@@ -17,6 +17,7 @@
 #ifndef HPP_MANIPULATION_GRAPH_GRAPH_HH
 # define HPP_MANIPULATION_GRAPH_GRAPH_HH
 
+# include <boost/tuple/tuple.hpp>
 # include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
@@ -103,6 +104,38 @@ namespace hpp {
 
           /// Select randomly outgoing edge of the given node.
           EdgePtr_t chooseEdge(RoadmapNodePtr_t node) const;
+
+          /// Register a triple of constraints to be inserted in nodes and edges
+          /// \param constraint a constraint (grasp of placement)
+          /// \param complement the complement constraint
+          /// \param both combination of the constraint and its complement. Both
+          ///             constraints together corresponds to a full relative
+          ///             transformation constraint
+          /// When inserting constraints in transitions of the graph,
+          /// in many cases, a constraint is associated to a state and
+          /// the complement constraint is associated to the
+          /// transition itself.  Registering those constraints
+          /// priorly to graph construction makes possible to replace
+          /// the constraint and its complement by the combination of
+          /// both that is an explicit constraint.
+          void registerConstraints (const NumericalConstraintPtr_t& constraint,
+                                    const NumericalConstraintPtr_t& complement,
+                                    const NumericalConstraintPtr_t& both);
+
+          /// Test whether two constraints are complement of one another
+          ///
+          /// \param constraint, complement two constraints to test
+          /// \retval combinationOfBoth constraint corresponding to combining
+          ///         constraint and complement if result is true,
+          ///         unchanged otherwise.
+          /// \return whether complement is the complement of constraint.
+          /// Two constraints are complement of one another if and only if
+          /// combined they constitute a complement relative transformation
+          /// constraint. \sa Graph::registerConstraints
+          /// \warning argument order matters.
+          bool isComplement (const NumericalConstraintPtr_t& constraint,
+                             const NumericalConstraintPtr_t& complement,
+                             NumericalConstraintPtr_t& combinationOfBoth) const;
 
           /// Constraint to project onto the Node.
           /// \param state the state on which to project.
@@ -265,6 +298,20 @@ namespace hpp {
           value_type errorThreshold_;
           size_type maxIterations_;
 
+          struct ConstraintAndComplement_t {
+            NumericalConstraintPtr_t constraint;
+            NumericalConstraintPtr_t complement;
+            NumericalConstraintPtr_t both;
+            ConstraintAndComplement_t (const NumericalConstraintPtr_t& constr,
+                                       const NumericalConstraintPtr_t& comp,
+                                       const NumericalConstraintPtr_t& b) :
+              constraint (constr), complement (comp), both (b)
+            {
+            }
+          };
+          typedef std::vector <ConstraintAndComplement_t>
+            ConstraintsAndComplements_t;
+          ConstraintsAndComplements_t constraintsAndComplements_;
           friend class GraphComponent;
       }; // Class Graph
 

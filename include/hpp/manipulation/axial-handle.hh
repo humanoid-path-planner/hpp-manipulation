@@ -64,13 +64,6 @@ namespace hpp {
       virtual NumericalConstraintPtr_t createGraspComplement
       (const GripperPtr_t& gripper, std::string name) const;
 
-      /// Create constraint composed of grasp constraint and its complement
-      /// \param gripper object containing the gripper information
-      /// \return the composition of grasp constraint and its complement.
-      /// \note the 6 degrees of freedom are constrained
-      virtual NumericalConstraintPtr_t createGraspAndComplement
-      (const GripperPtr_t& gripper, std::string name) const;
-
       /// Create constraint corresponding to a pregrasping task.
       /// \param gripper object containing the gripper information
       /// \return the constraint of relative transformation between the handle and

@@ -48,15 +48,6 @@ namespace hpp {
       typedef ::hpp::statistics::DiscreteDistribution< EdgePtr_t > Neighbors_t;
       typedef std::vector < StateSelectorPtr_t > StateSelectors_t;
 
-      typedef hpp::core::Constraint Constraint;
-      typedef hpp::core::ConstraintPtr_t ConstraintPtr_t;
-      typedef hpp::core::LockedJoint LockedJoint;
-      typedef hpp::core::LockedJointPtr_t LockedJointPtr_t;
-      typedef hpp::core::ConfigProjector ConfigProjector;
-      typedef hpp::core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
-      typedef hpp::core::Equality Equality;
-      typedef hpp::core::ComparisonTypePtr_t ComparisonTypePtr_t;
-      typedef hpp::core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
       typedef hpp::core::segments_t segments_t;
       typedef std::vector <segments_t> IntervalsContainer_t;
       typedef hpp::core::NumericalConstraints_t NumericalConstraints_t;

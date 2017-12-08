@@ -53,7 +53,7 @@ namespace hpp {
         passiveDofs_.push_back (passiveDofs);
       }
 
-      void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const ComparisonTypePtr_t& ineq)
+      void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const ComparisonTypes_t& ineq)
       {
         addNumericalConstraint (NumericalConstraint::create (function,ineq));
       }

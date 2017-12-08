@@ -67,14 +67,12 @@ namespace hpp {
         (true);
       if (n.empty())
         n = "Transformation_(0,0,0,0,0,1)_" + name() + "_" + gripper->name();
-      return NumericalConstraintPtr_t
-	(NumericalConstraint::create (RelativeTransformation::create
-				      (n,
-				       gripper->joint()->robot(),
-				       gripper->joint (), joint (),
-				       gripper->objectPositionInJoint (),
-				       localPosition(), mask),
-				      core::Equality::create ()));
+      return NumericalConstraint::create (RelativeTransformation::create
+          (n, gripper->joint()->robot(),
+           gripper->joint (), joint (),
+           gripper->objectPositionInJoint (),
+           localPosition(), mask),
+          ComparisonTypes_t (1, constraints::Equality));
     }
 
     NumericalConstraintPtr_t AxialHandle::createPreGrasp
@@ -93,33 +91,6 @@ namespace hpp {
 				       gripper->joint (), joint (),
 				       transform,
 				       localPosition(), mask)));
-    }
-
-    NumericalConstraintPtr_t AxialHandle::createPreGraspComplement
-    (const GripperPtr_t& gripper, const value_type& shift,
-     const value_type& width, std::string n) const
-    {
-      using boost::assign::list_of;
-      using core::DoubleInequality;
-      std::vector <bool> mask = list_of (true)(false)(false)(false)(false)
-        (false);
-      Transform3f transform = gripper->objectPositionInJoint ()
-        * Transform3f (I3, vector3_t (shift,0,0));
-      if (n.empty())
-        n = "Transformation_(1,0,0,0,0,0)_" + name() + "_" + gripper->name();
-      return NumericalConstraintPtr_t
-	(NumericalConstraint::create (RelativeTransformation::create
-				      (n,
-				       gripper->joint()->robot(),
-				       gripper->joint (), joint (),
-				       transform, localPosition(), mask),
-				      DoubleInequality::create (width)));
-    }
-
-    NumericalConstraintPtr_t AxialHandle::createGraspAndComplement
-    (const GripperPtr_t& gripper, std::string n) const
-    {
-      return Handle::createGraspAndComplement (gripper, n);
     }
 
     HandlePtr_t AxialHandle::clone () const

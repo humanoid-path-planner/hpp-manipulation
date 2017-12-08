@@ -35,7 +35,6 @@
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method/hermite.hh>
 #include <hpp/core/steering-method/straight.hh>
-#include <hpp/core/comparison-type.hh>
 
 #include "hpp/manipulation/package-config.hh" // HPP_MANIPULATION_HAS_WHOLEBODY_STEP
 
@@ -245,9 +244,9 @@ namespace hpp {
 			      (constraints.first));
       addNumericalConstraint (complementName, NumericalConstraint::create
 			      (constraints.second,
-                               core::ComparisonTypes::create
+                               ComparisonTypes_t
                                (constraints.second->outputSize(),
-                                core::ComparisonType::Equality))
+                                constraints::Equality))
                               );
     }
 

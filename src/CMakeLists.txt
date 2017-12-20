@@ -53,6 +53,8 @@ SET(SOURCES
   path-optimization/spline-gradient-based.cc
 
   problem-target/state.cc
+
+  steering-method/cross-state-optimization.cc
   )
 
 IF(HPP_WHOLEBODY_STEP_FOUND)

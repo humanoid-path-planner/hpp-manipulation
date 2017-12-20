@@ -30,7 +30,7 @@ namespace hpp {
     GraphSteeringMethodPtr_t GraphSteeringMethod::create
       (const core::Problem& problem)
     {
-      dynamic_cast <const Problem&> (problem);
+      HPP_STATIC_CAST_REF_CHECK (const Problem, problem);
       const Problem& p = static_cast <const Problem&> (problem);
       return create (p);
     }

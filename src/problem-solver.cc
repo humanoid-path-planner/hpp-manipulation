@@ -98,6 +98,9 @@ namespace hpp {
     ProblemSolver::ProblemSolver () :
       core::ProblemSolver (), robot_ (), problem_ (0x0)
     {
+      parent_t::add<core::RobotBuilder_t> ("hpp::manipulation::Device",
+                                           hpp::manipulation::Device::create);
+      parent_t::robotType ("hpp::manipulation::Device");
       parent_t::add<core::PathPlannerBuilder_t>
         ("M-RRT", ManipulationPlanner::create);
       parent_t::add<core::PathPlannerBuilder_t>
@@ -336,6 +339,7 @@ namespace hpp {
         const value_type& tolerance)
     {
       parent_t::pathValidationType(type, tolerance);
+      assert (problem_);
       problem_->setPathValidationFactory (
           parent_t::get<core::PathValidationBuilder_t>(type),
           tolerance);

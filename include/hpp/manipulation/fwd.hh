@@ -123,8 +123,6 @@ namespace hpp {
     typedef core::vector3_t vector3_t;
     typedef core::matrix3_t matrix3_t;
 
-    typedef std::list < NumericalConstraintPtr_t > NumericalConstraints_t;
-
     typedef core::Shape_t Shape_t;
     typedef core::JointAndShape_t JointAndShape_t;
     typedef core::JointAndShapes_t JointAndShapes_t;

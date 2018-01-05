@@ -572,14 +572,10 @@ namespace hpp {
             }
 
             if (ok && optData.solve()) {
-              try {
-                core::PathPtr_t path = buildPath (optData, transitions);
-                if (path) return path;
-              } catch (const std::runtime_error& e) {
-                hppDout (warning, "Could not build path from solution "
+              core::PathPtr_t path = buildPath (optData, transitions);
+              if (path) return path;
+              hppDout (info, "Failed to build path from solution: "
                     << pinocchio::displayConfig(optData.q));
-              }
-              hppDout (info, "Failed to build");
             } else {
               hppDout (info, "Failed to solve");
             }

@@ -27,10 +27,22 @@
 
 namespace hpp {
   namespace manipulation {
+    SteeringMethod::SteeringMethod (const Problem& problem) :
+      core::SteeringMethod (problem), problem_ (problem),
+      steeringMethod_ (core::SteeringMethodStraight::create (problem))
+    {
+    }
+
+    SteeringMethod::SteeringMethod (const SteeringMethod& other):
+      core::SteeringMethod (other), problem_ (other.problem_), steeringMethod_
+      (other.steeringMethod_)
+    {
+    }
+
     GraphSteeringMethodPtr_t GraphSteeringMethod::create
       (const core::Problem& problem)
     {
-      dynamic_cast <const Problem&> (problem);
+      HPP_STATIC_CAST_REF_CHECK (const Problem, problem);
       const Problem& p = static_cast <const Problem&> (problem);
       return create (p);
     }
@@ -54,14 +66,12 @@ namespace hpp {
     }
 
     GraphSteeringMethod::GraphSteeringMethod (const Problem& problem) :
-      SteeringMethod (problem), problem_ (problem), weak_ (),
-      steeringMethod_ (core::SteeringMethodStraight::create (problem))
+      SteeringMethod (problem), weak_ ()
     {
     }
 
     GraphSteeringMethod::GraphSteeringMethod (const GraphSteeringMethod& other):
-      SteeringMethod (other), problem_ (other.problem_), steeringMethod_
-      (other.steeringMethod_)
+      SteeringMethod (other)
     {
     }
 

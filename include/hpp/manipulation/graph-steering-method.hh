@@ -27,10 +27,40 @@
 
 namespace hpp {
   namespace manipulation {
-    using core::SteeringMethod;
     using core::PathPtr_t;
     /// \addtogroup steering_method
     /// \{
+
+    class HPP_MANIPULATION_DLLAPI SteeringMethod : public core::SteeringMethod
+    {
+      public:
+        const core::SteeringMethodPtr_t& innerSteeringMethod () const
+        {
+          return steeringMethod_;
+        }
+
+        void innerSteeringMethod (const core::SteeringMethodPtr_t& sm)
+        {
+          steeringMethod_ = sm;
+        }
+
+      protected:
+        /// Constructor
+        SteeringMethod (const Problem& problem);
+
+        /// Copy constructor
+        SteeringMethod (const SteeringMethod& other);
+
+        void init (SteeringMethodWkPtr_t weak)
+        {
+          core::SteeringMethod::init (weak);
+        }
+
+        /// A pointer to the manipulation problem
+        const Problem& problem_;
+        /// The encapsulated steering method
+        core::SteeringMethodPtr_t steeringMethod_;
+    };
 
     class HPP_MANIPULATION_DLLAPI GraphSteeringMethod : public SteeringMethod
     {
@@ -59,16 +89,6 @@ namespace hpp {
           return createCopy (weak_.lock ());
         }
 
-        const core::SteeringMethodPtr_t& innerSteeringMethod () const
-        {
-          return steeringMethod_;
-        }
-
-        void innerSteeringMethod (const core::SteeringMethodPtr_t& sm)
-        {
-          steeringMethod_ = sm;
-        }
-
       protected:
         /// Constructor
         GraphSteeringMethod (const Problem& problem);
@@ -80,17 +100,13 @@ namespace hpp {
 
         void init (GraphSteeringMethodWkPtr_t weak)
         {
-          core::SteeringMethod::init (weak);
+          SteeringMethod::init (weak);
           weak_ = weak;
         }
 
       private:
-        /// A pointer to the problem
-        const Problem& problem_;
         /// Weak pointer to itself
         GraphSteeringMethodWkPtr_t weak_;
-        /// The encapsulated steering method
-        core::SteeringMethodPtr_t steeringMethod_;
     };
 
     template <typename T>

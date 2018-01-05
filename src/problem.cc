@@ -68,9 +68,9 @@ namespace hpp {
       return pv;
     }
 
-    GraphSteeringMethodPtr_t Problem::steeringMethod () const
+    SteeringMethodPtr_t Problem::steeringMethod () const
     {
-      return HPP_DYNAMIC_PTR_CAST (GraphSteeringMethod,
+      return HPP_DYNAMIC_PTR_CAST (SteeringMethod,
           Parent::steeringMethod());
     }
   } // namespace manipulation

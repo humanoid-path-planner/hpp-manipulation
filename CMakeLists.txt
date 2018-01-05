@@ -107,6 +107,9 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/path-optimization/spline-gradient-based.hh
 
   include/hpp/manipulation/problem-target/state.hh
+
+  include/hpp/manipulation/steering-method/cross-state-optimization.hh
+  include/hpp/manipulation/steering-method/fwd.hh
   )
 
 ADD_SUBDIRECTORY(src)

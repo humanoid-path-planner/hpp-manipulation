@@ -64,7 +64,7 @@ namespace hpp {
         void pathValidation (const PathValidationPtr_t& pathValidation);
 
         /// Get the steering method as a GraphSteeringMethod
-        GraphSteeringMethodPtr_t steeringMethod () const;
+        SteeringMethodPtr_t steeringMethod () const;
 
         /// Build a new path validation
         /// \note Current obstacles are added to the created object.

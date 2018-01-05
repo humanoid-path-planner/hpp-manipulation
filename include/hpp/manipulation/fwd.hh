@@ -86,7 +86,9 @@ namespace hpp {
     typedef boost::shared_ptr < SymbolicPlanner > SymbolicPlannerPtr_t;
     HPP_PREDEF_CLASS (GraphPathValidation);
     typedef boost::shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
+    HPP_PREDEF_CLASS (SteeringMethod);
     HPP_PREDEF_CLASS (GraphSteeringMethod);
+    typedef boost::shared_ptr < SteeringMethod > SteeringMethodPtr_t;
     typedef boost::shared_ptr < GraphSteeringMethod > GraphSteeringMethodPtr_t;
     typedef core::PathOptimizer PathOptimizer;
     typedef core::PathOptimizerPtr_t PathOptimizerPtr_t;
@@ -124,8 +126,6 @@ namespace hpp {
     typedef core::value_type value_type;
     typedef core::vector3_t vector3_t;
     typedef core::matrix3_t matrix3_t;
-
-    typedef std::list < NumericalConstraintPtr_t > NumericalConstraints_t;
 
     typedef core::Shape_t Shape_t;
     typedef core::JointAndShape_t JointAndShape_t;

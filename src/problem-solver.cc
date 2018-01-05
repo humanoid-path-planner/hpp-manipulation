@@ -54,6 +54,7 @@
 #include "hpp/manipulation/path-optimization/keypoints.hh"
 #include "hpp/manipulation/path-optimization/spline-gradient-based.hh"
 #include "hpp/manipulation/problem-target/state.hh"
+#include "hpp/manipulation/steering-method/cross-state-optimization.hh"
 
 #if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
 #include <hpp/wholebody-step/small-steps.hh>
@@ -144,6 +145,8 @@ namespace hpp {
           GraphSteeringMethod::create <core::steeringMethod::Straight>);
       parent_t::add <SteeringMethodBuilder_t> ("Graph-Hermite",
           GraphSteeringMethod::create <core::steeringMethod::Hermite>);
+      parent_t::add <SteeringMethodBuilder_t> ("CrossStateOptimization",
+          steeringMethod::CrossStateOptimization::createFromCore);
 
       parent_t::add <PathOptimizerBuilder_t> ("KeypointsShortcut",
           pathOptimization::Keypoints::create);

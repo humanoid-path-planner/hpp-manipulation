@@ -60,14 +60,20 @@ namespace hpp {
           }
 
         private:
-          struct Data;
+          struct GraphSearchData;
+          struct OptimizationData;
 
           /// Step 1 of the algorithm
           /// \return whether the max depth was reached.
-          bool findTransitions (Data& data) const;
+          bool findTransitions (GraphSearchData& data) const;
 
           /// Step 2 of the algorithm
-          graph::Edges_t getTransitionList (Data& data, const std::size_t& i) const;
+          graph::Edges_t getTransitionList (GraphSearchData& data, const std::size_t& i) const;
+
+          /// Step 3 of the algorithm
+          void buildOptimizationProblem (OptimizationData& d, const graph::Edges_t& edges) const;
+
+          core::PathVectorPtr_t buildPath (OptimizationData& d, const graph::Edges_t& edges) const;
 
           /// A pointer to the problem
           const Problem& problem_;

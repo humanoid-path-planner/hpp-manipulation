@@ -23,12 +23,13 @@
 # include <hpp/manipulation/fwd.hh>
 # include <hpp/manipulation/problem.hh>
 # include <hpp/manipulation/steering-method/fwd.hh>
+# include <hpp/manipulation/graph-steering-method.hh>
 
 namespace hpp {
   namespace manipulation {
     namespace steeringMethod {
       class HPP_MANIPULATION_DLLAPI CrossStateOptimization :
-        public core::SteeringMethod
+        public SteeringMethod
       {
         public:
           static CrossStateOptimizationPtr_t create (const Problem& problem);
@@ -41,13 +42,11 @@ namespace hpp {
 
         protected:
           CrossStateOptimization (const Problem& problem) :
-            core::SteeringMethod (problem),
-            problem_ (problem)
+            SteeringMethod (problem)
           {}
 
           CrossStateOptimization (const CrossStateOptimization& other) :
-            core::SteeringMethod (other),
-            problem_ (other.problem_),
+            SteeringMethod (other),
             weak_ ()
           {}
 
@@ -55,7 +54,7 @@ namespace hpp {
 
           void init (CrossStateOptimizationWkPtr_t weak)
           {
-            core::SteeringMethod::init (weak);
+            SteeringMethod::init (weak);
             weak_ = weak;
           }
 
@@ -75,8 +74,6 @@ namespace hpp {
 
           core::PathVectorPtr_t buildPath (OptimizationData& d, const graph::Edges_t& edges) const;
 
-          /// A pointer to the problem
-          const Problem& problem_;
           /// Weak pointer to itself
           CrossStateOptimizationWkPtr_t weak_;
       }; // class CrossStateOptimization

@@ -552,10 +552,13 @@ namespace hpp {
         while (!maxDepthReached) {
           Edges_t transitions = getTransitionList (d, idxSol);
           while (! transitions.empty()) {
-            std::cout << "Trying solution " << idxSol << ": ";
+#ifdef HPP_DEBUG
+            std::ostringstream ss;
+            ss << "Trying solution " << idxSol << ": ";
             for (std::size_t j = 0; j < transitions.size(); ++j)
-              std::cout << transitions[j]->name() << ", ";
-            std::cout << std::endl;
+              ss << transitions[j]->name() << ", ";
+            hppDout (info, ss.str());
+#endif // HPP_DEBUG
 
             OptimizationData optData (transitions.size() - 1, problem().robot());
             optData.q1 = q1;
@@ -564,7 +567,7 @@ namespace hpp {
             try {
               buildOptimizationProblem (optData, transitions);
             } catch (const std::invalid_argument& e) {
-              std::cout << e.what() << std::endl;
+              hppDout (info, e.what ());
               ok = false;
             }
 
@@ -576,9 +579,9 @@ namespace hpp {
                 hppDout (warning, "Could not build path from solution "
                     << pinocchio::displayConfig(optData.q));
               }
-              std::cout << "Failed to build" << std::endl;
+              hppDout (info, "Failed to build");
             } else {
-              std::cout << "Failed to solve" << std::endl;
+              hppDout (info, "Failed to solve");
             }
 
             ++idxSol;

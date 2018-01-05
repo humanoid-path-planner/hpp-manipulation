@@ -81,6 +81,7 @@ namespace hpp {
         };
         typedef std::vector<state_with_depth> state_with_depths_t;
         typedef std::map<StatePtr_t,state_with_depths_t> StateMap_t;
+        /// std::size_t is the index in state_with_depths_t at StateMap_t::iterator
         typedef std::pair<StateMap_t::iterator, std::size_t> state_with_depth_ptr_t;
         typedef std::queue<state_with_depth_ptr_t> Queue_t;
         typedef std::set<EdgePtr_t> VisitedEdge_t;
@@ -139,8 +140,17 @@ namespace hpp {
               _n != neighbors.end(); ++_n) {
             EdgePtr_t transition = _n->second;
 
+            // Avoid identical consecutive transition
+            if (transition == parent.e) continue;
+
             // If transition has already been visited, continue
             // if (d.visitedEdge_.count (transition) == 1) continue;
+
+            // TODO
+            // If (transition->to() == d.s2) check if this list is feasible.
+            // - If a constraint with non-constant right hand side is present
+            //   in all transitions, then the rhs from d.q1 and d.q2 should be
+            //   equal
 
             // Insert parent
             d.queue1.push (

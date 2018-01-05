@@ -72,7 +72,7 @@ namespace hpp {
     std::ostream& ConstraintSet::print (std::ostream& os) const
     {
       Parent_t::print (os);
-      if (edge_) os << "Built by edge " << edge_->name() << std::endl;
+      if (edge_) os << iendl << "Built by edge " << edge_->name();
       return os;
     }
   } // namespace manipulation

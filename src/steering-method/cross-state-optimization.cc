@@ -451,8 +451,10 @@ namespace hpp {
           OptimizationData& d, const Edges_t& transitions) const
       {
         if (d.N == 0) return;
-        d.solver.maxIterations (60);
-        d.solver.errorThreshold (1e-4);
+        size_type maxIter = problem_.getParameter ("CrossStateOptimization/maxIteration", size_type(60));
+        value_type thr = problem_.getParameter ("CrossStateOptimization/errorThreshold", value_type(1e-4));
+        d.solver.maxIterations (maxIter);
+        d.solver.errorThreshold (thr);
 
         // Add graph constraints      (decoupled)
         d.addGraphConstraints (problem_.constraintGraph());

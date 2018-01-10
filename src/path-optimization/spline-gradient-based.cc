@@ -181,6 +181,8 @@ namespace hpp {
         value_type guessThreshold = this->problem().getParameter ("SplineGradientBased/guessThreshold", value_type(-1));
         Eigen::RowBlockIndices select =
           this->computeActiveParameters (path, set->configProjector()->solver(), guessThreshold, true);
+        hppDout (info, "End of path " << idxSpline << ": do not change this dof " << select);
+        hppDout (info, "End of path " << idxSpline << ": state " << state->name());
 
         const size_type rDof = this->robot_->numberDof(),
                         col  = idxSpline * Spline::NbCoeffs * rDof,

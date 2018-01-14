@@ -16,6 +16,8 @@
 
 #include "hpp/manipulation/graph-path-validation.hh"
 
+#include <hpp/pinocchio/configuration.hh>
+
 #include <hpp/core/path.hh>
 #include <hpp/core/path-vector.hh>
 
@@ -94,6 +96,7 @@ namespace hpp {
     bool GraphPathValidation::impl_validate (const PathPtr_t& path,
         bool reverse, PathPtr_t& validPart, PathValidationReportPtr_t& report)
     {
+      using pinocchio::displayConfig;
       PathVectorPtr_t pathVector = HPP_DYNAMIC_PTR_CAST(PathVector, path);
       if (pathVector)
         return impl_validate (pathVector, reverse, validPart, report);
@@ -147,11 +150,27 @@ namespace hpp {
         validPart = path->extract (std::make_pair (oldTR.first,oldTR.first));
         return false;
       }
-      if (!oldPath (q, oldTR.first))
-        throw std::logic_error ("Initial configuration of the path to be validated cannot be projected.");
+      if (!oldPath (q, oldTR.first)) {
+        std::stringstream oss;
+        oss << "Initial configuration of the path to be validated failed to"
+          " be projected. After maximal number of iterations, q="
+            << displayConfig (q) << "; error=";
+        vector_t error;
+        oldPath.constraints ()->isSatisfied (q, error);
+        oss << displayConfig (error) << ".";
+        throw std::logic_error (oss.str ().c_str ());
+      }
       const graph::StatePtr_t& oldOstate = constraintGraph_->getState (q);
-      if (!oldPath (q, oldTR.second))
-        throw std::logic_error ("End configuration of the path to be validated cannot be projected.");
+      if (!oldPath (q, oldTR.second)) {
+        std::stringstream oss;
+        oss << "End configuration of the path to be validated failed to"
+          " be projected. After maximal number of iterations, q="
+            << displayConfig (q) << "; error=";
+        vector_t error;
+        oldPath.constraints ()->isSatisfied (q, error);
+        oss << displayConfig (error) << ".";
+        throw std::logic_error (oss.str ().c_str ());
+      }
       const graph::StatePtr_t& oldDstate = constraintGraph_->getState (q);
 
       if (origState == oldOstate && destState == oldDstate) {

@@ -96,6 +96,12 @@ namespace hpp {
     bool GraphPathValidation::impl_validate (const PathPtr_t& path,
         bool reverse, PathPtr_t& validPart, PathValidationReportPtr_t& report)
     {
+#ifndef NDEBUG
+      bool success;
+      Configuration_t q0 = (*path) (path->timeRange ().second, success);
+      assert (success);
+      assert (!path->constraints () || path->constraints ()->isSatisfied (q0));
+#endif
       using pinocchio::displayConfig;
       PathVectorPtr_t pathVector = HPP_DYNAMIC_PTR_CAST(PathVector, path);
       if (pathVector)

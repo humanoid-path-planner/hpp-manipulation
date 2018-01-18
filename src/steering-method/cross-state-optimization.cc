@@ -26,6 +26,8 @@
 
 #include <hpp/pinocchio/configuration.hh>
 
+#include <hpp/constraints/hybrid-solver.hh>
+
 #include <hpp/core/explicit-numerical-constraint.hh>
 #include <hpp/core/path-vector.hh>
 

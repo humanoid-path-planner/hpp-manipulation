@@ -201,6 +201,20 @@ namespace hpp {
 	    (ConfigurationIn_t leafConfig, ConfigurationIn_t config,
 	     const EdgePtr_t& edge, vector_t& error) const;
 
+	  /// Get error of a config with respect to the target of an edge foliation leaf
+	  ///
+	  /// \param leafConfig Configuration that determines the foliation leaf
+	  /// \param config Configuration the error of which is computed
+	  /// \retval error the error
+	  /// \return whether config can be the end point of a path of the edge
+	  ///         starting at leafConfig
+	  /// Call methods core::ConfigProjector::rightHandSideFromConfig with
+	  /// leafConfig and then core::ConstraintSet::isSatisfied with config.
+	  /// on the edge constraints.
+	  bool getConfigErrorForEdgeTarget
+	    (ConfigurationIn_t leafConfig, ConfigurationIn_t config,
+	     const EdgePtr_t& edge, vector_t& error) const;
+
           /// Constraint to project a path.
           /// \param edge a list of edges defining the foliation.
           /// \return The constraint.

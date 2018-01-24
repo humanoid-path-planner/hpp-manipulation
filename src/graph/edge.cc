@@ -183,36 +183,46 @@ namespace hpp {
                        (*it)->passiveDofs ().end ());
         }
         assert (nc.size () == pdof.size ());
-        NumericalConstraints_t::iterator itnc1 (nc.begin ());
-        std::vector <segments_t>::iterator itpdof1 (pdof.begin ());
-        while (itnc1 != nc.end ()) {
-          NumericalConstraints_t::iterator itnc2 (nc.begin ());
-          std::vector <segments_t>::iterator itpdof2 (pdof.begin ());
-          while (itnc2 != nc.end ()) {
-            bool increment (true);
-            NumericalConstraintPtr_t combination;
-            // Do not check that a constraint is its own complement
-            if (itnc1 != itnc2) {
-              // Remove duplicate constraints
-              if (*itnc1 == *itnc2) {
-                nc.erase (itnc2);
-                pdof.erase (itpdof2);
-                increment = false;
-              } else if (graph->isComplement (*itnc1, *itnc2, combination)) {
-                // Replace constraint by combination of both and remove
-                // complement.
-                *itnc1 = combination;
-                if (itnc1 > itnc2) --itnc1;
-                nc.erase (itnc2);
-                pdof.erase (itpdof2);
-                break;
-              }
+        NumericalConstraints_t::iterator itnc1, itnc2;
+        std::vector <segments_t>::iterator itpdof1, itpdof2;
+
+        // Remove duplicate constraints
+        for (itnc1 = nc.begin(), itpdof1 = pdof.begin(); itnc1 != nc.end(); ++itnc1, ++itpdof1) {
+          itnc2 = itnc1; ++itnc2;
+          itpdof2 = itpdof1; ++itpdof2;
+          while (itnc2 != nc.end()) {
+            if (*itnc1 == *itnc2) {
+              itnc2   = nc.erase (itnc2);
+              itpdof2 = pdof.erase (itpdof2);
+            } else {
+              ++itnc2;
+              ++itpdof2;
             }
-            if (increment) ++itnc2; ++itpdof2;
           }
-          ++itnc1; ++itpdof1;
         }
-        assert (nc.size () == pdof.size ());
+
+        // Look for complement
+        for (itnc1 = nc.begin(), itpdof1 = pdof.begin(); itnc1 != nc.end(); ++itnc1, ++itpdof1) {
+          itnc2 = itnc1; ++itnc2;
+          itpdof2 = itpdof1; ++itpdof2;
+          NumericalConstraintPtr_t combination;
+          while (itnc2 != nc.end()) {
+            assert (*itnc1 == *itnc2);
+            if (   graph->isComplement (*itnc1, *itnc2, combination)
+                || graph->isComplement (*itnc2, *itnc1, combination)) {
+              // Replace constraint by combination of both and remove
+              // complement.
+              *itnc1 = combination;
+              nc.erase (itnc2);
+              pdof.erase (itpdof2);
+              break;
+            } else {
+              ++itnc2;
+              ++itpdof2;
+            }
+          }
+        }
+
         NumericalConstraints_t::iterator itnc (nc.begin ());
         std::vector <segments_t>::iterator itpdof (pdof.begin ());
         while (itnc != nc.end ()) {

@@ -1115,6 +1115,7 @@ namespace hpp {
           }
           GraphPtr_t graph = Graph::create (graphName,
               ps->robot(), ps->problem());
+          ps->constraintGraph (graph);
           graph->stateSelector (
               GuidedStateSelector::create ("stateSelector",
               ps->roadmap ()));

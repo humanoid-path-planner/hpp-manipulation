@@ -78,6 +78,8 @@ namespace hpp {
     PathPtr_t GraphSteeringMethod::impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const
     {
       graph::Edges_t possibleEdges;
+      if (!problem_.constraintGraph())
+        throw std::invalid_argument ("The constraint graph should be set to use the GraphSteeringMethod");
       const graph::Graph& graph = *problem_.constraintGraph ();
       try {
         possibleEdges = graph.getEdges

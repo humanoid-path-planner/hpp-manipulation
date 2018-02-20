@@ -33,7 +33,10 @@
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/recursive-hermite.hh>
 #include <hpp/core/roadmap.hh>
+#include <hpp/core/steering-method/dubins.hh>
 #include <hpp/core/steering-method/hermite.hh>
+#include <hpp/core/steering-method/reeds-shepp.hh>
+#include <hpp/core/steering-method/snibud.hh>
 #include <hpp/core/steering-method/straight.hh>
 
 #include "hpp/manipulation/package-config.hh" // HPP_MANIPULATION_HAS_WHOLEBODY_STEP
@@ -77,6 +80,15 @@ namespace hpp {
               createWithTraits <InnerConfigOptimizationTraits> (problem);
           }
         };
+
+      template <typename SteeringMethodType>
+      core::SteeringMethodPtr_t createSteeringMethodWithGuess
+      (const core::Problem& problem)
+      {
+        GraphSteeringMethodPtr_t gsm = GraphSteeringMethod::create (problem);
+        gsm->innerSteeringMethod (SteeringMethodType::createWithGuess (problem));
+        return gsm;
+      }
 
       template <typename PathProjectorType>
       core::PathProjectorPtr_t createPathProjector
@@ -147,6 +159,12 @@ namespace hpp {
           GraphSteeringMethod::create <core::steeringMethod::Hermite>);
       parent_t::add <SteeringMethodBuilder_t> ("CrossStateOptimization",
           steeringMethod::CrossStateOptimization::createFromCore);
+      parent_t::add <SteeringMethodBuilder_t> ("Graph-ReedsShepp",
+          createSteeringMethodWithGuess <core::steeringMethod::ReedsShepp>);
+      parent_t::add <SteeringMethodBuilder_t> ("Graph-Dubins",
+          createSteeringMethodWithGuess <core::steeringMethod::Dubins>);
+      parent_t::add <SteeringMethodBuilder_t> ("Graph-Snibud",
+          createSteeringMethodWithGuess <core::steeringMethod::Snibud>);
 
       parent_t::add <PathOptimizerBuilder_t> ("KeypointsShortcut",
           pathOptimization::Keypoints::create);

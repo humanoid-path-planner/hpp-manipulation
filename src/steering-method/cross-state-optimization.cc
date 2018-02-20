@@ -253,7 +253,7 @@ namespace hpp {
             ComparisonTypes_t cts;
             Configuration_t* qrhs;
             if (i == 0) {
-              f = lj->function();
+              f = lj->explicitFunction();
               ic = _row(lj->inputConf()     , 0);
               oc = _row(lj->outputConf()    , 0);
               iv = _col(lj->inputVelocity() , 0);
@@ -261,7 +261,7 @@ namespace hpp {
               cts = ComparisonTypes_t (lj->numberDof(), constraints::Equality);
               qrhs = &q1;
             } else if (i == N) {
-              f = lj->function();
+              f = lj->explicitFunction();
               ic = _row(lj->inputConf()     , 0);
               oc = _row(lj->outputConf()    , (N-1) * nq);
               iv = _col(lj->inputVelocity() , 0);
@@ -394,7 +394,7 @@ namespace hpp {
               _lj != ljs.end(); ++_lj) {
             LockedJointPtr_t lj (*_lj);
             bool added = solver.explicitSolver().add (
-                lj->function(),
+                lj->explicitFunction(),
                 _row(lj->inputConf()     , i * nq),
                 _row(lj->outputConf()    , i * nq),
                 _col(lj->inputVelocity() , i * nv),
@@ -406,10 +406,10 @@ namespace hpp {
             // This must be done later
             rhsSetters_.push_back (RightHandSideSetter(
                   DifferentiableFunctionPtr_t(),
-                  lj->function(),
+                  lj->explicitFunction(),
                   lj->rightHandSide()));
             // solver.rightHandSide (DifferentiableFunctionPtr_t(),
-                // lj->function(),
+                // lj->explicitFunction(),
                 // lj->rightHandSide());
           }
         }

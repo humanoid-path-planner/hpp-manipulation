@@ -100,6 +100,9 @@ namespace hpp {
           /// Print the component in DOT language.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
+          /// Declare a component as dirty
+          void setDirty();
+
         protected:
           /// Initialize the component
           void init (const GraphComponentWkPtr_t& weak);
@@ -120,10 +123,7 @@ namespace hpp {
 
           bool isInit_;
 
-          void throwIfNotInitialized () const
-          {
-            if (!isInit_) throw std::logic_error ("The graph should have been initialized first.");
-          }
+          void throwIfNotInitialized () const;
 
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;

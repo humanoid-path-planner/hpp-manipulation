@@ -21,6 +21,7 @@
 #include <hpp/manipulation/weighed-distance.hh>
 #include <hpp/manipulation/graph-steering-method.hh>
 #include <hpp/manipulation/graph-path-validation.hh>
+#include <hpp/manipulation/graph/graph.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -72,6 +73,15 @@ namespace hpp {
     {
       return HPP_DYNAMIC_PTR_CAST (SteeringMethod,
           Parent::steeringMethod());
+    }
+
+    void Problem::setPathValidationFactory (
+        const core::PathValidationBuilder_t& factory,
+        const value_type& tol)
+    {
+      pvFactory_ = factory;
+      pvTol_ = tol;
+      if (graph_) graph_->setDirty();
     }
   } // namespace manipulation
 } // namespace hpp

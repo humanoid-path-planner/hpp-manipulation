@@ -45,6 +45,11 @@ namespace hpp {
         return os;
       }
 
+      void GraphComponent::setDirty()
+      {
+        isInit_ = false;
+      }
+
       void GraphComponent::addNumericalConstraint (const NumericalConstraintPtr_t& nm,
           const segments_t& passiveDofs)
       {
@@ -130,6 +135,11 @@ namespace hpp {
       void GraphComponent::init (const GraphComponentWkPtr_t& weak)
       {
         wkPtr_ = weak;
+      }
+
+      void GraphComponent::throwIfNotInitialized () const
+      {
+        if (!isInit_ || (graph_.lock() && !graph_.lock()->isInit_)) throw std::logic_error ("The graph should have been initialized first.");
       }
 
       std::ostream& operator<< (std::ostream& os,

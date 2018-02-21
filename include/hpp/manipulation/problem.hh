@@ -74,11 +74,7 @@ namespace hpp {
 
         void setPathValidationFactory (
             const core::PathValidationBuilder_t& factory,
-            const value_type& tol)
-        {
-          pvFactory_ = factory;
-          pvTol_ = tol;
-        }
+            const value_type& tol);
 
       private:
         /// The graph of constraints

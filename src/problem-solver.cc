@@ -111,69 +111,64 @@ namespace hpp {
     ProblemSolver::ProblemSolver () :
       core::ProblemSolver (), robot_ (), problem_ (0x0)
     {
-      parent_t::add<core::RobotBuilder_t> ("hpp::manipulation::Device",
-                                           hpp::manipulation::Device::create);
-      parent_t::robotType ("hpp::manipulation::Device");
-      parent_t::add<core::PathPlannerBuilder_t>
-        ("M-RRT", ManipulationPlanner::create);
-      parent_t::add<core::PathPlannerBuilder_t>
-        ("SymbolicPlanner", SymbolicPlanner::create);
-      using core::PathOptimizerBuilder_t;
-      parent_t::add <PathOptimizerBuilder_t> ("Graph-RandomShortcut",
+      robots.add ("hpp::manipulation::Device", manipulation::Device::create);
+      robotType ("hpp::manipulation::Device");
+
+      pathPlanners.add ("M-RRT", ManipulationPlanner::create);
+      pathPlanners.add ("SymbolicPlanner", SymbolicPlanner::create);
+
+      pathOptimizers.add ("Graph-RandomShortcut",
           GraphOptimizer::create <core::RandomShortcut>);
-      parent_t::add <PathOptimizerBuilder_t> ("PartialShortcut", core::pathOptimization::
+      pathOptimizers.add ("PartialShortcut", core::pathOptimization::
           PartialShortcut::createWithTraits <PartialShortcutTraits>);
-      parent_t::add <PathOptimizerBuilder_t> ("Graph-PartialShortcut",
+      pathOptimizers.add ("Graph-PartialShortcut",
           GraphOptimizer::create <core::pathOptimization::PartialShortcut>);
-      parent_t::add <PathOptimizerBuilder_t> ("ConfigOptimization",
+      pathOptimizers.add ("ConfigOptimization",
           core::pathOptimization::ConfigOptimization::createWithTraits
           <pathOptimization::ConfigOptimizationTraits>);
-      parent_t::add <PathOptimizerBuilder_t> ("Graph-ConfigOptimization",
+      pathOptimizers.add ("Graph-ConfigOptimization",
           GraphOptimizer::create <
           GraphConfigOptimizationTraits
             <pathOptimization::ConfigOptimizationTraits>
             >);
 
-      parent_t::add <core::PathProjectorBuilder_t> ("Progressive",
+      pathProjectors.add ("Progressive",
           createPathProjector <core::pathProjector::Progressive>);
-      parent_t::add <core::PathProjectorBuilder_t> ("Dichotomy",
+      pathProjectors.add ("Dichotomy",
           createPathProjector <core::pathProjector::Dichotomy>);
-      parent_t::add <core::PathProjectorBuilder_t> ("Global",
+      pathProjectors.add ("Global",
           createPathProjector <core::pathProjector::Global>);
-      parent_t::add <core::PathProjectorBuilder_t> ("RecursiveHermite",
+      pathProjectors.add ("RecursiveHermite",
           createPathProjector <core::pathProjector::RecursiveHermite>);
 
-      // parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 1>::createFromCore);
-      // parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 2>::createFromCore);
-      // parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 3>::createFromCore);
-      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier1",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 1>::createFromCore);
-      // parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 2>::createFromCore);
-      parent_t::add <PathOptimizerBuilder_t> ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 3>::createFromCore);
+      // pathOptimizers.add ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 1>::createFromCore);
+      // pathOptimizers.add ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 2>::createFromCore);
+      // pathOptimizers.add ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 3>::createFromCore);
+      pathOptimizers.add ("SplineGradientBased_bezier1",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 1>::createFromCore);
+      // pathOptimizers.add ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 2>::createFromCore);
+      pathOptimizers.add ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 3>::createFromCore);
 
-      using core::SteeringMethodBuilder_t;
-      parent_t::add <SteeringMethodBuilder_t> ("Graph-SteeringMethodStraight",
+      steeringMethods.add ("Graph-SteeringMethodStraight",
           GraphSteeringMethod::create <core::SteeringMethodStraight>);
-      parent_t::add <SteeringMethodBuilder_t> ("Graph-Straight",
+      steeringMethods.add ("Graph-Straight",
           GraphSteeringMethod::create <core::steeringMethod::Straight>);
-      parent_t::add <SteeringMethodBuilder_t> ("Graph-Hermite",
+      steeringMethods.add ("Graph-Hermite",
           GraphSteeringMethod::create <core::steeringMethod::Hermite>);
-      parent_t::add <SteeringMethodBuilder_t> ("CrossStateOptimization",
+      steeringMethods.add ("CrossStateOptimization",
           steeringMethod::CrossStateOptimization::createFromCore);
-      parent_t::add <SteeringMethodBuilder_t> ("Graph-ReedsShepp",
+      steeringMethods.add ("Graph-ReedsShepp",
           createSteeringMethodWithGuess <core::steeringMethod::ReedsShepp>);
-      parent_t::add <SteeringMethodBuilder_t> ("Graph-Dubins",
+      steeringMethods.add ("Graph-Dubins",
           createSteeringMethodWithGuess <core::steeringMethod::Dubins>);
-      parent_t::add <SteeringMethodBuilder_t> ("Graph-Snibud",
+      steeringMethods.add ("Graph-Snibud",
           createSteeringMethodWithGuess <core::steeringMethod::Snibud>);
 
-      parent_t::add <PathOptimizerBuilder_t> ("KeypointsShortcut",
+      pathOptimizers.add ("KeypointsShortcut",
           pathOptimization::Keypoints::create);
 
 #if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
-      parent_t::add <PathOptimizerBuilder_t>
-        ("Walkgen", wholebodyStep::SmallSteps::create);
-      parent_t::add <PathOptimizerBuilder_t>
-        ("Graph-Walkgen", pathOptimization::SmallSteps::create);
+      pathOptimizers.add ("Walkgen", wholebodyStep::SmallSteps::create);
+      pathOptimizers.add ("Graph-Walkgen", pathOptimization::SmallSteps::create);
 #endif
 
       pathPlannerType ("M-RRT");
@@ -238,9 +233,9 @@ namespace hpp {
       JointAndShapes_t l;
       for (StringList_t::const_iterator it1 = surface1.begin ();
           it1 != surface1.end(); ++it1) {
-        if (!robot_->has <JointAndShapes_t> (*it1))
+        if (!robot_->jointAndShapes.has (*it1))
           throw std::runtime_error ("First list of triangles not found.");
-        l = robot_->get <JointAndShapes_t> (*it1);
+        l = robot_->jointAndShapes.get (*it1);
         for (JointAndShapes_t::const_iterator it = l.begin ();
             it != l.end(); ++it) {
           constraints.first->addObject (ConvexShape (it->second, it->first));
@@ -250,11 +245,11 @@ namespace hpp {
       for (StringList_t::const_iterator it2 = surface2.begin ();
           it2 != surface2.end(); ++it2) {
         // Search first robot triangles
-        if (robot_->has <JointAndShapes_t> (*it2))
-          l = robot_->get <JointAndShapes_t> (*it2);
+        if (robot_->jointAndShapes.has (*it2))
+          l = robot_->jointAndShapes.get (*it2);
         // and then environment triangles.
-        else if (core::ProblemSolver::has <JointAndShapes_t> (*it2))
-          l = core::ProblemSolver::get <JointAndShapes_t> (*it2);
+        else if (jointAndShapes.has (*it2))
+          l = jointAndShapes.get (*it2);
         else throw std::runtime_error ("Second list of triangles not found.");
         for (JointAndShapes_t::const_iterator it = l.begin ();
             it != l.end(); ++it) {
@@ -289,9 +284,9 @@ namespace hpp {
       JointAndShapes_t l;
       for (StringList_t::const_iterator it1 = surface1.begin ();
           it1 != surface1.end(); ++it1) {
-        if (!robot_->has <JointAndShapes_t> (*it1))
+        if (!robot_->jointAndShapes.has (*it1))
           throw std::runtime_error ("First list of triangles not found.");
-        l = robot_->get <JointAndShapes_t> (*it1);
+        l = robot_->jointAndShapes.get (*it1);
 
         for (JointAndShapes_t::const_iterator it = l.begin ();
             it != l.end(); ++it) {
@@ -302,11 +297,11 @@ namespace hpp {
       for (StringList_t::const_iterator it2 = surface2.begin ();
           it2 != surface2.end(); ++it2) {
         // Search first robot triangles
-        if (robot_->has <JointAndShapes_t> (*it2))
-          l = robot_->get <JointAndShapes_t> (*it2);
+        if (robot_->jointAndShapes.has (*it2))
+          l = robot_->jointAndShapes.get (*it2);
         // and then environment triangles.
-        else if (has <JointAndShapes_t> (*it2))
-          l = get <JointAndShapes_t> (*it2);
+        else if (jointAndShapes.has (*it2))
+          l = jointAndShapes.get (*it2);
         else throw std::runtime_error ("Second list of triangles not found.");
 
         for (JointAndShapes_t::const_iterator it = l.begin ();
@@ -327,9 +322,9 @@ namespace hpp {
       if (!constraintGraph ()) {
         throw std::runtime_error ("The graph is not defined.");
       }
-      GripperPtr_t g = robot_->get <GripperPtr_t> (gripper);
+      GripperPtr_t g = robot_->grippers.get (gripper, GripperPtr_t());
       if (!g) throw std::runtime_error ("No gripper with name " + gripper + ".");
-      HandlePtr_t h = robot_->get <HandlePtr_t> (handle);
+      HandlePtr_t h = robot_->handles.get (handle, HandlePtr_t());
       if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
       const std::string cname = name + "/complement";
       const std::string bname = name + "/hold";
@@ -346,9 +341,9 @@ namespace hpp {
     (const std::string& name, const std::string& gripper,
      const std::string& handle)
     {
-      GripperPtr_t g = robot_->get <GripperPtr_t> (gripper);
+      GripperPtr_t g = robot_->grippers.get (gripper, GripperPtr_t());
       if (!g) throw std::runtime_error ("No gripper with name " + gripper + ".");
-      HandlePtr_t h = robot_->get <HandlePtr_t> (handle);
+      HandlePtr_t h = robot_->handles.get (handle, HandlePtr_t());
       if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
 
       value_type c = h->clearance () + g->clearance ();
@@ -362,7 +357,7 @@ namespace hpp {
       parent_t::pathValidationType(type, tolerance);
       assert (problem_);
       problem_->setPathValidationFactory (
-          parent_t::get<core::PathValidationBuilder_t>(type),
+          pathValidations.get(type),
           tolerance);
     }
 

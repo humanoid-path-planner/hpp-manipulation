@@ -43,7 +43,7 @@ namespace hpp {
     void Device::setRobotRootPosition (const std::string& rn,
         const Transform3f& t)
     {
-      FrameIndices_t idxs = get<JointIndices_t> (rn);
+      const FrameIndices_t& idxs = frameIndices.get (rn);
       pinocchio::Model& m = model();
       pinocchio::GeomModel& gm = geomModel();
       // The root frame should be the first frame.
@@ -93,11 +93,11 @@ namespace hpp {
       }
 
       frameCacheSize_ = model().frames.size();
-      if (has<FrameIndices_t>(name)) {
-        const FrameIndices_t& old = get<FrameIndices_t>(name);
+      if (frameIndices.has(name)) {
+        const FrameIndices_t& old = frameIndices.get(name);
         newF.insert(newF.begin(), old.begin(), old.end());
       }
-      add (name, newF);
+      frameIndices.add (name, newF);
       createData();
       createGeomData();
     }
@@ -107,10 +107,10 @@ namespace hpp {
       Parent_t::print (os);
       // print handles
       os << "Handles:" << std::endl;
-      Containers_t::print <HandlePtr_t> (os);
+      handles.print (os);
       // print grippers
       os << "Grippers:" << std::endl;
-      Containers_t::print <GripperPtr_t> (os);
+      grippers.print (os);
       return os;
     }
   } // namespace manipulation

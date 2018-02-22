@@ -55,7 +55,7 @@ namespace hpp {
           if (!pathValidation ())
             throw std::runtime_error ("No GraphPathValidation in the problem.");
           if (!steeringMethod ())
-            throw std::runtime_error ("No GraphSteeringMethod in the problem.");
+            throw std::runtime_error ("No SteeringMethod in the problem.");
         }
 
         /// Get the path validation as a GraphPathValidation
@@ -63,7 +63,7 @@ namespace hpp {
 
         void pathValidation (const PathValidationPtr_t& pathValidation);
 
-        /// Get the steering method as a GraphSteeringMethod
+        /// Get the steering method as a SteeringMethod
         SteeringMethodPtr_t steeringMethod () const;
 
         /// Build a new path validation

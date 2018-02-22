@@ -19,7 +19,7 @@
 #include <hpp/core/discretized-collision-checking.hh>
 
 #include <hpp/manipulation/weighed-distance.hh>
-#include <hpp/manipulation/graph-steering-method.hh>
+#include <hpp/manipulation/steering-method/graph.hh>
 #include <hpp/manipulation/graph-path-validation.hh>
 
 namespace hpp {
@@ -27,7 +27,7 @@ namespace hpp {
     Problem::Problem (DevicePtr_t robot)
       : Parent (robot), graph_()
     {
-      Parent::steeringMethod (GraphSteeringMethod::create (*this));
+      Parent::steeringMethod (steeringMethod::Graph::create (*this));
       distance (WeighedDistance::create (robot, graph_));
       setPathValidationFactory(core::DiscretizedCollisionChecking::create, 0.05);
 

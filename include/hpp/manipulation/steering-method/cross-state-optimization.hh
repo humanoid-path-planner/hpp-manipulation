@@ -23,7 +23,7 @@
 # include <hpp/manipulation/fwd.hh>
 # include <hpp/manipulation/problem.hh>
 # include <hpp/manipulation/steering-method/fwd.hh>
-# include <hpp/manipulation/graph-steering-method.hh>
+# include <hpp/manipulation/steering-method/graph.hh>
 
 namespace hpp {
   namespace manipulation {

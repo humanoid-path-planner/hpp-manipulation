@@ -39,9 +39,17 @@
 namespace hpp {
   namespace manipulation {
     namespace steeringMethod {
-      using namespace graph;
       using Eigen::RowBlockIndices;
       using Eigen::ColBlockIndices;
+
+      using graph::StatePtr_t;
+      using graph::States_t;
+      using graph::EdgePtr_t;
+      using graph::Edges_t;
+      using graph::Neighbors_t;
+      using graph::NumericalConstraints_t;
+      using graph::LockedJoints_t;
+      using graph::segments_t;
 
       CrossStateOptimizationPtr_t CrossStateOptimization::create (
           const Problem& problem)
@@ -218,7 +226,7 @@ namespace hpp {
           solver.integration (boost::bind(&OptimizationData::_integrate, this, _1, _2, _3));
         }
 
-        void addGraphConstraints (const GraphPtr_t& graph)
+        void addGraphConstraints (const graph::GraphPtr_t& graph)
         {
           for (std::size_t i = 0; i < N; ++i) {
             _add (graph->lockedJoints(), i);
@@ -541,7 +549,7 @@ namespace hpp {
       core::PathPtr_t CrossStateOptimization::impl_compute (
           ConfigurationIn_t q1, ConfigurationIn_t q2) const
       {
-        const Graph& graph = *problem_.constraintGraph ();
+        const graph::Graph& graph = *problem_.constraintGraph ();
         GraphSearchData d;
         d.s1 = graph.getState (q1);
         d.s2 = graph.getState (q2);

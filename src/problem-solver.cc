@@ -52,12 +52,12 @@
 #include "hpp/manipulation/graph-optimizer.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph-node-optimizer.hh"
-#include "hpp/manipulation/graph-steering-method.hh"
 #include "hpp/manipulation/path-optimization/config-optimization.hh"
 #include "hpp/manipulation/path-optimization/keypoints.hh"
 #include "hpp/manipulation/path-optimization/spline-gradient-based.hh"
 #include "hpp/manipulation/problem-target/state.hh"
 #include "hpp/manipulation/steering-method/cross-state-optimization.hh"
+#include "hpp/manipulation/steering-method/graph.hh"
 
 #if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
 #include <hpp/wholebody-step/small-steps.hh>
@@ -81,23 +81,23 @@ namespace hpp {
           }
         };
 
-      template <typename SteeringMethodType>
-      core::SteeringMethodPtr_t createSteeringMethodWithGuess
+      template <typename ParentSM_t, typename ChildSM_t>
+      core::SteeringMethodPtr_t createSMWithGuess
       (const core::Problem& problem)
       {
-        GraphSteeringMethodPtr_t gsm = GraphSteeringMethod::create (problem);
-        gsm->innerSteeringMethod (SteeringMethodType::createWithGuess (problem));
-        return gsm;
+        boost::shared_ptr<ParentSM_t> sm = ParentSM_t::create (problem);
+        sm->innerSteeringMethod (ChildSM_t::createWithGuess (problem));
+        return sm;
       }
 
       template <typename PathProjectorType>
       core::PathProjectorPtr_t createPathProjector
       (const core::Problem& problem, const value_type& step)
       {
-        GraphSteeringMethodPtr_t gsm =
-          HPP_DYNAMIC_PTR_CAST (GraphSteeringMethod, problem.steeringMethod());
+        steeringMethod::GraphPtr_t gsm =
+          HPP_DYNAMIC_PTR_CAST (steeringMethod::Graph, problem.steeringMethod());
         if (!gsm) throw std::logic_error ("The steering method should be of type"
-            " GraphSteeringMethod");
+            " steeringMethod::Graph");
         return PathProjectorType::create (problem.distance(),
             gsm->innerSteeringMethod(), step);
       }
@@ -149,19 +149,19 @@ namespace hpp {
       pathOptimizers.add ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 3>::createFromCore);
 
       steeringMethods.add ("Graph-SteeringMethodStraight",
-          GraphSteeringMethod::create <core::SteeringMethodStraight>);
+          steeringMethod::Graph::create <core::SteeringMethodStraight>);
       steeringMethods.add ("Graph-Straight",
-          GraphSteeringMethod::create <core::steeringMethod::Straight>);
+          steeringMethod::Graph::create <core::steeringMethod::Straight>);
       steeringMethods.add ("Graph-Hermite",
-          GraphSteeringMethod::create <core::steeringMethod::Hermite>);
+          steeringMethod::Graph::create <core::steeringMethod::Hermite>);
       steeringMethods.add ("CrossStateOptimization",
           steeringMethod::CrossStateOptimization::createFromCore);
       steeringMethods.add ("Graph-ReedsShepp",
-          createSteeringMethodWithGuess <core::steeringMethod::ReedsShepp>);
+          createSMWithGuess <steeringMethod::Graph, core::steeringMethod::ReedsShepp>);
       steeringMethods.add ("Graph-Dubins",
-          createSteeringMethodWithGuess <core::steeringMethod::Dubins>);
+          createSMWithGuess <steeringMethod::Graph, core::steeringMethod::Dubins>);
       steeringMethods.add ("Graph-Snibud",
-          createSteeringMethodWithGuess <core::steeringMethod::Snibud>);
+          createSMWithGuess <steeringMethod::Graph, core::steeringMethod::Snibud>);
 
       pathOptimizers.add ("KeypointsShortcut",
           pathOptimization::Keypoints::create);

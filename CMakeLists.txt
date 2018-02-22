@@ -85,7 +85,6 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/symbolic-planner.hh
   include/hpp/manipulation/manipulation-planner.hh
   include/hpp/manipulation/graph-path-validation.hh
-  include/hpp/manipulation/graph-steering-method.hh
   include/hpp/manipulation/graph-optimizer.hh
   include/hpp/manipulation/graph/node.hh
   include/hpp/manipulation/graph/state.hh
@@ -110,6 +109,7 @@ SET (${PROJECT_NAME}_HEADERS
 
   include/hpp/manipulation/steering-method/cross-state-optimization.hh
   include/hpp/manipulation/steering-method/fwd.hh
+  include/hpp/manipulation/steering-method/graph.hh
   )
 
 ADD_SUBDIRECTORY(src)

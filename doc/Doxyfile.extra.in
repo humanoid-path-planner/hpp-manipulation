@@ -1,6 +1,7 @@
 INPUT     = @CMAKE_SOURCE_DIR@/doc \
             @CMAKE_SOURCE_DIR@/include \
-            @CMAKE_BINARY_DIR@/doc
+            @CMAKE_BINARY_DIR@/doc \
+            @CMAKE_BINARY_DIR@/src/steering-method/cross-state-optimization
 
 HTML_EXTRA_FILES = @CMAKE_SOURCE_DIR@/doc/ObjectManipulation_MasterThesis_JosephMirabel.pdf
 

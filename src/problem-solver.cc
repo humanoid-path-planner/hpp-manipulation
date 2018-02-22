@@ -154,14 +154,20 @@ namespace hpp {
           steeringMethod::Graph::create <core::steeringMethod::Straight>);
       steeringMethods.add ("Graph-Hermite",
           steeringMethod::Graph::create <core::steeringMethod::Hermite>);
-      steeringMethods.add ("CrossStateOptimization",
-          steeringMethod::CrossStateOptimization::createFromCore);
       steeringMethods.add ("Graph-ReedsShepp",
           createSMWithGuess <steeringMethod::Graph, core::steeringMethod::ReedsShepp>);
       steeringMethods.add ("Graph-Dubins",
           createSMWithGuess <steeringMethod::Graph, core::steeringMethod::Dubins>);
       steeringMethods.add ("Graph-Snibud",
           createSMWithGuess <steeringMethod::Graph, core::steeringMethod::Snibud>);
+      steeringMethods.add ("CrossStateOptimization-Straight",
+          steeringMethod::CrossStateOptimization::create<core::steeringMethod::Straight>);
+      steeringMethods.add ("CrossStateOptimization-ReedsShepp",
+          createSMWithGuess <steeringMethod::CrossStateOptimization, core::steeringMethod::ReedsShepp>);
+      steeringMethods.add ("CrossStateOptimization-Dubins",
+          createSMWithGuess <steeringMethod::CrossStateOptimization, core::steeringMethod::Dubins>);
+      steeringMethods.add ("CrossStateOptimization-Snibud",
+          createSMWithGuess <steeringMethod::CrossStateOptimization, core::steeringMethod::Snibud>);
 
       pathOptimizers.add ("KeypointsShortcut",
           pathOptimization::Keypoints::create);

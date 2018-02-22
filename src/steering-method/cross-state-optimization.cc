@@ -59,7 +59,7 @@ namespace hpp {
         return shPtr;
       }
 
-      CrossStateOptimizationPtr_t CrossStateOptimization::createFromCore (
+      CrossStateOptimizationPtr_t CrossStateOptimization::create (
           const core::Problem& problem)
       {
         HPP_STATIC_CAST_REF_CHECK (const Problem, problem);

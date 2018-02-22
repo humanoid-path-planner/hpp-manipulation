@@ -35,7 +35,11 @@ namespace hpp {
           static CrossStateOptimizationPtr_t create (const Problem& problem);
 
           /// \warning core::Problem will be casted to Problem
-          static CrossStateOptimizationPtr_t createFromCore
+          static CrossStateOptimizationPtr_t create
+            (const core::Problem& problem);
+
+          template <typename T>
+            static CrossStateOptimizationPtr_t create
             (const core::Problem& problem);
 
           core::SteeringMethodPtr_t copy () const;
@@ -77,6 +81,15 @@ namespace hpp {
           /// Weak pointer to itself
           CrossStateOptimizationWkPtr_t weak_;
       }; // class CrossStateOptimization
+
+      template <typename T>
+        CrossStateOptimizationPtr_t CrossStateOptimization::create
+        (const core::Problem& problem)
+      {
+        CrossStateOptimizationPtr_t gsm = CrossStateOptimization::create (problem);
+        gsm->innerSteeringMethod (T::create (problem));
+        return gsm;
+      }
     } // namespace steeringMethod
   } // namespace manipulation
 } // namespace hpp

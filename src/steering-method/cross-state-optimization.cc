@@ -24,6 +24,8 @@
 
 #include <hpp/util/exception-factory.hh>
 
+#include <pinocchio/multibody/model.hpp>
+
 #include <hpp/pinocchio/configuration.hh>
 
 #include <hpp/constraints/hybrid-solver.hh>
@@ -202,18 +204,25 @@ namespace hpp {
         typedef std::vector<States_t> StatesPerConf_t;
         StatesPerConf_t statesPerConf_;
         struct RightHandSideSetter {
-          DifferentiableFunctionPtr_t impF, expF;
+          DifferentiableFunctionPtr_t impF;
+          size_type expFidx;
           Configuration_t* qrhs;
           vector_t rhs;
           RightHandSideSetter () : qrhs (NULL) {}
-          RightHandSideSetter (DifferentiableFunctionPtr_t _impF, DifferentiableFunctionPtr_t _expF, Configuration_t* _qrhs)
-            : impF(_impF), expF(_expF), qrhs (_qrhs) {}
-          RightHandSideSetter (DifferentiableFunctionPtr_t _impF, DifferentiableFunctionPtr_t _expF, vector_t _rhs)
-            : impF(_impF), expF(_expF), qrhs (NULL), rhs (_rhs) {}
+          // TODO delete this constructor
+          RightHandSideSetter (DifferentiableFunctionPtr_t _impF, size_type _expFidx, Configuration_t* _qrhs)
+            : impF(_impF), expFidx(_expFidx), qrhs (_qrhs) {}
+          RightHandSideSetter (DifferentiableFunctionPtr_t _impF, size_type _expFidx, vector_t _rhs)
+            : impF(_impF), expFidx(_expFidx), qrhs (NULL), rhs (_rhs) {}
           void apply(constraints::HybridSolver& s)
           {
-            if (qrhs != NULL) s.rightHandSideFromInput (impF, expF, *qrhs);
-            else              s.rightHandSide          (impF, expF, rhs);
+            if (expFidx >= 0) {
+              if (qrhs != NULL) s.explicitSolver().rightHandSideFromInput (expFidx, *qrhs);
+              else              s.explicitSolver().rightHandSide          (expFidx, rhs);
+            } else {
+              if (qrhs != NULL) s.rightHandSideFromInput (impF, DifferentiableFunctionPtr_t(), *qrhs);
+              else              s.rightHandSide          (impF, DifferentiableFunctionPtr_t(), rhs);
+            }
           }
         };
         typedef std::vector<RightHandSideSetter> RightHandSideSetters_t;
@@ -224,6 +233,7 @@ namespace hpp {
           solver (N * nq, N * nv), robot (_robot), statesPerConf_ (N)
         {
           solver.integration (boost::bind(&OptimizationData::_integrate, this, _1, _2, _3));
+          solver.saturation  (boost::bind(&OptimizationData::_saturate , this, _1, _2));
         }
 
         void addGraphConstraints (const graph::GraphPtr_t& graph)
@@ -253,29 +263,39 @@ namespace hpp {
             LockedJointPtr_t lj (*_lj);
             std::ostringstream os;
             os << lj->jointName() << " | " << i << " -> " << (i+1);
-            DifferentiableFunctionPtr_t f;
+            DifferentiableFunctionPtr_t f, f_implicit;
             // i = Input, o = Output,
             // c = Config, v = Velocity
             RowBlockIndices ic, oc, ov;
             ColBlockIndices iv;
             ComparisonTypes_t cts;
-            Configuration_t* qrhs;
+            vector_t rhs;
             if (i == 0) {
               f = lj->explicitFunction();
               ic = _row(lj->inputConf()     , 0);
               oc = _row(lj->outputConf()    , 0);
               iv = _col(lj->inputVelocity() , 0);
               ov = _row(lj->outputVelocity(), 0);
-              cts = ComparisonTypes_t (lj->numberDof(), constraints::Equality);
-              qrhs = &q1;
+              cts = lj->comparisonType();
+              lj->rightHandSideFromConfig (q1);
+              rhs = lj->rightHandSide();
             } else if (i == N) {
               f = lj->explicitFunction();
+              // Currently, this function is mandatory because if the same
+              // joint is locked all along the path, then, one of the LockedJoint 
+              // has to be treated implicitely.
+              // TODO it would be smarter to detect this case beforehand. If the
+              // chain in broken in the middle, an explicit formulation exists
+              // (by inverting the equality in the next else section) and we
+              // miss it.
+              f_implicit = _stateFunction (lj->functionPtr(), N-1);
               ic = _row(lj->inputConf()     , 0);
               oc = _row(lj->outputConf()    , (N-1) * nq);
               iv = _col(lj->inputVelocity() , 0);
               ov = _row(lj->outputVelocity(), (N-1) * nv);
-              cts = ComparisonTypes_t (lj->numberDof(), constraints::Equality);
-              qrhs = &q2;
+              cts = lj->comparisonType();
+              lj->rightHandSideFromConfig (q2);
+              rhs = lj->rightHandSide();
             } else {
               f = Identity::Ptr_t (new Identity (lj->configSpace(), os.str()));
               ic = _row(lj->outputConf()    , (i - 1) * nq);
@@ -283,21 +303,26 @@ namespace hpp {
               iv = _col(lj->outputVelocity(), (i - 1) * nv);
               ov = _row(lj->outputVelocity(),  i      * nv);
               cts = ComparisonTypes_t (lj->numberDof(), constraints::EqualToZero);
-              qrhs = NULL;
             }
 
-            bool added = solver.explicitSolver().add (f, ic, oc, iv, ov, cts);
-            if (!added) {
-              HPP_THROW (std::invalid_argument,
-                  "Could not add locked joint " << lj->jointName() <<
-                  " of transition " << trans->name() << " at id " << i);
+            // It is important to use the index of the function since the same
+            // function may be added several times on different part.
+            size_type expFidx = solver.explicitSolver().add (f, ic, oc, iv, ov, cts);
+            if (expFidx < 0) {
+              if (f_implicit) {
+                solver.add (f_implicit, 0, cts);
+              } else {
+                HPP_THROW (std::invalid_argument,
+                    "Could not add locked joint " << lj->jointName() <<
+                    " of transition " << trans->name() << " at id " << i);
+              }
             }
 
-            // This must be done later
-            if (qrhs != NULL)
+            // Setting the right hand side must be done later
+            if (rhs.size() > 0)
               rhsSetters_.push_back (RightHandSideSetter(
-                    DifferentiableFunctionPtr_t(), f, qrhs));
-              // solver.rightHandSideFromInput (DifferentiableFunctionPtr_t(), f, *qrhs);
+                    f_implicit, expFidx, rhs));
+            f_implicit.reset();
           }
 
           // TODO handle numerical constraints
@@ -343,15 +368,15 @@ namespace hpp {
               // qrhs = NULL;
             }
 
-            bool added = false;
-            if (ef) added = solver.explicitSolver().add (ef, ic, oc, iv, ov, cts);
-            if (!added) solver.add (f, 0, cts);
+            size_type expFidx = -1;
+            if (ef) expFidx = solver.explicitSolver().add (ef, ic, oc, iv, ov, cts);
+            if (expFidx < 0) solver.add (f, 0, cts);
 
             // TODO This must be done later...
             // if (qrhs != NULL) {
             if (rhs.size() > 0) {
               // solver.rightHandSideFromInput (f, ef, rhs);
-              rhsSetters_.push_back (RightHandSideSetter(f, ef, rhs));
+              rhsSetters_.push_back (RightHandSideSetter(f, expFidx, rhs));
             }
           }
         }
@@ -401,20 +426,20 @@ namespace hpp {
           for (LockedJoints_t::const_iterator _lj = ljs.begin();
               _lj != ljs.end(); ++_lj) {
             LockedJointPtr_t lj (*_lj);
-            bool added = solver.explicitSolver().add (
+            size_type expFidx = solver.explicitSolver().add (
                 lj->explicitFunction(),
                 _row(lj->inputConf()     , i * nq),
                 _row(lj->outputConf()    , i * nq),
                 _col(lj->inputVelocity() , i * nv),
                 _row(lj->outputVelocity(), i * nv),
                 lj->comparisonType ());
-            if (!added)
+            if (expFidx < 0)
               throw std::invalid_argument ("Could not add locked joint " + lj->jointName());
 
             // This must be done later
             rhsSetters_.push_back (RightHandSideSetter(
                   DifferentiableFunctionPtr_t(),
-                  lj->explicitFunction(),
+                  expFidx,
                   lj->rightHandSide()));
             // solver.rightHandSide (DifferentiableFunctionPtr_t(),
                 // lj->explicitFunction(),
@@ -454,6 +479,53 @@ namespace hpp {
                 qin.segment(iq,nq),
                 v.segment(iv,nv),
                 qout.segment(iq,nq));
+        }
+        bool _saturate (vectorIn_t q, Eigen::VectorXi& sat)
+        {
+          bool ret = false;
+          const se3::Model& model = robot->model();
+
+          for (std::size_t i = 1; i < model.joints.size(); ++i) {
+            const size_type jnq = model.joints[i].nq();
+            const size_type jnv = model.joints[i].nv();
+            const size_type jiq = model.joints[i].idx_q();
+            const size_type jiv = model.joints[i].idx_v();
+            for (std::size_t k = 0; k < N; ++k) {
+              const size_type idx_q = k * nq + jiq;
+              const size_type idx_v = k * nv + jiv;
+              for (size_type j = 0; j < jnq; ++j) {
+                const size_type iq = idx_q + j;
+                const size_type iv = idx_v + std::min(j,jnv-1);
+                if        (q[iq] >= model.upperPositionLimit[jiq + j]) {
+                  sat[iv] =  1;
+                  ret = true;
+                } else if (q[iq] <= model.lowerPositionLimit[jiq + j]) {
+                  sat[iv] = -1;
+                  ret = true;
+                } else
+                  sat[iv] =  0;
+              }
+            }
+          }
+
+          const hpp::pinocchio::ExtraConfigSpace& ecs = robot->extraConfigSpace();
+          const size_type& d = ecs.dimension();
+
+          for (size_type k = 0; k < d; ++k) {
+            for (std::size_t j = 0; j < N; ++j) {
+              const size_type iq = j * nq + model.nq + k;
+              const size_type iv = j * nv + model.nv + k;
+              if        (q[iq] >= ecs.upper(k)) {
+                sat[iv] =  1;
+                ret = true;
+              } else if (q[iq] <= ecs.lower(k)) {
+                sat[iv] = -1;
+                ret = true;
+              } else
+                sat[iv] =  0;
+            }
+          }
+          return ret;
         }
       };
 

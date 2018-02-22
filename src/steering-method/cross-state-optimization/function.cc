@@ -31,7 +31,7 @@ namespace hpp {
         }
       }
 
-      /// Apply the constraint on a subspace of the input space:
+      /// Apply the constraint on a subspace of the input space.
       /// i.e.: \f$ f (q_0, ... , q_n) = f_{inner} (q_k) \f$
       class HPP_MANIPULATION_LOCAL StateFunction :
         public constraints::DifferentiableFunction

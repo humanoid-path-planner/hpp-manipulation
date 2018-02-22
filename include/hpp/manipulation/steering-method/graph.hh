@@ -28,6 +28,8 @@
 
 namespace hpp {
   namespace manipulation {
+    /// \addtogroup steering_method
+    /// \{
     class HPP_MANIPULATION_DLLAPI SteeringMethod : public core::SteeringMethod
     {
       public:
@@ -61,8 +63,6 @@ namespace hpp {
 
     namespace steeringMethod {
       using core::PathPtr_t;
-      /// \addtogroup steering_method
-      /// \{
 
       class HPP_MANIPULATION_DLLAPI Graph : public SteeringMethod
       {
@@ -119,8 +119,8 @@ namespace hpp {
         gsm->innerSteeringMethod (T::create (problem));
         return gsm;
       }
-      /// \}
     } // namespace steeringMethod
+    /// \}
   } // namespace manipulation
 } // namespace hpp
 

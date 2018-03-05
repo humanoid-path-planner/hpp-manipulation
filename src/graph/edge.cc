@@ -207,7 +207,7 @@ namespace hpp {
           itpdof2 = itpdof1; ++itpdof2;
           NumericalConstraintPtr_t combination;
           while (itnc2 != nc.end()) {
-            assert (*itnc1 == *itnc2);
+            assert (*itnc1 != *itnc2);
             if (   graph->isComplement (*itnc1, *itnc2, combination)
                 || graph->isComplement (*itnc2, *itnc1, combination)) {
               // Replace constraint by combination of both and remove

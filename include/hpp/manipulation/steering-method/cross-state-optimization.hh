@@ -23,11 +23,36 @@
 # include <hpp/manipulation/fwd.hh>
 # include <hpp/manipulation/problem.hh>
 # include <hpp/manipulation/steering-method/fwd.hh>
-# include <hpp/manipulation/graph-steering-method.hh>
+# include <hpp/manipulation/steering-method/graph.hh>
 
 namespace hpp {
   namespace manipulation {
     namespace steeringMethod {
+      /// \addtogroup steering_method
+      /// \{
+
+      /// Optimization-based steering method.
+      ///
+      /// #### Methodology
+      ///
+      /// Given two configuration \f$ (q_1,q_2) \f$, this class formulates and
+      /// solves the problem as follows. 
+      /// - Compute the corresponding states \f$ (s_1, s_2) \f$.
+      /// - For a each path \f$ (e_0, ... e_n) \f$ between \f$ (s_1, s_2) \f$
+      ///   in the constraint graph, do:
+      ///   - define \f$ n-1 \f$ intermediate configuration \f$ p_i \f$,
+      ///   - initialize the optimization problem, as explained below,
+      ///   - solve the optimization problem, which gives \f$ p^*_i \f$,
+      ///   - in case of failure, continue the loop.
+      ///   - call the Edge::build of each \f$ e_j \f$ for each consecutive
+      ///     \f$ (p^*_i, p^*_{i+1}) \f$.
+      ///
+      /// #### Problem formulation
+      /// Find \f$ (p_i) \f$ such that:
+      /// - \f$ p_0 = q_1 \f$,
+      /// - \f$ p_{n+1} = q_2 \f$,
+      /// - \f$ p_i \f$ is in state between \f$ (e_{i-1}, e_i) \f$, (\ref StateFunction)
+      /// - \f$ (p_i, p_{i+1}) \f$ are reachable with transition \f$ e_i \f$ (\ref EdgeFunction).
       class HPP_MANIPULATION_DLLAPI CrossStateOptimization :
         public SteeringMethod
       {
@@ -35,7 +60,11 @@ namespace hpp {
           static CrossStateOptimizationPtr_t create (const Problem& problem);
 
           /// \warning core::Problem will be casted to Problem
-          static CrossStateOptimizationPtr_t createFromCore
+          static CrossStateOptimizationPtr_t create
+            (const core::Problem& problem);
+
+          template <typename T>
+            static CrossStateOptimizationPtr_t create
             (const core::Problem& problem);
 
           core::SteeringMethodPtr_t copy () const;
@@ -77,6 +106,16 @@ namespace hpp {
           /// Weak pointer to itself
           CrossStateOptimizationWkPtr_t weak_;
       }; // class CrossStateOptimization
+      /// \}
+
+      template <typename T>
+        CrossStateOptimizationPtr_t CrossStateOptimization::create
+        (const core::Problem& problem)
+      {
+        CrossStateOptimizationPtr_t gsm = CrossStateOptimization::create (problem);
+        gsm->innerSteeringMethod (T::create (problem));
+        return gsm;
+      }
     } // namespace steeringMethod
   } // namespace manipulation
 } // namespace hpp

@@ -15,8 +15,8 @@
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
 
-#ifndef HPP_MANIPULATION_GRAPH_STEERING_METHOD_HH
-# define HPP_MANIPULATION_GRAPH_STEERING_METHOD_HH
+#ifndef HPP_MANIPULATION_STEERING_METHOD_GRAPH_HH
+# define HPP_MANIPULATION_STEERING_METHOD_GRAPH_HH
 
 # include <hpp/core/problem-solver.hh> // SteeringMethodBuilder_t
 # include <hpp/core/steering-method.hh>
@@ -24,13 +24,12 @@
 # include <hpp/manipulation/config.hh>
 # include <hpp/manipulation/fwd.hh>
 # include <hpp/manipulation/graph/fwd.hh>
+# include <hpp/manipulation/steering-method/fwd.hh>
 
 namespace hpp {
   namespace manipulation {
-    using core::PathPtr_t;
     /// \addtogroup steering_method
     /// \{
-
     class HPP_MANIPULATION_DLLAPI SteeringMethod : public core::SteeringMethod
     {
       public:
@@ -62,63 +61,67 @@ namespace hpp {
         core::SteeringMethodPtr_t steeringMethod_;
     };
 
-    class HPP_MANIPULATION_DLLAPI GraphSteeringMethod : public SteeringMethod
-    {
-      typedef core::SteeringMethodBuilder_t SteeringMethodBuilder_t;
+    namespace steeringMethod {
+      using core::PathPtr_t;
 
-      public:
-        /// Create instance and return shared pointer
-        /// \warning core::Problem will be casted to Problem
-        static GraphSteeringMethodPtr_t create
-          (const core::Problem& problem);
+      class HPP_MANIPULATION_DLLAPI Graph : public SteeringMethod
+      {
+        typedef core::SteeringMethodBuilder_t SteeringMethodBuilder_t;
 
-        template <typename T>
-          static GraphSteeringMethodPtr_t create
-          (const core::Problem& problem);
+        public:
+          /// Create instance and return shared pointer
+          /// \warning core::Problem will be casted to Problem
+          static GraphPtr_t create
+            (const core::Problem& problem);
 
-        /// Create instance and return shared pointer
-        static GraphSteeringMethodPtr_t create (const Problem& problem);
+          template <typename T>
+            static GraphPtr_t create
+            (const core::Problem& problem);
 
-        /// Create copy and return shared pointer
-        static GraphSteeringMethodPtr_t createCopy
-          (const GraphSteeringMethodPtr_t& other);
+          /// Create instance and return shared pointer
+          static GraphPtr_t create (const Problem& problem);
 
-        /// Copy instance and return shared pointer
-        virtual core::SteeringMethodPtr_t copy () const
-        {
-          return createCopy (weak_.lock ());
-        }
+          /// Create copy and return shared pointer
+          static GraphPtr_t createCopy
+            (const GraphPtr_t& other);
 
-      protected:
-        /// Constructor
-        GraphSteeringMethod (const Problem& problem);
+          /// Copy instance and return shared pointer
+          virtual core::SteeringMethodPtr_t copy () const
+          {
+            return createCopy (weak_.lock ());
+          }
 
-        /// Copy constructor
-        GraphSteeringMethod (const GraphSteeringMethod&);
+        protected:
+          /// Constructor
+          Graph (const Problem& problem);
 
-        virtual PathPtr_t impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
+          /// Copy constructor
+          Graph (const Graph&);
 
-        void init (GraphSteeringMethodWkPtr_t weak)
-        {
-          SteeringMethod::init (weak);
-          weak_ = weak;
-        }
+          virtual PathPtr_t impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
-      private:
-        /// Weak pointer to itself
-        GraphSteeringMethodWkPtr_t weak_;
-    };
+          void init (GraphWkPtr_t weak)
+          {
+            SteeringMethod::init (weak);
+            weak_ = weak;
+          }
 
-    template <typename T>
-      GraphSteeringMethodPtr_t GraphSteeringMethod::create
-      (const core::Problem& problem)
-    {
-      GraphSteeringMethodPtr_t gsm = GraphSteeringMethod::create (problem);
-      gsm->innerSteeringMethod (T::create (problem));
-      return gsm;
-    }
+        private:
+          /// Weak pointer to itself
+          GraphWkPtr_t weak_;
+      };
+
+      template <typename T>
+        GraphPtr_t Graph::create
+        (const core::Problem& problem)
+      {
+        GraphPtr_t gsm = Graph::create (problem);
+        gsm->innerSteeringMethod (T::create (problem));
+        return gsm;
+      }
+    } // namespace steeringMethod
     /// \}
   } // namespace manipulation
 } // namespace hpp
 
-#endif // HPP_MANIPULATION_GRAPH_STEERING_METHOD_HH
+#endif // HPP_MANIPULATION_STEERING_METHOD_GRAPH_HH

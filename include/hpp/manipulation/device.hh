@@ -35,22 +35,10 @@ namespace hpp {
     /// it is compatible with hpp::pinocchio::urdf::loadHumanoidRobot
     ///
     /// This class also contains pinocchio::Gripper, Handle and \ref JointAndShapes_t
-    class HPP_MANIPULATION_DLLAPI Device :
-      public pinocchio::HumanoidRobot,
-      public core::Containers<
-        boost::mpl::vector < HandlePtr_t,
-                             GripperPtr_t,
-                             JointAndShapes_t,
-                             FrameIndices_t> >
+    class HPP_MANIPULATION_DLLAPI Device : public pinocchio::HumanoidRobot
     {
       public:
         typedef pinocchio::HumanoidRobot Parent_t;
-
-        typedef core::Containers<
-          boost::mpl::vector < HandlePtr_t,
-          pinocchio::GripperPtr_t,
-          JointAndShapes_t,
-          FrameIndices_t> > Containers_t;
 
         /// Constructor
         /// \param name of the new instance,
@@ -81,6 +69,11 @@ namespace hpp {
         void didInsertRobot (const std::string& name);
 
         /// \}
+
+        core::Container <HandlePtr_t> handles;
+        core::Container <GripperPtr_t> grippers;
+        core::Container <JointAndShapes_t> jointAndShapes;
+        core::Container <FrameIndices_t> frameIndices;
 
       protected:
         /// Constructor

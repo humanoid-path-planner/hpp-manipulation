@@ -26,6 +26,8 @@
 namespace hpp {
   namespace manipulation {
     namespace steeringMethod {
+      HPP_PREDEF_CLASS (Graph);
+      typedef boost::shared_ptr < Graph > GraphPtr_t;
       HPP_PREDEF_CLASS (CrossStateOptimization);
       typedef boost::shared_ptr < CrossStateOptimization > CrossStateOptimizationPtr_t;
     } // namespace steeringMethod

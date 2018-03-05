@@ -663,8 +663,6 @@ namespace hpp {
             inline boost::array<NumericalConstraintPtr_t,3>& graspConstraint (
                 const index_t& iG, const index_t& iOH)
             {
-              typedef core::ProblemSolver CPS_t;
-
               boost::array<NumericalConstraintPtr_t,3>& gcs =
                 graspCs [iG * nOH + iOH];
               if (!gcs[0]) {
@@ -673,16 +671,16 @@ namespace hpp {
                 const GripperPtr_t& g (gs[iG]);
                 const HandlePtr_t& h (handle (iOH));
                 const std::string& grasp = g->name() + " grasps " + h->name();
-                if (!ps->CPS_t::has<NumericalConstraintPtr_t>(grasp)) {
+                if (!ps->numericalConstraints.has(grasp)) {
                   ps->createGraspConstraint (grasp, g->name(), h->name());
                 }
-                gcs[0] = ps->CPS_t::get<NumericalConstraintPtr_t>(grasp);
-                gcs[1] = ps->CPS_t::get<NumericalConstraintPtr_t>(grasp + "/complement");
+                gcs[0] = ps->numericalConstraints.get(grasp);
+                gcs[1] = ps->numericalConstraints.get(grasp + "/complement");
                 const std::string& pregrasp = g->name() + " pregrasps " + h->name();
-                if (!ps->CPS_t::has<NumericalConstraintPtr_t>(pregrasp)) {
+                if (!ps->numericalConstraints.has(pregrasp)) {
                   ps->createPreGraspConstraint (pregrasp, g->name(), h->name());
                 }
-                gcs[2] = ps->CPS_t::get<NumericalConstraintPtr_t>(pregrasp);
+                gcs[2] = ps->numericalConstraints.get(pregrasp);
               }
               return gcs;
             }
@@ -1050,7 +1048,7 @@ namespace hpp {
           Grippers_t grippers (griNames.size());
           index_t i = 0;
           BOOST_FOREACH (const std::string& gn, griNames) {
-            grippers[i] = robot.get <GripperPtr_t> (gn);
+            grippers[i] = robot.grippers.get (gn);
             ++i;
           }
           Objects_t objects (objs.size());
@@ -1063,7 +1061,7 @@ namespace hpp {
             objects[i].get<1> ().resize (od.handles.size());
             Handles_t::iterator it = objects[i].get<1> ().begin();
             BOOST_FOREACH (const std::string hn, od.handles) {
-              *it = robot.get <HandlePtr_t> (hn);
+              *it = robot.handles.get (hn);
               ++it;
             }
             // Create placement
@@ -1076,30 +1074,30 @@ namespace hpp {
             // else if contact surfaces are defined and selected
             //   create default placement constraint using the ProblemSolver
             //   methods createPlacementConstraint and createPrePlacementConstraint
-            if (ps->core::ProblemSolver::has<NumericalConstraintPtr_t>(placeN)) {
+            if (ps->numericalConstraints.has(placeN)) {
               objects[i].get<0> ().get<0> () =
-                ps->core::ProblemSolver::get <NumericalConstraintPtr_t> (placeN);
-              if (ps->core::ProblemSolver::has<NumericalConstraintPtr_t>(preplaceN)) {
+                ps->numericalConstraints.get (placeN);
+              if (ps->numericalConstraints.has(preplaceN)) {
                 objects[i].get<0> ().get<1> () =
-                  ps->core::ProblemSolver::get <NumericalConstraintPtr_t> (preplaceN);
+                  ps->numericalConstraints.get (preplaceN);
               }
             } else if (!envNames.empty() && !od.shapes.empty ()) {
               ps->createPlacementConstraint (placeN,
                   od.shapes, envNames, margin);
               objects[i].get<0> ().get<0> () =
-                ps->core::ProblemSolver::get <NumericalConstraintPtr_t> (placeN);
+                ps->numericalConstraints.get (placeN);
               if (prePlace) {
                 ps->createPrePlacementConstraint (preplaceN,
                     od.shapes, envNames, margin, prePlaceWidth);
                 objects[i].get<0> ().get<1> () =
-                  ps->core::ProblemSolver::get <NumericalConstraintPtr_t> (preplaceN);
+                  ps->numericalConstraints.get (preplaceN);
               }
             }
             // Create object lock
 	    // Loop over all frames of object, detect joint and create locked
 	    // joint.
-            assert (robot.has <FrameIndices_t> (od.name));
-            BOOST_FOREACH (const se3::FrameIndex& f, robot.get<FrameIndices_t> (od.name)) {
+            assert (robot.frameIndices.has (od.name));
+            BOOST_FOREACH (const se3::FrameIndex& f, robot.frameIndices.get (od.name)) {
               if (model.frames[f].type != se3::JOINT) continue;
               const JointIndex j = model.frames[f].parent;
               JointPtr_t oj (new Joint (ps->robot(), j));
@@ -1108,7 +1106,7 @@ namespace hpp {
                                    .segment (oj->rankInConfiguration (),
                                              oj->configSize ()), space);
               LockedJointPtr_t lj = core::LockedJoint::create (oj, lge);
-              ps->add <LockedJointPtr_t> ("lock_" + oj->name (), lj);
+              ps->lockedJoints.add ("lock_" + oj->name (), lj);
               objects[i].get<0> ().get<2> ().push_back (lj);
             }
             ++i;

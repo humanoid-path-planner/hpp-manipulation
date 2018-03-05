@@ -1,5 +1,6 @@
 INPUT     = @CMAKE_SOURCE_DIR@/doc \
             @CMAKE_SOURCE_DIR@/include \
+            @CMAKE_SOURCE_DIR@/src/steering-method/cross-state-optimization/function.cc \
             @CMAKE_BINARY_DIR@/doc
 
 HTML_EXTRA_FILES = @CMAKE_SOURCE_DIR@/doc/ObjectManipulation_MasterThesis_JosephMirabel.pdf

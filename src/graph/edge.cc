@@ -29,7 +29,7 @@
 
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/problem.hh"
-#include "hpp/manipulation/graph-steering-method.hh"
+#include "hpp/manipulation/steering-method/graph.hh"
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/constraint-set.hh"
 

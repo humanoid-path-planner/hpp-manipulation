@@ -34,7 +34,6 @@ SET(SOURCES
   weighed-distance.cc
   problem.cc
   graph-path-validation.cc
-  graph-steering-method.cc
   graph-optimizer.cc
 
   graph/state.cc
@@ -55,6 +54,7 @@ SET(SOURCES
   problem-target/state.cc
 
   steering-method/cross-state-optimization.cc
+  steering-method/graph.cc
   )
 
 IF(HPP_WHOLEBODY_STEP_FOUND)

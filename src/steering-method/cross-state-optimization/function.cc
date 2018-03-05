@@ -31,6 +31,8 @@ namespace hpp {
         }
       }
 
+      /// Apply the constraint on a subspace of the input space.
+      /// i.e.: \f$ f (q_0, ... , q_n) = f_{inner} (q_k) \f$
       class HPP_MANIPULATION_LOCAL StateFunction :
         public constraints::DifferentiableFunction
       {
@@ -74,6 +76,8 @@ namespace hpp {
           const segment_t sa_, sd_;
       }; // class Function
 
+      /// \f$ q_{out} = q_{in} \f$
+      /// \todo Make this derive from constraints::AffineFunction
       class HPP_MANIPULATION_LOCAL Identity :
         public constraints::DifferentiableFunction
       {
@@ -95,6 +99,8 @@ namespace hpp {
           }
       }; // class Function
 
+      /// Compute the difference between the value of the function in two points.
+      /// i.e.: \f$ f (q_0, ... , q_n) = f_{inner} (q_{left}) - f_{inner} (q_{right}) \f$
       class HPP_MANIPULATION_LOCAL EdgeFunction :
         public constraints::DifferentiableFunction
       {

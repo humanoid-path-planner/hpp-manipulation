@@ -185,12 +185,20 @@ namespace hpp {
         if (i >= roots.size()) return transitions;
 
         const GraphSearchData::state_with_depth* current = &roots[i];
-        transitions.resize (current->l);
+        transitions.reserve (current->l);
+        graph::WaypointEdgePtr_t we;
         while (current->e) {
           assert (current->l > 0);
-          transitions[current->l-1] = current->e;
+          we = HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, current->e);
+          if (we) {
+            for (int i = (int)we->nbWaypoints(); i >= 0; --i)
+              transitions.push_back(we->waypoint(i));
+          } else {
+            transitions.push_back(current->e);
+          }
           current = &d.parent1[current->s][current->i];
         }
+        std::reverse (transitions.begin(), transitions.end());
         return transitions;
       }
 
@@ -394,7 +402,8 @@ namespace hpp {
             solver.solve <constraints::lineSearch::FixedSequence> (q);
           bool success = (status == constraints::HierarchicalIterativeSolver::SUCCESS);
           if (!success) {
-            hppDout (warning, "Solution from projection "
+            hppDout (warning, "Projection failed with status " << status <<
+                ". Configuration after projection is\n"
                 << pinocchio::displayConfig(q));
           }
           return success;

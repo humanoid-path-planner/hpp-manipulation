@@ -235,8 +235,11 @@ namespace hpp {
           /// Get the robot.
           const DevicePtr_t& robot () const;
 
-	  /// Get the steering Method
+	  /// Get the problem
 	  const ProblemPtr_t& problem () const;
+
+	  /// Set the problem
+          void problem (const ProblemPtr_t& problem);
 
           /// Register an histogram representing a foliation
           void insertHistogram (const graph::HistogramPtr_t& hist)

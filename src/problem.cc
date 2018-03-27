@@ -38,6 +38,7 @@ namespace hpp {
     void Problem::constraintGraph (const graph::GraphPtr_t& graph)
     {
       graph_ = graph;
+      graph_->problem (this);
       if (pathValidation ())
         pathValidation ()->constraintGraph (graph);
       WeighedDistancePtr_t d = HPP_DYNAMIC_PTR_CAST (WeighedDistance,

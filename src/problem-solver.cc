@@ -197,15 +197,19 @@ namespace hpp {
     {
       problem_ = problem;
       core::ProblemSolver::initializeProblem (problem_);
+      problem_->constraintGraph (constraintGraph_);
       if (problem_->pathValidation ())
         problem_->pathValidation ()->constraintGraph (constraintGraph_);
     }
 
-    void ProblemSolver::constraintGraph (const graph::GraphPtr_t& graph)
+    void ProblemSolver::constraintGraph (const std::string& graphName)
     {
-      constraintGraph_ = graph;
+      if (!graphs.has (graphName))
+        throw std::invalid_argument ("ProblemSolver has no graph named " + graphName);
+      constraintGraph_ = graphs.get(graphName);
       RoadmapPtr_t r = HPP_DYNAMIC_PTR_CAST (Roadmap, roadmap());
-      if (r) r->constraintGraph (graph);
+      if (r) r->constraintGraph (constraintGraph_);
+      if (problem_) problem_->constraintGraph (constraintGraph_);
     }
 
     graph::GraphPtr_t ProblemSolver::constraintGraph () const

@@ -108,6 +108,14 @@ namespace hpp {
         return robot_;
       }
 
+      void Graph::problem (const ProblemPtr_t& problem)
+      {
+        if (problem_ != problem) {
+          problem_ = problem;
+          setDirty();
+        }
+      }
+
       const ProblemPtr_t& Graph::problem () const
       {
 	return problem_;

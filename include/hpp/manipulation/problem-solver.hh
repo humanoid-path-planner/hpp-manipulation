@@ -63,7 +63,7 @@ namespace hpp {
         /// \{
 
         /// Set the constraint graph
-        void constraintGraph (const graph::GraphPtr_t& graph);
+        void constraintGraph (const std::string& graph);
 
         /// Get the constraint graph
         graph::GraphPtr_t constraintGraph () const;
@@ -133,6 +133,8 @@ namespace hpp {
         }
 
         void setTargetState (const graph::StatePtr_t state);
+
+        core::Container <graph::GraphPtr_t> graphs;
 
       protected:
         virtual void initializeProblem (ProblemPtr_t problem);

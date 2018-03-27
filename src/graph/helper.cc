@@ -1113,7 +1113,8 @@ namespace hpp {
           }
           GraphPtr_t graph = Graph::create (graphName,
               ps->robot(), ps->problem());
-          ps->constraintGraph (graph);
+          ps->graphs.add (graphName, graph);
+          ps->constraintGraph (graphName);
           graph->stateSelector (
               GuidedStateSelector::create ("stateSelector",
               ps->roadmap ()));
@@ -1121,7 +1122,6 @@ namespace hpp {
           graph->errorThreshold (ps->errorThreshold ());
 
           graphBuilder (ps, objects, grippers, graph, rules);
-          ps->constraintGraph (graph);
           return graph;
         }
       } // namespace helper

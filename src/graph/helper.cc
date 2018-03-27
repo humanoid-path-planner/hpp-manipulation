@@ -1043,6 +1043,9 @@ namespace hpp {
 	    const std::vector <Rule>& rules,
             const value_type& prePlaceWidth)
         {
+          if (ps->graphs.has (graphName))
+            throw std::invalid_argument ("A graph named " + graphName + " already exists.");
+
           const Device& robot = *(ps->robot ());
           const pinocchio::Model& model = robot.model();
           Grippers_t grippers (griNames.size());

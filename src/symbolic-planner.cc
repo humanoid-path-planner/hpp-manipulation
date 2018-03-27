@@ -109,15 +109,6 @@ namespace hpp {
           }
         }
       };
-
-      bool belongs (const ConfigurationPtr_t& q, const core::Nodes_t& nodes)
-      {
-        for (core::Nodes_t::const_iterator itNode = nodes.begin ();
-            itNode != nodes.end (); ++itNode) {
-          if (*((*itNode)->configuration ()) == *q) return true;
-        }
-        return false;
-      }
     }
 
     const std::vector<SymbolicPlanner::Reason>

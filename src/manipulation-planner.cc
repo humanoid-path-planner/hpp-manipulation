@@ -59,15 +59,6 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER(buildPath);
       HPP_DEFINE_TIMECOUNTER(projectPath);
       HPP_DEFINE_TIMECOUNTER(validatePath);
-
-      bool belongs (const ConfigurationPtr_t& q, const core::Nodes_t& nodes)
-      {
-        for (core::Nodes_t::const_iterator itNode = nodes.begin ();
-            itNode != nodes.end (); ++itNode) {
-          if (*((*itNode)->configuration ()) == *q) return true;
-        }
-        return false;
-      }
     }
 
     const std::vector<ManipulationPlanner::Reason>

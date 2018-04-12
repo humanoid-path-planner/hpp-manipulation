@@ -16,7 +16,7 @@
 
 #include <hpp/manipulation/path-optimization/spline-gradient-based.hh>
 
-#include <hpp/core/path-optimization/spline-gradient-based/linear-constraint.hh>
+#include <hpp/core/path-optimization/linear-constraint.hh>
 
 #include <hpp/manipulation/constraint-set.hh>
 #include <hpp/manipulation/graph/state.hh>
@@ -70,9 +70,9 @@ namespace hpp {
 
       template <int _PB, int _SO>
       void SplineGradientBased<_PB, _SO>::addProblemConstraints
-      (const core::PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, Solvers_t& ss) const
+      (const core::PathVectorPtr_t& init, const Splines_t& splines, LinearConstraint& lc, SplineOptimizationDatas_t& sods) const
       {
-        assert (init->numberPaths() == splines.size() && ss.size() == splines.size());
+        assert (init->numberPaths() == splines.size() && sods.size() == splines.size());
 
         bool zeroDerivative = this->problem().getParameter ("SplineGradientBased/zeroDerivativesAtStateIntersection", false);
 
@@ -86,7 +86,7 @@ namespace hpp {
                 "generated with a graph.");
           graph::EdgePtr_t transition = set->edge();
 
-          this->addProblemConstraintOnPath (path, i, splines[i], lc, ss[i]);
+          this->addProblemConstraintOnPath (path, i, splines[i], lc, sods[i]);
 
           // The path should always go through the start and end states of the
           // transition.
@@ -164,7 +164,7 @@ namespace hpp {
             }
           }
         }
-        this->addProblemConstraintOnPath (init->pathAtRank(last), last, splines[last], lc, ss[last]);
+        this->addProblemConstraintOnPath (init->pathAtRank(last), last, splines[last], lc, sods[last]);
       }
 
       template <int _PB, int _SO>

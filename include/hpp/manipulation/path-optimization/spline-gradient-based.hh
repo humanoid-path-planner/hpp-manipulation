@@ -40,9 +40,9 @@ namespace hpp {
             Parent_t;
           typedef boost::shared_ptr<SplineGradientBased> Ptr_t;
 
-          typedef typename Parent_t::Spline      Spline;
-          typedef typename Parent_t::SplinePtr_t SplinePtr_t;
-          typedef typename Parent_t::Splines_t   Splines_t;
+          using typename Parent_t::Spline;
+          using typename Parent_t::SplinePtr_t;
+          using typename Parent_t::Splines_t;
 
           /// Return shared pointer to new object.
           static Ptr_t create (const Problem& problem);
@@ -54,15 +54,15 @@ namespace hpp {
           static Ptr_t createFromCore (const core::Problem& problem);
 
         protected:
-          typedef typename Parent_t::LinearConstraint LinearConstraint;
-          typedef typename Parent_t::Solvers_t        Solvers_t;
+          typedef typename hpp::core::pathOptimization::LinearConstraint LinearConstraint;
+          using typename Parent_t::SplineOptimizationDatas_t;
 
           SplineGradientBased (const Problem& problem);
 
           virtual void initializePathValidation(const Splines_t& splines);
 
           virtual void addProblemConstraints (const core::PathVectorPtr_t& init,
-              const Splines_t& splines, LinearConstraint& lc, Solvers_t& ess) const;
+              const Splines_t& splines, LinearConstraint& lc, SplineOptimizationDatas_t& sods) const;
 
           virtual void constrainEndIntoState (const core::PathPtr_t& path,
               const size_type& idxSpline, const SplinePtr_t& spline,

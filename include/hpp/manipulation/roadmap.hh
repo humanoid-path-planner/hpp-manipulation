@@ -84,6 +84,7 @@ namespace hpp {
 
         void init (const RoadmapPtr_t& shPtr)
 	{
+          Parent::init (shPtr);
 	  weak_ = shPtr;
 	}
 

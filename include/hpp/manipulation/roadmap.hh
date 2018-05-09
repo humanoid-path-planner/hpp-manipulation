@@ -66,10 +66,14 @@ namespace hpp {
 	/// Get graph state corresponding to given roadmap node
 	graph::StatePtr_t getState(RoadmapNodePtr_t node);
 
-        /// Get the symbolic components
-        const LeafConnectedComps_t& symbolicComponents () const
+        /// Get leaf connected components
+        ///
+        /// Leaf connected components are composed of nodes
+        /// \li belonging to the same connected component of the roadmap and,
+        /// \li lying in the same leaf of a transition.
+        const LeafConnectedComps_t& leafConnectedComponents () const
         {
-          return symbolicCCs_;
+          return leafCCs_;
         }
 
       protected:
@@ -97,7 +101,7 @@ namespace hpp {
         Histograms_t histograms_;
         graph::GraphPtr_t graph_;
         RoadmapWkPtr_t weak_;
-        LeafConnectedComps_t symbolicCCs_;
+        LeafConnectedComps_t leafCCs_;
     };
     /// \}
   } // namespace manipulation

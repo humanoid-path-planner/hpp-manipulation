@@ -179,7 +179,7 @@ namespace hpp {
       // Get the roadmap and the symbolic components
       RoadmapPtr_t rdm = HPP_DYNAMIC_PTR_CAST(Roadmap, roadmap());
       HPP_ASSERT(rdm);
-      LeafConnectedCompList_t scs = sorted_list (rdm->symbolicComponents());
+      LeafConnectedCompList_t scs = sorted_list (rdm->leafConnectedComponents());
 
       core::Nodes_t newNodes;
       core::PathPtr_t path;
@@ -301,7 +301,7 @@ namespace hpp {
       HPP_START_TIMECOUNTER (chooseEdge);
       // This code should go into a NodeSelector derived class.
       WeighedLeafConnectedCompPtr_t wscPtr = HPP_DYNAMIC_PTR_CAST
-        (WeighedLeafConnectedComp, n_near->symbolicComponent());
+        (WeighedLeafConnectedComp, n_near->leafConnectedComponent());
       if (wscPtr) {
         WeighedLeafConnectedComp wsc = *wscPtr;
         value_type R = rand() / RAND_MAX;
@@ -528,12 +528,12 @@ namespace hpp {
       // results in similar weights for the symbolic components.
       const value_type weightInc = 1.3;
       const value_type weightDec = 0.99;
-      CastToWSC_ptr (oldWSC, near->symbolicComponent());
+      CastToWSC_ptr (oldWSC, near->leafConnectedComponent());
       CollisionValidationReportPtr_t colRep;
       switch (extend.status) {
         case SUCCESS:
           {
-            CastToWSC_ptr (newWSC, newN->symbolicComponent());
+            CastToWSC_ptr (newWSC, newN->leafConnectedComponent());
             switch (extend.info) {
               case SUCCESS:
                 // If the corresponding edge is a loop, no adjustment.

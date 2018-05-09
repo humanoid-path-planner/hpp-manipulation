@@ -92,21 +92,21 @@ namespace hpp {
         }
         /// \}
 
-        void symbolicComponent (const LeafConnectedCompPtr_t& sc)
+        void leafConnectedComponent (const LeafConnectedCompPtr_t& sc)
         {
-          symbolicCC_ = sc;
+          leafCC_ = sc;
         }
 
-        LeafConnectedCompPtr_t symbolicComponent () const
+        LeafConnectedCompPtr_t leafConnectedComponent () const
         {
-          return symbolicCC_;
+          return leafCC_;
         }
 
       private:
         CachingSystem cacheSystem_;
 
         graph::StateWkPtr_t state_;
-        LeafConnectedCompPtr_t symbolicCC_;
+        LeafConnectedCompPtr_t leafCC_;
     };
   } // namespace manipulation
 } // namespace hpp

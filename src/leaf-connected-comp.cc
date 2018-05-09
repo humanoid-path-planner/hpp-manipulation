@@ -74,7 +74,7 @@ namespace hpp {
       // Tell other's nodes that they now belong to this connected component
       for (RoadmapNodes_t::iterator itNode = other->nodes_.begin ();
 	   itNode != other->nodes_.end (); ++itNode) {
-	(*itNode)->symbolicComponent (weak_.lock ());
+	(*itNode)->leafConnectedComponent (weak_.lock ());
       }
       // Add other's nodes to this list.
       nodes_.insert (nodes_.end (), other->nodes_.begin(), other->nodes_.end());

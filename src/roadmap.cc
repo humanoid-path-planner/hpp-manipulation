@@ -51,7 +51,7 @@ namespace hpp {
         for (it = hs.begin(); it != hs.end(); ++it)
           (*it)->clear ();
       }
-      symbolicCCs_.clear();
+      leafCCs_.clear();
     }
 
     void Roadmap::push_node (const core::NodePtr_t& n)
@@ -60,7 +60,7 @@ namespace hpp {
       const RoadmapNodePtr_t& node = 
         static_cast <const RoadmapNodePtr_t> (n);
       statInsert (node);
-      symbolicCCs_.insert(node->symbolicComponent());
+      leafCCs_.insert(node->leafConnectedComponent());
     }
 
     void Roadmap::statInsert (const RoadmapNodePtr_t& n)
@@ -119,7 +119,7 @@ namespace hpp {
       // call RoadmapNode constructor with new manipulation connected component
       RoadmapNodePtr_t node = new RoadmapNode (q, ConnectedComponent::create(weak_));
       LeafConnectedCompPtr_t sc = WeighedLeafConnectedComp::create (weak_.lock());
-      node->symbolicComponent (sc);
+      node->leafConnectedComponent (sc);
       sc->setFirstNode(node);
       return node;
     }
@@ -134,16 +134,16 @@ namespace hpp {
       Parent::addEdge(edge);
       const RoadmapNodePtr_t& f = static_cast <const RoadmapNodePtr_t> (edge->from());
       const RoadmapNodePtr_t& t = static_cast <const RoadmapNodePtr_t> (edge->to());
-      LeafConnectedCompPtr_t scf = f->symbolicComponent();
-      LeafConnectedCompPtr_t sct = t->symbolicComponent();
+      LeafConnectedCompPtr_t scf = f->leafConnectedComponent();
+      LeafConnectedCompPtr_t sct = t->leafConnectedComponent();
       scf->canReach(sct);
       if (scf->canMerge(sct)) {
         if (scf->nodes().size() > sct->nodes().size()) {
           scf->merge(sct);
-          symbolicCCs_.erase(sct);
+          leafCCs_.erase(sct);
         } else {
           sct->merge(scf);
-          symbolicCCs_.erase(scf);
+          leafCCs_.erase(scf);
         }
       }
     }

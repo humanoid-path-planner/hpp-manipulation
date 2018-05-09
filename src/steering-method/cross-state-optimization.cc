@@ -94,7 +94,11 @@ namespace hpp {
         typedef std::vector<state_with_depth> state_with_depths_t;
         typedef std::map<StatePtr_t,state_with_depths_t> StateMap_t;
         /// std::size_t is the index in state_with_depths_t at StateMap_t::iterator
-        typedef std::pair<StateMap_t::iterator, std::size_t> state_with_depth_ptr_t;
+        struct state_with_depth_ptr_t {
+          StateMap_t::iterator state;
+          std::size_t parentIdx;
+          state_with_depth_ptr_t (const StateMap_t::iterator& it, std::size_t idx) : state (it), parentIdx (idx) {}
+        };
         typedef std::queue<state_with_depth_ptr_t> Queue_t;
         typedef std::set<EdgePtr_t> VisitedEdge_t;
         std::size_t maxDepth;
@@ -104,8 +108,8 @@ namespace hpp {
 
         const state_with_depth& getParent(const state_with_depth_ptr_t& _p) const
         {
-          const state_with_depths_t& parents = _p.first->second;
-          return parents[_p.second];
+          const state_with_depths_t& parents = _p.state->second;
+          return parents[_p.parentIdx];
         }
 
         state_with_depth_ptr_t addInitState()
@@ -119,8 +123,8 @@ namespace hpp {
             const state_with_depth_ptr_t& _p,
             const EdgePtr_t& transition)
         {
-          const state_with_depths_t& parents = _p.first->second;
-          const state_with_depth& from = parents[_p.second];
+          const state_with_depths_t& parents = _p.state->second;
+          const state_with_depth& from = parents[_p.parentIdx];
 
           // Insert state to if necessary
           StateMap_t::iterator next = parent1.insert (
@@ -129,7 +133,7 @@ namespace hpp {
                 )).first;
 
           next->second.push_back (
-              state_with_depth(transition, from.l + 1, _p.second));
+              state_with_depth(transition, from.l + 1, _p.parentIdx));
 
           return state_with_depth_ptr_t (next, next->second.size()-1);
         }
@@ -147,7 +151,7 @@ namespace hpp {
 
           bool done = false;
 
-          const Neighbors_t& neighbors = _state.first->first->neighbors();
+          const Neighbors_t& neighbors = _state.state->first->neighbors();
           for (Neighbors_t::const_iterator _n = neighbors.begin();
               _n != neighbors.end(); ++_n) {
             EdgePtr_t transition = _n->second;

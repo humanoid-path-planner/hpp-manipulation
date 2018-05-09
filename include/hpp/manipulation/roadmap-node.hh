@@ -92,12 +92,12 @@ namespace hpp {
         }
         /// \}
 
-        void symbolicComponent (const SymbolicComponentPtr_t& sc)
+        void symbolicComponent (const LeafConnectedCompPtr_t& sc)
         {
           symbolicCC_ = sc;
         }
 
-        SymbolicComponentPtr_t symbolicComponent () const
+        LeafConnectedCompPtr_t symbolicComponent () const
         {
           return symbolicCC_;
         }
@@ -106,7 +106,7 @@ namespace hpp {
         CachingSystem cacheSystem_;
 
         graph::StateWkPtr_t state_;
-        SymbolicComponentPtr_t symbolicCC_;
+        LeafConnectedCompPtr_t symbolicCC_;
     };
   } // namespace manipulation
 } // namespace hpp

@@ -16,8 +16,8 @@
 // hpp-manipulation  If not, see
 // <http://www.gnu.org/licenses/>.
 
-#ifndef HPP_MANIPULATION_SYMBOLIC_COMPONENT_HH
-#define HPP_MANIPULATION_SYMBOLIC_COMPONENT_HH
+#ifndef HPP_MANIPULATION_LEAF_CONNECTED_COMP_HH
+#define HPP_MANIPULATION_LEAF_CONNECTED_COMP_HH
 
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>
@@ -27,29 +27,29 @@
 
 namespace hpp {
   namespace manipulation {
-    /// Set of configurations accessible to each others by a single edge,
+    /// Set of configurations accessible to each others by a single transition,
     /// with the same right hand side.
     ///
     /// This assumes the roadmap is not directed.
-    class HPP_MANIPULATION_DLLAPI SymbolicComponent
+    class HPP_MANIPULATION_DLLAPI LeafConnectedComp
     {
       public:
-        typedef std::set<SymbolicComponent*> SymbolicComponents_t;
+        typedef std::set<LeafConnectedComp*> LeafConnectedComps_t;
 
         /// return a shared pointer to new instance
-        static SymbolicComponentPtr_t create (const RoadmapPtr_t& roadmap);
+        static LeafConnectedCompPtr_t create (const RoadmapPtr_t& roadmap);
 
         /// Merge two symbolic components
         /// \param other manipulation symbolic component to merge into this one.
         /// \note other will be empty after calling this method.
-        virtual void merge (SymbolicComponentPtr_t otherCC);
+        virtual void merge (LeafConnectedCompPtr_t otherCC);
 
-        bool canMerge (const SymbolicComponentPtr_t& otherCC) const;
+        bool canMerge (const LeafConnectedCompPtr_t& otherCC) const;
 
         /// Add otherCC to the list of reachable components
         ///
         /// This also add this object to the list of ancestor of otherCC.
-        void canReach (const SymbolicComponentPtr_t& otherCC);
+        void canReach (const LeafConnectedCompPtr_t& otherCC);
 
         /// Add roadmap node to connected component
         /// \param roadmap node to be added
@@ -69,10 +69,10 @@ namespace hpp {
         }
 
       protected:
-        SymbolicComponent(const RoadmapPtr_t& r)
+        LeafConnectedComp(const RoadmapPtr_t& r)
           : roadmap_(r) {}
 
-        void init (const SymbolicComponentWkPtr_t& shPtr)
+        void init (const LeafConnectedCompWkPtr_t& shPtr)
         {
           weak_ = shPtr;
         }
@@ -82,19 +82,19 @@ namespace hpp {
 
       private:
         RoadmapWkPtr_t roadmap_;
-        SymbolicComponents_t to_, from_;
-        SymbolicComponentWkPtr_t weak_;
-    }; // class SymbolicComponent
+        LeafConnectedComps_t to_, from_;
+        LeafConnectedCompWkPtr_t weak_;
+    }; // class LeafConnectedComp
 
-    class HPP_MANIPULATION_DLLAPI WeighedSymbolicComponent :
-      public SymbolicComponent
+    class HPP_MANIPULATION_DLLAPI WeighedLeafConnectedComp :
+      public LeafConnectedComp
     {
       public:
-        void merge (SymbolicComponentPtr_t otherCC);
+        void merge (LeafConnectedCompPtr_t otherCC);
 
         void setFirstNode (const RoadmapNodePtr_t& node);
 
-        static WeighedSymbolicComponentPtr_t create (const RoadmapPtr_t& roadmap);
+        static WeighedLeafConnectedCompPtr_t create (const RoadmapPtr_t& roadmap);
 
         std::size_t indexOf (const graph::EdgePtr_t e) const;
 
@@ -110,11 +110,11 @@ namespace hpp {
         std::vector<graph::EdgePtr_t> edges_;
 
       protected:
-        WeighedSymbolicComponent(const RoadmapPtr_t& r)
-          : SymbolicComponent(r), weight_(1) {}
+        WeighedLeafConnectedComp(const RoadmapPtr_t& r)
+          : LeafConnectedComp(r), weight_(1) {}
 
       private:
-    }; // class SymbolicComponent
+    }; // class LeafConnectedComp
   } //   namespace manipulation
 } // namespace hpp
-#endif // HPP_MANIPULATION_SYMBOLIC_COMPONENT_HH
+#endif // HPP_MANIPULATION_LEAF_CONNECTED_COMP_HH

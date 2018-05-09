@@ -42,15 +42,15 @@
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap.hh"
 #include "hpp/manipulation/roadmap-node.hh"
-#include "hpp/manipulation/symbolic-component.hh"
+#include "hpp/manipulation/leaf-connected-comp.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/graph/state-selector.hh"
 
 #define CastToWSC_ptr(var, scPtr) \
-  WeighedSymbolicComponentPtr_t var = \
-  HPP_DYNAMIC_PTR_CAST(WeighedSymbolicComponent,scPtr)
+  WeighedLeafConnectedCompPtr_t var = \
+  HPP_DYNAMIC_PTR_CAST(WeighedLeafConnectedComp,scPtr)
 
 namespace hpp {
   namespace manipulation {
@@ -74,22 +74,22 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER(projectPath);
       HPP_DEFINE_TIMECOUNTER(validatePath);
 
-      struct WeighedSymbolicComponentComp {
-        bool operator() (const SymbolicComponentPtr_t& lhs, const SymbolicComponentPtr_t& rhs)
+      struct WeighedLeafConnectedCompComp {
+        bool operator() (const LeafConnectedCompPtr_t& lhs, const LeafConnectedCompPtr_t& rhs)
         {
-          return HPP_DYNAMIC_PTR_CAST(WeighedSymbolicComponent, lhs)->weight_
-            > HPP_DYNAMIC_PTR_CAST(WeighedSymbolicComponent, rhs)->weight_;
+          return HPP_DYNAMIC_PTR_CAST(WeighedLeafConnectedComp, lhs)->weight_
+            > HPP_DYNAMIC_PTR_CAST(WeighedLeafConnectedComp, rhs)->weight_;
         }
       };
-      typedef std::list<WeighedSymbolicComponentPtr_t> SymbolicComponentList_t;
-      SymbolicComponentList_t sorted_list (const SymbolicComponents_t& sc)
+      typedef std::list<WeighedLeafConnectedCompPtr_t> LeafConnectedCompList_t;
+      LeafConnectedCompList_t sorted_list (const LeafConnectedComps_t& sc)
       {
-        SymbolicComponentList_t l;
-        WeighedSymbolicComponentComp comp;
-        for (SymbolicComponents_t::const_iterator _sc = sc.begin();
+        LeafConnectedCompList_t l;
+        WeighedLeafConnectedCompComp comp;
+        for (LeafConnectedComps_t::const_iterator _sc = sc.begin();
             _sc != sc.end(); ++_sc)
           l.insert (std::upper_bound(l.begin(), l.end(), *_sc, comp),
-              HPP_DYNAMIC_PTR_CAST(WeighedSymbolicComponent, *_sc));
+              HPP_DYNAMIC_PTR_CAST(WeighedLeafConnectedComp, *_sc));
         return l;
       }
 
@@ -179,7 +179,7 @@ namespace hpp {
       // Get the roadmap and the symbolic components
       RoadmapPtr_t rdm = HPP_DYNAMIC_PTR_CAST(Roadmap, roadmap());
       HPP_ASSERT(rdm);
-      SymbolicComponentList_t scs = sorted_list (rdm->symbolicComponents());
+      LeafConnectedCompList_t scs = sorted_list (rdm->symbolicComponents());
 
       core::Nodes_t newNodes;
       core::PathPtr_t path;
@@ -199,8 +199,8 @@ namespace hpp {
           itcc != rdm->connectedComponents ().end (); ++itcc) {
         // Find the symbolic component in this connected component which has
         // the highest value.
-        SymbolicComponentPtr_t sc;
-        for (SymbolicComponentList_t::iterator _sc = scs.begin();
+        LeafConnectedCompPtr_t sc;
+        for (LeafConnectedCompList_t::iterator _sc = scs.begin();
             _sc != scs.end(); ++_sc) {
           sc = *_sc;
           if (sc->connectedComponent() == *itcc) break;
@@ -300,10 +300,10 @@ namespace hpp {
 
       HPP_START_TIMECOUNTER (chooseEdge);
       // This code should go into a NodeSelector derived class.
-      WeighedSymbolicComponentPtr_t wscPtr = HPP_DYNAMIC_PTR_CAST
-        (WeighedSymbolicComponent, n_near->symbolicComponent());
+      WeighedLeafConnectedCompPtr_t wscPtr = HPP_DYNAMIC_PTR_CAST
+        (WeighedLeafConnectedComp, n_near->symbolicComponent());
       if (wscPtr) {
-        WeighedSymbolicComponent wsc = *wscPtr;
+        WeighedLeafConnectedComp wsc = *wscPtr;
         value_type R = rand() / RAND_MAX;
         std::size_t i = 0;
         for (value_type sum = wsc.p_[0]; sum < R; sum += wsc.p_[i]) { ++i; }
@@ -632,7 +632,7 @@ namespace hpp {
 
     void SymbolicPlanner::updateEdgeProba (
         const graph::EdgePtr_t edge,
-        WeighedSymbolicComponentPtr_t wsc,
+        WeighedLeafConnectedCompPtr_t wsc,
         const value_type alpha) {
       size_type i = wsc->indexOf (edge);
       assert(i < wsc->p_.size());

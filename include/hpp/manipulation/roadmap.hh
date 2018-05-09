@@ -67,7 +67,7 @@ namespace hpp {
 	graph::StatePtr_t getState(RoadmapNodePtr_t node);
 
         /// Get the symbolic components
-        const SymbolicComponents_t& symbolicComponents () const
+        const LeafConnectedComps_t& symbolicComponents () const
         {
           return symbolicCCs_;
         }
@@ -97,7 +97,7 @@ namespace hpp {
         Histograms_t histograms_;
         graph::GraphPtr_t graph_;
         RoadmapWkPtr_t weak_;
-        SymbolicComponents_t symbolicCCs_;
+        LeafConnectedComps_t symbolicCCs_;
     };
     /// \}
   } // namespace manipulation

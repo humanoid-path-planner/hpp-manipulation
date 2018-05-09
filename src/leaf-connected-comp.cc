@@ -14,44 +14,44 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/manipulation/symbolic-component.hh>
+#include <hpp/manipulation/leaf-connected-comp.hh>
 
 #include <hpp/manipulation/roadmap.hh>
 #include <hpp/manipulation/graph/state.hh>
 
 namespace hpp {
   namespace manipulation {
-    SymbolicComponentPtr_t SymbolicComponent::create (const RoadmapPtr_t& roadmap)
+    LeafConnectedCompPtr_t LeafConnectedComp::create (const RoadmapPtr_t& roadmap)
     {
-      SymbolicComponentPtr_t shPtr =
-        SymbolicComponentPtr_t(new SymbolicComponent(roadmap));
+      LeafConnectedCompPtr_t shPtr =
+        LeafConnectedCompPtr_t(new LeafConnectedComp(roadmap));
       shPtr->init(shPtr);
       return shPtr;
     }
 
-    void SymbolicComponent::addNode (const RoadmapNodePtr_t& node)
+    void LeafConnectedComp::addNode (const RoadmapNodePtr_t& node)
     {
       assert(state_);
       graph::StatePtr_t state = roadmap_.lock()->getState(node);
 
       // Sanity check
       if (state_ == state) // Oops
-        throw std::runtime_error ("RoadmapNode of SymbolicComponent must be in"
+        throw std::runtime_error ("RoadmapNode of LeafConnectedComp must be in"
             " the same state");
       nodes_.push_back(node);
     }
 
-    void SymbolicComponent::setFirstNode (const RoadmapNodePtr_t& node)
+    void LeafConnectedComp::setFirstNode (const RoadmapNodePtr_t& node)
     {
       assert(!state_);
       state_ = roadmap_.lock()->getState(node);
       nodes_.push_back(node);
     }
 
-    bool SymbolicComponent::canMerge (const SymbolicComponentPtr_t& otherCC) const
+    bool LeafConnectedComp::canMerge (const LeafConnectedCompPtr_t& otherCC) const
     {
       if (otherCC->state_ != state_) return false;
-      SymbolicComponents_t::const_iterator it = std::find
+      LeafConnectedComps_t::const_iterator it = std::find
         (to_.begin(), to_.end(), otherCC.get());
       if (it == to_.end()) return false;
       it = std::find
@@ -60,13 +60,13 @@ namespace hpp {
       return true;
     }
 
-    void SymbolicComponent::canReach (const SymbolicComponentPtr_t& otherCC)
+    void LeafConnectedComp::canReach (const LeafConnectedCompPtr_t& otherCC)
     {
       to_.insert(otherCC.get());
       otherCC->from_.insert(this);
     }
 
-    void SymbolicComponent::merge (SymbolicComponentPtr_t other)
+    void LeafConnectedComp::merge (LeafConnectedCompPtr_t other)
     {
       assert (canMerge(other));
       if (other == weak_.lock()) return;
@@ -87,28 +87,28 @@ namespace hpp {
       to_.insert (other->to_.begin(), other->to_.end());
     }
 
-    WeighedSymbolicComponentPtr_t WeighedSymbolicComponent::create (const RoadmapPtr_t& roadmap)
+    WeighedLeafConnectedCompPtr_t WeighedLeafConnectedComp::create (const RoadmapPtr_t& roadmap)
     {
-      WeighedSymbolicComponentPtr_t shPtr = WeighedSymbolicComponentPtr_t
-        (new WeighedSymbolicComponent(roadmap));
+      WeighedLeafConnectedCompPtr_t shPtr = WeighedLeafConnectedCompPtr_t
+        (new WeighedLeafConnectedComp(roadmap));
       shPtr->init(shPtr);
       return shPtr;
     }
 
-    void WeighedSymbolicComponent::merge (SymbolicComponentPtr_t otherCC)
+    void WeighedLeafConnectedComp::merge (LeafConnectedCompPtr_t otherCC)
     {
-      WeighedSymbolicComponentPtr_t other =
-        HPP_DYNAMIC_PTR_CAST(WeighedSymbolicComponent, otherCC);
+      WeighedLeafConnectedCompPtr_t other =
+        HPP_DYNAMIC_PTR_CAST(WeighedLeafConnectedComp, otherCC);
       value_type r = ((value_type)nodes_.size()) / (value_type)(nodes_.size() + other->nodes_.size());
 
-      SymbolicComponent::merge(otherCC);
+      LeafConnectedComp::merge(otherCC);
       weight_ *= other->weight_; // TODO a geometric mean would be more natural.
       p_ = r * p_ + (1 - r) * other->p_;
     }
 
-    void WeighedSymbolicComponent::setFirstNode (const RoadmapNodePtr_t& node)
+    void WeighedLeafConnectedComp::setFirstNode (const RoadmapNodePtr_t& node)
     {
-      SymbolicComponent::setFirstNode(node);
+      LeafConnectedComp::setFirstNode(node);
       std::vector<value_type> p = state_->neighbors().probabilities();
       p_.resize(p.size());
       edges_ = state_->neighbors().values();
@@ -116,7 +116,7 @@ namespace hpp {
         p_[i] = p[i];
     }
 
-    std::size_t WeighedSymbolicComponent::indexOf (const graph::EdgePtr_t e) const
+    std::size_t WeighedLeafConnectedComp::indexOf (const graph::EdgePtr_t e) const
     {
       std::size_t i = 0;
       for (; i < edges_.size(); ++i)

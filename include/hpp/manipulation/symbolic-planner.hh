@@ -104,11 +104,11 @@ namespace hpp {
         /// \param alpha should be between 0 and 1.
         ///
         /// \note Theoretically, the described operation preserves the
-        /// normalization of the sum. WeighedSymbolicComponent::normalizeProba
+        /// normalization of the sum. WeighedLeafConnectedComp::normalizeProba
         /// is called to avoid numerical errors.
         static void updateEdgeProba (
             const graph::EdgePtr_t edge,
-            WeighedSymbolicComponentPtr_t wsc,
+            WeighedLeafConnectedCompPtr_t wsc,
             const value_type alpha);
 
         /// Configuration shooter

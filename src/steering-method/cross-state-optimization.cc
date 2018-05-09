@@ -580,11 +580,22 @@ namespace hpp {
         hppDout (info, "Solver informations\n" << d.solver);
 
         // Initial guess
+        std::vector<size_type> ks;
+        size_type K = 0;
+        ks.resize(d.N);
+        for (std::size_t i = 0; i < d.N + 1; ++i) {
+          if (!transitions[i]->isShort()) ++K;
+          if (i < d.N) ks[i] = K;
+        }
+        if (K==0) {
+          ++K;
+          for (std::size_t i = d.N/2; i < d.N; ++i)
+            ks[i] = 1;
+        }
         d.q.resize (d.N * d.nq);
         for (std::size_t i = 0; i < d.N; ++i) {
-          pinocchio::interpolate (d.robot, d.q1, d.q2,
-              value_type(i+1) / value_type(d.N+1),
-              d.q.segment (i * d.nq, d.nq));
+          value_type u = value_type(ks[i]) / value_type(K);
+          pinocchio::interpolate (d.robot, d.q1, d.q2, u, d.q.segment (i * d.nq, d.nq));
         }
       }
 

@@ -21,6 +21,14 @@
 
 namespace hpp {
   namespace manipulation {
+    void LeafConnectedComp::clean (LeafConnectedComps_t& set)
+    {
+      for (LeafConnectedComps_t::iterator it = set.begin ();
+	   it != set.end (); ++it) {
+	(*it)->explored_ = false;
+      }
+    }
+
     LeafConnectedCompPtr_t LeafConnectedComp::create (const RoadmapPtr_t& roadmap)
     {
       LeafConnectedCompPtr_t shPtr =
@@ -48,28 +56,105 @@ namespace hpp {
       nodes_.push_back(node);
     }
 
-    bool LeafConnectedComp::canMerge (const LeafConnectedCompPtr_t& otherCC) const
+    bool LeafConnectedComp::canReach (const LeafConnectedCompPtr_t& cc)
     {
-      if (otherCC->state_ != state_) return false;
-      LeafConnectedComps_t::const_iterator it = std::find
-        (to_.begin(), to_.end(), otherCC.get());
-      if (it == to_.end()) return false;
-      it = std::find
-        (from_.begin(), from_.end(), otherCC.get());
-      if (it == from_.end()) return false;
+      // Store visited connected components for further cleaning.
+      LeafConnectedComp::LeafConnectedComps_t explored;
+      std::deque <RawPtr_t> queue;
+      queue.push_back (this);
+      explored_ = true;
+      explored.insert (this);
+      while (!queue.empty ()) {
+	RawPtr_t current = queue.front ();
+	queue.pop_front ();
+	if (current == cc.get()) {
+	  clean (explored);
+	  return true;
+	}
+	for (LeafConnectedComp::LeafConnectedComps_t::iterator itChild =
+	       current->to_.begin ();
+	     itChild != current->to_.end (); ++itChild) {
+	  RawPtr_t child = *itChild;
+	  if (!child->explored_) {
+	    child->explored_ = true;
+	    explored.insert (child);
+	    queue.push_back (child);
+	  }
+	}
+      }
+      clean (explored);
+      return false;
+    }
+
+    bool LeafConnectedComp::canReach
+    (const LeafConnectedCompPtr_t& cc,
+     LeafConnectedComp::LeafConnectedComps_t& ccToThis)
+    {
+      bool reachable = false;
+      // Store visited connected components
+      LeafConnectedComp::LeafConnectedComps_t exploredForward;
+      std::deque <RawPtr_t> queue;
+      queue.push_back (this);
+      explored_ = true;
+      exploredForward.insert (this);
+      while (!queue.empty ()) {
+	RawPtr_t current = queue.front ();
+	queue.pop_front ();
+	if (current == cc.get()) {
+	  reachable = true;
+	  exploredForward.insert (current);
+	} else {
+	  for (LeafConnectedComp::LeafConnectedComps_t::iterator itChild =
+		 current->to_.begin ();
+	       itChild != current->to_.end (); ++itChild) {
+	    RawPtr_t child = *itChild;
+	    if (!child->explored_) {
+	      child->explored_ = true;
+	      exploredForward.insert (child);
+	      queue.push_back (child);
+	    }
+	  }
+	}
+      }
+      // Set visited connected components to unexplored
+      clean (exploredForward);
+      if (!reachable) return false;
+
+      // Store visited connected components
+      LeafConnectedComps_t exploredBackward;
+      queue.push_back (cc.get());
+      cc->explored_ = true;
+      exploredBackward.insert (cc.get());
+      while (!queue.empty ()) {
+	RawPtr_t current = queue.front ();
+	queue.pop_front ();
+	if (current == this) {
+	  exploredBackward.insert (current);
+	} else {
+	  for (LeafConnectedComps_t::iterator itChild =
+		 current->from_.begin ();
+	       itChild != current->from_.end (); ++itChild) {
+	    RawPtr_t child = *itChild;
+	    if (!child->explored_) {
+	      child->explored_ = true;
+	      exploredBackward.insert (child);
+	      queue.push_back (child);
+	    }
+	  }
+	}
+      }
+      // Set visited connected components to unexplored
+      clean (exploredBackward);
+      std::set_intersection (exploredForward.begin (), exploredForward.end (),
+			     exploredBackward.begin (), exploredBackward.end (),
+			     std::inserter (ccToThis, ccToThis.begin ()));
       return true;
     }
 
-    void LeafConnectedComp::canReach (const LeafConnectedCompPtr_t& otherCC)
+    void LeafConnectedComp::merge (const LeafConnectedCompPtr_t& other)
     {
-      to_.insert(otherCC.get());
-      otherCC->from_.insert(this);
-    }
-
-    void LeafConnectedComp::merge (LeafConnectedCompPtr_t other)
-    {
-      assert (canMerge(other));
-      if (other == weak_.lock()) return;
+      assert(other);
+      assert(weak_.lock().get() == this);
 
       // Tell other's nodes that they now belong to this connected component
       for (RoadmapNodes_t::iterator itNode = other->nodes_.begin ();
@@ -79,12 +164,34 @@ namespace hpp {
       // Add other's nodes to this list.
       nodes_.insert (nodes_.end (), other->nodes_.begin(), other->nodes_.end());
 
-      from_.erase (other.get());
-      other->from_.erase (this);
-      from_.insert (other->from_.begin(), other->from_.end());
+      // Tell other's reachableTo's that other has been replaced by this
+      for (LeafConnectedComps_t::iterator itcc = other->to_.begin ();
+	   itcc != other->to_.end (); ++itcc) {
+	(*itcc)->from_.erase (other.get());
+	(*itcc)->from_.insert (this);
+      }
+
+      // Tell other's reachableFrom's that other has been replaced by this
+      for (LeafConnectedComps_t::iterator itcc=other->from_.begin ();
+	   itcc != other->from_.end (); ++itcc) {
+	(*itcc)->to_.erase (other.get());
+	(*itcc)->to_.insert (this);
+      }
+
+      LeafConnectedComps_t tmp;
+      std::set_union (to_.begin (), to_.end (),
+		      other->to_.begin (), other->to_.end (),
+		      std::inserter (tmp, tmp.begin ()));
+      to_ = tmp; tmp.clear ();
       to_.erase (other.get());
-      other->to_.erase (this);
-      to_.insert (other->to_.begin(), other->to_.end());
+      to_.erase (this);
+      std::set_union (from_.begin (), from_.end (),
+		      other->from_.begin (),
+		      other->from_.end (),
+		      std::inserter (tmp, tmp.begin()));
+      from_ = tmp; tmp.clear ();
+      from_.erase (other.get());
+      from_.erase (this);
     }
 
     WeighedLeafConnectedCompPtr_t WeighedLeafConnectedComp::create (const RoadmapPtr_t& roadmap)
@@ -95,7 +202,7 @@ namespace hpp {
       return shPtr;
     }
 
-    void WeighedLeafConnectedComp::merge (LeafConnectedCompPtr_t otherCC)
+    void WeighedLeafConnectedComp::merge (const LeafConnectedCompPtr_t& otherCC)
     {
       WeighedLeafConnectedCompPtr_t other =
         HPP_DYNAMIC_PTR_CAST(WeighedLeafConnectedComp, otherCC);

@@ -34,22 +34,26 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI LeafConnectedComp
     {
       public:
-        typedef std::set<LeafConnectedComp*> LeafConnectedComps_t;
-
+        typedef LeafConnectedComp* RawPtr_t;
+        typedef std::set <RawPtr_t> LeafConnectedComps_t;
         /// return a shared pointer to new instance
         static LeafConnectedCompPtr_t create (const RoadmapPtr_t& roadmap);
 
-        /// Merge two symbolic components
+        /// Merge two connected components
         /// \param other manipulation symbolic component to merge into this one.
         /// \note other will be empty after calling this method.
-        virtual void merge (LeafConnectedCompPtr_t otherCC);
+        virtual void merge (const LeafConnectedCompPtr_t& otherCC);
 
-        bool canMerge (const LeafConnectedCompPtr_t& otherCC) const;
+        /// Whether this connected component can reach cc
+        /// \param cc a connected component
+        bool canReach (const LeafConnectedCompPtr_t& cc);
 
-        /// Add otherCC to the list of reachable components
-        ///
-        /// This also add this object to the list of ancestor of otherCC.
-        void canReach (const LeafConnectedCompPtr_t& otherCC);
+        /// Whether this connected component can reach cc
+        /// \param cc a connected component
+        /// \retval cc2Tocc1 list of connected components between cc2 and cc1
+        ///         that should be merged.
+        bool canReach (const LeafConnectedCompPtr_t& cc,
+                       LeafConnectedComp::LeafConnectedComps_t& cc2Tocc1);
 
         /// Add roadmap node to connected component
         /// \param roadmap node to be added
@@ -68,7 +72,21 @@ namespace hpp {
           return nodes_;
         }
 
-      protected:
+        LeafConnectedCompPtr_t self ()
+        {
+          return weak_.lock ();
+        }
+
+        const LeafConnectedComp::LeafConnectedComps_t& from () const
+        {
+          return from_;
+        }
+
+        const LeafConnectedComp::LeafConnectedComps_t& to () const
+        {
+          return to_;
+        }
+    protected:
         LeafConnectedComp(const RoadmapPtr_t& r)
           : roadmap_(r) {}
 
@@ -81,16 +99,20 @@ namespace hpp {
         RoadmapNodes_t nodes_;
 
       private:
+        static void clean (LeafConnectedComps_t& set);
+        // status variable to indicate whether or not CC has been visited
+        mutable bool explored_;
         RoadmapWkPtr_t roadmap_;
         LeafConnectedComps_t to_, from_;
         LeafConnectedCompWkPtr_t weak_;
+        friend class Roadmap;
     }; // class LeafConnectedComp
 
     class HPP_MANIPULATION_DLLAPI WeighedLeafConnectedComp :
       public LeafConnectedComp
     {
       public:
-        void merge (LeafConnectedCompPtr_t otherCC);
+        void merge (const LeafConnectedCompPtr_t& otherCC);
 
         void setFirstNode (const RoadmapNodePtr_t& node);
 

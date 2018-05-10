@@ -23,6 +23,7 @@
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
 # include <hpp/manipulation/deprecated.hh>
+# include <hpp/manipulation/leaf-connected-comp.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -62,6 +63,18 @@ namespace hpp {
 	/// Get graph state corresponding to given roadmap node
 	/// \deprecated use getState instead
 	graph::StatePtr_t getNode(RoadmapNodePtr_t node) HPP_MANIPULATION_DEPRECATED;
+
+        /// Update the graph of connected components after new connection
+        /// \param cc1, cc2 the two connected components that have just been
+        /// connected.
+        void connect (const LeafConnectedCompPtr_t& cc1,
+                      const LeafConnectedCompPtr_t& cc2);
+
+        /// Merge two connected components
+        /// \param cc1 the connected component to merge into
+        /// \param the connected components to merge into cc1.
+        void merge (const LeafConnectedCompPtr_t& cc1,
+                    LeafConnectedComp::LeafConnectedComps_t& ccs);
 
 	/// Get graph state corresponding to given roadmap node
 	graph::StatePtr_t getState(RoadmapNodePtr_t node);

@@ -62,6 +62,8 @@ namespace hpp {
     typedef boost::shared_ptr<ConnectedComponent> ConnectedComponentPtr_t; 
     HPP_PREDEF_CLASS (LeafConnectedComp);
     typedef boost::shared_ptr<LeafConnectedComp> LeafConnectedCompPtr_t;
+    typedef boost::shared_ptr<const LeafConnectedComp>
+    LeafConnectedCompConstPtr_t;
     typedef std::set<LeafConnectedCompPtr_t> LeafConnectedComps_t;
     HPP_PREDEF_CLASS (WeighedLeafConnectedComp);
     typedef boost::shared_ptr<WeighedLeafConnectedComp> WeighedLeafConnectedCompPtr_t;

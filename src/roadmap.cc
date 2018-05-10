@@ -37,7 +37,7 @@ namespace hpp {
       Roadmap* ptr = new Roadmap (distance, robot);
       RoadmapPtr_t shPtr (ptr);
       ptr->init(shPtr);
-      return shPtr; 
+      return shPtr;
     }
 
     void Roadmap::clear ()
@@ -57,7 +57,7 @@ namespace hpp {
     void Roadmap::push_node (const core::NodePtr_t& n)
     {
       Parent::push_node (n);
-      const RoadmapNodePtr_t& node = 
+      const RoadmapNodePtr_t& node =
         static_cast <const RoadmapNodePtr_t> (n);
       statInsert (node);
       leafCCs_.insert(node->leafConnectedComponent());
@@ -129,22 +129,46 @@ namespace hpp {
       return graph_->getState(node);
     }
 
+    void Roadmap::connect (const LeafConnectedCompPtr_t& cc1,
+			   const LeafConnectedCompPtr_t& cc2)
+    {
+      if (cc1->canReach (cc2)) return;
+      LeafConnectedComp::LeafConnectedComps_t cc2Tocc1;
+      if (cc2->canReach (cc1, cc2Tocc1)) {
+	merge (cc1, cc2Tocc1);
+      } else {
+	cc1->to_.insert (cc2.get());
+	cc2->from_.insert (cc1.get());
+      }
+    }
+
+    void Roadmap::merge (const LeafConnectedCompPtr_t& cc1,
+			 LeafConnectedComp::LeafConnectedComps_t& ccs)
+    {
+      for (LeafConnectedComp::LeafConnectedComps_t::iterator itcc =
+             ccs.begin ();
+           itcc != ccs.end (); ++itcc) {
+	if (*itcc != cc1.get()) {
+	  cc1->merge ((*itcc)->self());
+#ifndef NDEBUG
+	  std::size_t nb =
+#endif
+	  leafCCs_.erase ((*itcc)->self());
+	  assert (nb == 1);
+	}
+      }
+    }
+
     void Roadmap::addEdge (const core::EdgePtr_t& edge)
     {
       Parent::addEdge(edge);
       const RoadmapNodePtr_t& f = static_cast <const RoadmapNodePtr_t> (edge->from());
       const RoadmapNodePtr_t& t = static_cast <const RoadmapNodePtr_t> (edge->to());
-      LeafConnectedCompPtr_t scf = f->leafConnectedComponent();
-      LeafConnectedCompPtr_t sct = t->leafConnectedComponent();
-      scf->canReach(sct);
-      if (scf->canMerge(sct)) {
-        if (scf->nodes().size() > sct->nodes().size()) {
-          scf->merge(sct);
-          leafCCs_.erase(sct);
-        } else {
-          sct->merge(scf);
-          leafCCs_.erase(scf);
-        }
+      if (f->graphState () == t->graphState ()) {
+        LeafConnectedCompPtr_t cc1 (f->leafConnectedComponent());
+        LeafConnectedCompPtr_t cc2 (t->leafConnectedComponent());
+
+        connect (cc1, cc2);
       }
     }
   } // namespace manipulation

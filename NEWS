@@ -1,16 +1,48 @@
+2018/05/17 - Release 4.1
+* Reset data when inserting robot.
+* Fix detection of hpp-wholebody-step.
+* In GraphSteeringMethod; create a inner steering method at construction.
+* Move lockedJointPtr_t to hpp-core in hpp::manipulation::ProblemSolver
+* Remove unused static method Handle::createGrasp.
+* Make class AxialHandle deprecated.
+* Add a method createGraspAndComplement in Handle classes
+* Add className static members in classes Handle and AxialHandle.
+* Add a method createGraspAndComplement in Handle classes.
+* Dectect pairs (constraint, complement) and replace by relative transformation.
+* Make robot type hpp::manipulation::Device in ProblemSolver.
+* Check input path of GraphPathValidation
+* In class Roadmap call parent implementation in init method
+* Rename class SymbolicComponent into LeafConnectedCompo.
+* Rewrite implementation of class LeafConnectedComp.
+* Add class problemTarget::State.
+* Fix case where robot already exists in Device::didInsertRobot.
+* Add parameter ManipulationPlanner/ExtendStep.
+* Class Handle takes a mask as input.
+* Update to changes about ConfigProjector::updateRightHandSize.
+* Add LockedJoint before NumericalConstraint into ConfigProjector.
+* GraphSteeringMethod is built with a const Problem& (not a ProblemPtr_t).
+* Fix Roadmap::clear (remove symbolic components).
+* Add possibility to provide placement constraint for automatic graph creation.
+* Add SplineGradientBased for manipulation path
+* Add possibility to set derivatives at state change to zero (SplineGradientBased).
+* GraphOptimizer uses path validation of edge for optimization.
+* Improve initialization of the graph and fix more const-correctness errors.
+* ProblemSolver has a map of graph::GraphPtr_t.
+* Prevent name collision in graph construction.
+
 2014/12/03 - Release 1.1
-        * Add projector for paths.
-        * Add information in the tooltips of the DOT graph.
+* Add projector for paths.
+* Add information in the tooltips of the DOT graph.
 
 2014/12/03 - Release 1.0.2
-        * Fix bug when projection using WaypointEdge
+* Fix bug when projection using WaypointEdge
 
 2014/12/03 - Release 1.0.1
-        * Fix bug in WaypointEdge
+* Fix bug in WaypointEdge
 
 2014/11/18 - Release 1.0
-        * Manipulation planner based on RRT.
-        * A graph of constraint.
-        * graph::Edge has 3 implementations: Edge, WaypointEdge, LevelSetEdge
-        * WaypointEdge supports several waypoints.
-        * LevelSetEdge solves the zero-probability problem.
+* Manipulation planner based on RRT.
+* A graph of constraint.
+* graph::Edge has 3 implementations: Edge, WaypointEdge, LevelSetEdge
+* WaypointEdge supports several waypoints.
+* LevelSetEdge solves the zero-probability problem.

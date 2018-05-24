@@ -62,7 +62,7 @@ IF (HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
    ADD_REQUIRED_DEPENDENCY("hpp-wholebody-step >= 4")
 ENDIF ()
 IF (TEST_UR5)
-  ADD_REQUIRED_DEPENDENCY(hpp-model-urdf >= 3.0.0)
+  ADD_REQUIRED_DEPENDENCY("hpp_universal_robot")
 ENDIF ()
 
 CONFIG_FILES (doc/main.hh

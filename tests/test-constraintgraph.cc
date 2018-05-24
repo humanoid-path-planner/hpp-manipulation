@@ -15,13 +15,16 @@
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
 #include <hpp/util/pointer.hh>
-#include <hpp/model/urdf/util.hh>
+#include <hpp/pinocchio/urdf/util.hh>
+#include <hpp/pinocchio/liegroup-element.hh>
 
-#include <hpp/core/steering-method-straight.hh>
+#include <hpp/core/steering-method/straight.hh>
+#include <hpp/core/path-validation-report.hh>
 
-#include <hpp/constraints/position.hh>
+#include <hpp/constraints/generic-transformation.hh>
 #include <hpp/constraints/relative-com.hh>
 
+#include <hpp/manipulation/constraint-set.hh>
 #include "hpp/manipulation/graph/state.hh"
 #include "hpp/manipulation/graph/state-selector.hh"
 #include "hpp/manipulation/graph/graph.hh"
@@ -29,61 +32,78 @@
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
+#include <hpp/manipulation/steering-method/graph.hh>
 
 #include <boost/test/unit_test.hpp>
 
-using namespace ::hpp::manipulation;
 using hpp::core::SteeringMethodStraight;
 using hpp::core::SteeringMethodPtr_t;
 
-typedef std::vector <graph::GraphComponentPtr_t> GraphComponents;
+typedef std::vector <hpp::manipulation::graph::GraphComponentPtr_t>
+GraphComponents_t;
 
 namespace hpp_test {
-  DevicePtr_t robot;
+  using hpp::core::Configuration_t;
+  using hpp::manipulation::graph::GraphPtr_t;
+  using hpp::manipulation::graph::StateSelectorPtr_t;
+  using hpp::manipulation::graph::StateSelectorPtr_t;
+  using hpp::manipulation::graph::StatePtr_t;
+  using hpp::manipulation::graph::EdgePtr_t;
+  using hpp::manipulation::graph::Graph;
+  using hpp::manipulation::graph::GraphComponent;
+  using hpp::manipulation::graph::EdgePtr_t;
+  using hpp::manipulation::graph::Edges_t;
 
+  hpp::manipulation::DevicePtr_t robot;
   Configuration_t q1, q2;
 
-  GraphComponents components;
-  graph::GraphPtr_t graph_;
-  graph::NodeSelectorPtr_t ns;
-  graph::NodePtr_t n1;
-  graph::NodePtr_t n2;
-  graph::EdgePtr_t e11;
-  graph::EdgePtr_t e21;
-  graph::EdgePtr_t e12;
-  graph::EdgePtr_t e22;
+  GraphComponents_t components;
+  GraphPtr_t graph_;
+  StateSelectorPtr_t ns;
+  StatePtr_t n1;
+  StatePtr_t n2;
+  EdgePtr_t e11;
+  EdgePtr_t e21;
+  EdgePtr_t e12;
+  EdgePtr_t e22;
 
   void initialize (bool ur5)
   {
+    robot = hpp::manipulation::Device::create ("test-robot");
+    hpp::manipulation::ProblemPtr_t problem
+      (new hpp::manipulation::Problem (robot));
     if (ur5) {
 #ifdef TEST_UR5
-      robot = Device::create ("test-robot");
-      hpp::model::urdf::loadUrdfModel (robot, "anchor", "ur_description", "ur5_robot");
+      hpp::pinocchio::urdf::loadUrdfModel (robot, "anchor", "ur_description",
+                                           "ur5_joint_limited_robot");
 #else // TEST_UR5
       BOOST_ERROR ("Set TEST_UR5 in cmake to activate this.");
 #endif // TEST_UR5
-    } else {
-      robot = Device::create ("test-robot");
     }
-    SteeringMethodPtr_t sm (SteeringMethodStraight::create (robot));
-    graph_ = graph::Graph::create ("manpulation-graph", robot, sm);
+    SteeringMethodPtr_t sm
+      (hpp::manipulation::steeringMethod::Graph::create (*problem));
+    hpp::core::ProblemPtr_t pb (problem);
+    pb->steeringMethod (sm);
+
+    graph_ = Graph::create ("manipulation-graph", robot, problem);
     components.push_back(graph_);
     graph_->maxIterations (20);
     graph_->errorThreshold (1e-4);
-    ns = graph_->createNodeSelector("node-selector"); components.push_back(ns);
-    n1 = ns->createNode ("node 1"); components.push_back(n1);
-    n2 = ns->createNode ("node 2"); components.push_back(n2);
+    ns = graph_->createStateSelector("node-selector"); components.push_back(ns);
+    n1 = ns->createState ("node 1"); components.push_back(n1);
+    n2 = ns->createState ("node 2"); components.push_back(n2);
     e11 = n1->linkTo ("edge 11", n1); components.push_back(e11);
     e21 = n2->linkTo ("edge 21", n1); components.push_back(e21);
     e12 = n1->linkTo ("edge 12", n2); components.push_back(e12);
     e22 = n2->linkTo ("edge 22", n2); components.push_back(e22);
+    graph_->initialize ();
 
     q1 = Configuration_t::Zero(6);
     q2 = Configuration_t::Zero(6);
     q1 << 1,1,1,0,2.5,-1.9;
     q2 << 2,0,1,0,2.5,-1.9;
   }
-}
+} // namespace hpp_test
 
 BOOST_AUTO_TEST_CASE (GraphStructure)
 {
@@ -93,16 +113,16 @@ BOOST_AUTO_TEST_CASE (GraphStructure)
 
   // Check that GraphComponent keeps track of all object properly.
   size_t index = 0;
-  for (GraphComponents::iterator it = components.begin();
+  for (GraphComponents_t::iterator it = components.begin();
       it != components.end(); ++it) {
-    BOOST_CHECK_MESSAGE (*it == graph::GraphComponent::get (index).lock(),
-        "GraphComponent class do not track properly GraphComponents inherited objects");
+    BOOST_CHECK_MESSAGE (*it == graph_->get (index).lock(),
+        "GraphComponent class do not track properly GraphComponents_t inherited objects");
     index++;
   }
 
   // Test function Graph::getEdge
-  graph::NodePtr_t from(n1), to(n2);
-  graph::Edges_t checkPossibleEdges,
+  StatePtr_t from(n1), to(n2);
+  Edges_t checkPossibleEdges,
           possibleEdges = graph_->getEdges (from, to);
   checkPossibleEdges.push_back (e12);
   for (size_t j = 0; j < possibleEdges.size(); j++)
@@ -110,67 +130,7 @@ BOOST_AUTO_TEST_CASE (GraphStructure)
         "Possible edge j = " << j);
 
   Configuration_t cfg;
-  graph::NodePtr_t node = graph_->getNode (cfg);
+  StatePtr_t node = graph_->getState (cfg);
   BOOST_CHECK (node == n1);
 }
 
-#ifdef TEST_UR5
-BOOST_AUTO_TEST_CASE (ConstraintSets)
-{
-  using namespace hpp_test;
-  using namespace hpp::constraints;
-
-  vector_t res, expectedRes;
-
-  initialize (true);
-  JointPtr_t ee = robot->getJointByBodyName ("ee_link");
-
-  robot->currentConfiguration (q2);
-  robot->computeForwardKinematics ();
-  RelativeComPtr_t com = RelativeCom::create (robot, robot->rootJoint(), robot->positionCenterOfMass());
-  res.resize (com->outputSize()); expectedRes = vector_t::Zero(res.size());
-  (*com) (res,q2);
-  BOOST_CHECK (res == expectedRes);
-
-  robot->currentConfiguration (q1);
-  robot->computeForwardKinematics ();
-  fcl::Vec3f position = ee->currentTransformation ().getTranslation ();
-  PositionPtr_t pos = Position::create (robot, ee, vector3_t(0,0,0),
-      vector3_t(position[0],position[1],position[2]));
-  res.resize (pos->outputSize()); expectedRes = vector_t::Zero(res.size());
-  (*pos) (res,q1);
-  BOOST_CHECK (res == expectedRes);
-
-  //graph_->addNumericalConstraint (com);
-  n1->addNumericalConstraint (pos, Equality::create ());
-}
-
-BOOST_AUTO_TEST_CASE (PathValidationTest)
-{
-  using namespace hpp_test;
-
-  ProblemPtr_t pb = new Problem (robot);
-  BOOST_CHECK(robot->configSize() == 6);
-  pb->constraintGraph (graph_);
-  ConstraintSetPtr_t constraintn1 = graph_->configConstraint (n1);
-  ConstraintSetPtr_t constraintn2 = graph_->configConstraint (n2);
-  BOOST_CHECK ( constraintn1->isSatisfied (q1));
-  BOOST_CHECK (!constraintn1->isSatisfied (q2));
-  BOOST_CHECK ( constraintn2->isSatisfied (q2));
-  PathPtr_t p = (*pb->steeringMethod ())(ConfigurationIn_t(q1),ConfigurationIn_t(q2)),
-            validp;
-  graph::NodePtr_t nq1 = graph_->getNode (q1);
-  graph::NodePtr_t nq2 = graph_->getNode (q2);
-  BOOST_CHECK (nq1 == n1);
-  BOOST_CHECK (nq2 == n2);
-  GraphPathValidationPtr_t pv = pb->pathValidation ();
-  BOOST_CHECK (pv);
-  if (!pv->validate(p, false, validp)) {
-      BOOST_CHECK_MESSAGE (false,
-      "Valid part has length " << validp->length() << " and p " << p->length());
-      pv->innerValidation ()->validate (p, false, validp);
-      BOOST_CHECK_MESSAGE (false,
-      "Inner validation returned: Valid part has length " << validp->length() << " and p " << p->length());
-  }
-}
-#endif // TEST_UR5

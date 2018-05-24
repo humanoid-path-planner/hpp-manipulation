@@ -3,17 +3,17 @@
 # Author: Mathieu Geisert
 #
 # This file is part of hpp-core
-# hpp-model-urdf is free software: you can redistribute it and/or modify
+# hpp-manipulation is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# hpp-core is distributed in the hope that it will be useful,
+# hpp-manipulation is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Lesser Public License for more details.
 # You should have received a copy of the GNU Lesser General Public License
-# along with hpp-core  If not, see <http://www.gnu.org/licenses/>.
+# along with hpp-manipulation  If not, see <http://www.gnu.org/licenses/>.
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
@@ -36,13 +36,11 @@ MACRO(ADD_TESTCASE NAME GENERATED)
   ENDIF()
   ADD_TEST(${NAME} ${RUNTIME_OUTPUT_DIRECTORY}/${NAME})
 
-  PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-core)
-  PKG_CONFIG_USE_DEPENDENCY(${NAME} hpp-constraints)
-
+  PKG_CONFIG_USE_DEPENDENCY (${NAME} hpp-constraints)
   # Link against Boost and project library.
   TARGET_LINK_LIBRARIES(${NAME}
-    ${Boost_LIBRARIES}
     ${PROJECT_NAME}
+    ${Boost_LIBRARIES}
     )
 
 ENDMACRO(ADD_TESTCASE)
@@ -50,6 +48,5 @@ ENDMACRO(ADD_TESTCASE)
 IF (TEST_UR5)
   ADD_TESTCASE (test-constraintgraph FALSE)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTEST_UR5")
-  PKG_CONFIG_USE_DEPENDENCY(test-constraintgraph hpp-model-urdf)
 ENDIF ()
 # ADD_TESTCASE (path-projection FALSE) # moved in hpp-core

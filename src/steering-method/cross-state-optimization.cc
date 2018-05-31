@@ -546,8 +546,8 @@ namespace hpp {
           OptimizationData& d, const Edges_t& transitions) const
       {
         if (d.N == 0) return;
-        size_type maxIter = problem_.getParameter ("CrossStateOptimization/maxIteration", size_type(60));
-        value_type thr = problem_.getParameter ("CrossStateOptimization/errorThreshold", value_type(1e-4));
+        size_type maxIter = problem_.getParameter ("CrossStateOptimization/maxIteration").intValue();
+        value_type thr = problem_.getParameter ("CrossStateOptimization/errorThreshold").floatValue();
         d.solver.maxIterations (maxIter);
         d.solver.errorThreshold (thr);
 
@@ -650,7 +650,7 @@ namespace hpp {
         d.s1 = graph.getState (q1);
         d.s2 = graph.getState (q2);
         // d.maxDepth = 2;
-        d.maxDepth = problem_.getParameter ("CrossStateOptimization/maxDepth", size_type(2));
+        d.maxDepth = problem_.getParameter ("CrossStateOptimization/maxDepth").intValue();
 
         // Find 
         d.queue1.push (d.addInitState());
@@ -696,6 +696,24 @@ namespace hpp {
 
         return core::PathPtr_t ();
       }
+
+      using core::Parameter;
+      using core::ParameterDescription;
+
+      HPP_START_PARAMETER_DECLARATION(CrossStateOptimization)
+      core::Problem::declareParameter(ParameterDescription(Parameter::INT,
+            "CrossStateOptimization/maxDepth",
+            "Maximum number of transitions to look for.",
+            Parameter((size_type)2)));
+      core::Problem::declareParameter(ParameterDescription(Parameter::INT,
+            "CrossStateOptimization/maxIteration",
+            "Maximum number of iterations of the Newton Raphson algorithm.",
+            Parameter((size_type)60)));
+      core::Problem::declareParameter(ParameterDescription(Parameter::FLOAT,
+            "CrossStateOptimization/errorThreshold",
+            "Error threshold of the Newton Raphson algorithm.",
+            Parameter(1e-4)));
+      HPP_END_PARAMETER_DECLARATION(CrossStateOptimization)
     } // namespace steeringMethod
   } // namespace manipulation
 } // namespace hpp

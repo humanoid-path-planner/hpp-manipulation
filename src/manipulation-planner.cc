@@ -31,7 +31,7 @@
 #include <hpp/core/projection-error.hh>
 #include <hpp/core/nearest-neighbor.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/configuration-shooter.hh>
 
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/device.hh"
@@ -440,7 +440,7 @@ namespace hpp {
       core::PathPlanner (problem, roadmap),
       shooter_ (problem.configurationShooter()),
       problem_ (problem), roadmap_ (roadmap),
-      extendStep_ (problem.getParameter<value_type>("ManipulationPlanner/ExtendStep", 1)),
+      extendStep_ (problem.getParameter("ManipulationPlanner/extendStep").floatValue()),
       qProj_ (problem.robot ()->configSize ())
     {}
 
@@ -449,5 +449,15 @@ namespace hpp {
       core::PathPlanner::init (weak);
       weakPtr_ = weak;
     }
+
+    using core::Parameter;
+    using core::ParameterDescription;
+
+    HPP_START_PARAMETER_DECLARATION(ManipulationPlanner)
+    core::Problem::declareParameter(ParameterDescription(Parameter::FLOAT,
+          "ManipulationPlanner/extendStep",
+          "Step of the RRT extension",
+          Parameter((value_type)1)));
+    HPP_END_PARAMETER_DECLARATION(ManipulationPlanner)
   } // namespace manipulation
 } // namespace hpp

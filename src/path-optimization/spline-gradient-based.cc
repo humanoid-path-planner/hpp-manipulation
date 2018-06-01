@@ -74,7 +74,7 @@ namespace hpp {
       {
         assert (init->numberPaths() == splines.size() && sods.size() == splines.size());
 
-        bool zeroDerivative = this->problem().getParameter ("SplineGradientBased/zeroDerivativesAtStateIntersection", false);
+        bool zeroDerivative = this->problem().getParameter ("SplineGradientBased/zeroDerivativesAtStateIntersection").boolValue();
 
         const std::size_t last = splines.size() - 1;
         graph::StatePtr_t stateOfStart;
@@ -178,7 +178,7 @@ namespace hpp {
         // TODO Should we add zero velocity sometimes ?
 
         ConstraintSetPtr_t set = state->configConstraint();
-        value_type guessThreshold = this->problem().getParameter ("SplineGradientBased/guessThreshold", value_type(-1));
+        value_type guessThreshold = this->problem().getParameter ("SplineGradientBased/guessThreshold").floatValue();
         Eigen::RowBlockIndices select =
           this->computeActiveParameters (path, set->configProjector()->solver(), guessThreshold, true);
         hppDout (info, "End of path " << idxSpline << ": do not change this dof " << select);
@@ -209,7 +209,7 @@ namespace hpp {
         spline->basisFunctionDerivative(1, 1, B1);
 
         // ConstraintSetPtr_t set = state->configConstraint();
-        // value_type guessThreshold = this->problem().getParameter ("SplineGradientBased/guessThreshold", value_type(-1));
+        // value_type guessThreshold = this->problem().getParameter ("SplineGradientBased/guessThreshold").floatValue();
         // Eigen::RowBlockIndices select =
           // this->computeActiveParameters (path, set->configProjector()->solver(), guessThreshold);
 
@@ -248,6 +248,16 @@ namespace hpp {
       template class SplineGradientBased<core::path::BernsteinBasis, 1>; // equivalent to StraightPath
       // template class SplineGradientBased<core::path::BernsteinBasis, 2>;
       template class SplineGradientBased<core::path::BernsteinBasis, 3>;
+
+      using core::Parameter;
+      using core::ParameterDescription;
+
+      HPP_START_PARAMETER_DECLARATION(SplineGradientBased)
+      core::Problem::declareParameter(ParameterDescription(Parameter::BOOL,
+            "SplineGradientBased/zeroDerivativesAtStateIntersection",
+            "Whether we should enforce a null velocity at each control point where the state before and after is different.",
+            Parameter(false)));
+      HPP_END_PARAMETER_DECLARATION(SplineGradientBased)
     } // namespace pathOptimization
   }  // namespace manipulation
 } // namespace hpp

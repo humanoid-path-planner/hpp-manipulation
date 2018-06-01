@@ -94,7 +94,11 @@ namespace hpp {
         typedef std::vector<state_with_depth> state_with_depths_t;
         typedef std::map<StatePtr_t,state_with_depths_t> StateMap_t;
         /// std::size_t is the index in state_with_depths_t at StateMap_t::iterator
-        typedef std::pair<StateMap_t::iterator, std::size_t> state_with_depth_ptr_t;
+        struct state_with_depth_ptr_t {
+          StateMap_t::iterator state;
+          std::size_t parentIdx;
+          state_with_depth_ptr_t (const StateMap_t::iterator& it, std::size_t idx) : state (it), parentIdx (idx) {}
+        };
         typedef std::queue<state_with_depth_ptr_t> Queue_t;
         typedef std::set<EdgePtr_t> VisitedEdge_t;
         std::size_t maxDepth;
@@ -104,8 +108,8 @@ namespace hpp {
 
         const state_with_depth& getParent(const state_with_depth_ptr_t& _p) const
         {
-          const state_with_depths_t& parents = _p.first->second;
-          return parents[_p.second];
+          const state_with_depths_t& parents = _p.state->second;
+          return parents[_p.parentIdx];
         }
 
         state_with_depth_ptr_t addInitState()
@@ -119,8 +123,8 @@ namespace hpp {
             const state_with_depth_ptr_t& _p,
             const EdgePtr_t& transition)
         {
-          const state_with_depths_t& parents = _p.first->second;
-          const state_with_depth& from = parents[_p.second];
+          const state_with_depths_t& parents = _p.state->second;
+          const state_with_depth& from = parents[_p.parentIdx];
 
           // Insert state to if necessary
           StateMap_t::iterator next = parent1.insert (
@@ -129,7 +133,7 @@ namespace hpp {
                 )).first;
 
           next->second.push_back (
-              state_with_depth(transition, from.l + 1, _p.second));
+              state_with_depth(transition, from.l + 1, _p.parentIdx));
 
           return state_with_depth_ptr_t (next, next->second.size()-1);
         }
@@ -147,7 +151,7 @@ namespace hpp {
 
           bool done = false;
 
-          const Neighbors_t& neighbors = _state.first->first->neighbors();
+          const Neighbors_t& neighbors = _state.state->first->neighbors();
           for (Neighbors_t::const_iterator _n = neighbors.begin();
               _n != neighbors.end(); ++_n) {
             EdgePtr_t transition = _n->second;
@@ -542,8 +546,8 @@ namespace hpp {
           OptimizationData& d, const Edges_t& transitions) const
       {
         if (d.N == 0) return;
-        size_type maxIter = problem_.getParameter ("CrossStateOptimization/maxIteration", size_type(60));
-        value_type thr = problem_.getParameter ("CrossStateOptimization/errorThreshold", value_type(1e-4));
+        size_type maxIter = problem_.getParameter ("CrossStateOptimization/maxIteration").intValue();
+        value_type thr = problem_.getParameter ("CrossStateOptimization/errorThreshold").floatValue();
         d.solver.maxIterations (maxIter);
         d.solver.errorThreshold (thr);
 
@@ -576,11 +580,22 @@ namespace hpp {
         hppDout (info, "Solver informations\n" << d.solver);
 
         // Initial guess
+        std::vector<size_type> ks;
+        size_type K = 0;
+        ks.resize(d.N);
+        for (std::size_t i = 0; i < d.N + 1; ++i) {
+          if (!transitions[i]->isShort()) ++K;
+          if (i < d.N) ks[i] = K;
+        }
+        if (K==0) {
+          ++K;
+          for (std::size_t i = d.N/2; i < d.N; ++i)
+            ks[i] = 1;
+        }
         d.q.resize (d.N * d.nq);
         for (std::size_t i = 0; i < d.N; ++i) {
-          pinocchio::interpolate (d.robot, d.q1, d.q2,
-              value_type(i+1) / value_type(d.N+1),
-              d.q.segment (i * d.nq, d.nq));
+          value_type u = value_type(ks[i]) / value_type(K);
+          pinocchio::interpolate (d.robot, d.q1, d.q2, u, d.q.segment (i * d.nq, d.nq));
         }
       }
 
@@ -635,7 +650,7 @@ namespace hpp {
         d.s1 = graph.getState (q1);
         d.s2 = graph.getState (q2);
         // d.maxDepth = 2;
-        d.maxDepth = problem_.getParameter ("CrossStateOptimization/maxDepth", size_type(2));
+        d.maxDepth = problem_.getParameter ("CrossStateOptimization/maxDepth").intValue();
 
         // Find 
         d.queue1.push (d.addInitState());
@@ -681,6 +696,24 @@ namespace hpp {
 
         return core::PathPtr_t ();
       }
+
+      using core::Parameter;
+      using core::ParameterDescription;
+
+      HPP_START_PARAMETER_DECLARATION(CrossStateOptimization)
+      core::Problem::declareParameter(ParameterDescription(Parameter::INT,
+            "CrossStateOptimization/maxDepth",
+            "Maximum number of transitions to look for.",
+            Parameter((size_type)2)));
+      core::Problem::declareParameter(ParameterDescription(Parameter::INT,
+            "CrossStateOptimization/maxIteration",
+            "Maximum number of iterations of the Newton Raphson algorithm.",
+            Parameter((size_type)60)));
+      core::Problem::declareParameter(ParameterDescription(Parameter::FLOAT,
+            "CrossStateOptimization/errorThreshold",
+            "Error threshold of the Newton Raphson algorithm.",
+            Parameter(1e-4)));
+      HPP_END_PARAMETER_DECLARATION(CrossStateOptimization)
     } // namespace steeringMethod
   } // namespace manipulation
 } // namespace hpp

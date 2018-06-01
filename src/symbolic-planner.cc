@@ -33,7 +33,7 @@
 #include <hpp/core/path-projector.hh>
 #include <hpp/core/projection-error.hh>
 #include <hpp/core/nearest-neighbor.hh>
-#include <hpp/core/basic-configuration-shooter.hh>
+#include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/path-validation-report.hh>
 #include <hpp/core/collision-validation-report.hh>
 

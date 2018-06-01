@@ -57,6 +57,13 @@ namespace hpp {
         return from_.lock();
       }
 
+      void Edge::relativeMotion(const RelativeMotion::matrix_type & m)
+      {
+        if(!isInit_) throw std::logic_error("The graph must be initialized before changing the relative motion matrix.");
+        pathValidation_->filterCollisionPairs(m);
+        relMotion_ = m;
+      }
+
       bool Edge::direction (const core::PathPtr_t& path) const
       {
         Configuration_t q0 = path->initial (),

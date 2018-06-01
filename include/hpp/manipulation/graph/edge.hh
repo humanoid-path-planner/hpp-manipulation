@@ -134,6 +134,9 @@ namespace hpp {
             return relMotion_;
           }
 
+          /// Update the relative motion matrix
+          void relativeMotion(const RelativeMotion::matrix_type & m);
+
           /// Get direction of the path compare to the edge
           /// \return true is reverse
           virtual bool direction (const core::PathPtr_t& path) const;

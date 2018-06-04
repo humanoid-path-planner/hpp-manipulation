@@ -129,11 +129,6 @@ namespace hpp {
             return relMotion_;
           }
 
-	  RelativeMotion::matrix_type& relativeMotion ()
-          {
-            return relMotion_;
-          }
-
           /// Update the relative motion matrix
           void relativeMotion(const RelativeMotion::matrix_type & m);
 

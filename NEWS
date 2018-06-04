@@ -1,3 +1,5 @@
+* Add setter to relative motion matrix in edges.
+
 2018/05/17 - Release 4.1
 * Reset data when inserting robot.
 * Fix detection of hpp-wholebody-step.

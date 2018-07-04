@@ -100,6 +100,12 @@ namespace hpp {
             return neighbors_;
           }
 
+          /// Get the neighbors
+          const Edges_t& hiddenNeighbors() const
+          {
+            return hiddenNeighbors_;
+          }
+
           void updateWeight (const EdgePtr_t&edge, const Weight_t& w);
 
           Weight_t getWeight (const EdgePtr_t&edge);
@@ -170,7 +176,7 @@ namespace hpp {
           /// List of possible motions from this state (i.e. the outgoing
           /// vertices).
           Neighbors_t neighbors_;
-          std::vector <EdgePtr_t> hiddenNeighbors_;
+          Edges_t hiddenNeighbors_;
 
           /// Set of constraints to be statisfied.
           ConstraintSetPtr_t configConstraints_;

@@ -430,14 +430,17 @@ namespace hpp {
             lastSucceeded_ = false;
             return false;
           }
-          if (!edges_[i]->build (p, configs_.col(i), configs_.col (i+1))) {
-            hppDout (info, "Waypoint edge " << name() << ": build failed at waypoint " << i << "."
-                << "\nUse cache: " << useCache
-                );
-            lastSucceeded_ = false;
-            return false;
+          if (configs_.col(i) != configs_.col (i+1)) {
+            assert ((configs_.col(i) - configs_.col (i+1)).norm () > 1e-8);
+            if (!edges_[i]->build (p, configs_.col(i), configs_.col (i+1))) {
+              hppDout (info, "Waypoint edge " << name()
+                       << ": build failed at waypoint " << i << "."
+                       << "\nUse cache: " << useCache);
+              lastSucceeded_ = false;
+              return false;
+            }
+            pv->appendPath (p);
           }
-          pv->appendPath (p);
         }
 
         path = pv;

@@ -55,6 +55,7 @@
 #include "hpp/manipulation/path-optimization/config-optimization.hh"
 #include "hpp/manipulation/path-optimization/keypoints.hh"
 #include "hpp/manipulation/path-optimization/spline-gradient-based.hh"
+#include "hpp/manipulation/path-optimization/enforce-transition-semantic.hh"
 #include "hpp/manipulation/problem-target/state.hh"
 #include "hpp/manipulation/steering-method/cross-state-optimization.hh"
 #include "hpp/manipulation/steering-method/graph.hh"
@@ -133,6 +134,8 @@ namespace hpp {
           GraphConfigOptimizationTraits
             <pathOptimization::ConfigOptimizationTraits>
             >);
+      pathOptimizers.add ("EnforceTransitionSemantic",
+          pathOptimization::EnforceTransitionSemantic::create);
 
       pathProjectors.add ("Progressive",
           createPathProjector <core::pathProjector::Progressive>);

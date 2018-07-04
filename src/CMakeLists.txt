@@ -49,6 +49,7 @@ SET(SOURCES
   path-optimization/config-optimization.cc
   path-optimization/keypoints.cc
   path-optimization/spline-gradient-based.cc
+  path-optimization/enforce-transition-semantic.cc
 
   problem-target/state.cc
 

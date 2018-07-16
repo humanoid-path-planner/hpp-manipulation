@@ -28,7 +28,7 @@
 
 #include <hpp/pinocchio/configuration.hh>
 
-#include <hpp/constraints/hybrid-solver.hh>
+#include <hpp/constraints/solver/by-substitution.hh>
 
 #include <hpp/core/explicit-numerical-constraint.hh>
 #include <hpp/core/path-vector.hh>
@@ -209,7 +209,7 @@ namespace hpp {
       struct CrossStateOptimization::OptimizationData
       {
         const std::size_t N, nq, nv;
-        constraints::HybridSolver solver;
+        constraints::solver::BySubstitution solver;
         Configuration_t q1, q2;
         vector_t q;
         core::DevicePtr_t robot;
@@ -226,11 +226,13 @@ namespace hpp {
             : impF(_impF), expFidx(_expFidx), qrhs (_qrhs) {}
           RightHandSideSetter (DifferentiableFunctionPtr_t _impF, size_type _expFidx, vector_t _rhs)
             : impF(_impF), expFidx(_expFidx), qrhs (NULL), rhs (_rhs) {}
-          void apply(constraints::HybridSolver& s)
+          void apply(constraints::solver::BySubstitution& s)
           {
             if (expFidx >= 0) {
-              if (qrhs != NULL) s.explicitSolver().rightHandSideFromInput (expFidx, *qrhs);
-              else              s.explicitSolver().rightHandSide          (expFidx, rhs);
+              if (qrhs != NULL) s.explicitConstraintSet().rightHandSideFromInput
+                                  (expFidx, *qrhs);
+              else              s.explicitConstraintSet().rightHandSide
+                                  (expFidx, rhs);
             } else {
               if (qrhs != NULL) s.rightHandSideFromInput (impF, DifferentiableFunctionPtr_t(), *qrhs);
               else              s.rightHandSide          (impF, DifferentiableFunctionPtr_t(), rhs);
@@ -319,7 +321,8 @@ namespace hpp {
 
             // It is important to use the index of the function since the same
             // function may be added several times on different part.
-            size_type expFidx = solver.explicitSolver().add (f, ic, oc, iv, ov, cts);
+            size_type expFidx = solver.explicitConstraintSet().add
+              (f, ic, oc, iv, ov, cts);
             if (expFidx < 0) {
               if (f_implicit) {
                 solver.add (f_implicit, 0, cts);
@@ -381,7 +384,8 @@ namespace hpp {
             }
 
             size_type expFidx = -1;
-            if (ef) expFidx = solver.explicitSolver().add (ef, ic, oc, iv, ov, cts);
+            if (ef) expFidx = solver.explicitConstraintSet().add
+                      (ef, ic, oc, iv, ov, cts);
             if (expFidx < 0) solver.add (f, 0, cts);
 
             // TODO This must be done later...
@@ -423,7 +427,8 @@ namespace hpp {
             enc = HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nc);
             bool added = false;
             if (enc) {
-              added = solver.explicitSolver().add (enc->explicitFunction(),
+              added = solver.explicitConstraintSet().add (
+                  enc->explicitFunction(),
                   _row(enc->inputConf()     , i * nq),
                   _row(enc->outputConf()    , i * nq),
                   _col(enc->inputVelocity() , i * nv),
@@ -439,7 +444,7 @@ namespace hpp {
           for (LockedJoints_t::const_iterator _lj = ljs.begin();
               _lj != ljs.end(); ++_lj) {
             LockedJointPtr_t lj (*_lj);
-            size_type expFidx = solver.explicitSolver().add (
+            size_type expFidx = solver.explicitConstraintSet().add (
                 lj->explicitFunction(),
                 _row(lj->inputConf()     , i * nq),
                 _row(lj->outputConf()    , i * nq),
@@ -574,7 +579,7 @@ namespace hpp {
           ++i;
         }
 
-        d.solver.explicitSolverHasChanged();
+        d.solver.explicitConstraintSetHasChanged();
         d.setRightHandSide();
 
         hppDout (info, "Solver informations\n" << d.solver);

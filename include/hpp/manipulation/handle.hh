@@ -27,6 +27,7 @@
 
 namespace hpp {
   namespace manipulation {
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     /// Part of an object that is aimed at being grasped
     class HPP_MANIPULATION_DLLAPI Handle
     {
@@ -100,9 +101,10 @@ namespace hpp {
       /// \return the constraint of relative transformation between the handle
       ///         and the gripper.
       /// The degrees of freedom of the relative transformation that are
-      /// constrained are determined by the mask. \sa NumericalConstraint::mask.
+      /// constrained are determined by the mask.
+      /// \sa constraints::Implicit::mask.
       /// The constraint is not parameterizable (has constant right hand side).
-      virtual NumericalConstraintPtr_t createGrasp
+      virtual ImplicitPtr_t createGrasp
       (const GripperPtr_t& gripper, std::string name) const;
 
       /// Create complement constraint of gripper grasping this handle
@@ -111,14 +113,14 @@ namespace hpp {
       ///         constitute a full relative transformation constraint.
       /// The complement constraint is parameterizable (has non constant right
       /// hand side).
-      virtual NumericalConstraintPtr_t createGraspComplement
+      virtual ImplicitPtr_t createGraspComplement
       (const GripperPtr_t& gripper, std::string name) const;
 
       /// Create constraint composed of grasp constraint and its complement
       /// \param gripper object containing the gripper information
       /// \return the composition of grasp constraint and its complement, that
       ///         that is a full relative transformation constraint.
-      virtual NumericalConstraintPtr_t createGraspAndComplement
+      virtual ImplicitPtr_t createGraspAndComplement
       (const GripperPtr_t& gripper, std::string name) const;
 
       /// Create constraint corresponding to a pregrasping task.
@@ -128,7 +130,7 @@ namespace hpp {
       /// \note 6 DOFs of the relative transformation between the handle and the gripper
       ///       are constrained. The transformation is shifted along x-axis of
       ///       value shift.
-      virtual NumericalConstraintPtr_t createPreGrasp
+      virtual ImplicitPtr_t createPreGrasp
       (const GripperPtr_t& gripper, const value_type& shift, std::string name) const;
 
       /// Get the clearance

@@ -31,12 +31,16 @@
 
 #include <hpp/constraints/generic-transformation.hh>
 
-#include <hpp/core/numerical-constraint.hh>
-#include <hpp/core/explicit-numerical-constraint.hh>
+#include <hpp/constraints/implicit.hh>
+#include <hpp/constraints/explicit.hh>
 #include <hpp/core/explicit-relative-transformation.hh>
 
 namespace hpp {
   namespace manipulation {
+    using constraints::Implicit;
+    using constraints::ImplicitPtr_t;
+    using constraints::Explicit;
+    using constraints::ExplicitPtr_t;
     std::string Handle::className ("Handle");
     namespace {
       static const matrix3_t I3 = matrix3_t::Identity();
@@ -54,7 +58,7 @@ namespace hpp {
       };
     }
 
-    using core::ExplicitNumericalConstraint;
+    using constraints::Explicit;
     using constraints::DifferentiableFunction;
 
     bool isHandleOnFreeflyer (const Handle& handle)
@@ -104,7 +108,7 @@ namespace hpp {
       mask_ = mask;
     }
 
-    NumericalConstraintPtr_t Handle::createGrasp
+    ImplicitPtr_t Handle::createGrasp
     (const GripperPtr_t& gripper, std::string n) const
     {
       using core::ExplicitRelativeTransformation;
@@ -117,8 +121,8 @@ namespace hpp {
 	  (n, gripper->joint ()->robot (), gripper->joint (), joint (),
 	   gripper->objectPositionInJoint (), localPosition())->createNumericalConstraint();
       }
-      return NumericalConstraintPtr_t
-	(NumericalConstraint::create (RelativeTransformation::create
+      return ImplicitPtr_t
+	(Implicit::create (RelativeTransformation::create
 				      (n,
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),
@@ -126,7 +130,7 @@ namespace hpp {
 				       localPosition(), mask_)));
     }
 
-    NumericalConstraintPtr_t Handle::createGraspComplement
+    ImplicitPtr_t Handle::createGraspComplement
     (const GripperPtr_t& gripper, std::string n) const
     {
       if (n.empty()) {
@@ -136,7 +140,7 @@ namespace hpp {
       }
       core::DevicePtr_t robot = gripper->joint()->robot();
       if (is6Dmask(mask_)) {
-        return NumericalConstraint::create (
+        return Implicit::create (
             boost::shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
                 robot->configSize(), robot->numberDof (), n))
             );
@@ -148,12 +152,12 @@ namespace hpp {
            gripper->joint (), joint (),
            gripper->objectPositionInJoint (),
            localPosition(), Cmask);
-        return NumericalConstraint::create (function,
+        return Implicit::create (function,
             ComparisonTypes_t(function->outputSize(), constraints::Equality));
       }
     }
 
-    NumericalConstraintPtr_t Handle::createGraspAndComplement
+    ImplicitPtr_t Handle::createGraspAndComplement
     (const GripperPtr_t& gripper, std::string n) const
     {
       using boost::assign::list_of;
@@ -173,7 +177,7 @@ namespace hpp {
       }
       // If handle is on a freeflying object, create an explicit constraint
       if (isHandleOnFreeflyer (*this)) {
-        ExplicitNumericalConstraintPtr_t enc
+        ExplicitPtr_t enc
           (ExplicitRelativeTransformation::create
            (n, gripper->joint ()->robot (), gripper->joint (), joint (),
             gripper->objectPositionInJoint (),
@@ -181,8 +185,8 @@ namespace hpp {
         enc->comparisonType (comp);
         return enc;
       }
-      return NumericalConstraintPtr_t
-	(NumericalConstraint::create (RelativeTransformation::create
+      return ImplicitPtr_t
+	(Implicit::create (RelativeTransformation::create
 				      (n,
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),
@@ -192,7 +196,7 @@ namespace hpp {
                                        (true)), comp));
     }
 
-    NumericalConstraintPtr_t Handle::createPreGrasp
+    ImplicitPtr_t Handle::createPreGrasp
     (const GripperPtr_t& gripper, const value_type& shift, std::string n) const
     {
       Transform3f transform = gripper->objectPositionInJoint ()
@@ -200,8 +204,8 @@ namespace hpp {
       if (n.empty())
         n = "Pregrasp_ " + maskToStr(mask_) + "_" + name ()
           + "_" + gripper->name ();
-      return NumericalConstraintPtr_t
-	(NumericalConstraint::create (RelativeTransformation::create
+      return ImplicitPtr_t
+	(Implicit::create (RelativeTransformation::create
 				      (n,
 				       gripper->joint()->robot(),
 				       gripper->joint (), joint (),

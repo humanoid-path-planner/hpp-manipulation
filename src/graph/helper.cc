@@ -32,6 +32,7 @@
 #include <pinocchio/multibody/model.hpp>
 
 #include <hpp/constraints/differentiable-function.hh>
+#include <hpp/constraints/locked-joint.hh>
 
 #include <hpp/manipulation/handle.hh>
 #include <hpp/manipulation/graph/state.hh>
@@ -46,6 +47,8 @@ namespace hpp {
   namespace manipulation {
     namespace graph {
       namespace helper {
+        typedef constraints::Implicit Implicit;
+        typedef constraints::ImplicitPtr_t ImplicitPtr_t;
         template <bool forPath>
           void NumericalConstraintsAndPassiveDofs::addToComp
           (GraphComponentPtr_t comp) const
@@ -457,13 +460,13 @@ namespace hpp {
             const GripperPtr_t& gripper, const HandlePtr_t& handle,
             FoliatedManifold& grasp, FoliatedManifold& pregrasp)
         {
-          NumericalConstraintPtr_t gc  = handle->createGrasp (gripper, "");
+          ImplicitPtr_t gc  = handle->createGrasp (gripper, "");
           grasp.nc.nc.push_back (gc);
           grasp.nc.pdof.push_back (segments_t ());
           grasp.nc_path.nc.push_back (gc);
           // TODO: see function declaration
           grasp.nc_path.pdof.push_back (segments_t ());
-          NumericalConstraintPtr_t gcc = handle->createGraspComplement
+          ImplicitPtr_t gcc = handle->createGraspComplement
             (gripper, "");
           if (gcc->function ().outputSize () > 0) {
             grasp.nc_fol.nc.push_back (gcc);
@@ -471,7 +474,7 @@ namespace hpp {
           }
 
           const value_type c = handle->clearance () + gripper->clearance ();
-          NumericalConstraintPtr_t pgc = handle->createPreGrasp (gripper, c, "");
+          ImplicitPtr_t pgc = handle->createPreGrasp (gripper, c, "");
           pregrasp.nc.nc.push_back (pgc);
           pregrasp.nc.pdof.push_back (segments_t());
           pregrasp.nc_path.nc.push_back (pgc);
@@ -479,9 +482,9 @@ namespace hpp {
         }
 
         void strictPlacementManifold (
-            const NumericalConstraintPtr_t placement,
-            const NumericalConstraintPtr_t preplacement,
-            const NumericalConstraintPtr_t placementComplement,
+            const ImplicitPtr_t placement,
+            const ImplicitPtr_t preplacement,
+            const ImplicitPtr_t placementComplement,
             FoliatedManifold& place, FoliatedManifold& preplace)
         {
           place.nc.nc.push_back (placement);
@@ -500,8 +503,8 @@ namespace hpp {
         }
 
         void relaxedPlacementManifold (
-            const NumericalConstraintPtr_t placement,
-            const NumericalConstraintPtr_t preplacement,
+            const ImplicitPtr_t placement,
+            const ImplicitPtr_t preplacement,
             const LockedJoints_t objectLocks,
             FoliatedManifold& place, FoliatedManifold& preplace)
         {
@@ -578,7 +581,7 @@ namespace hpp {
               }
             };
             std::tr1::unordered_set<edgeid_type, edgeid_hash> edges;
-            std::vector< boost::array<NumericalConstraintPtr_t,3> > graspCs;
+            std::vector< boost::array<ImplicitPtr_t,3> > graspCs;
             index_t nG, nOH;
             GraspV_t dims;
             const Grippers_t& gs;
@@ -660,10 +663,10 @@ namespace hpp {
               edges.insert(edgeid_type(stateid(g1), stateid(g2)));
             }
 
-            inline boost::array<NumericalConstraintPtr_t,3>& graspConstraint (
+            inline boost::array<ImplicitPtr_t,3>& graspConstraint (
                 const index_t& iG, const index_t& iOH)
             {
-              boost::array<NumericalConstraintPtr_t,3>& gcs =
+              boost::array<ImplicitPtr_t,3>& gcs =
                 graspCs [iG * nOH + iOH];
               if (!gcs[0]) {
                 hppDout (info, "Create grasps constraints for ("
@@ -766,7 +769,7 @@ namespace hpp {
             void graspManifold (const index_t& iG, const index_t& iOH,
                 FoliatedManifold& grasp, FoliatedManifold& pregrasp)
             {
-              boost::array<NumericalConstraintPtr_t,3>& gcs
+              boost::array<ImplicitPtr_t,3>& gcs
                 = graspConstraint (iG, iOH);
               grasp.nc.nc.push_back (gcs[0]);
               grasp.nc.pdof.push_back (segments_t ());

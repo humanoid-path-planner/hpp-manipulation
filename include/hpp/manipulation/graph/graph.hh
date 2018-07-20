@@ -25,6 +25,7 @@
 
 namespace hpp {
   namespace manipulation {
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     namespace graph {
       /// \addtogroup constraint_graph
       /// \{
@@ -118,9 +119,9 @@ namespace hpp {
           /// priorly to graph construction makes possible to replace
           /// the constraint and its complement by the combination of
           /// both that is an explicit constraint.
-          void registerConstraints (const NumericalConstraintPtr_t& constraint,
-                                    const NumericalConstraintPtr_t& complement,
-                                    const NumericalConstraintPtr_t& both);
+          void registerConstraints (const ImplicitPtr_t& constraint,
+                                    const ImplicitPtr_t& complement,
+                                    const ImplicitPtr_t& both);
 
           /// Test whether two constraints are complement of one another
           ///
@@ -133,9 +134,9 @@ namespace hpp {
           /// combined they constitute a complement relative transformation
           /// constraint. \sa Graph::registerConstraints
           /// \warning argument order matters.
-          bool isComplement (const NumericalConstraintPtr_t& constraint,
-                             const NumericalConstraintPtr_t& complement,
-                             NumericalConstraintPtr_t& combinationOfBoth) const;
+          bool isComplement (const ImplicitPtr_t& constraint,
+                             const ImplicitPtr_t& complement,
+                             ImplicitPtr_t& combinationOfBoth) const;
 
           /// Constraint to project onto the Node.
           /// \param state the state on which to project.
@@ -316,12 +317,12 @@ namespace hpp {
           size_type maxIterations_;
 
           struct ConstraintAndComplement_t {
-            NumericalConstraintPtr_t constraint;
-            NumericalConstraintPtr_t complement;
-            NumericalConstraintPtr_t both;
-            ConstraintAndComplement_t (const NumericalConstraintPtr_t& constr,
-                                       const NumericalConstraintPtr_t& comp,
-                                       const NumericalConstraintPtr_t& b) :
+            ImplicitPtr_t constraint;
+            ImplicitPtr_t complement;
+            ImplicitPtr_t both;
+            ConstraintAndComplement_t (const ImplicitPtr_t& constr,
+                                       const ImplicitPtr_t& comp,
+                                       const ImplicitPtr_t& b) :
               constraint (constr), complement (comp), both (b)
             {
             }

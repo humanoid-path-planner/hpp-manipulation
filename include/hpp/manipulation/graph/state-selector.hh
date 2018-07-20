@@ -52,8 +52,7 @@ namespace hpp {
           virtual EdgePtr_t chooseEdge(RoadmapNodePtr_t from) const;
 
           /// Should never be called.
-          void addNumericalConstraint (
-              const core::NumericalConstraintPtr_t& /* function */,
+          void addNumericalConstraint (const constraints::ImplicitPtr_t& /* function */,
               const segments_t& /* passiveDofs */ = segments_t ())
           {
             HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
@@ -61,7 +60,7 @@ namespace hpp {
 
           /// Should never be called.
           void addLockedJointConstraint
-	    (const core::LockedJoint& /* constraint */)
+	    (const constraints::LockedJoint& /* constraint */)
           {
             HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
           }

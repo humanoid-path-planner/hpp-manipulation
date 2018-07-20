@@ -70,7 +70,7 @@ using hpp::core::ConstraintSet;
 using hpp::core::ConstraintSetPtr_t;
 using hpp::core::ConfigProjector;
 using hpp::core::ConfigProjectorPtr_t;
-using hpp::core::NumericalConstraint;
+using hpp::constraints::Implicit;
 
 using boost::assign::list_of;
 
@@ -181,7 +181,7 @@ int main (int , char**) {
       list_of (false)(true)(false).convert_to_container<std::vector<bool> >());
   ConstraintSetPtr_t cs = ConstraintSet::create (r, "test-cs");
   ConfigProjectorPtr_t proj = ConfigProjector::create (r, "test", 1e-4, 20);
-  proj->add (NumericalConstraint::create (c));
+  proj->add (Implicit::create (c));
   cs->addConstraint (proj);
   ProblemPtr_t problem (new Problem (r));
   WeighedDistancePtr_t dist = WeighedDistance::createWithWeight

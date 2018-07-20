@@ -28,6 +28,7 @@
 
 namespace hpp {
   namespace manipulation {
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     namespace graph {
       /// \addtogroup constraint_graph
       /// \{
@@ -307,8 +308,8 @@ namespace hpp {
           /// \name Foliation definition
           /// \{
 
-          /// Insert a NumericalConstraint that parametrizes the foliation
-          void insertParamConstraint (const NumericalConstraintPtr_t& nm,
+          /// Insert a numerical constraint that parametrizes the foliation
+          void insertParamConstraint (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ());
 
           void insertParamConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypes_t ineq)
@@ -317,17 +318,11 @@ namespace hpp {
           /// Insert a LockedJoint that parametrizes the foliation
           void insertParamConstraint (const LockedJointPtr_t lockedJoint);
 
-          /// Insert a NumericalConstraint that defines the foliation
-          ///
-          /// The manifold represented the foliation is defined by this
-          /// constraints.
-          void insertConditionConstraint (const NumericalConstraintPtr_t& nm,
+          /// Insert a numerical constraint that defines the foliation
+          void insertConditionConstraint (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ());
 
           /// Insert a LockedJoint that defines the foliation
-          ///
-          /// The manifold represented the foliation is defined by this
-          /// constraints.
           void insertConditionConstraint (const LockedJointPtr_t lockedJoint);
           /// \}
 

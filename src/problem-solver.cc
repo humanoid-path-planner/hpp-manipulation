@@ -66,6 +66,8 @@
 
 namespace hpp {
   namespace manipulation {
+    typedef constraints::Implicit Implicit;
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     namespace {
       struct PartialShortcutTraits :
         core::pathOptimization::PartialShortcutTraits {
@@ -271,9 +273,9 @@ namespace hpp {
 
       constraints.first->setNormalMargin (margin);
 
-      addNumericalConstraint (name, NumericalConstraint::create
+      addNumericalConstraint (name, Implicit::create
 			      (constraints.first));
-      addNumericalConstraint (complementName, NumericalConstraint::create
+      addNumericalConstraint (complementName, Implicit::create
 			      (constraints.second,
                                ComparisonTypes_t
                                (constraints.second->outputSize(),
@@ -324,7 +326,7 @@ namespace hpp {
 
       cvxShape->setNormalMargin (margin + width);
 
-      addNumericalConstraint (name, NumericalConstraint::create (cvxShape));
+      addNumericalConstraint (name, Implicit::create (cvxShape));
     }
 
     void ProblemSolver::createGraspConstraint
@@ -340,9 +342,9 @@ namespace hpp {
       if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
       const std::string cname = name + "/complement";
       const std::string bname = name + "/hold";
-      NumericalConstraintPtr_t constraint (h->createGrasp (g, name));
-      NumericalConstraintPtr_t complement (h->createGraspComplement (g, cname));
-      NumericalConstraintPtr_t both (h->createGraspAndComplement (g, bname));
+      ImplicitPtr_t constraint (h->createGrasp (g, name));
+      ImplicitPtr_t complement (h->createGraspComplement (g, cname));
+      ImplicitPtr_t both (h->createGraspAndComplement (g, bname));
       addNumericalConstraint ( name, constraint);
       addNumericalConstraint (cname, complement);
       addNumericalConstraint (bname, both);
@@ -359,7 +361,7 @@ namespace hpp {
       if (!h) throw std::runtime_error ("No handle with name " + handle + ".");
 
       value_type c = h->clearance () + g->clearance ();
-      NumericalConstraintPtr_t constraint = h->createPreGrasp (g, c, name);
+      ImplicitPtr_t constraint = h->createPreGrasp (g, c, name);
       addNumericalConstraint (name, constraint);
     }
 

@@ -29,6 +29,7 @@
 
 namespace hpp {
   namespace manipulation {
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     namespace graph {
       HPP_MAKE_EXCEPTION ( HPP_MANIPULATION_DLLAPI, Bad_function_call );
 
@@ -52,11 +53,11 @@ namespace hpp {
             return id_;
           }
 
-          /// Add core::NumericalConstraint to the component.
+          /// Add Implicit to the component.
           /// \param passiveDofs see ConfigProjector::addNumericalConstraint
           //         for more information.
           virtual void addNumericalConstraint (
-              const NumericalConstraintPtr_t& numConstraint,
+              const ImplicitPtr_t& numConstraint,
               const segments_t& passiveDofs = segments_t ());
 
           /// Add core::DifferentiableFunction to the component.
@@ -75,7 +76,7 @@ namespace hpp {
 	  virtual void resetLockedJoints ();
 
           /// Insert the numerical constraints in a ConfigProjector
-          /// \return true is at least one NumericalConstraintPtr_t was inserted.
+          /// \return true is at least one ImplicitPtr_t was inserted.
           bool insertNumericalConstraints (ConfigProjectorPtr_t& proj) const;
 
           /// Insert the LockedJoint constraints in a ConstraintSet

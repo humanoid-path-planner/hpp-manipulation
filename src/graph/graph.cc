@@ -27,6 +27,8 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      typedef constraints::Implicit Implicit;
+      typedef constraints::ImplicitPtr_t ImplicitPtr_t;
       GraphPtr_t Graph::create(const std::string& name, DevicePtr_t robot,
 			       const ProblemPtr_t& problem)
       {
@@ -159,17 +161,17 @@ namespace hpp {
       }
 
       void Graph::registerConstraints
-      (const NumericalConstraintPtr_t& constraint,
-       const NumericalConstraintPtr_t& complement,
-       const NumericalConstraintPtr_t& both)
+      (const ImplicitPtr_t& constraint,
+       const ImplicitPtr_t& complement,
+       const ImplicitPtr_t& both)
       {
         constraintsAndComplements_.push_back (ConstraintAndComplement_t
                                               (constraint, complement, both));
       }
 
-      bool Graph::isComplement (const NumericalConstraintPtr_t& constraint,
-                                const NumericalConstraintPtr_t& complement,
-                                NumericalConstraintPtr_t& combinationOfBoth)
+      bool Graph::isComplement (const ImplicitPtr_t& constraint,
+                                const ImplicitPtr_t& complement,
+                                ImplicitPtr_t& combinationOfBoth)
         const
       {
         for (ConstraintsAndComplements_t::const_iterator it =

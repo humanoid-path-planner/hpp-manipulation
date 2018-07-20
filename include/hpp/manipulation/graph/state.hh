@@ -19,10 +19,9 @@
 
 # include <boost/function.hpp>
 
-#include <hpp/core/locked-joint.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
-#include <hpp/core/numerical-constraint.hh>
+#include <hpp/constraints/implicit.hh>
 
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/deprecated.hh"
@@ -33,6 +32,8 @@
 
 namespace hpp {
   namespace manipulation {
+    using constraints::Implicit;
+    using constraints::ImplicitPtr_t;
     namespace graph {
       /// \addtogroup constraint_graph
       /// \{
@@ -110,8 +111,8 @@ namespace hpp {
             return configConstraints_;
           }
 
-          /// Add core::NumericalConstraint to the component.
-          virtual void addNumericalConstraintForPath (const NumericalConstraintPtr_t& nm,
+          /// Add constraints::Implicit to the component.
+          virtual void addNumericalConstraintForPath (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ())
           {
             isInit_ = false;
@@ -124,11 +125,12 @@ namespace hpp {
             HPP_MANIPULATION_DEPRECATED
           {
             isInit_ = false;
-            numericalConstraintsForPath_.push_back (NumericalConstraint::create (function,ineq));
+            numericalConstraintsForPath_.push_back
+              (Implicit::create (function,ineq));
           }
 
           /// Insert the numerical constraints in a ConfigProjector
-          /// \return true is at least one NumericalConstraintPtr_t was inserted.
+          /// \return true is at least one ImplicitPtr_t was inserted.
           bool insertNumericalConstraintsForPath (ConfigProjectorPtr_t& proj) const
           {
             assert (numericalConstraintsForPath_.size () == passiveDofsForPath_.size ());

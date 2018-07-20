@@ -28,6 +28,7 @@
 
 #include <hpp/pinocchio/configuration.hh>
 
+#include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/solver/by-substitution.hh>
 
 #include <hpp/core/explicit-numerical-constraint.hh>
@@ -342,12 +343,12 @@ namespace hpp {
 
           // TODO handle numerical constraints
           using namespace ::hpp::core;
-          ExplicitNumericalConstraintPtr_t enc;
+          constraints::ExplicitPtr_t enc;
           const NumericalConstraints_t& ncs = trans->numericalConstraints();
           for (NumericalConstraints_t::const_iterator _nc = ncs.begin();
               _nc != ncs.end(); ++_nc) {
             NumericalConstraintPtr_t nc (*_nc);
-            enc = HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nc);
+            enc = HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nc);
 
             DifferentiableFunctionPtr_t f, ef;
             // i = Input, o = Output,
@@ -420,11 +421,11 @@ namespace hpp {
         void _add (const NumericalConstraints_t& ncs, const std::size_t& i)
         {
           using namespace ::hpp::core;
-          ExplicitNumericalConstraintPtr_t enc;
+          constraints::ExplicitPtr_t enc;
           for (NumericalConstraints_t::const_iterator _nc = ncs.begin();
               _nc != ncs.end(); ++_nc) {
             NumericalConstraintPtr_t nc (*_nc);
-            enc = HPP_DYNAMIC_PTR_CAST (ExplicitNumericalConstraint, nc);
+            enc = HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nc);
             bool added = false;
             if (enc) {
               added = solver.explicitConstraintSet().add (

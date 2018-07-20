@@ -28,6 +28,7 @@
 
 namespace hpp {
   namespace manipulation {
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     namespace graph {
       namespace helper {
         /// \defgroup helper Helpers to build the graph of constraints
@@ -150,22 +151,22 @@ namespace hpp {
         /// The placement foliation constraint is built using
         /// hpp::constraints::ConvexShapeMatcherComplement
         void strictPlacementManifold (
-            const NumericalConstraintPtr_t placement,
-            const NumericalConstraintPtr_t preplacement,
-            const NumericalConstraintPtr_t placementComplement,
+            const ImplicitPtr_t placement,
+            const ImplicitPtr_t preplacement,
+            const ImplicitPtr_t placementComplement,
             FoliatedManifold& place, FoliatedManifold& preplace);
 
         /// The placement foliation constraint is built locked joints
         /// It is faster than strictPlacementManifold but the foliation
         /// parametrisation is redundant.
         void relaxedPlacementManifold (
-            const NumericalConstraintPtr_t placement,
-            const NumericalConstraintPtr_t preplacement,
+            const ImplicitPtr_t placement,
+            const ImplicitPtr_t preplacement,
             const LockedJoints_t objectLocks,
             FoliatedManifold& place, FoliatedManifold& preplace);
 
-        typedef boost::tuple <NumericalConstraintPtr_t,
-                              NumericalConstraintPtr_t,
+        typedef boost::tuple <ImplicitPtr_t,
+                              ImplicitPtr_t,
                               LockedJoints_t>
                               PlacementConstraint_t;
         typedef std::vector <HandlePtr_t> Handles_t;

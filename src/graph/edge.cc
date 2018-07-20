@@ -26,6 +26,7 @@
 #include <hpp/core/path-validation.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
+#include <hpp/constraints/locked-joint.hh>
 
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/problem.hh"
@@ -212,7 +213,7 @@ namespace hpp {
         for (itnc1 = nc.begin(), itpdof1 = pdof.begin(); itnc1 != nc.end(); ++itnc1, ++itpdof1) {
           itnc2 = itnc1; ++itnc2;
           itpdof2 = itpdof1; ++itpdof2;
-          NumericalConstraintPtr_t combination;
+          constraints::ImplicitPtr_t combination;
           while (itnc2 != nc.end()) {
             assert (*itnc1 != *itnc2);
             if (   graph->isComplement (*itnc1, *itnc2, combination)
@@ -761,7 +762,8 @@ namespace hpp {
         return constraint;
       }
 
-      void LevelSetEdge::insertParamConstraint (const NumericalConstraintPtr_t& nm,
+      void LevelSetEdge::insertParamConstraint
+      (const constraints::ImplicitPtr_t& nm,
               const segments_t& passiveDofs)
       {
         isInit_ = false;
@@ -772,7 +774,7 @@ namespace hpp {
       void LevelSetEdge::insertParamConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypes_t ineq)
       {
         isInit_ = false;
-        insertParamConstraint (NumericalConstraint::create (function, ineq));
+        insertParamConstraint (constraints::Implicit::create (function, ineq));
       }
 
       void LevelSetEdge::insertParamConstraint (const LockedJointPtr_t lockedJoint)
@@ -781,7 +783,8 @@ namespace hpp {
         paramLockedJoints_.push_back (lockedJoint);
       }
 
-      void LevelSetEdge::insertConditionConstraint (const NumericalConstraintPtr_t& nm,
+      void LevelSetEdge::insertConditionConstraint
+      (const constraints::ImplicitPtr_t& nm,
               const segments_t& passiveDofs)
       {
         isInit_ = false;

@@ -28,6 +28,7 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      typedef constraints::Implicit Implicit;
       const std::string& GraphComponent::name() const
       {
         return name_;
@@ -50,7 +51,7 @@ namespace hpp {
         isInit_ = false;
       }
 
-      void GraphComponent::addNumericalConstraint (const NumericalConstraintPtr_t& nm,
+      void GraphComponent::addNumericalConstraint (const ImplicitPtr_t& nm,
           const segments_t& passiveDofs)
       {
         isInit_ = false;
@@ -60,7 +61,7 @@ namespace hpp {
 
       void GraphComponent::addNumericalConstraint (const DifferentiableFunctionPtr_t& function, const ComparisonTypes_t& ineq)
       {
-        addNumericalConstraint (NumericalConstraint::create (function,ineq));
+        addNumericalConstraint (Implicit::create (function,ineq));
       }
 
       void GraphComponent::resetNumericalConstraints ()

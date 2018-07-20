@@ -30,8 +30,8 @@
 
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/solver/by-substitution.hh>
+#include <hpp/constraints/explicit.hh>
 
-#include <hpp/core/explicit-numerical-constraint.hh>
 #include <hpp/core/path-vector.hh>
 
 #include <hpp/manipulation/graph/edge.hh>
@@ -347,7 +347,7 @@ namespace hpp {
           const NumericalConstraints_t& ncs = trans->numericalConstraints();
           for (NumericalConstraints_t::const_iterator _nc = ncs.begin();
               _nc != ncs.end(); ++_nc) {
-            NumericalConstraintPtr_t nc (*_nc);
+            constraints::ImplicitPtr_t nc (*_nc);
             enc = HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nc);
 
             DifferentiableFunctionPtr_t f, ef;
@@ -408,7 +408,7 @@ namespace hpp {
         {
           if (N == 0) return true;
           constraints::HierarchicalIterativeSolver::Status status =
-            solver.solve <constraints::lineSearch::FixedSequence> (q);
+            solver.solve <constraints::solver::lineSearch::FixedSequence> (q);
           bool success = (status == constraints::HierarchicalIterativeSolver::SUCCESS);
           if (!success) {
             hppDout (warning, "Projection failed with status " << status <<
@@ -424,7 +424,7 @@ namespace hpp {
           constraints::ExplicitPtr_t enc;
           for (NumericalConstraints_t::const_iterator _nc = ncs.begin();
               _nc != ncs.end(); ++_nc) {
-            NumericalConstraintPtr_t nc (*_nc);
+            constraints::ImplicitPtr_t nc (*_nc);
             enc = HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nc);
             bool added = false;
             if (enc) {

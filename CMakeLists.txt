@@ -71,7 +71,6 @@ CONFIG_FILES (doc/main.hh
 SET (${PROJECT_NAME}_HEADERS
   ${CMAKE_BINARY_DIR}/include/hpp/manipulation/package-config.hh
   include/hpp/manipulation/fwd.hh
-  include/hpp/manipulation/axial-handle.hh
   include/hpp/manipulation/handle.hh
   include/hpp/manipulation/problem.hh
   include/hpp/manipulation/problem-solver.hh

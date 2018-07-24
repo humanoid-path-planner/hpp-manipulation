@@ -59,6 +59,16 @@ namespace hpp {
 
           SplineGradientBased (const Problem& problem);
 
+          /// Get path validation for each spline
+          ///
+          /// \param splines, vector of splines
+          ///
+          /// for each spline in the input vector, retrieve the path validation
+          /// method of the transition the spline comes from.
+          /// If no edge is found, use path validation in problem.
+          ///
+          /// \note path validation methods are stored in member
+          /// hpp::core::pathOptimization::SplineGradientBasedAbstract::validations_
           virtual void initializePathValidation(const Splines_t& splines);
 
           virtual void addProblemConstraints (const core::PathVectorPtr_t& init,

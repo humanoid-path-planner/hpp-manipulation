@@ -245,10 +245,11 @@ namespace hpp {
 
         OptimizationData (const std::size_t& _N, const core::DevicePtr_t _robot)
           : N (_N), nq (_robot->configSize()), nv (_robot->numberDof()),
-          solver (N * nq, N * nv), robot (_robot), statesPerConf_ (N)
+            solver (_robot->configSpace () ^ N), robot (_robot),
+            statesPerConf_ (N)
         {
-          solver.integration (boost::bind(&OptimizationData::_integrate, this, _1, _2, _3));
-          solver.saturation  (boost::bind(&OptimizationData::_saturate , this, _1, _2));
+          solver.saturation  (boost::bind(&OptimizationData::_saturate , this,
+                                          _1, _2, _3));
         }
 
         void addGraphConstraints (const graph::GraphPtr_t& graph)
@@ -326,7 +327,7 @@ namespace hpp {
               (f, ic, oc, iv, ov, cts);
             if (expFidx < 0) {
               if (f_implicit) {
-                solver.add (f_implicit, 0, cts);
+                solver.add (constraints::Implicit::create (f_implicit, cts));
               } else {
                 HPP_THROW (std::invalid_argument,
                     "Could not add locked joint " << lj->jointName() <<
@@ -387,7 +388,8 @@ namespace hpp {
             size_type expFidx = -1;
             if (ef) expFidx = solver.explicitConstraintSet().add
                       (ef, ic, oc, iv, ov, cts);
-            if (expFidx < 0) solver.add (f, 0, cts);
+            if (expFidx < 0) solver.add
+                               (constraints::Implicit::create (f, cts));
 
             // TODO This must be done later...
             // if (qrhs != NULL) {
@@ -437,7 +439,9 @@ namespace hpp {
                   enc->comparisonType ());
             }
             if (!added)
-              solver.add (_stateFunction(nc->functionPtr(), i), 0, nc->comparisonType());
+              solver.add (constraints::Implicit::create
+                          (_stateFunction(nc->functionPtr(), i),
+                           nc->comparisonType()));
           }
         }
         void _add (const LockedJoints_t& ljs, const std::size_t i)
@@ -499,7 +503,7 @@ namespace hpp {
                 v.segment(iv,nv),
                 qout.segment(iq,nq));
         }
-        bool _saturate (vectorIn_t q, Eigen::VectorXi& sat)
+        bool _saturate (vectorIn_t q, vectorOut_t qSat, Eigen::VectorXi& sat)
         {
           bool ret = false;
           const se3::Model& model = robot->model();
@@ -516,12 +520,15 @@ namespace hpp {
                 const size_type iq = idx_q + j;
                 const size_type iv = idx_v + std::min(j,jnv-1);
                 if        (q[iq] >= model.upperPositionLimit[jiq + j]) {
+                  qSat [iq] = model.upperPositionLimit[jiq + j];
                   sat[iv] =  1;
                   ret = true;
                 } else if (q[iq] <= model.lowerPositionLimit[jiq + j]) {
+                  qSat [iq] = model.lowerPositionLimit[jiq + j];
                   sat[iv] = -1;
                   ret = true;
                 } else
+                  qSat [iq] = q [iq];
                   sat[iv] =  0;
               }
             }

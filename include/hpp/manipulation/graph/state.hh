@@ -100,7 +100,9 @@ namespace hpp {
             return neighbors_;
           }
 
-          /// Get the neighbors
+          /// Get the hidden neighbors
+          /// It is a vector of transitions outgoing from this state and that are
+          /// included in a waypoint edge.
           const Edges_t& hiddenNeighbors() const
           {
             return hiddenNeighbors_;

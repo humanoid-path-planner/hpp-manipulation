@@ -340,6 +340,7 @@ namespace hpp {
 	    hppDout(info, "q2 = " << displayConfig (q2)
                     << " does not satisfy the constraints of edge "
                     << name ());
+	    hppDout (info, "q1 = " << displayConfig (q1));
 	    return false;
 	  }
         } else {

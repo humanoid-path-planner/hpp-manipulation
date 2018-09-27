@@ -69,6 +69,15 @@ namespace hpp {
       return false;
     }
 
+    inline std::size_t maskSize (const std::vector<bool>& mask)
+    {
+      std::size_t res (0);
+      for (std::size_t i = 0; i < 6; ++i) {
+        if (mask[i]) ++res;
+      }
+      return res;
+    }
+
     inline bool is6Dmask (const std::vector<bool>& mask)
     {
       for (std::size_t i = 0; i < 6; ++i) if (!mask[i]) return false;
@@ -123,7 +132,7 @@ namespace hpp {
       return constraints::implicit::RelativePose::create
         (n, gripper->joint ()->robot (), gripper->joint (), joint (),
          gripper->objectPositionInJoint (), localPosition(),
-         mask_, ComparisonTypes_t (mask_.size (), constraints::EqualToZero));
+         mask_, ComparisonTypes_t (maskSize (mask_), constraints::EqualToZero));
     }
 
     ImplicitPtr_t Handle::createGraspComplement
@@ -145,7 +154,7 @@ namespace hpp {
         return constraints::implicit::RelativePose::create
           (n, gripper->joint ()->robot (), gripper->joint (), joint (),
            gripper->objectPositionInJoint (), localPosition(),
-           Cmask, ComparisonTypes_t (Cmask.size (), constraints::Equality));
+           Cmask, ComparisonTypes_t (maskSize (Cmask), constraints::Equality));
       }
     }
 
@@ -192,7 +201,7 @@ namespace hpp {
         (constraints::implicit::RelativePose::create
          (n, gripper->joint()->robot(), gripper->joint (), joint (),
           transform, localPosition(), mask_, ComparisonTypes_t
-          (mask_.size (), constraints::EqualToZero)));
+          (maskSize (mask_), constraints::EqualToZero)));
       return result;
     }
 

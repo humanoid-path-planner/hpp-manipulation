@@ -217,15 +217,17 @@ namespace hpp {
         typedef std::vector<States_t> StatesPerConf_t;
         StatesPerConf_t statesPerConf_;
         struct RightHandSideSetter {
-          DifferentiableFunctionPtr_t impF;
+          ImplicitPtr_t impF;
           size_type expFidx;
           Configuration_t* qrhs;
           vector_t rhs;
           RightHandSideSetter () : qrhs (NULL) {}
           // TODO delete this constructor
-          RightHandSideSetter (DifferentiableFunctionPtr_t _impF, size_type _expFidx, Configuration_t* _qrhs)
+          RightHandSideSetter (ImplicitPtr_t _impF, size_type _expFidx,
+                               Configuration_t* _qrhs)
             : impF(_impF), expFidx(_expFidx), qrhs (_qrhs) {}
-          RightHandSideSetter (DifferentiableFunctionPtr_t _impF, size_type _expFidx, vector_t _rhs)
+          RightHandSideSetter (ImplicitPtr_t _impF, size_type _expFidx,
+                               vector_t _rhs)
             : impF(_impF), expFidx(_expFidx), qrhs (NULL), rhs (_rhs) {}
           void apply(constraints::solver::BySubstitution& s)
           {
@@ -235,8 +237,8 @@ namespace hpp {
               else              s.explicitConstraintSet().rightHandSide
                                   (expFidx, rhs);
             } else {
-              if (qrhs != NULL) s.rightHandSideFromInput (impF, DifferentiableFunctionPtr_t(), *qrhs);
-              else              s.rightHandSide          (impF, DifferentiableFunctionPtr_t(), rhs);
+              if (qrhs != NULL) s.rightHandSideFromConfig (impF, *qrhs);
+              else              s.rightHandSide          (impF, rhs);
             }
           }
         };
@@ -280,6 +282,7 @@ namespace hpp {
             std::ostringstream os;
             os << lj->jointName() << " | " << i << " -> " << (i+1);
             DifferentiableFunctionPtr_t f, f_implicit;
+            ImplicitPtr_t c_implicit;
             // i = Input, o = Output,
             // c = Config, v = Velocity
             RowBlockIndices ic, oc, ov;
@@ -298,7 +301,7 @@ namespace hpp {
             } else if (i == N) {
               f = lj->explicitFunction();
               // Currently, this function is mandatory because if the same
-              // joint is locked all along the path, then, one of the LockedJoint 
+              // joint is locked all along the path, then, one of the LockedJoint
               // has to be treated implicitely.
               // TODO it would be smarter to detect this case beforehand. If the
               // chain in broken in the middle, an explicit formulation exists
@@ -323,11 +326,16 @@ namespace hpp {
 
             // It is important to use the index of the function since the same
             // function may be added several times on different part.
-            size_type expFidx = solver.explicitConstraintSet().add
-              (f, ic, oc, iv, ov, cts);
+            constraints::ExplicitPtr_t ec
+              (constraints::Explicit::create (solver.configSpace (), f,
+                                              ic.indices (), oc.indices (),
+                                              iv.indices (), ov.indices (),
+                                              cts));
+            size_type expFidx = solver.explicitConstraintSet().add (ec);
             if (expFidx < 0) {
               if (f_implicit) {
-                solver.add (constraints::Implicit::create (f_implicit, cts));
+                c_implicit = constraints::Implicit::create (f_implicit, cts);
+                solver.add (c_implicit);
               } else {
                 HPP_THROW (std::invalid_argument,
                     "Could not add locked joint " << lj->jointName() <<
@@ -336,10 +344,13 @@ namespace hpp {
             }
 
             // Setting the right hand side must be done later
-            if (rhs.size() > 0)
-              rhsSetters_.push_back (RightHandSideSetter(
-                    f_implicit, expFidx, rhs));
+            if (rhs.size() > 0) {
+              assert (c_implicit);
+              rhsSetters_.push_back
+                (RightHandSideSetter(c_implicit, expFidx, rhs));
+            }
             f_implicit.reset();
+            c_implicit.reset();
           }
 
           // TODO handle numerical constraints
@@ -347,11 +358,12 @@ namespace hpp {
           constraints::ExplicitPtr_t enc;
           const NumericalConstraints_t& ncs = trans->numericalConstraints();
           for (NumericalConstraints_t::const_iterator _nc = ncs.begin();
-              _nc != ncs.end(); ++_nc) {
+               _nc != ncs.end(); ++_nc) {
             constraints::ImplicitPtr_t nc (*_nc);
             enc = HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nc);
 
             DifferentiableFunctionPtr_t f, ef;
+            constraints::ImplicitPtr_t constraint;
             // i = Input, o = Output,
             // c = Config, v = Velocity
             // Configuration_t* qrhs;
@@ -384,18 +396,24 @@ namespace hpp {
               cts = ComparisonTypes_t (f->outputSize(), constraints::EqualToZero);
               // qrhs = NULL;
             }
-
+            constraint = constraints::Implicit::create (f, cts);
             size_type expFidx = -1;
-            if (ef) expFidx = solver.explicitConstraintSet().add
-                      (ef, ic, oc, iv, ov, cts);
-            if (expFidx < 0) solver.add
-                               (constraints::Implicit::create (f, cts));
+            // if (ef) {
+            //   constraints::ExplicitPtr_t ec
+            //     (constraints::Explicit::create (solver.configSpace (), ef,
+            //                                     ic.indices (), oc.indices (),
+            //                                     iv.indices (), ov.indices (),
+            //                                     cts));
+            //   expFidx = solver.explicitConstraintSet().add (ec);
+            // }
+            if (expFidx < 0) solver.add (constraint);
 
             // TODO This must be done later...
             // if (qrhs != NULL) {
             if (rhs.size() > 0) {
-              // solver.rightHandSideFromInput (f, ef, rhs);
-              rhsSetters_.push_back (RightHandSideSetter(f, expFidx, rhs));
+              // solver.rightHandSideFromConfig (f, ef, rhs);
+              rhsSetters_.push_back (RightHandSideSetter
+                                     (constraint, expFidx, rhs));
             }
           }
         }
@@ -430,18 +448,11 @@ namespace hpp {
             enc = HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nc);
             bool added = false;
             if (enc) {
-              added = solver.explicitConstraintSet().add (
-                  enc->explicitFunction(),
-                  _row(enc->inputConf()     , i * nq),
-                  _row(enc->outputConf()    , i * nq),
-                  _col(enc->inputVelocity() , i * nv),
-                  _row(enc->outputVelocity(), i * nv),
-                  enc->comparisonType ());
+              added = solver.explicitConstraintSet().add
+                (explicitConstraintOnWaypoint (enc, i));
             }
             if (!added)
-              solver.add (constraints::Implicit::create
-                          (_stateFunction(nc->functionPtr(), i),
-                           nc->comparisonType()));
+              solver.add (implicitConstraintOnWayPoint (nc, i));
           }
         }
         void _add (const LockedJoints_t& ljs, const std::size_t i)
@@ -449,25 +460,44 @@ namespace hpp {
           for (LockedJoints_t::const_iterator _lj = ljs.begin();
               _lj != ljs.end(); ++_lj) {
             LockedJointPtr_t lj (*_lj);
-            size_type expFidx = solver.explicitConstraintSet().add (
-                lj->explicitFunction(),
-                _row(lj->inputConf()     , i * nq),
-                _row(lj->outputConf()    , i * nq),
-                _col(lj->inputVelocity() , i * nv),
-                _row(lj->outputVelocity(), i * nv),
-                lj->comparisonType ());
+            size_type expFidx = solver.explicitConstraintSet().add
+              (explicitConstraintOnWaypoint (lj, i));
             if (expFidx < 0)
               throw std::invalid_argument ("Could not add locked joint " + lj->jointName());
 
             // This must be done later
-            rhsSetters_.push_back (RightHandSideSetter(
-                  DifferentiableFunctionPtr_t(),
-                  expFidx,
-                  lj->rightHandSide()));
+            rhsSetters_.push_back
+              (RightHandSideSetter(constraints::Implicit::create
+                                   (DifferentiableFunctionPtr_t()),
+                                   expFidx,
+                                   lj->rightHandSide()));
             // solver.rightHandSide (DifferentiableFunctionPtr_t(),
                 // lj->explicitFunction(),
                 // lj->rightHandSide());
           }
+        }
+
+        /// Apply constraint on a give waypoint
+        /// \param constaint explicit constraint defined on the configuration
+        ///        space,
+        /// \param i rank of the waypoint in the vector of parameters.
+        constraints::ExplicitPtr_t explicitConstraintOnWaypoint
+        (const constraints::ExplicitPtr_t& constraint,
+         std::size_t i)
+        {
+          assert (i < N);
+          // size_type nq (constraint->explicitFunction ().inputSize ()),
+          //   nv (constraint->function ().inputDerrivativeSize ());
+          segments_t ic (constraint->inputConf ()),
+            oc (constraint->outputConf ()),
+            iv (constraint->inputVelocity ()),
+            ov (constraint->outputVelocity ());
+          // TODO: implicit formulation should be built from input constraint
+          return constraints::Explicit::create
+            (solver.configSpace (), constraint->functionPtr (),
+             _row (ic, i*nq).indices (), _row (oc, i*nq).indices (),
+             _col (iv, i*nv).indices (), _col (ov, i*nv).indices (),
+             constraint->comparisonType ());
         }
 
         RowBlockIndices _row (segments_t s, const std::size_t& shift)
@@ -479,6 +509,19 @@ namespace hpp {
         {
           for (std::size_t j = 0; j < s.size(); ++j) s[j].first += shift;
           return ColBlockIndices (s);
+        }
+        constraints::ImplicitPtr_t implicitConstraintOnWayPoint
+        (const constraints::ImplicitPtr_t& constraint, std::size_t i)
+        {
+          assert (i < N);
+          ImplicitPtr_t res (constraints::Implicit::create
+                             (StateFunction::Ptr_t
+                              (new StateFunction (constraint->functionPtr (),
+                                                  N * nq, N * nv,
+                                                  segment_t (i * nq, nq),
+                                                  segment_t (i * nv, nv))),
+                              constraint->comparisonType ()));
+          return res;
         }
         StateFunction::Ptr_t _stateFunction(const DifferentiableFunctionPtr_t inner, const std::size_t i)
         {
@@ -665,7 +708,7 @@ namespace hpp {
         // d.maxDepth = 2;
         d.maxDepth = problem_.getParameter ("CrossStateOptimization/maxDepth").intValue();
 
-        // Find 
+        // Find
         d.queue1.push (d.addInitState());
         std::size_t idxSol = (d.s1 == d.s2 ? 1 : 0);
         bool maxDepthReached = findTransitions (d);

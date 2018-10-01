@@ -230,6 +230,11 @@ namespace hpp {
         throw std::runtime_error ("The graph is not defined.");
       initSteeringMethod();
       constraintGraph_->initialize();
+
+      for (std::size_t i = 0; i < constraintsAndComplements.size(); ++i) {
+        const ConstraintAndComplement_t& c = constraintsAndComplements[i];
+        constraintGraph ()->registerConstraints (c.constraint, c.complement, c.both);
+      }
     }
 
     void ProblemSolver::createPlacementConstraint
@@ -336,9 +341,6 @@ namespace hpp {
     (const std::string& name, const std::string& gripper,
      const std::string& handle)
     {
-      if (!constraintGraph ()) {
-        throw std::runtime_error ("The graph is not defined.");
-      }
       GripperPtr_t g = robot_->grippers.get (gripper, GripperPtr_t());
       if (!g) throw std::runtime_error ("No gripper with name " + gripper + ".");
       HandlePtr_t h = robot_->handles.get (handle, HandlePtr_t());
@@ -351,7 +353,11 @@ namespace hpp {
       addNumericalConstraint ( name, constraint);
       addNumericalConstraint (cname, complement);
       addNumericalConstraint (bname, both);
-      constraintGraph ()->registerConstraints (constraint, complement, both);
+
+      constraintsAndComplements.push_back (
+          ConstraintAndComplement_t (constraint, complement, both));
+      if (constraintGraph ())
+        constraintGraph ()->registerConstraints (constraint, complement, both);
     }
 
     void ProblemSolver::createPreGraspConstraint

@@ -102,6 +102,7 @@ namespace hpp {
     typedef std::vector <ObjectPtr_t> Objects_t;
     typedef core::Constraint Constraint;
     typedef core::ConstraintPtr_t ConstraintPtr_t;
+    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     typedef constraints::LockedJoint LockedJoint;
     typedef constraints::LockedJointPtr_t LockedJointPtr_t;
     typedef hpp::core::ComparisonTypes_t ComparisonTypes_t;

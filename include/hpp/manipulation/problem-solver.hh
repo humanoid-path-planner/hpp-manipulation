@@ -22,6 +22,7 @@
 # include <hpp/pinocchio/device.hh>
 # include <hpp/core/problem-solver.hh>
 # include <hpp/core/container.hh>
+# include "hpp/manipulation/constraint-set.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/deprecated.hh"
 # include "hpp/manipulation/device.hh"
@@ -135,6 +136,8 @@ namespace hpp {
         void setTargetState (const graph::StatePtr_t state);
 
         core::Container <graph::GraphPtr_t> graphs;
+
+        ConstraintsAndComplements_t constraintsAndComplements;
 
       protected:
         virtual void initializeProblem (ProblemPtr_t problem);

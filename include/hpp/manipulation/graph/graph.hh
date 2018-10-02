@@ -19,6 +19,7 @@
 
 # include <boost/tuple/tuple.hpp>
 # include "hpp/manipulation/config.hh"
+# include "hpp/manipulation/constraint-set.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
 # include "hpp/manipulation/graph/graph-component.hh"
@@ -316,19 +317,6 @@ namespace hpp {
           value_type errorThreshold_;
           size_type maxIterations_;
 
-          struct ConstraintAndComplement_t {
-            ImplicitPtr_t constraint;
-            ImplicitPtr_t complement;
-            ImplicitPtr_t both;
-            ConstraintAndComplement_t (const ImplicitPtr_t& constr,
-                                       const ImplicitPtr_t& comp,
-                                       const ImplicitPtr_t& b) :
-              constraint (constr), complement (comp), both (b)
-            {
-            }
-          };
-          typedef std::vector <ConstraintAndComplement_t>
-            ConstraintsAndComplements_t;
           ConstraintsAndComplements_t constraintsAndComplements_;
           friend class GraphComponent;
       }; // Class Graph

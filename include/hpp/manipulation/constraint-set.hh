@@ -63,6 +63,20 @@ namespace hpp {
       graph::EdgePtr_t edge_;
       ConstraintSetWkPtr_t weak_;
     }; // class ConstraintSet
+
+    struct ConstraintAndComplement_t {
+      ImplicitPtr_t constraint;
+      ImplicitPtr_t complement;
+      ImplicitPtr_t both;
+      ConstraintAndComplement_t (const ImplicitPtr_t& constr,
+          const ImplicitPtr_t& comp,
+          const ImplicitPtr_t& b) :
+        constraint (constr), complement (comp), both (b)
+      {
+      }
+    };
+    typedef std::vector <ConstraintAndComplement_t>
+      ConstraintsAndComplements_t;
     /// \}
   } // namespace manipulation
 } // namespace hpp

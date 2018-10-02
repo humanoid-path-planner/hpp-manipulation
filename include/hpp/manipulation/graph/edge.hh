@@ -28,7 +28,6 @@
 
 namespace hpp {
   namespace manipulation {
-    typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     namespace graph {
       /// \addtogroup constraint_graph
       /// \{

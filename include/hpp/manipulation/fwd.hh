@@ -86,6 +86,8 @@ namespace hpp {
     typedef boost::shared_ptr < ManipulationPlanner > ManipulationPlannerPtr_t;
     HPP_PREDEF_CLASS (SymbolicPlanner);
     typedef boost::shared_ptr < SymbolicPlanner > SymbolicPlannerPtr_t;
+     HPP_PREDEF_CLASS (RMRStar);
+    typedef boost::shared_ptr < RMRStar > RMRStarPtr_t;
     HPP_PREDEF_CLASS (GraphPathValidation);
     typedef boost::shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
     HPP_PREDEF_CLASS (SteeringMethod);

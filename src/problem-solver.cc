@@ -46,6 +46,7 @@
 #include "hpp/manipulation/handle.hh"
 #include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/symbolic-planner.hh"
+#include "hpp/manipulation/rmr-star.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/roadmap.hh"
 #include "hpp/manipulation/constraint-set.hh"
@@ -109,6 +110,7 @@ namespace hpp {
 
       pathPlanners.add ("M-RRT", ManipulationPlanner::create);
       pathPlanners.add ("SymbolicPlanner", SymbolicPlanner::create);
+      pathPlanners.add ("RMR*", RMRStar::create);
 
       pathOptimizers.add ("RandomShortcut",
           pathOptimization::RandomShortcut::create);

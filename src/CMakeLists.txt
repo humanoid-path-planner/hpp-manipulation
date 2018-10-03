@@ -22,6 +22,7 @@ SET(LIBRARY_NAME ${PROJECT_NAME})
 SET(SOURCES
   handle.cc
   symbolic-planner.cc
+  rmr-star.cc
   manipulation-planner.cc
   problem-solver.cc
   roadmap.cc

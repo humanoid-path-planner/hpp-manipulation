@@ -154,6 +154,9 @@ namespace hpp {
           bool isShort () const {
             return isShort_;
           }
+	   /// Constraint to project a path.
+          /// \return The initialized constraint.
+          ConstraintSetPtr_t pathConstraint() const;
 
         protected:
           /// Initialization of the object.
@@ -162,10 +165,6 @@ namespace hpp {
 
           /// Constructor
           Edge (const std::string& name);
-
-          /// Constraint to project a path.
-          /// \return The initialized constraint.
-          ConstraintSetPtr_t pathConstraint() const;
 
           virtual ConstraintSetPtr_t buildConfigConstraint();
 

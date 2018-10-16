@@ -1,5 +1,9 @@
 # hpp-manipulation
 
+[![Building Status](https://travis-ci.org/humanoid-path-planner/hpp-manipulation.svg?branch=master)](https://travis-ci.org/humanoid-path-planner/hpp-manipulation)
+[![Pipeline status](https://gepgitlab.laas.fr/humanoid-path-planner/hpp-manipulation/badges/master/pipeline.svg)](https://gepgitlab.laas.fr/humanoid-path-planner/hpp-manipulation/commits/master)
+[![Coverage report](https://gepgitlab.laas.fr/humanoid-path-planner/hpp-manipulation/badges/master/coverage.svg?job=doc-coverage)](http://projects.laas.fr/gepetto/doc/humanoid-path-planner/hpp-manipulation/master/coverage/)
+
 This package is part of the [HPP] software and extends the functionalities of hpp-core.
 It implements a solver for manipulation planning problems.
 

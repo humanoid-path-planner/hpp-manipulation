@@ -76,29 +76,6 @@ namespace hpp {
           const segment_t sa_, sd_;
       }; // class Function
 
-      /// \f$ q_{out} = q_{in} \f$
-      /// \todo Make this derive from constraints::AffineFunction
-      class HPP_MANIPULATION_LOCAL Identity :
-        public constraints::DifferentiableFunction
-      {
-        public:
-          typedef boost::shared_ptr<Identity> Ptr_t;
-
-          Identity (const LiegroupSpacePtr_t space, const std::string& name) :
-            DifferentiableFunction (space->nq(), space->nv(), space, name) {}
-
-        protected:
-          void impl_compute (LiegroupElement& y, vectorIn_t arg) const
-          {
-            y.vector() = arg;
-          }
-
-          void impl_jacobian (matrixOut_t J, vectorIn_t) const
-          {
-            J.setIdentity();
-          }
-      }; // class Function
-
       /// Compute the difference between the value of the function in two points.
       /// i.e.: \f$ f (q_0, ... , q_n) = f_{inner} (q_{left}) - f_{inner} (q_{right}) \f$
       class HPP_MANIPULATION_LOCAL EdgeFunction :

@@ -28,6 +28,7 @@
 
 #include <hpp/pinocchio/configuration.hh>
 
+#include <hpp/constraints/affine-function.hh>
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/solver/by-substitution.hh>
 #include <hpp/constraints/explicit.hh>
@@ -316,7 +317,7 @@ namespace hpp {
               lj->rightHandSideFromConfig (q2);
               rhs = lj->rightHandSide();
             } else {
-              f = Identity::Ptr_t (new Identity (lj->configSpace(), os.str()));
+              f = constraints::Identity::create (lj->configSpace(), os.str());
               ic = _row(lj->outputConf()    , (i - 1) * nq);
               oc = _row(lj->outputConf()    ,  i      * nq);
               iv = _col(lj->outputVelocity(), (i - 1) * nv);

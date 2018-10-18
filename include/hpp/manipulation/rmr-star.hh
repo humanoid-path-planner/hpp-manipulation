@@ -53,7 +53,7 @@ namespace hpp {
       public core::PathPlanner
     {
       public:
-       
+
         /// Create an instance and return a shared pointer to the instance
         /// \param problem reference to the problem to be solved,
         /// \param roadmap roadmap to be expanded.
@@ -78,11 +78,11 @@ namespace hpp {
         /// Protected constructor
         RMRStar (const core::Problem& problem,
 		 const core::RoadmapPtr_t& roadmap);
-	
+
      private:
 
 	void computeTransitionMap ();
-	
+
 	typedef std::map <graph::StatePtr_t, graph::EdgePtr_t> TransitionMap_t;
 	TransitionMap_t transition_;
 
@@ -90,40 +90,40 @@ namespace hpp {
 	typedef std::map <NodeInOut_t, core::PathPtr_t> NodeMap_t;
 	NodeMap_t nodeMap_;
 
-	
+
 	NodeMap_t connectionmap_;
 
 	typedef std::pair<core::Problem,core::RoadmapPtr_t>ProblemAndRoadmap_t;
 
 	typedef std::multimap <ContactState , ProblemAndRoadmap_t> AssociationMap_t;
 	AssociationMap_t association_;
-		
+
 	//Return the vector of the transition map keys
 	std::vector<graph::StatePtr_t> extract_keys(TransitionMap_t input_map);
-		
+
 	/// Pointer to the problem
-        const Problem& pb_;	
+        const Problem& pb_;
 	/// Pointer to the roadmap
         const RoadmapPtr_t roadmap_;
-	
+
 
 	ContactState sampleContact ();
 
 	void startSolve ();
-	
+
 	void buildRoadmap ();
-	
+
 	void copyRoadmap ();
 
 	void connectLeaves ();
 
 	void connectRoadmap ();
 
-	
+
 	//pointer to the kPrmStar method
 	core::pathPlanner::kPrmStarPtr_t kPrm_;
 
-	
+
 	//Pointer to the copy of the loop-edge constraints
 	core::ConstraintSetPtr_t copyEdgeConstraints_;
 
@@ -138,17 +138,17 @@ namespace hpp {
 
 	//current contactState
 	RMRStar::ContactState contactState_;
-	
-	  
+
+
 	  enum STEP {
 	  BUILD_ROADMAP,
 	  CONNECT_ROADMAPS,
 	  QUERY
-	};
-	
+	  };
+
 	STEP step_;
-	
-    };//class RMRStar
+
+    }; // class RMRStar
     bool operator< (RMRStar:: ContactState c1 , RMRStar::ContactState c2);
 
   } // namespace manipulation

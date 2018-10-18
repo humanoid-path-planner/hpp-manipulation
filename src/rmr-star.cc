@@ -127,7 +127,6 @@ namespace hpp {
       //create an indexed table with a node as key and the loop edge as value
       for (std::size_t i=0; i<nbComp; ++i)
 	{
-
 	  const graph::GraphComponentPtr_t graphComp (cg->get(i));
 
 	  graph::EdgePtr_t edge (HPP_DYNAMIC_PTR_CAST(graph::Edge, graphComp));

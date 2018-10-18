@@ -47,6 +47,7 @@
 #include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/edge.hh>
 #include <hpp/core/roadmap.hh>
+#include <hpp/core/config-validations.hh>
 
 
 #include "hpp/manipulation/graph/statistics.hh"
@@ -95,9 +96,22 @@ namespace hpp {
       if (a.state<b.state){
       	return true;
       }
-      else {
-	return false;
+      else{return false; }
+
+      if (a.rightHandSide.size()<b.rightHandSide.size()){
+	return true;
       }
+      else{return false; }
+
+      for (int i=0; i<a.rightHandSide.size(); i++) {
+	if (a.rightHandSide[i]<b.rightHandSide[i]){
+	  return true;
+	}
+	else {
+	  return false;
+	}
+      }
+
     }
     ////////////////////////////////////////////////////////////////////////////
 
@@ -156,12 +170,16 @@ namespace hpp {
       // Shoot random number
       std::size_t i_rand=rand() % nbStates;
 
+
       // Grap random state of the graph
       const graph::StatePtr_t s_rand = RMRStar::extract_keys(transition_)[i_rand];
       bool constraintApplied =false;
-
+      bool valid =false;
+      core:: ValidationReportPtr_t validationReport;
+      core::ConfigValidationsPtr_t configValidations (problem ().configValidations ());
       int i=0;
-      while (constraintApplied==false && i<=1000)
+
+      while ((valid==false||constraintApplied==false) && i<=1000)
 	{
 	  //Shoot random configuration
 	  q_rand_= shooter->shoot();
@@ -169,6 +187,7 @@ namespace hpp {
 	  // Get state constraint of s_rand (configConstraint)
 	  ConstraintSetPtr_t stateConfig = cg->configConstraint(s_rand);
 	  constraintApplied = stateConfig->apply(*q_rand_);
+	  valid = configValidations->validate (*q_rand_, validationReport);
 	  i++;
 	}
 
@@ -201,72 +220,80 @@ namespace hpp {
 
     void RMRStar::buildRoadmap ()
     {
-      int counter =0;
+      using core::pathPlanner::kPrmStar;
       sampleContact();
+      interRoadmap_->clear();
 
       //copy the problem and pass the edge contraints
       core::Problem p (problem ());
-      const unsigned long int maxIteration=100;
-
-      interRoadmap_ = core::Roadmap::create(pb_.distance(),pb_.robot());
-      assert (interRoadmap_);
-
-      kPrm_=core::pathPlanner::kPrmStar::createWithRoadmap(p,interRoadmap_);
-      kPrm_->core::pathPlanner::kPrmStar::maxIterations(maxIteration);
-
-      RMRStar::ProblemAndRoadmap_t pbRoadmap (p,interRoadmap_) ;
-      association_.insert(std::pair<RMRStar::ContactState ,RMRStar::ProblemAndRoadmap_t> (contactState_,pbRoadmap));
-
-    while (counter<=1000)
-
-      {
-	hppDout (info, "enter in the while loop");
-	kPrm_->oneStep();
-	counter++;
-    }
       p.initConfig(q_rand_);
       p.steeringMethod (edgeSteeringMethod_);
       p.constraints(copyEdgeConstraints_);
 
+      kPrm_=kPrmStar::createWithRoadmap(p,interRoadmap_);
 
-     }
-      ////////////////////////////////////////////////////////////////////////////
+      RMRStar::ProblemAndRoadmap_t pbRoadmap (p,interRoadmap_) ;
 
-    void  RMRStar::copyRoadmap ()
+      //complete the map with the association ContactState/ProblemAndRoadmap
+      association_.insert
+	(std::pair<RMRStar::ContactState,RMRStar::ProblemAndRoadmap_t>
+	 (contactState_,pbRoadmap));
+
+      kPrm_->startSolve();
+
+      kPrmStar::STATE kPrmState;
+
+      do {
+        kPrmState= kPrm_->getComputationState();
+        kPrm_->oneStep();
+
+      }	while (kPrmState != kPrmStar::CONNECT_INIT_GOAL);
+
+    }
+    ////////////////////////////////////////////////////////////////////////////
+
+    void RMRStar::copyRoadmap ()
     {
-      const core::Edges_t edges = interRoadmap_->edges ();
+      const core::Edges_t& edges = interRoadmap_->edges ();
+      core::NodePtr_t node1;
+      core::NodePtr_t node2;
 
-      // std ::vector<core::PathPtr_t> pathList;
       //construct a map with the starting and ending node of each edge
       //of the map as key and the path as value.
 
       for  (core::Edges_t::const_iterator itedge = edges.begin();
 	    itedge != edges.end(); itedge++){
 
-	RMRStar::NodeInOut_t pairNode((*itedge)->from(),(*itedge)->to());
-	nodeMap_ [pairNode] =(*itedge)->path();
+	node1=roadmap()->addNode((*itedge)->from()->configuration());
+	node2=roadmap()->addNode((*itedge)->to()->configuration());
+
+	roadmap()->addEdge (node1, node2,(*itedge)->path());
+
+	//	RMRStar::NodeInOut_t pairNode((*itedge)->from(),(*itedge)->to());
+	//	nodeMap_ [pairNode] =(*itedge)->path();
       }
 
       //copy the nodes and the edges in the global roadmap
 
 
-      for  (RMRStar::NodeMap_t::const_iterator itnode = nodeMap_.begin();
-	    itnode != nodeMap_.end(); itnode++){
+      // for  (RMRStar::NodeMap_t::const_iterator itnode = nodeMap_.begin();
+      //   itnode != nodeMap_.end(); itnode++){
 
-	core::NodePtr_t node1 =roadmap()->addNode(itnode->first.first->configuration());
-	core::NodePtr_t node2 =roadmap()->addNode(itnode->first.second->configuration());
-	roadmap()->addEdge (node1, node2,itnode->second);
-
-      }
+      //node1 =roadmap()->addNode(itnode->first.first->configuration());
+      //node2 =roadmap()->addNode(itnode->first.second->configuration());
+      //	roadmap()->addEdge (node1, node2,itnode->second);
+      // }
+      //clear the intermediary map
     }
 
     ////////////////////////////////////////////////////////////////////////////
+    /////find an internode and connect the interRoadmaps to it
+    ///////////////////////////////////////////////////////////////////////////
 
     void RMRStar::connectRoadmap () {
 
       PathProjectorPtr_t pathProjector (problem().pathProjector ());
       core::PathPtr_t projpath;
-      //core::PathPtr_t projpath2;
       graph::GraphPtr_t cg =pb_.constraintGraph ();
       ConfigurationShooterPtr_t shooter (pb_.configurationShooter ());
       core::ConfigurationPtr_t q_rand;
@@ -276,32 +303,61 @@ namespace hpp {
       int flag =0;
       int flag2 =0;
 
-      //Flow through the maps stocked in the association_ map
+
+      // Iterate through the maps stocked in the association_ map
 
       for  (RMRStar::AssociationMap_t::const_iterator itstate = association_.begin(); itstate != association_.end(); itstate++)
 	{
 	  graph::StatePtr_t state = (itstate->first).state;
 	  core::ConstraintSetPtr_t constraintEdge = (itstate->first).loopEdgeConstraint;
-	  bool constraintApplied = false;
 
 	  // check if the states are different and are neighboors
 	  graph::Edges_t connectedEdges = cg->getEdges(state, contactState_.state);
 	  bool vectorEmpty = connectedEdges.empty ();
+	  bool valid=false;
+	  bool constraintApplied = false;
+	  core::ConfigValidationsPtr_t configValidations (problem ().configValidations ());
+	  core:: ValidationReportPtr_t validationReport;
 
-	  if (contactState_.state != state && vectorEmpty)
+	  if (contactState_.state != state && !vectorEmpty)
 	    {
-	      while (constraintApplied==false &&  i<=1000)
+	        // Get constraints of inter state
+		  ConstraintSetPtr_t stateTransitConfig = cg->configConstraint(contactState_.state);
+		  ConstraintSetPtr_t stateConfig = cg->configConstraint(state);
+
+		  //get the solver of the stateConfig
+		  assert (stateConfig);
+		  assert (stateConfig->configProjector());
+		  constraints::solver::BySubstitution solver =stateConfig->configProjector()->solver();
+		  //Get the constraints of the stateTransitConfig constraintSet
+		  ConfigProjectorPtr_t configProjector (stateTransitConfig->configProjector ());
+		  constraints::solver::BySubstitution solverTransit =configProjector->solver();
+		  const constraints::NumericalConstraints_t& constraints = solverTransit.numericalConstraints();
+
+		  //Get the constraints of the constraintEdge constraintSet
+		  const constraints::NumericalConstraints_t& constraintsEdge =
+		    constraintEdge->configProjector ()->solver().numericalConstraints();
+
+		   //Get the constraints of the constraintEdge constraintSet
+		  const constraints::NumericalConstraints_t& constraintsLoopEdge =
+		    (contactState_.loopEdgeConstraint)->configProjector ()->solver().numericalConstraints();
+
+		  //Copy all the constraints in the solver of the stateConfig
+		  for (std::size_t j=0; j<constraints.size(); j++){
+		    solver.add(constraints[j]);
+		  }
+		  for (std::size_t j=0; j<constraintsEdge.size(); j++){
+		    solver.add(constraintsEdge[j]);
+		  }
+		  for (std::size_t j=0; j<constraintsLoopEdge.size(); j++){
+		    solver.add(constraintsLoopEdge[j]);
+		  }
+	      while ((valid==false||constraintApplied==false) && i<=1000)
 		{
 		  //Shoot random configuration
 		  q_rand= shooter->shoot();
-
-		  // Get constraints of inter state and merge them
-		  ConstraintSetPtr_t stateTransitConfig = cg->configConstraint(contactState_.state);
-		  ConstraintSetPtr_t stateConfig = cg->configConstraint(state);
-		  stateConfig -> addConstraint (stateTransitConfig);
-		  stateConfig -> addConstraint (constraintEdge);
-		  stateConfig -> addConstraint (contactState_.loopEdgeConstraint);
 		  constraintApplied = stateConfig->apply(*q_rand);
+		  valid = configValidations->validate (*q_rand, validationReport);
 		  i++;
 		}
 
@@ -326,8 +382,9 @@ namespace hpp {
 		  else {
 		    if (pathProjector->apply(path,projpath)){
 
-		      NodeInOut_t connectionNodeInter (nodeInter,*itnode);
-		      connectionmap_[connectionNodeInter]=projpath;
+		      roadmap()->addEdge (nodeInter,*itnode,projpath);
+		      //NodeInOut_t connectionNodeInter (nodeInter,*itnode);
+		      //connectionmap_[connectionNodeInter]=projpath;
 		    }
 		    else {flag++;}
 		  }
@@ -357,8 +414,10 @@ namespace hpp {
 		    core::PathPtr_t projpath;
 		    if (pathProjector->apply(path,projpath)){
 
-		      NodeInOut_t connectionNodeInter (nodeInter,*itnode);
-		      connectionmap_[connectionNodeInter]=projpath;
+		      roadmap()->addEdge (nodeInter,*itnode,projpath);
+
+		      // NodeInOut_t connectionNodeInter (nodeInter,*itnode);
+		      //connectionmap_[connectionNodeInter]=projpath;
 		    }
 		    else { flag2++;}
 		  }
@@ -369,17 +428,19 @@ namespace hpp {
 
     }
     ////////////////////////////////////////////////////////////////////////////
+    //////////Copy the node found in connect roadmaps and the edges built in the final Roadmap
+    ////////////////////////////////////////////////////////////////////////////
 
     void RMRStar::connectLeaves ()
     {
- for  (RMRStar::NodeMap_t::const_iterator itnode = nodeMap_.begin();
-	    itnode != nodeMap_.end(); itnode++){
+      //for  (RMRStar::NodeMap_t::const_iterator itnode = nodeMap_.begin();
+      //    itnode != nodeMap_.end(); itnode++){
 
-	core::NodePtr_t node1 =roadmap()->addNode(itnode->first.first->configuration());
-	core::NodePtr_t node2 =roadmap()->addNode(itnode->first.second->configuration());
-	roadmap()->addEdge (node1, node2,itnode->second);
+      //core::NodePtr_t node1 =roadmap()->addNode(itnode->first.first->configuration());
+      //core::NodePtr_t node2 =roadmap()->addNode(itnode->first.second->configuration());
+      //roadmap()->addEdge (node1, node2,itnode->second);
 
-      }
+      //}
 
     }
     ////////////////////////////////////////////////////////////////////////////
@@ -390,60 +451,62 @@ namespace hpp {
       computeTransitionMap ();
 
     step_= BUILD_ROADMAP;
+    interRoadmap_ = core::Roadmap::create(pb_.distance(),pb_.robot());
+
     PathPlanner::startSolve ();
     }
     ////////////////////////////////////////////////////////////////////////////
     void RMRStar::oneStep ()
     {
-      	int i=0;
+      int i=0;
+
       hppDout (info, "the algorithm reaches oneStep");
-      // RMRStar::ContactState contactState;
 
       switch (step_)
 	{
 	case BUILD_ROADMAP:
-
+	  hppDout (info, "the algorithm reaches build Roadmap");
 	  buildRoadmap();
+	  hppDout (info, "the algorithm reaches copyroadmap");
 	  copyRoadmap ();
-	if (association_.size()<1)
-	  {
-	    step_=BUILD_ROADMAP;
+	  if (association_.size()<=1)
+	    {
+	      step_=BUILD_ROADMAP;
+	    }
+	  else{
+	    step_=CONNECT_ROADMAPS;
 	  }
-	else{
-	  step_=CONNECT_ROADMAPS;
+	  break;
+
+	case CONNECT_ROADMAPS:
+
+	  hppDout (info, "the algorithm reaches connect road map");
+	  connectRoadmap();
+	  //connectLeaves();
+	  step_= BUILD_ROADMAP;
+	  if (i>=100) {step_=QUERY;}
+	  break;
+	case QUERY:
+	  hppDout (info, "the algorithm reached the end");
+	  interrupt ();
+	  break;
 	}
-	hppDout (info, "the algorithm reaches sample contact");
-	break;
 
-      case CONNECT_ROADMAPS:
-
-	hppDout (info, "the algorithm reaches connect road map");
-	connectRoadmap();
-	connectLeaves();
-	step_= BUILD_ROADMAP;
-	if (i>=100) {step_=QUERY;}
-	break;
-      case QUERY:
-	hppDout (info, "the algorithm reached the end");
-	interrupt ();
-	break;
-      }
-
-  }
+    }
     ////////////////////////////////////////////////////////////////////////////
 
     RMRStar::RMRStar (const core::Problem& problem,
 		      const core::RoadmapPtr_t& roadmap) :
-    core::PathPlanner (problem, roadmap),
-    transition_ (), pb_ (static_cast <const manipulation::Problem& > (problem)),
-    roadmap_ (HPP_STATIC_PTR_CAST (manipulation::Roadmap, roadmap))
-  {
+      core::PathPlanner (problem, roadmap),
+      transition_ (), pb_ (static_cast <const manipulation::Problem& > (problem)),
+      roadmap_ (HPP_STATIC_PTR_CAST (manipulation::Roadmap, roadmap))
+    {
 #ifndef NDEBUG
-    dynamic_cast <const manipulation::Problem& > (problem);
-    (HPP_DYNAMIC_PTR_CAST (manipulation::Roadmap, roadmap));
+      dynamic_cast <const manipulation::Problem& > (problem);
+      (HPP_DYNAMIC_PTR_CAST (manipulation::Roadmap, roadmap));
 
 #endif
-  }
+    }
     ////////////////////////////////////////////////////////////////////////////
     bool operator<(RMRStar:: ContactState c1 , RMRStar::ContactState c2)
     {

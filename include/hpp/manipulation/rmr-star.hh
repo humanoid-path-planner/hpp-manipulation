@@ -94,8 +94,8 @@ namespace hpp {
 	NodeMap_t connectionmap_;
 
 	typedef std::pair<core::Problem,core::RoadmapPtr_t>ProblemAndRoadmap_t;
-	
-	typedef std::map <ContactState , ProblemAndRoadmap_t> AssociationMap_t;
+
+	typedef std::multimap <ContactState , ProblemAndRoadmap_t> AssociationMap_t;
 	AssociationMap_t association_;
 		
 	//Return the vector of the transition map keys

@@ -38,7 +38,6 @@
 
 #include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/graph/fwd.hh"
-#include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/fwd.hh"
 
 namespace hpp {
@@ -68,12 +67,46 @@ namespace hpp {
         virtual void oneStep ();
 
 	struct ContactState {
-	  graph::StatePtr_t state;
-	  constraints::vector_t rightHandSide;
-	  core::ConstraintSetPtr_t loopEdgeConstraint;
+	public:
+	  ContactState () : state_ (), rightHandSide_ (), loopEdgeConstraint_ ()
+	  {
+	  }
+	  ContactState (const graph::StatePtr_t& state,
+			ConfigurationIn_t config,
+			const core::ConstraintSetConstPtr_t& constraints) :
+	    state_ (state), rightHandSide_ (),
+	    loopEdgeConstraint_ ()
+	  {
+	    loopEdgeConstraint_ = HPP_DYNAMIC_PTR_CAST(core::ConstraintSet,
+						       constraints->copy());
+	    assert (loopEdgeConstraint_);
+	    assert (loopEdgeConstraint_->configProjector ());
+	    rightHandSide_ =loopEdgeConstraint_->configProjector ()->
+	      rightHandSideFromConfig (config);
+	  }
+	  const graph::StatePtr_t& state () const
+	  {
+	    assert (state_);
+	    return state_;
+	  }
+	  const constraints::vector_t& rightHandSide () const
+	  {
+	    assert (state_);
+	    return rightHandSide_;
+	  }
+	  const core::ConstraintSetPtr_t constraints () const
+	  {
+	    assert (state_);
+	    return loopEdgeConstraint_;
+	  }
+	private:
+	  graph::StatePtr_t state_;
+	  constraints::vector_t rightHandSide_;
+	  core::ConstraintSetPtr_t loopEdgeConstraint_;
 	};
-	bool pluspetit (RMRStar::ContactState a ,RMRStar::ContactState b);
-	
+	bool smaller (const RMRStar::ContactState& a,
+		      const RMRStar::ContactState& b);
+
      protected:
         /// Protected constructor
         RMRStar (const core::Problem& problem,
@@ -134,7 +167,7 @@ namespace hpp {
 	core::RoadmapPtr_t interRoadmap_;
 
 	//Random config used as q_init
-	ConfigurationPtr_t q_rand_;
+	mutable ConfigurationPtr_t q_rand_;
 
 	//current contactState
 	RMRStar::ContactState contactState_;
@@ -149,7 +182,8 @@ namespace hpp {
 	STEP step_;
 
     }; // class RMRStar
-    bool operator< (RMRStar:: ContactState c1 , RMRStar::ContactState c2);
+    bool operator< (const RMRStar::ContactState& c1 ,
+		    const RMRStar::ContactState& c2);
 
   } // namespace manipulation
 } // namespace hpp

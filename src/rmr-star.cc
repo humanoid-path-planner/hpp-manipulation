@@ -92,26 +92,26 @@ namespace hpp {
 
     //creation of the ContactState class operator
 
-    bool pluspetit (RMRStar::ContactState a, RMRStar::ContactState b){
-      if (a.state<b.state){
+    bool smaller (RMRStar::ContactState a, RMRStar::ContactState b){
+      if (a.state () < b.state ()){
       	return true;
       }
       else{return false; }
 
-      if (a.rightHandSide.size()<b.rightHandSide.size()){
+      if (a.rightHandSide ().size () < b.rightHandSide ().size ()){
 	return true;
       }
-      else{return false; }
-
-      for (int i=0; i<a.rightHandSide.size(); i++) {
-	if (a.rightHandSide[i]<b.rightHandSide[i]){
+      else {
+	return false;
+      }
+      for (int i=0; i < a.rightHandSide ().size(); ++i)	{
+	if (a.rightHandSide ()[i]<b.rightHandSide ()[i]){
 	  return true;
 	}
 	else {
 	  return false;
 	}
       }
-
     }
     ////////////////////////////////////////////////////////////////////////////
 
@@ -200,19 +200,12 @@ namespace hpp {
       graph::EdgePtr_t loop_edge = transition_[s_rand];
       core::ConstraintSetPtr_t edgeConstraints =loop_edge->pathConstraint();
 
-      copyEdgeConstraints_ = HPP_DYNAMIC_PTR_CAST(core::ConstraintSet, edgeConstraints->copy());
-
       // recovery of the edge steering method
       edgeSteeringMethod_ = loop_edge -> steeringMethod();
 
       // get right hand side of constraint from q_rand
-      vector_t rhs =copyEdgeConstraints_->configProjector ()->rightHandSideFromConfig (*q_rand_);
-
-      contactState_.state = s_rand;
-      contactState_.rightHandSide = rhs;
-      contactState_.loopEdgeConstraint=edgeConstraints;
-
-      return contactState_;
+      ContactState contactState (s_rand, *q_rand_, edgeConstraints);
+      return contactState;
     }
 
     ////////////////////////////////////////////////////////////////////////////
@@ -307,21 +300,23 @@ namespace hpp {
 
       for  (RMRStar::AssociationMap_t::const_iterator itstate = association_.begin(); itstate != association_.end(); itstate++)
 	{
-	  graph::StatePtr_t state = (itstate->first).state;
-	  core::ConstraintSetPtr_t constraintEdge = (itstate->first).loopEdgeConstraint;
+	  graph::StatePtr_t state = (itstate->first).state ();
+	  core::ConstraintSetPtr_t constraintEdge =
+	    (itstate->first).constraints ();
 
 	  // check if the states are different and are neighboors
-	  graph::Edges_t connectedEdges = cg->getEdges(state, contactState_.state);
+	  graph::Edges_t connectedEdges = cg->getEdges(state,
+						       contactState_.state ());
 	  bool vectorEmpty = connectedEdges.empty ();
 	  bool valid=false;
 	  bool constraintApplied = false;
 	  core::ConfigValidationsPtr_t configValidations (problem ().configValidations ());
 	  core:: ValidationReportPtr_t validationReport;
 
-	  if (contactState_.state != state && !vectorEmpty)
+	  if (contactState_.state () != state && !vectorEmpty)
 	    {
 	        // Get constraints of inter state
-		  ConstraintSetPtr_t stateTransitConfig = cg->configConstraint(contactState_.state);
+	      ConstraintSetPtr_t stateTransitConfig = cg->configConstraint(contactState_.state ());
 		  ConstraintSetPtr_t stateConfig = cg->configConstraint(state);
 
 		  //get the solver of the stateConfig
@@ -339,7 +334,8 @@ namespace hpp {
 
 		   //Get the constraints of the constraintEdge constraintSet
 		  const constraints::NumericalConstraints_t& constraintsLoopEdge =
-		    (contactState_.loopEdgeConstraint)->configProjector ()->solver().numericalConstraints();
+		    (contactState_.constraints ())->configProjector ()->
+		    solver().numericalConstraints();
 
 		  //Copy all the constraints in the solver of the stateConfig
 		  for (std::size_t j=0; j<constraints.size(); j++){
@@ -507,9 +503,10 @@ namespace hpp {
 #endif
     }
     ////////////////////////////////////////////////////////////////////////////
-    bool operator<(RMRStar:: ContactState c1 , RMRStar::ContactState c2)
+    bool operator< (const RMRStar::ContactState& c1 ,
+		    const RMRStar::ContactState& c2)
     {
-      return pluspetit (c1,c2);
+      return smaller (c1,c2);
     }
 
 }//end namespace manipulation

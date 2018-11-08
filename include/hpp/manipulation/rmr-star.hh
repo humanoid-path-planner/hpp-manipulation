@@ -31,12 +31,7 @@
 
 
 #include <hpp/core/path-planner.hh>
-
-#include <hpp/statistics/success-bin.hh>
-
 #include "hpp/manipulation/graph/statistics.hh"
-
-#include "hpp/manipulation/config.hh"
 #include "hpp/manipulation/graph/fwd.hh"
 #include "hpp/manipulation/fwd.hh"
 
@@ -68,20 +63,19 @@ namespace hpp {
 
 	struct ContactState {
 	public:
-	  ContactState () : state_ (), rightHandSide_ (), loopEdgeConstraint_ ()
+	  ContactState () : state_ (), rightHandSide_ (), loopEdgeConstraint_ (), config_ ()
 	  {
 	  }
 	  ContactState (const graph::StatePtr_t& state,
 			ConfigurationIn_t config,
-			const core::ConstraintSetConstPtr_t& constraints) :
+			const core::ConstraintSetPtr_t& constraints) :
 	    state_ (state), rightHandSide_ (),
-	    loopEdgeConstraint_ ()
+	    loopEdgeConstraint_ (constraints), config_(config)
 	  {
-	    loopEdgeConstraint_ = HPP_DYNAMIC_PTR_CAST(core::ConstraintSet,
-						       constraints->copy());
+	  
 	    assert (loopEdgeConstraint_);
 	    assert (loopEdgeConstraint_->configProjector ());
-	    rightHandSide_ =loopEdgeConstraint_->configProjector ()->
+	    rightHandSide_ = loopEdgeConstraint_->configProjector ()->
 	      rightHandSideFromConfig (config);
 	  }
 	  const graph::StatePtr_t& state () const
@@ -94,16 +88,23 @@ namespace hpp {
 	    assert (state_);
 	    return rightHandSide_;
 	  }
-	  const core::ConstraintSetPtr_t constraints () const
+	  const core::ConstraintSetPtr_t& constraints () const
 	  {
 	    assert (state_);
 	    return loopEdgeConstraint_;
+	  }
+	  const Configuration_t& config () const
+	  {
+	    assert (state_);
+	    return config_;
 	  }
 	private:
 	  graph::StatePtr_t state_;
 	  constraints::vector_t rightHandSide_;
 	  core::ConstraintSetPtr_t loopEdgeConstraint_;
+	  Configuration_t config_;
 	};
+	
 	bool smaller (const RMRStar::ContactState& a,
 		      const RMRStar::ContactState& b);
 
@@ -114,20 +115,12 @@ namespace hpp {
 
      private:
 
-	void computeTransitionMap ();
 
 	typedef std::map <graph::StatePtr_t, graph::EdgePtr_t> TransitionMap_t;
 	TransitionMap_t transition_;
 
-	typedef std::pair<core::NodePtr_t,core::NodePtr_t>NodeInOut_t;
-	typedef std::map <NodeInOut_t, core::PathPtr_t> NodeMap_t;
-	NodeMap_t nodeMap_;
-
-
-	NodeMap_t connectionmap_;
-
 	typedef std::pair<core::Problem,core::RoadmapPtr_t>ProblemAndRoadmap_t;
-
+	
 	typedef std::multimap <ContactState , ProblemAndRoadmap_t> AssociationMap_t;
 	AssociationMap_t association_;
 
@@ -139,8 +132,13 @@ namespace hpp {
 	/// Pointer to the roadmap
         const RoadmapPtr_t roadmap_;
 
+	///////////////////////////////////////////////////////////////////
+	///Functions declaration
+	//////////////////////////////////////////////////////////////////
 
 	ContactState sampleContact ();
+
+	void computeTransitionMap ();
 
 	void startSolve ();
 
@@ -148,14 +146,14 @@ namespace hpp {
 
 	void copyRoadmap ();
 
-	void connectLeaves ();
-
 	void connectRoadmap ();
+
+	void associationmap ();
+	void tryToConnectInitAndGoal ();
 
 
 	//pointer to the kPrmStar method
 	core::pathPlanner::kPrmStarPtr_t kPrm_;
-
 
 	//Pointer to the copy of the loop-edge constraints
 	core::ConstraintSetPtr_t copyEdgeConstraints_;

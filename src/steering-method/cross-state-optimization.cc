@@ -549,7 +549,7 @@ namespace hpp {
         bool _saturate (vectorIn_t q, vectorOut_t qSat, Eigen::VectorXi& sat)
         {
           bool ret = false;
-          const se3::Model& model = robot->model();
+          const pinocchio::Model& model = robot->model();
 
           for (std::size_t i = 1; i < model.joints.size(); ++i) {
             const size_type jnq = model.joints[i].nq();

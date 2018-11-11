@@ -21,7 +21,7 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include <pinocchio/multibody/joint/joint.hpp>
+#include <pinocchio/multibody/joint/joint-generic.hpp>
 
 #include <hpp/util/debug.hh>
 
@@ -62,7 +62,7 @@ namespace hpp {
 
     bool isHandleOnFreeflyer (const Handle& handle)
     {
-      if (handle.joint()->jointModel().shortname() == se3::JointModelFreeFlyer::classname()
+      if (handle.joint()->jointModel().shortname() == ::pinocchio::JointModelFreeFlyer::classname()
           && !handle.joint ()->parentJoint ()) {
 	return true;
       }

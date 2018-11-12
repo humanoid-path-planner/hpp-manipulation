@@ -27,6 +27,7 @@
 
 #include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/gripper.hh>
 
 #include <hpp/constraints/generic-transformation.hh>

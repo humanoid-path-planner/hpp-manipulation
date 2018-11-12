@@ -27,6 +27,7 @@
 #include <pinocchio/multibody/model.hpp>
 
 #include <hpp/pinocchio/configuration.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/solver/by-substitution.hh>

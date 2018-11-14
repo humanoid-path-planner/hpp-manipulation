@@ -72,7 +72,7 @@ namespace hpp {
 	    state_ (state), rightHandSide_ (),
 	    loopEdgeConstraint_ (constraints), config_(config)
 	  {
-	  
+
 	    assert (loopEdgeConstraint_);
 	    assert (loopEdgeConstraint_->configProjector ());
 	    rightHandSide_ = loopEdgeConstraint_->configProjector ()->
@@ -104,7 +104,7 @@ namespace hpp {
 	  core::ConstraintSetPtr_t loopEdgeConstraint_;
 	  Configuration_t config_;
 	};
-	
+
 	bool smaller (const RMRStar::ContactState& a,
 		      const RMRStar::ContactState& b);
 
@@ -120,7 +120,7 @@ namespace hpp {
 	TransitionMap_t transition_;
 
 	typedef std::pair<core::Problem,core::RoadmapPtr_t>ProblemAndRoadmap_t;
-	
+
 	typedef std::multimap <ContactState , ProblemAndRoadmap_t> AssociationMap_t;
 	AssociationMap_t association_;
 
@@ -141,7 +141,6 @@ namespace hpp {
 	void computeTransitionMap ();
 
 	void startSolve ();
-
 	void buildRoadmap ();
 
 	void copyRoadmap ();
@@ -149,7 +148,6 @@ namespace hpp {
 	void connectRoadmap ();
 
 	void associationmap ();
-	void tryToConnectInitAndGoal ();
 
 
 	//pointer to the kPrmStar method
@@ -171,11 +169,11 @@ namespace hpp {
 	RMRStar::ContactState contactState_;
 
 
-	  enum STEP {
+	enum STEP {
 	  BUILD_ROADMAP,
 	  CONNECT_ROADMAPS,
 	  QUERY
-	  };
+	};
 
 	STEP step_;
 

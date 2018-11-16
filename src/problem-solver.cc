@@ -193,9 +193,12 @@ namespace hpp {
 
     void ProblemSolver::resetProblem ()
     {
-      if (problem_)
-        delete (problem_);
-      initializeProblem (new Problem (robot_));
+      ProblemPtr_t p (new Problem (robot_));
+      if (problem_) {
+        p->parameters = problem_->parameters;
+	delete problem_;
+      }
+      initializeProblem (p);
     }
 
     void ProblemSolver::initializeProblem (ProblemPtr_t problem)

@@ -16,7 +16,7 @@
 
 #include <hpp/manipulation/problem.hh>
 
-#include <hpp/core/discretized-collision-checking.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
 
 #include <hpp/manipulation/weighed-distance.hh>
 #include <hpp/manipulation/steering-method/graph.hh>
@@ -30,7 +30,7 @@ namespace hpp {
     {
       Parent::steeringMethod (steeringMethod::Graph::create (*this));
       distance (WeighedDistance::create (robot, graph_));
-      setPathValidationFactory(core::DiscretizedCollisionChecking::create, 0.05);
+      setPathValidationFactory(core::pathValidation::createDiscretizedCollisionChecking, 0.05);
 
       // add<boost::any>("ManipulationPlanner/ExtendStep", (value_type)1);
     }

@@ -61,22 +61,39 @@ namespace hpp {
         ///
         virtual void oneStep ();
 
+	typedef std::multimap <constraints::ImplicitPtr_t,constraints::vector_t> RhsMap_t;
+	RhsMap_t RhsMap_;
+
 	struct ContactState {
 	public:
-	  ContactState () : state_ (), rightHandSide_ (), loopEdgeConstraint_ (), config_ ()
+	  ContactState () : state_ (), rightHandSide_ (), loopEdgeConstraint_ (), config_ (), rhsMap_()
 	  {
 	  }
 	  ContactState (const graph::StatePtr_t& state,
 			ConfigurationIn_t config,
 			const core::ConstraintSetPtr_t& constraints) :
 	    state_ (state), rightHandSide_ (),
-	    loopEdgeConstraint_ (constraints), config_(config)
+	    loopEdgeConstraint_ (constraints), config_(config),rhsMap_()
 	  {
 
 	    assert (loopEdgeConstraint_);
 	    assert (loopEdgeConstraint_->configProjector ());
 	    rightHandSide_ = loopEdgeConstraint_->configProjector ()->
 	      rightHandSideFromConfig (config);
+	    core::NumericalConstraints_t num =constraints->configProjector ()->solver().numericalConstraints();
+	      constraints::solver::BySubstitution solver
+	    ( constraints->configProjector ()-> solver ());
+	    for (std::size_t i=0 ; i<num.size() ; i++)
+	      {
+		constraints::ImplicitPtr_t function = num[i];
+		constraints::vectorOut_t rhs= function->nonConstRightHandSide();
+		 solver.getRightHandSide(num[i],rhs);
+
+		rhsMap_.insert
+		  (std::pair<constraints::ImplicitPtr_t,constraints::vectorIn_t>
+		   (function,rhs));
+		 }
+
 	  }
 	  const graph::StatePtr_t& state () const
 	  {
@@ -98,11 +115,20 @@ namespace hpp {
 	    assert (state_);
 	    return config_;
 	  }
+
+	  const RhsMap_t& rhsMap () const
+	  {
+	    assert (state_);
+
+	    return rhsMap_;
+	  }
+
 	private:
 	  graph::StatePtr_t state_;
 	  constraints::vector_t rightHandSide_;
 	  core::ConstraintSetPtr_t loopEdgeConstraint_;
 	  Configuration_t config_;
+	  RhsMap_t rhsMap_;
 	};
 
 	bool smaller (const RMRStar::ContactState& a,
@@ -124,13 +150,14 @@ namespace hpp {
 	typedef std::multimap <ContactState , ProblemAndRoadmap_t> AssociationMap_t;
 	AssociationMap_t association_;
 
-	//Return the vector of the transition map keys
-	std::vector<graph::StatePtr_t> extract_keys(TransitionMap_t input_map);
+
 
 	/// Pointer to the problem
         const Problem& pb_;
 	/// Pointer to the roadmap
         const RoadmapPtr_t roadmap_;
+
+
 
 	///////////////////////////////////////////////////////////////////
 	///Functions declaration
@@ -140,7 +167,11 @@ namespace hpp {
 
 	void computeTransitionMap ();
 
+	std::vector<graph::StatePtr_t> extract_keys(TransitionMap_t input_map);
+
+
 	void startSolve ();
+
 	void buildRoadmap ();
 
 	void copyRoadmap ();
@@ -148,6 +179,13 @@ namespace hpp {
 	void connectRoadmap ();
 
 	void associationmap ();
+
+	void storeRhs ();
+
+	bool rhsNull (vector_t rhs);
+
+	pinocchio::value_type biggerThreshold
+	  ( constraints::solver::BySubstitution solver1,constraints::solver::BySubstitution solver2);
 
 
 	//pointer to the kPrmStar method
@@ -167,6 +205,9 @@ namespace hpp {
 
 	//current contactState
 	RMRStar::ContactState contactState_;
+
+	//Pointer to the graph problem
+	graph::GraphPtr_t graph_;
 
 
 	enum STEP {

@@ -100,7 +100,6 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/graph/helper.hh
 
   include/hpp/manipulation/path-optimization/small-steps.hh
-  include/hpp/manipulation/path-optimization/config-optimization.hh
   include/hpp/manipulation/path-optimization/enforce-transition-semantic.hh
   include/hpp/manipulation/path-optimization/keypoints.hh
   include/hpp/manipulation/path-optimization/spline-gradient-based.hh

@@ -52,7 +52,6 @@
 #include "hpp/manipulation/graph-optimizer.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph-node-optimizer.hh"
-#include "hpp/manipulation/path-optimization/config-optimization.hh"
 #include "hpp/manipulation/path-optimization/keypoints.hh"
 #include "hpp/manipulation/path-optimization/spline-gradient-based.hh"
 #include "hpp/manipulation/path-optimization/enforce-transition-semantic.hh"
@@ -74,15 +73,6 @@ namespace hpp {
         core::pathOptimization::PartialShortcutTraits {
           static bool removeLockedJoints () { return false; }
       };
-
-      template <typename InnerConfigOptimizationTraits>
-        struct GraphConfigOptimizationTraits {
-          static core::PathOptimizerPtr_t create (const core::Problem& problem)
-          {
-            return core::pathOptimization::ConfigOptimization::
-              createWithTraits <InnerConfigOptimizationTraits> (problem);
-          }
-        };
 
       template <typename ParentSM_t, typename ChildSM_t>
       core::SteeringMethodPtr_t createSMWithGuess
@@ -126,14 +116,6 @@ namespace hpp {
           PartialShortcut::createWithTraits <PartialShortcutTraits>);
       pathOptimizers.add ("Graph-PartialShortcut",
           GraphOptimizer::create <core::pathOptimization::PartialShortcut>);
-      pathOptimizers.add ("ConfigOptimization",
-          core::pathOptimization::ConfigOptimization::createWithTraits
-          <pathOptimization::ConfigOptimizationTraits>);
-      pathOptimizers.add ("Graph-ConfigOptimization",
-          GraphOptimizer::create <
-          GraphConfigOptimizationTraits
-            <pathOptimization::ConfigOptimizationTraits>
-            >);
       pathOptimizers.add ("EnforceTransitionSemantic",
           pathOptimization::EnforceTransitionSemantic::create);
 

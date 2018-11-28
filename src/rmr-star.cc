@@ -181,6 +181,7 @@ namespace hpp {
 
 	//Try to detect the function already visited and get their Right Hand side to set it
 	//to the new state
+	hppDout(info, "s_rand"<<s_rand->name());
 
 
 
@@ -188,7 +189,7 @@ namespace hpp {
 	  {
 	    for (RhsMap_t:: const_iterator it=RhsMap_.begin() ; it!= RhsMap_.end() ; ++it)
 	      {
-		if (it->first==numConstraints[i]){
+		if (it->first->functionPtr()->name()==numConstraints[i]->functionPtr()->name()){
 
 		  rhsOfTheFunctionAlreadyVisited.push_back(it->second);
 
@@ -215,7 +216,8 @@ namespace hpp {
 	    //Shoot random configuration
 	    q_rand_= shooter->shoot();
 	    constraintApplied =solver.solve(*q_rand_);
-
+	    hppDout(info,"solverRhs"<<solver.rightHandSide());
+	    hppDout (info,"RHSfrom =config"<<solver.rightHandSideFromConfig(*q_rand_));
 	    // Get state constraint of s_rand (configConstraint)
 	    /* constraintApplied = stateConfig->apply(*q_rand_);
 	       if (constraintApplied!=true){*/
@@ -400,37 +402,10 @@ namespace hpp {
 	  // for (std::size_t l=0; l<transitConstraints.size() ;l++)
 	  for (RhsMap_t:: const_iterator it=contactState_.rhsMap().begin() ; it!=contactState_.rhsMap().end() ; ++it)
 	    {
-	      /* constraints::vectorOut_t rhsTransit=
-		transitConstraints[l]->nonConstRightHandSide();
 
-		solverTransit.getRightHandSide(transitConstraints[l],rhsTransit);*/
-
-	      // while (j<constraints.size() && rhsEqual==true)
 		 for (RhsMap_t:: const_iterator i=rhsMap.begin() ; i!=rhsMap.end() ; ++i)
 		{
-		  /*constraints::vectorOut_t rhsEdge=
-		    constraints[j]->nonConstRightHandSide();
 
-		  solverEdge.getRightHandSide(constraints[j],rhsEdge);
-
-		  hppDout(info, "les fonctions : "<<transitConstraints[l]->functionPtr ()->name()<< "et " << constraints[j]->functionPtr ()->name()<<" sont comparées. Leur RHS sont: "<<rhsTransit << "et  " << rhsEdge);
-
-		  if (transitConstraints[l]==constraints[j] &&
-		      rhsTransit==rhsEdge)
-		    {
-		      hppDout(info, "tout est egal OK");
-		      break;}
-
-		  if (transitConstraints[l]==constraints[j] &&
-		      rhsTransit!=rhsEdge)
-		    {
-		      hppDout(info, "les fonctions sont egale mais pas les rhs");
-
-		      //rajouter que les deux doivent etre non nul ?
-		      // Faut-il que toutes les fonctions soient égale ?
-
-		      rhsEqual=false;
-		      }*/
 		  hppDout(info, "les fonctions : "<<it->first->functionPtr ()->name()<< "et " << i->first->functionPtr ()->name()<<" sont comparées. Leur RHS sont: "<<it->second << "et  " << i->second);
 
 		  if (it->first==i->first &&
@@ -538,14 +513,15 @@ namespace hpp {
 
 			if (pathProjector->apply(path,projpath))
 			  {
-			    PathValidationPtr_t pathValidation (problem ().pathValidation ());
+
+			    PathValidationPtr_t pathValidation ( transition_[contactState_.state()]->pathValidation());
 			    PathValidationReportPtr_t report;
 			    bool valid = pathValidation->validate (projpath, false, validPath, report);
-			    bool fullValidPath = (path->length()==validPath->length());
 
-			    hppDout(info,"fullValidPath= "<<fullValidPath);
 
-			    if ( valid && fullValidPath){
+			    hppDout(info,"valid= "<<valid);
+
+			    if (valid){
 			      core::NodePtr_t node=
 				roadmap_->addNode (nodeConfig);
 			      roadmap_->addEdges (nodeConnect,node,projpath);
@@ -585,10 +561,7 @@ namespace hpp {
 
 		      constraints::vector_t errorbis;
 
-		      bool a= sm->constraints ()->isSatisfied (*nodeConfig,error);
-		      bool b = sm->constraints ()->isSatisfied (*q_inter,errorbis);
-		      hppDout(info,"error= "<<error<< " norme "<<error.norm()<<" et a="<<a);
-		      hppDout(info,"errorbis= "<<errorbis<< " norme "<<errorbis.norm() <<" et b="<<b);
+
 		       assert (pb.constraints ()->isSatisfied (*q_inter));
 		      hppDout (info, " node "<<  pinocchio::displayConfig(*nodeConfig));
 
@@ -611,11 +584,10 @@ namespace hpp {
 			  PathValidationPtr_t pathValidation (pb.pathValidation ());
 			  PathValidationReportPtr_t report;
 			  bool valid = pathValidation->validate (projpath, false, validPath, report);
-			  bool fullValidPath = (path->length()==validPath->length());
 
-			  hppDout(info,"fullValidPath= "<<fullValidPath);
+			  hppDout(info,"valid= "<<valid);
 
-			  if ( valid && fullValidPath){
+			  if (valid){
 
 			    core::NodePtr_t node=roadmap_->addNode(nodeConfig);
 			    roadmap_->addEdges (nodeConnect,node,projpath);

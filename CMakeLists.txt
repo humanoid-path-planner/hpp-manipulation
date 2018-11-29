@@ -101,7 +101,6 @@ SET (${PROJECT_NAME}_HEADERS
 
   include/hpp/manipulation/path-optimization/small-steps.hh
   include/hpp/manipulation/path-optimization/enforce-transition-semantic.hh
-  include/hpp/manipulation/path-optimization/keypoints.hh
   include/hpp/manipulation/path-optimization/spline-gradient-based.hh
 
   include/hpp/manipulation/problem-target/state.hh

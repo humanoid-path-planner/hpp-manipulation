@@ -52,7 +52,6 @@
 #include "hpp/manipulation/graph-optimizer.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph-node-optimizer.hh"
-#include "hpp/manipulation/path-optimization/keypoints.hh"
 #include "hpp/manipulation/path-optimization/spline-gradient-based.hh"
 #include "hpp/manipulation/path-optimization/enforce-transition-semantic.hh"
 #include "hpp/manipulation/problem-target/state.hh"
@@ -155,9 +154,6 @@ namespace hpp {
           createSMWithGuess <steeringMethod::CrossStateOptimization, core::steeringMethod::Dubins>);
       steeringMethods.add ("CrossStateOptimization-Snibud",
           createSMWithGuess <steeringMethod::CrossStateOptimization, core::steeringMethod::Snibud>);
-
-      pathOptimizers.add ("KeypointsShortcut",
-          pathOptimization::Keypoints::create);
 
 #if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
       pathOptimizers.add ("Walkgen", wholebodyStep::SmallSteps::create);

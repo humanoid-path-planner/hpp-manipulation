@@ -82,6 +82,7 @@ namespace hpp {
               const SplinePtr_t& spline, LinearConstraint& lc) const;
       }; // SplineGradientBased
     } // namespace pathOptimization
+    /// \}
   }  // namespace manipulation
 } // namespace hpp
 

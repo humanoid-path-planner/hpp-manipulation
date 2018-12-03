@@ -26,7 +26,7 @@
 
 #include <hpp/constraints/convex-shape-contact.hh>
 
-#include <hpp/core/random-shortcut.hh>
+#include <hpp/core/path-optimization/random-shortcut.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-projector/progressive.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
@@ -53,6 +53,7 @@
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph-node-optimizer.hh"
 #include "hpp/manipulation/path-optimization/spline-gradient-based.hh"
+#include "hpp/manipulation/path-optimization/random-shortcut.hh"
 #include "hpp/manipulation/path-optimization/enforce-transition-semantic.hh"
 #include "hpp/manipulation/problem-target/state.hh"
 #include "hpp/manipulation/steering-method/cross-state-optimization.hh"
@@ -109,8 +110,10 @@ namespace hpp {
       pathPlanners.add ("M-RRT", ManipulationPlanner::create);
       pathPlanners.add ("SymbolicPlanner", SymbolicPlanner::create);
 
+      pathOptimizers.add ("RandomShortcut",
+          pathOptimization::RandomShortcut::create);
       pathOptimizers.add ("Graph-RandomShortcut",
-          GraphOptimizer::create <core::RandomShortcut>);
+          GraphOptimizer::create <core::pathOptimization::RandomShortcut>);
       pathOptimizers.add ("PartialShortcut", core::pathOptimization::
           PartialShortcut::createWithTraits <PartialShortcutTraits>);
       pathOptimizers.add ("Graph-PartialShortcut",

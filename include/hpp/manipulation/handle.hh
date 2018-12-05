@@ -42,9 +42,10 @@ namespace hpp {
       ///         the gripper.
       static HandlePtr_t create (const std::string& name,
 				 const Transform3f& localPosition,
+				 const DeviceWkPtr_t& robot,
 				 const JointPtr_t& joint)
       {
-	Handle* ptr = new Handle (name, localPosition, joint);
+	Handle* ptr = new Handle (name, localPosition, robot, joint);
 	HandlePtr_t shPtr (ptr);
 	ptr->init (shPtr);
 	return shPtr;
@@ -79,6 +80,11 @@ namespace hpp {
       void joint (const JointPtr_t& joint)
       {
 	joint_ = joint;
+      }
+
+      DevicePtr_t robot () const
+      {
+        return robot_.lock();
       }
       /// \}
 
@@ -158,11 +164,9 @@ namespace hpp {
       /// \return the constraint of relative position between the handle and
       ///         the gripper.
       Handle (const std::string& name, const Transform3f& localPosition,
-	      const JointPtr_t& joint) : name_ (name),
-					 localPosition_ (localPosition),
-					 joint_ (joint), clearance_ (0),
-                                         mask_ (6, true),
-                                         weakPtr_ ()
+              const DeviceWkPtr_t& robot, const JointPtr_t& joint) :
+        name_ (name), localPosition_ (localPosition), joint_ (joint),
+        robot_ (robot), clearance_ (0), mask_ (6, true), weakPtr_ ()
       {
       }
       void init (HandleWkPtr_t weakPtr)
@@ -178,6 +182,8 @@ namespace hpp {
       Transform3f localPosition_;
       /// Joint to which the handle is linked.
       JointPtr_t joint_;
+      /// Pointer to the robot
+      DeviceWkPtr_t robot_;
       /// Clearance
       value_type clearance_;
       /// Mask

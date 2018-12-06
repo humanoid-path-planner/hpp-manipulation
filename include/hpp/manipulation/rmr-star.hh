@@ -188,7 +188,55 @@ namespace hpp {
 	  ( constraints::solver::BySubstitution solver1,constraints::solver::BySubstitution solver2);
 
 
-	//pointer to the kPrmStar method
+	 void connectDirectStates
+	   ( const core::ConstraintSetPtr_t& constraintTransitConfig,
+	     const constraints::NumericalConstraints_t& constraints,
+	     const constraints::NumericalConstraints_t& transitConstraints,
+	     core::ConfigValidationsPtr_t configValidations,
+	     core:: ValidationReportPtr_t validationReport,
+	     int max_iter , int k,
+	     ConfigurationShooterPtr_t shooter,
+	     constraints::solver::HierarchicalIterative::Status constraintApplied,
+	     core::PathPtr_t path,
+	     core::PathPtr_t projpath, PathProjectorPtr_t pathProjector,
+	     Configuration_t config, bool valid, graph::StatePtr_t state,
+	     constraints::vector_t rhs,core::RoadmapPtr_t roadmap);
+
+	 void connectStatesByWaypoints
+	   (graph::WaypointEdgePtr_t waypointEdge,
+	     const constraints::NumericalConstraints_t& constraints,
+	     const constraints::NumericalConstraints_t& transitConstraints,
+	    RhsMap_t rhsMap, int max_iter,int k,
+	    core::ConfigValidationsPtr_t configValidations,
+	    core:: ValidationReportPtr_t validationReport, bool valid,
+	    constraints::solver::HierarchicalIterative::Status constraintApplied,
+	    core::PathPtr_t projpath,
+	    PathProjectorPtr_t pathProjector,
+	    ConfigurationShooterPtr_t shooter,core::RoadmapPtr_t roadmap,
+	    graph::StatePtr_t state, Configuration_t config);
+
+	 void connectConfigToNode ( graph::EdgePtr_t edge,
+				    core::PathPtr_t  path,
+				    core::PathProjectorPtr_t pathProjector,
+				    core::PathPtr_t projpath,
+				    core::ConfigurationPtr_t q1,
+				    core::ConfigurationPtr_t configuration,
+				    int k);
+	 
+
+	   core::ConfigurationPtr_t createInterStateNode
+	     ( const core::ConstraintSetPtr_t& constraintTransitConfig,
+	       const constraints::NumericalConstraints_t& constraints,
+	       const constraints::NumericalConstraints_t& transitConstraints,
+	       core::ConfigValidationsPtr_t configValidations,
+	       core:: ValidationReportPtr_t validationReport,
+	       int max_iter ,
+	       ConfigurationShooterPtr_t shooter,
+	       constraints::solver::HierarchicalIterative::Status constraintApplied,
+	       core:: Configuration_t config, bool valid, graph::StatePtr_t state
+	       );
+	     
+	 //pointer to the kPrmStar method
 	core::pathPlanner::kPrmStarPtr_t kPrm_;
 
 	//Pointer to the copy of the loop-edge constraints

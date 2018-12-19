@@ -176,7 +176,11 @@ namespace hpp {
 
 	//Try to detect the function already visited and get their
 	//Right Hand side to set it to the new state
+	hppDout(info,"solver"<<solver);
+	hppDout (info,"counter = "<<counter_);
 
+	//	if (counter_!=setRhsFreq_)
+	// {
 	for (std::size_t i=0; i<numConstraints.size() ;i++)
 	  {
 	    for (RhsMap_t:: const_iterator it=RhsMap_.begin() ;
@@ -198,7 +202,9 @@ namespace hpp {
 	      rhsOfTheFunctionAlreadyVisited.clear();
 	    }
 	  }
-
+	// }
+	hppDout(info, "i = "<<i);
+	hppDout(info, "valid ="<<valid);
 	while (valid==false && i<=100)
 	  {
 	    //Shoot random configuration
@@ -281,9 +287,11 @@ namespace hpp {
 
       for  (core::Edges_t::const_iterator itedge = edges.begin();
 	    itedge != edges.end(); itedge++){
-
-	node1=roadmap_->addNode((*itedge)->from()->configuration());
-	node2=roadmap_->addNode((*itedge)->to()->configuration());
+	node1=roadmap_->addNode(core::ConfigurationPtr_t
+                                (new Configuration_t(*(*itedge)->from()->configuration())));
+        node2=roadmap_->addNode(core::ConfigurationPtr_t
+                                (new Configuration_t(*(*itedge)->to()->configuration())));
+	
 
 	roadmap()->addEdge (node1, node2,(*itedge)->path());
 
@@ -301,8 +309,7 @@ namespace hpp {
       ConfigurationShooterPtr_t shooter (pb_.configurationShooter ());
 
       core:: ValidationReportPtr_t validationReport;
-      int k=20;    //the number of closest nodes that we try to connect to the
-                   //intersection node
+      size_type k=problem().getParameter("RMR*/numberOfConnectNodes").intValue(); 
 
       int max_iter=100;
       core::PathPtr_t path;
@@ -419,7 +426,7 @@ namespace hpp {
     ( graph::WaypointEdgePtr_t waypointEdge,
       const constraints::NumericalConstraints_t& constraints,
       const constraints::NumericalConstraints_t& transitConstraints,
-      RhsMap_t rhsMap, int max_iter,int k,
+      RhsMap_t rhsMap, int max_iter,size_type k,
       core::ConfigValidationsPtr_t configValidations,
       core:: ValidationReportPtr_t validationReport, bool valid,
       constraints::solver::HierarchicalIterative::Status constraintApplied,
@@ -456,13 +463,14 @@ namespace hpp {
 		  const core::ConstraintSetPtr_t& constraintTransitConfig =
 		    contactState_.constraints ();
 
+		  valid=false;
 		  q_waypointInter = createInterStateNode
 		    (constraintTransitConfig,constraints, transitConstraints,
 		     configValidations, validationReport,max_iter,shooter,
 		     constraintApplied,config,
 		     valid,state);
 
-		  //Copy de waypointInter
+		  //Copy of  waypointInter
 		  core::Configuration_t* ptr =
 		    new Configuration_t(*q_waypointInter);
 
@@ -535,7 +543,10 @@ namespace hpp {
 			}
 
 		      if (i==max_iter) {
-			hppDout (info,"i reached max_iter, not any connect node have been found");}
+			hppDout (info,"i reached max_iter, not any connect node have been found");
+		      hppDout(info, "i = "<<i);
+		      hppDout(info, "success = "<<succeed);
+		      }
 		      else
 			{
 			  succeed=true;
@@ -563,7 +574,7 @@ namespace hpp {
 
 			connectConfigToNode ( waypointEdge->waypoint(0),path,pathProjector,projpath,nodeConfig,q_waypoint);
 		      }
-		  }
+		    }
 		  /////////////////////////////////////////////////////////////
 		  //Connect the waypoints from intersec to the last one
 		  /////////////////////////////////////////////////////////////
@@ -617,6 +628,9 @@ namespace hpp {
 
 		      if (i==max_iter||!succeed) {
 			hppDout (info,"i reached max_iter, not any connect node have been found");
+			hppDout(info, "i = "<<i);
+			hppDout(info, "succeed = "<<succeed);
+
 		      }
 		      else
 			{
@@ -630,7 +644,7 @@ namespace hpp {
 		  ///Connect the last waypoint to the Roadmap in the table
 		  /////////////////////////////////////////////////////////////
 
-		  if (i!=max_iter){
+		  if (i!=max_iter && succeed){
 		    core::Nodes_t nearestNodes =
 		      roadmap->nearestNodes(q_waypoint,k);
 
@@ -644,12 +658,12 @@ namespace hpp {
 		      }
 		  }
 		}
-
+	      
 	      break;
 	    }
 	}
     }
-
+    
     ////////////////////////////////////////////////////////////////////////
 
     void RMRStar::connectDirectStates
@@ -658,7 +672,7 @@ namespace hpp {
       const constraints::NumericalConstraints_t& transitConstraints,
       core::ConfigValidationsPtr_t configValidations,
       core:: ValidationReportPtr_t validationReport,
-      int max_iter , int k,
+      int max_iter , size_type k,
       ConfigurationShooterPtr_t shooter,
       constraints::solver::HierarchicalIterative::Status constraintApplied,
       core::PathPtr_t path,
@@ -671,7 +685,6 @@ namespace hpp {
 	 configValidations, validationReport,max_iter,shooter,
 	 constraintApplied,config,
 	 valid, state);
-
       graph::EdgePtr_t edgeTransit =transition_[contactState_.state()];
       core::Nodes_t nearNodes = interRoadmap_->nearestNodes(q_inter,k);
       core::ConstraintSetPtr_t constraintTRansit =
@@ -738,6 +751,8 @@ namespace hpp {
 	{
 	  //Shoot random configuration
 	  q_inter= shooter->shoot();
+	  hppDout (info,"q_inter="<< pinocchio::displayConfig (*q_inter));
+
 	  constraintApplied = solver.solve(*q_inter);
 	  if (constraintApplied != HierarchicalIterative::SUCCESS) {
 	    valid=false;
@@ -748,11 +763,11 @@ namespace hpp {
 					       validationReport);
 	  i++;
 	}
+      hppDout (info,"i="<<i);
       hppDout (info,"connect states "<<contactState_.state()->name()<<
 	       "  state "<<state->name());
       hppDout (info,"q_inter="<< pinocchio::displayConfig (*q_inter));
       hppDout (info,"constraintApplied="<<constraintApplied);
-      hppDout (info,"i="<<i);
 
       //test constraints have been applied to q_inter
       if (i==max_iter) {
@@ -788,7 +803,7 @@ namespace hpp {
       path =(*sm)(*q1,*configuration);
 
       if (path==NULL){
-	hppDout (info,"path1=NULL");
+	hppDout (info,"path=NULL");
       }
       else {
 
@@ -885,8 +900,8 @@ namespace hpp {
       //Create a copy of the interRoadmap that we stock in the associationmap
       for (core::Nodes_t :: const_iterator itnode =interRoadmap_->nodes().begin(); itnode !=interRoadmap_->nodes().end(); itnode++ )
 	{
-	  r->addNode((*itnode)->configuration());
-	}
+	  r->addNode(core::ConfigurationPtr_t
+                     (new Configuration_t(*(*itnode)->configuration())));	}
 
       RMRStar::ProblemAndRoadmap_t pbRoadmap (p,r) ;
 
@@ -924,7 +939,8 @@ namespace hpp {
       PathPlanner::startSolve ();
       graph_ =pb_.constraintGraph ();
       computeTransitionMap ();
-
+      setRhsFreq_=problem().getParameter("RMR*/SetRhsFreq").intValue();
+      counter_=0;
       //Set parameter and create interRoadmap
       interRoadmap_ = core::Roadmap::create(pb_.distance(),pb_.robot());
       interRoadmap_->clear();
@@ -974,8 +990,6 @@ namespace hpp {
     ////////////////////////////////////////////////////////////////////////////
     void RMRStar::oneStep ()
     {
-      int i=0;
-
       switch (step_)
 	{
 
@@ -987,23 +1001,20 @@ namespace hpp {
 	  storeRhs();
 
 	  step_=CONNECT_ROADMAPS;
-
+	  if (counter_==setRhsFreq_)
+	    {
+	      counter_=0;
+	    }
+	  counter_++;
 	  break;
 
 	case CONNECT_ROADMAPS:
 
 	  connectRoadmap();
-	  i++;
 	  step_= BUILD_ROADMAP;
-	  if (i>=20) {step_=QUERY;}
-	  i++;
-	  break;
-	case QUERY:
-	  hppDout (info, "Max iteration reached");
-	  interrupt ();
+	 
 	  break;
 	}
-
     }
     ////////////////////////////////////////////////////////////////////////////
 
@@ -1025,6 +1036,19 @@ namespace hpp {
     {
       return smaller (c1,c2);
     }
-
+    // ----------- Declare parameters ------------------------------------- //
+    using core::Parameter;
+    using core::ParameterDescription;
+    HPP_START_PARAMETER_DECLARATION(RMRStar)
+    core::Problem::declareParameter(ParameterDescription (Parameter::INT,
+							  "RMR*/numberOfConnectNodes",
+							  "The desired number of the nodes we try to connect between the intersection node and the roadmaps.",
+							  Parameter((size_type)3)));
+    
+    core::Problem::declareParameter(ParameterDescription (Parameter::INT,
+							  "RMR*/SetRhsFreq",
+							  "The desired number of the frequency of set configuration map build.If it's 0 it's never mannually set, if it's 100 it's 99% of time mannually set",
+							  Parameter((size_type)100)));
+    HPP_END_PARAMETER_DECLARATION(RMRStar) 
   }//end namespace manipulation
 }//end namespace hpp

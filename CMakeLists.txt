@@ -21,23 +21,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 SET(CXX_DISABLE_WERROR TRUE)
 INCLUDE(cmake/base.cmake)
+INCLUDE(cmake/hpp.cmake)
 INCLUDE(cmake/boost.cmake)
 
 SET(PROJECT_NAME hpp-manipulation)
 SET(PROJECT_URL "")
 SET(PROJECT_DESCRIPTION "Classes for manipulation planning.")
 
-SETUP_PROJECT()
-
-# Activate hpp-util logging if requested
-SET (HPP_DEBUG FALSE CACHE BOOL "trigger hpp-util debug output")
-IF (HPP_DEBUG)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_DEBUG")
-ENDIF()
-SET (HPP_BENCHMARK FALSE CACHE BOOL "trigger hpp-util benchmarking output")
-IF (HPP_BENCHMARK)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DHPP_ENABLE_BENCHMARK")
-ENDIF()
+SETUP_HPP_PROJECT()
 
 # Activate test using UR5 if requested
 SET (TEST_UR5 FALSE CACHE BOOL "Activate tests using ur5")
@@ -118,4 +109,4 @@ ADD_SUBDIRECTORY(tests)
 PKG_CONFIG_APPEND_LIBS("hpp-manipulation")
 PKG_CONFIG_APPEND_BOOST_LIBS(${BOOST_INSTALL_COMPONENTS})
 
-SETUP_PROJECT_FINALIZE()
+SETUP_HPP_PROJECT_FINALIZE()

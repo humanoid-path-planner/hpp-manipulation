@@ -2,9 +2,9 @@ namespace hpp {
   namespace manipulation {
     namespace graph {
 /**
- \mainpage
+ \mainpage hpp-manipulation documentation
 
- \section sec_intro_hpp_manipulation Introduction
+ \par Introduction
 
  This package implements a solver for manipulation planning problems. A
  manipulation planning problem is defined by:
@@ -16,22 +16,21 @@ namespace hpp {
  ManipulationPlanner implements a RRT-based algorithm to solve manipulation
  planning problems.
 
- \section sec_graph_hpp_manipulation Constraint graph
+ \par Constraint graph
  The graph of constraint, also referred to as constraint graph, represents the
  rules of a manipulation problem.  The component of the graph are:
- \li Node represents a state of the Robot with constraints,
- \li Edge represents a transition between two Node with parametric constraints.
+ \li State represents a state of the Robot with constraints,
+ \li Edge represents a transition between two State with parametric constraints.
 
- Node contains a set of \LHPP{core,Constraint} that a configuration of the
+ State contains a set of \LHPP{core,Constraint} that a configuration of the
  Robot should satisfy to be in the represented state. To ensure that a
- configuration is in only one state, the Node are ordered in a NodeSelector.
- The method NodeSelector::getNode(ConfigurationIn_t) const returns a pointer to
- the first Node for which Node::contains(ConfigurationIn_t) const returns true.
+ configuration is in only one state, the State are ordered in a StateSelector.
+ The method StateSelector::getState(ConfigurationIn_t) const returns a pointer to
+ the first State for which State::contains(ConfigurationIn_t) const returns true.
  For optimization only, another set of \LHPP{core,Constraint} is used for
- \LHPP{core,StraightPath} lying in this Node.
+ \LHPP{core,StraightPath} lying in this State.
 
- Edge has methods Edge::isInNodeFrom, to tell if a corresponding path lyes in
- Edge::from() or Edge::to(), and Edge::node(), to retrive this Node.
+ Edge has methods Edge::state() to tell in which State a corresponding path lyes
  Edge also contains two sets of \LHPP{core,Constraint}:
  \li Edge::configConstraint() returns a \LHPP{core,ConstraintSet} used to
      generate a configuration lying in Edge::to() and respecting the
@@ -44,7 +43,7 @@ namespace hpp {
    For more information about parametric and non-parametric constraints, see
    \LHPP{core,DifferentiableFunction} and \LHPP{core,ConfigProjector}
 
- \section sec_solver_hpp_manipulation Manipulation planner
+ \par Manipulation planner
 
  ManipulationPlanner class implements an algorithm based on RRT. See
  <a href="ObjectManipulation_MasterThesis_JosephMirabel.pdf">this master

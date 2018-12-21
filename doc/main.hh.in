@@ -1,8 +1,6 @@
-namespace hpp {
-  namespace manipulation {
-    namespace graph {
 /**
  \mainpage hpp-manipulation documentation
+ \anchor hpp_manipulation_documentation
 
  \par Introduction
 
@@ -50,7 +48,3 @@ namespace hpp {
  thesis</a> for details about the algorithm.
 
  **/
-    }
-  }
-}
-

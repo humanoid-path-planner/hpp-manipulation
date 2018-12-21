@@ -60,7 +60,7 @@ namespace hpp {
         /// A constraint extension is done using a chosen set.
         ///
         virtual void oneStep ();
-	
+
 	/// Map linking functions and its right hand side
 	typedef std::multimap <constraints::ImplicitPtr_t,constraints::vector_t> RhsMap_t;
 	RhsMap_t RhsMap_;
@@ -75,7 +75,7 @@ namespace hpp {
 	  ContactState () : state_ (), rightHandSide_ (), loopEdgeConstraint_ (), config_ (), rhsMap_()
 	  {
 	  }
-	  
+
 	  ///Constructor
 	  /// \param state the configuration's state
 	  /// \param config the configuration
@@ -93,10 +93,10 @@ namespace hpp {
 	      rightHandSideFromConfig (config);
 	    core::NumericalConstraints_t num =
 	      constraints->configProjector ()->solver().numericalConstraints();
-	    
+
 	      constraints::solver::BySubstitution solver
 	    ( constraints->configProjector ()-> solver ());
-	      
+
 	    for (std::size_t i=0 ; i<num.size() ; i++)
 	      {
 		constraints::ImplicitPtr_t function = num[i];
@@ -135,7 +135,7 @@ namespace hpp {
 	    assert (state_);
 	    return config_;
 	  }
-	  
+
 	  ///Return rhsMap_
 	  const RhsMap_t& rhsMap () const
 	  {
@@ -151,7 +151,7 @@ namespace hpp {
 	  Configuration_t config_;
 	  RhsMap_t rhsMap_;
 	};
-	
+
 	/// Compare to ContactState and return true if a is smaller than b
 	bool smaller (const RMRStar::ContactState& a,
 		      const RMRStar::ContactState& b);
@@ -166,7 +166,7 @@ namespace hpp {
 	//////////////////////////////////////////////////////////////////////////////
 	/////////////////////Members declaration
 	//////////////////////////////////////////////////////////////////////////////
-	
+
 	///Pointer to the kPrmStar method
 	core::pathPlanner::kPrmStarPtr_t kPrm_;
 
@@ -207,18 +207,17 @@ namespace hpp {
 
 	/// Pointer to the problem
         const Problem& pb_;
-	
+
 	/// Pointer to the roadmap
         const RoadmapPtr_t roadmap_;
 
 	///Number of sample contact trials before shooting
-	///a configuration with a random right hand side 
+	///a configuration with a random right hand side
 	size_type setRhsFreq_;
-	
+
 	///Counter
 	int counter_;
-	
-	
+
 	///////////////////////////////////////////////////////////////////
 	//////////////////Members functions declaration
 	//////////////////////////////////////////////////////////////////
@@ -249,7 +248,7 @@ namespace hpp {
 	void connectRoadmap ();
 
 	///Store the contactStates, the roadmaps  and the problems associated
-	/// of the visited leaves 
+	/// of the visited leaves
 	void associationmap ();
 
 	///Store in RhsMap_ the functions's right hand side already visited
@@ -284,7 +283,7 @@ namespace hpp {
 	     core::PathPtr_t projpath, PathProjectorPtr_t pathProjector,
 	     Configuration_t config, bool valid, graph::StatePtr_t state,
 	    core::RoadmapPtr_t roadmap);
-	
+
 	/// Connect two roadmaps (interRoadmap_ and an other one)
 	/// in adjacent states connected using waypoints
 	/// \li shoot a random config in the intersection of the two roadmaps
@@ -319,7 +318,7 @@ namespace hpp {
 				    core::PathPtr_t projpath,
 				    core::ConfigurationPtr_t q1,
 				    core::ConfigurationPtr_t configuration);
-	 
+
 	 ///Shoot a random config in the intersection of two leaves
 	   core::ConfigurationPtr_t createInterStateNode
 	     ( const core::ConstraintSetPtr_t& constraintTransitConfig,
@@ -330,9 +329,8 @@ namespace hpp {
 	       int max_iter ,
 	       ConfigurationShooterPtr_t shooter,
 	       constraints::solver::HierarchicalIterative::Status constraintApplied,
-	       core:: Configuration_t config, bool valid, graph::StatePtr_t state
-	       );
-	     
+	       core:: Configuration_t config, bool valid, graph::StatePtr_t state);
+
     }; // class RMRStar
     bool operator< (const RMRStar::ContactState& c1 ,
 		    const RMRStar::ContactState& c2);

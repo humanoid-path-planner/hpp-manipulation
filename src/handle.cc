@@ -25,15 +25,15 @@
 
 #include <hpp/util/debug.hh>
 
-#include <hpp/pinocchio/device.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/gripper.hh>
 
-#include <hpp/constraints/generic-transformation.hh>
-
+#include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/constraints/explicit/relative-pose.hh>
+
+#include <hpp/manipulation/device.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -63,8 +63,10 @@ namespace hpp {
 
     bool isHandleOnFreeflyer (const Handle& handle)
     {
-      if (handle.joint()->jointModel().shortname() == ::pinocchio::JointModelFreeFlyer::classname()
-          && !handle.joint ()->parentJoint ()) {
+      const JointPtr_t& joint = handle.joint();
+      if (   joint
+          && !joint->parentJoint()
+          && joint->jointModel().shortname() == ::pinocchio::JointModelFreeFlyer::classname()) {
 	return true;
       }
       return false;
@@ -126,12 +128,12 @@ namespace hpp {
       // If handle is on a freeflying object, create an explicit constraint
       if (is6Dmask(mask_) && isHandleOnFreeflyer (*this)) {
 	return constraints::explicit_::RelativePose::create
-	  (n, gripper->joint ()->robot (), gripper->joint (), joint (),
+	  (n, robot (), gripper->joint (), joint (),
 	   gripper->objectPositionInJoint (), localPosition(),
            mask_, ComparisonTypes_t (6, constraints::EqualToZero));
       }
       return constraints::implicit::RelativePose::create
-        (n, gripper->joint ()->robot (), gripper->joint (), joint (),
+        (n, robot (), gripper->joint (), joint (),
          gripper->objectPositionInJoint (), localPosition(),
          mask_, ComparisonTypes_t (maskSize (mask_), constraints::EqualToZero));
     }
@@ -144,16 +146,16 @@ namespace hpp {
         n = gripper->name() + "_grasps_" + name() + "/complement_" +
           maskToStr (Cmask);
       }
-      core::DevicePtr_t robot = gripper->joint()->robot();
+      core::DevicePtr_t r = robot();
       if (is6Dmask(mask_)) {
         return Implicit::create (
             boost::shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
-                robot->configSize(), robot->numberDof (), n))
+                r->configSize(), r->numberDof (), n))
             );
       } else {
         std::vector<bool> Cmask = complementMask(mask_);
         return constraints::implicit::RelativePose::create
-          (n, gripper->joint ()->robot (), gripper->joint (), joint (),
+          (n, r, gripper->joint (), joint (),
            gripper->objectPositionInJoint (), localPosition(),
            Cmask, ComparisonTypes_t (maskSize (Cmask), constraints::Equality));
       }
@@ -180,12 +182,12 @@ namespace hpp {
       // If handle is on a freeflying object, create an explicit constraint
       if (isHandleOnFreeflyer (*this)) {
 	return constraints::explicit_::RelativePose::create
-	  (n, gripper->joint ()->robot (), gripper->joint (), joint (),
+	  (n, robot (), gripper->joint (), joint (),
 	   gripper->objectPositionInJoint (), localPosition(),
            std::vector <bool> (6, true), comp);
       }
       return constraints::implicit::RelativePose::create
-        (n, gripper->joint ()->robot (), gripper->joint (), joint (),
+        (n, robot (), gripper->joint (), joint (),
          gripper->objectPositionInJoint (), localPosition(),
          std::vector <bool> (true, 6), comp);
     }
@@ -200,7 +202,7 @@ namespace hpp {
           + "_" + gripper->name ();
       ImplicitPtr_t result
         (constraints::implicit::RelativePose::create
-         (n, gripper->joint()->robot(), gripper->joint (), joint (),
+         (n, robot(), gripper->joint (), joint (),
           transform, localPosition(), mask_, ComparisonTypes_t
           (maskSize (mask_), constraints::EqualToZero)));
       return result;
@@ -208,7 +210,7 @@ namespace hpp {
 
     HandlePtr_t Handle::clone () const
     {
-      HandlePtr_t other = Handle::create (name (), localPosition (), joint ());
+      HandlePtr_t other = Handle::create (name (), localPosition (), robot(), joint ());
       other->mask(mask_);
       other->clearance(clearance_);
       return other;

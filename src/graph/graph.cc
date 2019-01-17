@@ -125,11 +125,12 @@ namespace hpp {
 
       StatePtr_t Graph::getNode (ConfigurationIn_t config) const
       {
-        return stateSelector_->getState (config);
+        return getState (config);
       }
 
       StatePtr_t Graph::getState (ConfigurationIn_t config) const
       {
+        if (!stateSelector_) throw std::runtime_error ("No StateSelector in Constraint Graph.");
         return stateSelector_->getState (config);
       }
 

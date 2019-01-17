@@ -1106,7 +1106,7 @@ namespace hpp {
             BOOST_FOREACH (const FrameIndex& f, robot.frameIndices.get (od.name)) {
               if (model.frames[f].type != ::pinocchio::JOINT) continue;
               const JointIndex j = model.frames[f].parent;
-              JointPtr_t oj (new Joint (ps->robot(), j));
+              JointPtr_t oj (Joint::create (ps->robot(), j));
               LiegroupSpacePtr_t space (oj->configurationSpace ());
               LiegroupElement lge (robot.currentConfiguration()
                                    .segment (oj->rankInConfiguration (),

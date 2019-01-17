@@ -26,7 +26,7 @@
 
 #include <hpp/constraints/convex-shape-contact.hh>
 
-#include <hpp/core/random-shortcut.hh>
+#include <hpp/core/path-optimization/random-shortcut.hh>
 #include <hpp/core/path-optimization/partial-shortcut.hh>
 #include <hpp/core/path-projector/progressive.hh>
 #include <hpp/core/path-projector/dichotomy.hh>
@@ -52,9 +52,8 @@
 #include "hpp/manipulation/graph-optimizer.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph-node-optimizer.hh"
-#include "hpp/manipulation/path-optimization/config-optimization.hh"
-#include "hpp/manipulation/path-optimization/keypoints.hh"
 #include "hpp/manipulation/path-optimization/spline-gradient-based.hh"
+#include "hpp/manipulation/path-optimization/random-shortcut.hh"
 #include "hpp/manipulation/path-optimization/enforce-transition-semantic.hh"
 #include "hpp/manipulation/problem-target/state.hh"
 #include "hpp/manipulation/steering-method/cross-state-optimization.hh"
@@ -74,15 +73,6 @@ namespace hpp {
         core::pathOptimization::PartialShortcutTraits {
           static bool removeLockedJoints () { return false; }
       };
-
-      template <typename InnerConfigOptimizationTraits>
-        struct GraphConfigOptimizationTraits {
-          static core::PathOptimizerPtr_t create (const core::Problem& problem)
-          {
-            return core::pathOptimization::ConfigOptimization::
-              createWithTraits <InnerConfigOptimizationTraits> (problem);
-          }
-        };
 
       template <typename ParentSM_t, typename ChildSM_t>
       core::SteeringMethodPtr_t createSMWithGuess
@@ -120,20 +110,14 @@ namespace hpp {
       pathPlanners.add ("M-RRT", ManipulationPlanner::create);
       pathPlanners.add ("SymbolicPlanner", SymbolicPlanner::create);
 
+      pathOptimizers.add ("RandomShortcut",
+          pathOptimization::RandomShortcut::create);
       pathOptimizers.add ("Graph-RandomShortcut",
-          GraphOptimizer::create <core::RandomShortcut>);
+          GraphOptimizer::create <core::pathOptimization::RandomShortcut>);
       pathOptimizers.add ("PartialShortcut", core::pathOptimization::
           PartialShortcut::createWithTraits <PartialShortcutTraits>);
       pathOptimizers.add ("Graph-PartialShortcut",
           GraphOptimizer::create <core::pathOptimization::PartialShortcut>);
-      pathOptimizers.add ("ConfigOptimization",
-          core::pathOptimization::ConfigOptimization::createWithTraits
-          <pathOptimization::ConfigOptimizationTraits>);
-      pathOptimizers.add ("Graph-ConfigOptimization",
-          GraphOptimizer::create <
-          GraphConfigOptimizationTraits
-            <pathOptimization::ConfigOptimizationTraits>
-            >);
       pathOptimizers.add ("EnforceTransitionSemantic",
           pathOptimization::EnforceTransitionSemantic::create);
 
@@ -173,9 +157,6 @@ namespace hpp {
           createSMWithGuess <steeringMethod::CrossStateOptimization, core::steeringMethod::Dubins>);
       steeringMethods.add ("CrossStateOptimization-Snibud",
           createSMWithGuess <steeringMethod::CrossStateOptimization, core::steeringMethod::Snibud>);
-
-      pathOptimizers.add ("KeypointsShortcut",
-          pathOptimization::Keypoints::create);
 
 #if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
       pathOptimizers.add ("Walkgen", wholebodyStep::SmallSteps::create);

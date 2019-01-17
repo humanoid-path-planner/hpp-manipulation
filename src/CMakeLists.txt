@@ -46,8 +46,7 @@ SET(SOURCES
 
   graph/dot.cc
 
-  path-optimization/config-optimization.cc
-  path-optimization/keypoints.cc
+  path-optimization/random-shortcut.cc
   path-optimization/spline-gradient-based.cc
   path-optimization/enforce-transition-semantic.cc
 

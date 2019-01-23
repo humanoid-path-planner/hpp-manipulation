@@ -55,7 +55,7 @@ namespace hpp {
           }
 
         protected:
-          void impl_compute (LiegroupElement& y, vectorIn_t arg) const
+          void impl_compute (pinocchio::LiegroupElementRef y, vectorIn_t arg) const
           {
             inner_->value(y, arg.segment (sa_.first, sa_.second));
           }
@@ -109,7 +109,7 @@ namespace hpp {
           }
 
         protected:
-          void impl_compute (LiegroupElement& y, vectorIn_t arg) const
+          void impl_compute (pinocchio::LiegroupElementRef y, vectorIn_t arg) const
           {
             inner_->value(l_, arg.segment (lsa_.first, lsa_.second));
             inner_->value(r_, arg.segment (rsa_.first, rsa_.second));

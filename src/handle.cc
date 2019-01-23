@@ -53,7 +53,7 @@ namespace hpp {
           context ("Grasp complement");
         }
 
-        inline void impl_compute (LiegroupElement&, vectorIn_t) const {}
+        inline void impl_compute (pinocchio::LiegroupElementRef, vectorIn_t) const {}
         inline void impl_jacobian (matrixOut_t, vectorIn_t) const {}
       };
     }

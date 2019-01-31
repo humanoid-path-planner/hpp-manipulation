@@ -57,6 +57,7 @@
 #include "hpp/manipulation/problem-target/state.hh"
 #include "hpp/manipulation/steering-method/cross-state-optimization.hh"
 #include "hpp/manipulation/steering-method/graph.hh"
+#include "hpp/manipulation/steering-method/end-effector-trajectory.hh"
 
 #if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
 #include <hpp/wholebody-step/small-steps.hh>
@@ -149,6 +150,7 @@ namespace hpp {
           createSMWithGuess <steeringMethod::CrossStateOptimization, core::steeringMethod::Dubins>);
       steeringMethods.add ("CrossStateOptimization-Snibud",
           createSMWithGuess <steeringMethod::CrossStateOptimization, core::steeringMethod::Snibud>);
+      steeringMethods.add ("EndEffectorTrajectory", steeringMethod::EndEffectorTrajectory::create);
 
 #if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
       pathOptimizers.add ("Walkgen", wholebodyStep::SmallSteps::create);

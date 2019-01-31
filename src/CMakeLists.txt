@@ -51,6 +51,7 @@ SET(SOURCES
 
   problem-target/state.cc
 
+  steering-method/end-effector-trajectory.cc
   steering-method/cross-state-optimization.cc
   steering-method/graph.cc
   )

@@ -1103,8 +1103,8 @@ namespace hpp {
 	    // Loop over all frames of object, detect joint and create locked
 	    // joint.
             assert (robot.frameIndices.has (od.name));
-            BOOST_FOREACH (const se3::FrameIndex& f, robot.frameIndices.get (od.name)) {
-              if (model.frames[f].type != se3::JOINT) continue;
+            BOOST_FOREACH (const FrameIndex& f, robot.frameIndices.get (od.name)) {
+              if (model.frames[f].type != ::pinocchio::JOINT) continue;
               const JointIndex j = model.frames[f].parent;
               JointPtr_t oj (Joint::create (ps->robot(), j));
               LiegroupSpacePtr_t space (oj->configurationSpace ());

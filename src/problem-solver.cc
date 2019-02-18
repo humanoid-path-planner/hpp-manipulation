@@ -52,7 +52,6 @@
 #include "hpp/manipulation/graph-optimizer.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph-node-optimizer.hh"
-#include "hpp/manipulation/path-optimization/spline-gradient-based.hh"
 #include "hpp/manipulation/path-optimization/random-shortcut.hh"
 #include "hpp/manipulation/path-optimization/enforce-transition-semantic.hh"
 #include "hpp/manipulation/problem-target/state.hh"
@@ -130,13 +129,6 @@ namespace hpp {
       pathProjectors.add ("RecursiveHermite",
           createPathProjector <core::pathProjector::RecursiveHermite>);
 
-      // pathOptimizers.add ("SplineGradientBased_cannonical1",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 1>::createFromCore);
-      // pathOptimizers.add ("SplineGradientBased_cannonical2",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 2>::createFromCore);
-      // pathOptimizers.add ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis, 3>::createFromCore);
-      pathOptimizers.add ("SplineGradientBased_bezier1",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 1>::createFromCore);
-      // pathOptimizers.add ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 2>::createFromCore);
-      pathOptimizers.add ("SplineGradientBased_bezier3",pathOptimization::SplineGradientBased<core::path::BernsteinBasis, 3>::createFromCore);
-
       steeringMethods.add ("Graph-SteeringMethodStraight",
           steeringMethod::Graph::create <core::SteeringMethodStraight>);
       steeringMethods.add ("Graph-Straight",
@@ -174,9 +166,12 @@ namespace hpp {
 
     void ProblemSolver::resetProblem ()
     {
-      if (problem_)
-        delete (problem_);
-      initializeProblem (new Problem (robot_));
+      ProblemPtr_t p (new Problem (robot_));
+      if (problem_) {
+        p->parameters = problem_->parameters;
+	delete problem_;
+      }
+      initializeProblem (p);
     }
 
     void ProblemSolver::initializeProblem (ProblemPtr_t problem)

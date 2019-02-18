@@ -32,8 +32,8 @@ namespace hpp {
     typedef pinocchio::JointPtr_t JointPtr_t;
     typedef pinocchio::JointIndex JointIndex;
     typedef std::vector<JointIndex> JointIndices_t;
-    typedef se3::FrameIndex FrameIndex;
-    typedef std::vector<se3::FrameIndex> FrameIndices_t;
+    typedef pinocchio::FrameIndex FrameIndex;
+    typedef std::vector<pinocchio::FrameIndex> FrameIndices_t;
     typedef pinocchio::Configuration_t Configuration_t;
     typedef pinocchio::ConfigurationIn_t ConfigurationIn_t;
     typedef pinocchio::ConfigurationOut_t ConfigurationOut_t;

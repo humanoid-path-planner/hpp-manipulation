@@ -29,8 +29,7 @@
 
 namespace hpp {
   namespace manipulation {
-    using se3::Frame;
-    using se3::FrameIndex;
+    using ::pinocchio::Frame;
 
     pinocchio::DevicePtr_t Device::clone () const
     {
@@ -48,7 +47,7 @@ namespace hpp {
       pinocchio::GeomModel& gm = geomModel();
       // The root frame should be the first frame.
       Frame& rootFrame = m.frames[idxs[0]];
-      if (rootFrame.type == se3::JOINT) {
+      if (rootFrame.type == ::pinocchio::JOINT) {
         JointIndex jid = m.getJointId (rootFrame.name);
         m.jointPlacements[jid] = t;
         return;
@@ -61,16 +60,16 @@ namespace hpp {
         if (frame.parent == rootFrame.parent) {
           // frame is between rootFrame and next moving joints.
           frame.placement = shift * frame.placement;
-          if (frame.type == se3::BODY) {
+          if (frame.type == ::pinocchio::BODY) {
             // Update the geometry object placement.
             for (std::size_t k = 0; k < gm.geometryObjects.size(); ++k)
             {
-              se3::GeometryObject& go = gm.geometryObjects[k];
+              ::pinocchio::GeometryObject& go = gm.geometryObjects[k];
               if (go.parentFrame == idxs[i])
                 go.placement = shift * go.placement;
             }
           }
-        } else if ((frame.type == se3::JOINT) && (rootFrame.parent == m.parents[frame.parent])) {
+        } else if ((frame.type == ::pinocchio::JOINT) && (rootFrame.parent == m.parents[frame.parent])) {
           // frame corresponds to a child joint of rootFrame.parent
           m.jointPlacements[frame.parent] = shift * m.jointPlacements[frame.parent];
         }

@@ -189,7 +189,7 @@ namespace hpp {
       return constraints::implicit::RelativePose::create
         (n, robot (), gripper->joint (), joint (),
          gripper->objectPositionInJoint (), localPosition(),
-         std::vector <bool> (true, 6), comp);
+         std::vector <bool> (6, true), comp);
     }
 
     ImplicitPtr_t Handle::createPreGrasp

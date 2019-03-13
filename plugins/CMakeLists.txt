@@ -16,7 +16,7 @@
 
 INCLUDE(${HPP_CORE_CMAKE_PLUGIN})
 
-ADD_PLUGIN(manipulation-spline-gradient-based
+HPP_ADD_PLUGIN(manipulation-spline-gradient-based
   SOURCES spline-gradient-based.cc
   LINK_DEPENDENCIES ${PROJECT_NAME} ${PROJECT_NAME}-gpl hpp-core-gpl
   PKG_CONFIG_DEPENDENCIES hpp-core)

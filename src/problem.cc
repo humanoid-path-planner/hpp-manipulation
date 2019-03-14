@@ -25,20 +25,32 @@
 
 namespace hpp {
   namespace manipulation {
+    ProblemPtr_t Problem::create (DevicePtr_t robot)
+    {
+      ProblemPtr_t p (new Problem (robot));
+      p->init(p);
+      return p;
+    }
+
     Problem::Problem (DevicePtr_t robot)
       : Parent (robot), graph_()
     {
-      Parent::steeringMethod (steeringMethod::Graph::create (*this));
-      distance (WeighedDistance::create (robot, graph_));
-      setPathValidationFactory(core::pathValidation::createDiscretizedCollisionChecking, 0.05);
+    }
 
-      // add<boost::any>("ManipulationPlanner/ExtendStep", (value_type)1);
+    void Problem::init (ProblemWkPtr_t wkPtr)
+    {
+      Parent::init (wkPtr);
+      wkPtr_ = wkPtr;
+
+      Parent::steeringMethod (steeringMethod::Graph::create (*this));
+      distance (WeighedDistance::create (HPP_DYNAMIC_PTR_CAST(Device, robot()), graph_));
+      setPathValidationFactory(core::pathValidation::createDiscretizedCollisionChecking, 0.05);
     }
 
     void Problem::constraintGraph (const graph::GraphPtr_t& graph)
     {
       graph_ = graph;
-      graph_->problem (this);
+      graph_->problem (wkPtr_.lock());
       if (pathValidation ())
         pathValidation ()->constraintGraph (graph);
       WeighedDistancePtr_t d = HPP_DYNAMIC_PTR_CAST (WeighedDistance,

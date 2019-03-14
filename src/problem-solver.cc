@@ -102,7 +102,7 @@ namespace hpp {
     }
 
     ProblemSolver::ProblemSolver () :
-      core::ProblemSolver (), robot_ (), problem_ (0x0)
+      core::ProblemSolver (), robot_ (), problem_ ()
     {
       robots.add ("hpp::manipulation::Device", manipulation::Device::create);
       robotType ("hpp::manipulation::Device");
@@ -168,10 +168,9 @@ namespace hpp {
 
     void ProblemSolver::resetProblem ()
     {
-      ProblemPtr_t p (new Problem (robot_));
+      ProblemPtr_t p (Problem::create(robot_));
       if (problem_) {
         p->parameters = problem_->parameters;
-	delete problem_;
       }
       initializeProblem (p);
     }
@@ -375,7 +374,7 @@ namespace hpp {
 
     void ProblemSolver::setTargetState (const graph::StatePtr_t state)
     {
-      problemTarget::StatePtr_t t =  problemTarget::State::create(NULL);
+      problemTarget::StatePtr_t t =  problemTarget::State::create(ProblemPtr_t());
       t->target(state);
       target_ = t;
     }

@@ -35,7 +35,7 @@ namespace hpp {
         typedef core::Problem Parent;
 
         /// Constructor
-        Problem (DevicePtr_t robot);
+        static ProblemPtr_t create (DevicePtr_t robot);
 
         /// Set the graph of constraints
         void constraintGraph (const graph::GraphPtr_t& graph);
@@ -76,7 +76,15 @@ namespace hpp {
             const core::PathValidationBuilder_t& factory,
             const value_type& tol);
 
+      protected:
+        /// Constructor
+        Problem (DevicePtr_t robot);
+
+        void init (ProblemWkPtr_t wkPtr);
+
       private:
+        ProblemWkPtr_t wkPtr_;
+
         /// The graph of constraints
         graph::GraphPtr_t graph_;
 

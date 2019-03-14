@@ -55,7 +55,9 @@ namespace hpp {
 
       core::PathVectorPtr_t State::computePath(const core::RoadmapPtr_t& roadmap) const
       {
-        Astar astar (roadmap, problem_->distance (), state_);
+        core::ProblemPtr_t p = problem_.lock();
+        assert (p);
+        Astar astar (roadmap, p->distance (), state_);
         return astar.solution ();
       }
     } // namespace problemTarget

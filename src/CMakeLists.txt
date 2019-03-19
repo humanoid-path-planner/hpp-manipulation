@@ -47,7 +47,6 @@ SET(SOURCES
   graph/dot.cc
 
   path-optimization/random-shortcut.cc
-  path-optimization/spline-gradient-based.cc
   path-optimization/enforce-transition-semantic.cc
 
   problem-target/state.cc
@@ -71,5 +70,20 @@ PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-constraints)
 IF(HPP_WHOLEBODY_STEP_FOUND)
   PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME} hpp-wholebody-step)
 ENDIF(HPP_WHOLEBODY_STEP_FOUND)
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME} ${Boost_LIBRARIES})
 
 INSTALL(TARGETS ${LIBRARY_NAME} DESTINATION lib)
+
+ADD_LIBRARY(${LIBRARY_NAME}-gpl SHARED
+  path-optimization/spline-gradient-based.cc
+  )
+
+PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME}-gpl hpp-core)
+PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME}-gpl hpp-statistics)
+PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME}-gpl hpp-constraints)
+IF(HPP_WHOLEBODY_STEP_FOUND)
+  PKG_CONFIG_USE_DEPENDENCY(${LIBRARY_NAME}-gpl hpp-wholebody-step)
+ENDIF(HPP_WHOLEBODY_STEP_FOUND)
+TARGET_LINK_LIBRARIES(${LIBRARY_NAME}-gpl ${LIBRARY_NAME} hpp-core-gpl)
+
+INSTALL(TARGETS ${LIBRARY_NAME}-gpl DESTINATION lib)

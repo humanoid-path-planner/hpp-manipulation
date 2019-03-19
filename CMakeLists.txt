@@ -30,6 +30,8 @@ SET(PROJECT_DESCRIPTION "Classes for manipulation planning.")
 
 SETUP_HPP_PROJECT()
 
+LIST(APPEND PKG_CONFIG_ADDITIONAL_VARIABLES cmake_plugin)
+
 # Activate test using UR5 if requested
 SET (TEST_UR5 FALSE CACHE BOOL "Activate tests using ur5")
 
@@ -103,6 +105,7 @@ SET (${PROJECT_NAME}_HEADERS
   )
 
 ADD_SUBDIRECTORY(src)
+ADD_SUBDIRECTORY(plugins)
 ADD_SUBDIRECTORY(tests)
 
 # Add dependency toward hpp-manipulation library in pkg-config file.

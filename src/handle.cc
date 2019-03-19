@@ -21,11 +21,12 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include <pinocchio/multibody/joint/joint.hpp>
+#include <pinocchio/multibody/joint/joint-generic.hpp>
 
 #include <hpp/util/debug.hh>
 
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/gripper.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
@@ -52,7 +53,7 @@ namespace hpp {
           context ("Grasp complement");
         }
 
-        inline void impl_compute (LiegroupElement&, vectorIn_t) const {}
+        inline void impl_compute (pinocchio::LiegroupElementRef, vectorIn_t) const {}
         inline void impl_jacobian (matrixOut_t, vectorIn_t) const {}
       };
     }
@@ -65,7 +66,7 @@ namespace hpp {
       const JointPtr_t& joint = handle.joint();
       if (   joint
           && !joint->parentJoint()
-          && joint->jointModel().shortname() == se3::JointModelFreeFlyer::classname()) {
+          && joint->jointModel().shortname() == ::pinocchio::JointModelFreeFlyer::classname()) {
 	return true;
       }
       return false;

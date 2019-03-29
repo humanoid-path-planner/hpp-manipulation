@@ -58,22 +58,13 @@ namespace hpp {
 
         virtual pinocchio::DevicePtr_t clone () const;
 
-        /// \name Collisions
-        /// \{
+        std::vector<std::string> robotNames () const;
 
-        /// Add collisions
-        /// between the joint vector cache initialized by prepareInsertRobot()
-        /// add the current Robot.
-        /// When creating a robot from several URDF files, this enables
-        /// collisions between joints from different files.
-        void didInsertRobot (const std::string& name);
-
-        /// \}
+        FrameIndices_t robotFrames (const std::string& robotName) const;
 
         core::Container <HandlePtr_t> handles;
         core::Container <GripperPtr_t> grippers;
         core::Container <JointAndShapes_t> jointAndShapes;
-        core::Container <FrameIndices_t> frameIndices;
 
       protected:
         /// Constructor
@@ -81,7 +72,7 @@ namespace hpp {
         /// \param robot Robots that manipulate objects,
         /// \param objects Set of objects manipulated by the robot.
         Device (const std::string& name) :
-          Parent_t (name), frameCacheSize_ (1)
+          Parent_t (name)
         {}
 
         void init (const DeviceWkPtr_t& self)
@@ -98,8 +89,6 @@ namespace hpp {
 
       private:
         DeviceWkPtr_t self_;
-
-        std::size_t frameCacheSize_;
     }; // class Device
   } // namespace manipulation
 } // namespace hpp

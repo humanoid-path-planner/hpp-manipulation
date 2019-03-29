@@ -23,6 +23,7 @@
 #include <pinocchio/multibody/geometry.hpp>
 
 #include <hpp/pinocchio/joint.hh>
+#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/gripper.hh>
 
 #include <hpp/manipulation/handle.hh>
@@ -42,7 +43,10 @@ namespace hpp {
     void Device::setRobotRootPosition (const std::string& rn,
         const Transform3f& t)
     {
-      const FrameIndices_t& idxs = frameIndices.get (rn);
+      FrameIndices_t idxs = robotFrames (rn);
+      if (idxs.size() == 0)
+        throw std::invalid_argument ("No frame for robot name " + rn);
+
       pinocchio::Model& m = model();
       pinocchio::GeomModel& gm = geomModel();
       // The root frame should be the first frame.
@@ -77,28 +81,42 @@ namespace hpp {
       invalidate();
     }
 
-    void Device::didInsertRobot (const std::string& name)
+    std::vector<std::string> Device::robotNames () const
     {
-      /// Build list of new joints
-      std::size_t fvSize = model().frames.size();
-      assert (fvSize >= frameCacheSize_);
-      FrameIndices_t newF (fvSize - frameCacheSize_);
-      for (std::size_t i = frameCacheSize_; i < fvSize; ++i) {
-        assert (
-            (model().frames[i].name.compare(0, name.size(), name) == 0)
-            && (model().frames[i].name[name.size()] == '/')
-            && "Frames have been reordered.");
-        newF[i - frameCacheSize_] = i;
-      }
+      const pinocchio::Model& model = this->model();
+      std::vector<std::string> names;
 
-      frameCacheSize_ = model().frames.size();
-      if (frameIndices.has(name)) {
-        const FrameIndices_t& old = frameIndices.get(name);
-        newF.insert(newF.begin(), old.begin(), old.end());
+      for (pinocchio::FrameIndex fi = 1; fi < model.frames.size(); ++fi)
+      {
+        const Frame& frame = model.frames[fi];
+        std::size_t sep = frame.name.find ('/');
+        if (sep == std::string::npos) {
+          hppDout (warning, "Frame " << frame.name << " does not belong to any robots.");
+          continue;
+        }
+        std::string name = frame.name.substr(0,sep);
+
+        if (std::find(names.rbegin(), names.rend(), name) != names.rend())
+          names.push_back (name);
       }
-      frameIndices.add (name, newF);
-      createData();
-      createGeomData();
+      return names;
+    }
+
+    FrameIndices_t Device::robotFrames (const std::string& robotName) const
+    {
+      const pinocchio::Model& model = this->model();
+      FrameIndices_t frameIndices;
+
+      for (pinocchio::FrameIndex fi = 1; fi < model.frames.size(); ++fi)
+      {
+        const std::string& name = model.frames[fi].name;
+        if (   name.size() > robotName.size()
+            && name.compare (0, robotName.size(), robotName) == 0
+            && name[robotName.size()] == '/') {
+          frameIndices.push_back (fi);
+        }
+      }
+      return frameIndices;
     }
 
     std::ostream& Device::print (std::ostream& os) const

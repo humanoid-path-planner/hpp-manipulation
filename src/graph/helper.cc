@@ -1102,7 +1102,7 @@ namespace hpp {
             // Create object lock
 	    // Loop over all frames of object, detect joint and create locked
 	    // joint.
-            assert (robot.frameIndices.has (od.name));
+            assert (robot.robotFrames (od.name).size () != 0);
             BOOST_FOREACH (const FrameIndex& f, robot.robotFrames (od.name)) {
               if (model.frames[f].type != ::pinocchio::JOINT) continue;
               const JointIndex j = model.frames[f].parent;

@@ -21,6 +21,7 @@
 #include <hpp/core/path.hh>
 #include <hpp/core/path-vector.hh>
 
+#include <hpp/manipulation/graph/state.hh>
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/graph.hh>
 #include <hpp/manipulation/constraint-set.hh>

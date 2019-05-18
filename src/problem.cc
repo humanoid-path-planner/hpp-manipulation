@@ -96,5 +96,16 @@ namespace hpp {
       pvTol_ = tol;
       if (graph_) graph_->setDirty();
     }
+
+    void Problem::checkProblem () const
+    {
+      core::Problem::checkProblem ();
+      if (!graph_)
+        throw std::runtime_error ("No graph in the problem.");
+      if (!pathValidation ())
+        throw std::runtime_error ("No GraphPathValidation in the problem.");
+      if (!core::Problem::steeringMethod ())
+        throw std::runtime_error ("No SteeringMethod in the problem.");
+    }
   } // namespace manipulation
 } // namespace hpp

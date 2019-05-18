@@ -49,6 +49,11 @@ namespace hpp {
           /// Set the constraint whose right hand side will vary.
           void trajectoryConstraint (const constraints::ImplicitPtr_t& ic);
 
+          const constraints::ImplicitPtr_t& trajectoryConstraint ()
+          {
+            return constraint_;
+          }
+
           /// Set the right hand side of the function from a path
           /// \param se3Output set to True if the output of path must be
           ///                  understood as SE3.
@@ -62,6 +67,11 @@ namespace hpp {
           const DifferentiableFunctionPtr_t& trajectory () const
           {
             return eeTraj_;
+          }
+
+          const interval_t& timeRange () const
+          {
+            return timeRange_;
           }
 
           core::SteeringMethodPtr_t copy () const

@@ -432,7 +432,7 @@ namespace hpp {
       value_type distance;
       for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
           itn1 != nodes.end (); ++itn1) {
-        ConfigurationPtr_t q1 ((*itn1)->configuration ());
+        const Configuration_t& q1 (*(*itn1)->configuration ());
         connectSucceed = false;
         for (core::ConnectedComponents_t::const_iterator itcc =
             roadmap ()->connectedComponents ().begin ();
@@ -449,9 +449,9 @@ namespace hpp {
               hppDout (info, "the two nodes are already connected");
               continue;
             }
-            ConfigurationPtr_t q2 ((*itn2)->configuration ());
-            assert (*q1 != *q2);
-            path = (*sm) (*q1, *q2);
+            const Configuration_t& q2 (*(*itn2)->configuration ());
+            assert (q1 != q2);
+            path = sm->steer (q1, q2);
             if (!path) continue;
             if (pathProjector) {
               if (!pathProjector->apply (path, projPath)) continue;

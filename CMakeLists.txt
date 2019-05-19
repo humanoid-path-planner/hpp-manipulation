@@ -74,7 +74,6 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/roadmap-node.hh
   include/hpp/manipulation/connected-component.hh
   include/hpp/manipulation/leaf-connected-comp.hh
-  include/hpp/manipulation/symbolic-planner.hh
   include/hpp/manipulation/manipulation-planner.hh
   include/hpp/manipulation/graph-path-validation.hh
   include/hpp/manipulation/graph-optimizer.hh

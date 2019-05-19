@@ -49,7 +49,6 @@
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/handle.hh"
 #include "hpp/manipulation/graph/graph.hh"
-#include "hpp/manipulation/symbolic-planner.hh"
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/roadmap.hh"
 #include "hpp/manipulation/constraint-set.hh"
@@ -122,7 +121,6 @@ namespace hpp {
       robotType ("hpp::manipulation::Device");
 
       pathPlanners.add ("M-RRT", ManipulationPlanner::create);
-      pathPlanners.add ("SymbolicPlanner", SymbolicPlanner::create);
 
       pathValidations.add ("Graph-Discretized"                      , createDiscretizedCollisionGraphPathValidation);
       pathValidations.add ("Graph-DiscretizedCollision"             , createDiscretizedCollisionGraphPathValidation);

@@ -129,7 +129,8 @@ namespace hpp {
       pathValidations.add ("Graph-Dichotomy"  , GraphPathValidation::create<core::continuousValidation::Dichotomy  >);
       pathValidations.add ("Graph-Progressive", GraphPathValidation::create<core::continuousValidation::Progressive>);
 
-      pathValidationType ("Graph-Discretized", 0.05);
+      // TODO Uncomment to make Graph-Discretized the default.
+      //pathValidationType ("Graph-Discretized", 0.05);
 
       pathOptimizers.add ("RandomShortcut",
           pathOptimization::RandomShortcut::create);
@@ -202,6 +203,9 @@ namespace hpp {
       core::ProblemSolver::initializeProblem (problem_);
       if (constraintGraph_)
         problem_->constraintGraph (constraintGraph_);
+      value_type tolerance;
+      const std::string& type = parent_t::pathValidationType (tolerance);
+      problem_->setPathValidationFactory (pathValidations.get(type), tolerance);
     }
 
     void ProblemSolver::constraintGraph (const std::string& graphName)
@@ -373,10 +377,10 @@ namespace hpp {
         const value_type& tolerance)
     {
       parent_t::pathValidationType(type, tolerance);
-      assert (problem_);
-      problem_->setPathValidationFactory (
-          pathValidations.get(type),
-          tolerance);
+      if (problem_)
+        problem_->setPathValidationFactory (
+            pathValidations.get(type),
+            tolerance);
     }
 
     void ProblemSolver::resetRoadmap ()

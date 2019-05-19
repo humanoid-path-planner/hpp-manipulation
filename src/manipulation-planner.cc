@@ -59,6 +59,42 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER(buildPath);
       HPP_DEFINE_TIMECOUNTER(projectPath);
       HPP_DEFINE_TIMECOUNTER(validatePath);
+
+      graph::StatePtr_t getState (const graph::GraphPtr_t graph, const core::NodePtr_t& node)
+      {
+        RoadmapNodePtr_t mnode (dynamic_cast<RoadmapNode*>(node));
+        if (mnode != NULL) return mnode->graphState();
+        else return graph->getState (*node->configuration());
+      }
+
+      core::PathPtr_t connect (
+          const Configuration_t& q1, const Configuration_t& q2,
+          const graph::StatePtr_t& s1, const graph::StatePtr_t& s2,
+          const graph::GraphPtr_t& graph,
+          const PathProjectorPtr_t& pathProjector)
+      {
+        assert (graph && s1 && s2);
+        graph::Edges_t possibleEdges = graph->getEdges (s1, s2);
+
+        core::PathPtr_t path, tmpPath;
+
+        graph::EdgePtr_t edge;
+        for (std::size_t i = 0; i < possibleEdges.size(); ++i) {
+          edge = possibleEdges[i];
+          if (edge->build (path, q1, q2)) break;
+        }
+        if (!path) return path;
+        if (pathProjector) {
+          if (!pathProjector->apply (path, tmpPath))
+            return core::PathPtr_t();
+          path = tmpPath;
+        }
+
+        PathValidationReportPtr_t report;
+        if (edge->pathValidation()->validate (path, false, tmpPath, report))
+          return path;
+        return core::PathPtr_t();
+      }
     }
 
     const std::vector<ManipulationPlanner::Reason>
@@ -266,7 +302,7 @@ namespace hpp {
         }
         HPP_STOP_TIMECOUNTER (projectPath);
       } else projPath = path;
-      GraphPathValidationPtr_t pathValidation (problem_.pathValidation ());
+      PathValidationPtr_t pathValidation (edge->pathValidation ());
       PathValidationReportPtr_t report;
       core::PathPtr_t fullValidPath;
       HPP_START_TIMECOUNTER (validatePath);
@@ -336,11 +372,11 @@ namespace hpp {
 
     inline std::size_t ManipulationPlanner::tryConnectToRoadmap (const core::Nodes_t nodes)
     {
-      const core::SteeringMethodPtr_t& sm (problem ().steeringMethod ());
-      core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
       PathProjectorPtr_t pathProjector (problem().pathProjector ());
-      core::PathPtr_t path, projPath, validPath;
+      core::PathPtr_t path;
       graph::GraphPtr_t graph = problem_.constraintGraph ();
+      graph::Edges_t possibleEdges;
+
       bool connectSucceed = false;
       std::size_t nbConnection = 0;
       const std::size_t K = 7;
@@ -348,6 +384,7 @@ namespace hpp {
       for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
           itn1 != nodes.end (); ++itn1) {
         const Configuration_t& q1 (*(*itn1)->configuration ());
+        graph::StatePtr_t s1 = getState (graph, *itn1);
         connectSucceed = false;
         for (core::ConnectedComponents_t::const_iterator itcc =
             roadmap ()->connectedComponents ().begin ();
@@ -364,20 +401,19 @@ namespace hpp {
               hppDout (info, "the two nodes are already connected");
               continue;
             }
-            const Configuration_t q2 (*(*itn2)->configuration ());
+
+            const Configuration_t& q2 (*(*itn2)->configuration ());
+            graph::StatePtr_t s2 = getState (graph, *itn2);
             assert (q1 != q2);
-            path = sm->steer (q1, q2);
-            if (!path) continue;
-            if (pathProjector) {
-              if (!pathProjector->apply (path, projPath)) continue;
-            } else projPath = path;
-	    PathValidationReportPtr_t report;
-            if (pathValidation->validate (projPath, false, validPath, report)) {
+
+            path = connect (q1, q2, s1, s2, graph, pathProjector);
+
+            if (path) {
               nbConnection++;
-              if (!_1to2) roadmap ()->addEdge (*itn1, *itn2, projPath);
+              if (!_1to2) roadmap ()->addEdge (*itn1, *itn2, path);
               if (!_2to1) {
-                core::interval_t timeRange = projPath->timeRange ();
-                roadmap ()->addEdge (*itn2, *itn1, projPath->extract
+                core::interval_t timeRange = path->timeRange ();
+                roadmap ()->addEdge (*itn2, *itn1, path->extract
                     (core::interval_t (timeRange.second,
                                        timeRange.first)));
               }
@@ -393,15 +429,15 @@ namespace hpp {
 
     inline std::size_t ManipulationPlanner::tryConnectNewNodes (const core::Nodes_t nodes)
     {
-      const core::SteeringMethodPtr_t& sm (problem ().steeringMethod ());
-      core::PathValidationPtr_t pathValidation (problem ().pathValidation ());
       PathProjectorPtr_t pathProjector (problem().pathProjector ());
-      core::PathPtr_t path, projPath, validPath;
+      core::PathPtr_t path;
       graph::GraphPtr_t graph = problem_.constraintGraph ();
       std::size_t nbConnection = 0;
       for (core::Nodes_t::const_iterator itn1 = nodes.begin ();
           itn1 != nodes.end (); ++itn1) {
-        ConfigurationPtr_t q1 ((*itn1)->configuration ());
+        const Configuration_t& q1 (*(*itn1)->configuration ());
+        graph::StatePtr_t s1 = getState (graph, *itn1);
+
         for (core::Nodes_t::const_iterator itn2 = boost::next (itn1);
             itn2 != nodes.end (); ++itn2) {
           if ((*itn1)->connectedComponent () == (*itn2)->connectedComponent ())
@@ -412,20 +448,17 @@ namespace hpp {
             hppDout (info, "the two nodes are already connected");
             continue;
           }
-          ConfigurationPtr_t q2 ((*itn2)->configuration ());
-          assert (*q1 != *q2);
-          path = (*sm) (*q1, *q2);
-          if (!path) continue;
-          if (pathProjector) {
-            if (!pathProjector->apply (path, projPath)) continue;
-          } else projPath = path;
-          PathValidationReportPtr_t report;
-          if (pathValidation->validate (projPath, false, validPath, report)) {
+          const Configuration_t& q2 (*(*itn2)->configuration ());
+          graph::StatePtr_t s2 = getState (graph, *itn2);
+          assert (q1 != q2);
+
+          path = connect (q1, q2, s1, s2, graph, pathProjector);
+          if (path) {
             nbConnection++;
-            if (!_1to2) roadmap ()->addEdge (*itn1, *itn2, projPath);
+            if (!_1to2) roadmap ()->addEdge (*itn1, *itn2, path);
             if (!_2to1) {
-              core::interval_t timeRange = projPath->timeRange ();
-              roadmap ()->addEdge (*itn2, *itn1, projPath->extract
+              core::interval_t timeRange = path->timeRange ();
+              roadmap ()->addEdge (*itn2, *itn1, path->extract
                   (core::interval_t (timeRange.second,
                                      timeRange.first)));
             }

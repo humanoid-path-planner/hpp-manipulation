@@ -51,24 +51,24 @@ namespace hpp {
     {
       graph_ = graph;
       graph_->problem (wkPtr_.lock());
-      if (pathValidation ())
-        pathValidation ()->constraintGraph (graph);
+
+      GraphPathValidationPtr_t pv = HPP_DYNAMIC_PTR_CAST(GraphPathValidation, pathValidation());
+      if (pv) pv->constraintGraph (graph_);
       WeighedDistancePtr_t d = HPP_DYNAMIC_PTR_CAST (WeighedDistance,
           distance ());
       if (d) d->constraintGraph (graph);
     }
 
-    GraphPathValidationPtr_t Problem::pathValidation () const
+    PathValidationPtr_t Problem::pathValidation () const
     {
-      return HPP_DYNAMIC_PTR_CAST (GraphPathValidation,
-          Parent::pathValidation());
+      return Parent::pathValidation();
     }
 
     void Problem::pathValidation (const PathValidationPtr_t& pathValidation)
     {
-      GraphPathValidationPtr_t pv (GraphPathValidation::create (pathValidation));
-      pv->constraintGraph (graph_);
-      Parent::pathValidation (pv);
+      GraphPathValidationPtr_t pv = HPP_DYNAMIC_PTR_CAST(GraphPathValidation, pathValidation);
+      if (pv) pv->constraintGraph (graph_);
+      Parent::pathValidation (pathValidation);
     }
 
     PathValidationPtr_t Problem::pathValidationFactory () const
@@ -79,6 +79,8 @@ namespace hpp {
       for (core::ObjectStdVector_t::const_iterator _obs = obstacles.begin ();
 	   _obs != obstacles.end (); ++_obs)
 	pv->addObstacle (*_obs);
+      GraphPathValidationPtr_t gpv = HPP_DYNAMIC_PTR_CAST(GraphPathValidation, pv);
+      if (gpv) return gpv->innerValidation();
       return pv;
     }
 

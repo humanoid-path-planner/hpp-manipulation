@@ -32,6 +32,10 @@
 #include <hpp/core/path-projector/dichotomy.hh>
 #include <hpp/core/path-projector/global.hh>
 #include <hpp/core/path-projector/recursive-hermite.hh>
+#include <hpp/core/path-validation/discretized-collision-checking.hh>
+#include <hpp/core/path-validation/discretized-joint-bound.hh>
+#include <hpp/core/continuous-validation/dichotomy.hh>
+#include <hpp/core/continuous-validation/progressive.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method/dubins.hh>
 #include <hpp/core/steering-method/hermite.hh>
@@ -74,6 +78,16 @@ namespace hpp {
           static bool removeLockedJoints () { return false; }
       };
 
+#define MAKE_GRAPH_PATH_VALIDATION_BUILDER(name, function)                     \
+      PathValidationPtr_t create ## name ## GraphPathValidation (              \
+          const core::DevicePtr_t& robot, const value_type& stepSize)          \
+      {                                                                        \
+        return GraphPathValidation::create (function (robot, stepSize));       \
+      }
+      MAKE_GRAPH_PATH_VALIDATION_BUILDER(DiscretizedCollision             , core::pathValidation::createDiscretizedCollisionChecking)
+      MAKE_GRAPH_PATH_VALIDATION_BUILDER(DiscretizedJointBound            , core::pathValidation::createDiscretizedJointBound)
+      //MAKE_GRAPH_PATH_VALIDATION_BUILDER(DiscretizedCollisionAndJointBound, createDiscretizedJointBoundAndCollisionChecking)
+
       template <typename ParentSM_t, typename ChildSM_t>
       core::SteeringMethodPtr_t createSMWithGuess
       (const core::Problem& problem)
@@ -109,6 +123,15 @@ namespace hpp {
 
       pathPlanners.add ("M-RRT", ManipulationPlanner::create);
       pathPlanners.add ("SymbolicPlanner", SymbolicPlanner::create);
+
+      pathValidations.add ("Graph-Discretized"                      , createDiscretizedCollisionGraphPathValidation);
+      pathValidations.add ("Graph-DiscretizedCollision"             , createDiscretizedCollisionGraphPathValidation);
+      pathValidations.add ("Graph-DiscretizedJointBound"            , createDiscretizedJointBoundGraphPathValidation);
+      //pathValidations.add ("Graph-DiscretizedCollisionAndJointBound", createDiscretizedCollisionAndJointBoundGraphPathValidation);
+      pathValidations.add ("Graph-Dichotomy"  , GraphPathValidation::create<core::continuousValidation::Dichotomy  >);
+      pathValidations.add ("Graph-Progressive", GraphPathValidation::create<core::continuousValidation::Progressive>);
+
+      pathValidationType ("Graph-Discretized", 0.05);
 
       pathOptimizers.add ("RandomShortcut",
           pathOptimization::RandomShortcut::create);
@@ -179,11 +202,8 @@ namespace hpp {
     {
       problem_ = problem;
       core::ProblemSolver::initializeProblem (problem_);
-      if (constraintGraph_) {
+      if (constraintGraph_)
         problem_->constraintGraph (constraintGraph_);
-        if (problem_->pathValidation ())
-          problem_->pathValidation ()->constraintGraph (constraintGraph_);
-      }
     }
 
     void ProblemSolver::constraintGraph (const std::string& graphName)

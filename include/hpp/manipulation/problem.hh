@@ -49,9 +49,11 @@ namespace hpp {
         /// Check whether the problem is well formulated.
         virtual void checkProblem () const;
 
-        /// Get the path validation as a GraphPathValidation
-        GraphPathValidationPtr_t pathValidation () const;
+        /// Expose parent method.
+        PathValidationPtr_t pathValidation () const;
 
+        /// \param pathValidation if of type GraphPathValidation, sets 
+        ///        its constraint graph to Problem::constraintGraph()
         void pathValidation (const PathValidationPtr_t& pathValidation);
 
         /// Get the steering method as a SteeringMethod

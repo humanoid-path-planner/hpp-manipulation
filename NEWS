@@ -1,6 +1,15 @@
+                                                                -*- outline -*-
+New in 4.6.0
 * Add setter to relative motion matrix in edges.
+* Add method Edge::neighborEdges.
+* Enrich API of EndEffectorTrajectory steeringMethod.
+* Fix API of Problem: make steeringMethod setter accessible.
+* Always use edge validation and steering method in ManipulationPlanner.
+* Make GraphPathValidation not mandatory.
+* Remove SymbolicPlanner.
+* Keep the default validation from hpp-core.
 
-2018/05/17 - Release 4.1
+New in 4.1
 * Reset data when inserting robot.
 * Fix detection of hpp-wholebody-step.
 * In GraphSteeringMethod; create a inner steering method at construction.
@@ -32,17 +41,17 @@
 * ProblemSolver has a map of graph::GraphPtr_t.
 * Prevent name collision in graph construction.
 
-2014/12/03 - Release 1.1
+New in 1.1
 * Add projector for paths.
 * Add information in the tooltips of the DOT graph.
 
-2014/12/03 - Release 1.0.2
+New in 1.0.2
 * Fix bug when projection using WaypointEdge
 
-2014/12/03 - Release 1.0.1
+New in 1.0.1
 * Fix bug in WaypointEdge
 
-2014/11/18 - Release 1.0
+New in 1.0
 * Manipulation planner based on RRT.
 * A graph of constraint.
 * graph::Edge has 3 implementations: Edge, WaypointEdge, LevelSetEdge

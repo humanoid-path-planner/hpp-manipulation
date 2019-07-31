@@ -1,5 +1,6 @@
 // Copyright (c) 2017, Joseph Mirabel
-// Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
+// Authors: Joseph Mirabel (joseph.mirabel@laas.fr),
+//          Florent Lamiraux (florent.lamiraux@laas.fr)
 //
 // This file is part of hpp-manipulation.
 // hpp-manipulation is free software: you can redistribute it
@@ -38,8 +39,6 @@
 
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/state.hh>
-
-#include <../src/steering-method/cross-state-optimization/function.cc>
 
 namespace hpp {
   namespace manipulation {
@@ -142,6 +141,64 @@ namespace hpp {
         }
       };
 
+      void CrossStateOptimization::gatherGraphConstraints ()
+      {
+        typedef graph::Edge Edge;
+        typedef graph::EdgePtr_t EdgePtr_t;
+        typedef graph::GraphPtr_t GraphPtr_t;
+        typedef constraints::solver::BySubstitution Solver_t;
+
+        std::map <ImplicitPtr_t, ImplicitPtr_t> constraintCopy, constraintOrig;
+        ImplicitPtr_t copy;
+        GraphPtr_t cg (problem_.constraintGraph ());
+        const ConstraintsAndComplements_t& cac
+          (cg->constraintsAndComplements ());
+        for (std::size_t i = 0; i < cg->nbComponents (); ++i) {
+          EdgePtr_t edge (HPP_DYNAMIC_PTR_CAST (Edge, cg->get (i).lock ()));
+          if (edge) {
+            const Solver_t& solver (edge->pathConstraint ()->
+                                    configProjector ()->solver ());
+            const NumericalConstraints_t& constraints
+              (solver.numericalConstraints ());
+            for (NumericalConstraints_t::const_iterator it
+                   (constraints.begin ()); it != constraints.end (); ++it) {
+              if ((*it)->parameterSize () > 0) {
+                const std::string& name ((*it)->function ().name  ());
+                if (index_.find (name) == index_.end ()) {
+                  // constraint is not in map, add it
+                  index_ [name] = constraints_.size ();
+                  copy = (*it)->copy ();
+                  constraintCopy [*it] = copy;
+                  constraintOrig [copy] = *it;
+                  // Check whether constraint is equivalent to a previous one
+                  for (NumericalConstraints_t::const_iterator it1
+                         (constraints_.begin ()); it1 != constraints_.end ();
+                       ++it1) {
+                    for (ConstraintsAndComplements_t::const_iterator it2
+                           (cac.begin ()); it2 != cac.end (); ++it2) {
+                      if (((constraintOrig [*it1] == it2->complement) &&
+                           (*it == it2->both)) ||
+                          ((constraintOrig [*it1] == it2->both) &&
+                           (*it == it2->complement))) {
+                        assert (sameRightHandSide_.count (*it1) == 0);
+                        assert (sameRightHandSide_.count (copy) == 0);
+                        sameRightHandSide_ [*it1] = copy;
+                        sameRightHandSide_ [copy] = *it1;
+                      }
+                    }
+                  }
+                  constraints_.push_back (copy);
+                  hppDout (info, "Adding constraint \"" << name << "\"");
+                  hppDout (info, "Edge \"" << edge->name () << "\"");
+                  hppDout (info, "parameter size: " << (*it)->parameterSize ());
+
+                }
+              }
+            }
+          }
+        }
+      }
+
       bool CrossStateOptimization::findTransitions (GraphSearchData& d) const
       {
         while (! d.queue1.empty())
@@ -209,452 +266,280 @@ namespace hpp {
         return transitions;
       }
 
+      namespace internal {
+        bool saturate (const core::DevicePtr_t& robot, vectorIn_t q,
+                       vectorOut_t qSat, pinocchio::ArrayXb& saturatedDof)
+        {
+          qSat = q;
+          return hpp::pinocchio::saturate (robot, qSat, saturatedDof);
+        }
+      } // namespace internal
+
       struct CrossStateOptimization::OptimizationData
       {
+        typedef constraints::solver::HierarchicalIterative::Saturation_t
+        Saturation_t;
+        enum RightHandSideStatus_t {
+          // Constraint is not in solver for this waypoint
+          ABSENT,
+          // right hand side of constraint for this waypoint is equal to
+          // right hand side for previous waypoint
+          EQUAL_TO_PREVIOUS,
+          // right hand side of constraint for this waypoint is equal to
+          // right hand side for initial configuration
+          EQUAL_TO_INIT,
+          // right hand side of constraint for this waypoint is equal to
+          // right hand side for goal configuration
+          EQUAL_TO_GOAL
+        }; // enum RightHandSideStatus_t
         const std::size_t N, nq, nv;
-        constraints::solver::BySubstitution solver;
+        std::vector <Solver_t> solvers;
+        // Waypoints lying in each intermediate state
+        matrix_t waypoint;
         Configuration_t q1, q2;
-        vector_t q;
         core::DevicePtr_t robot;
-        typedef std::vector<States_t> StatesPerConf_t;
-        StatesPerConf_t statesPerConf_;
-        struct RightHandSideSetter {
-          ImplicitPtr_t impF;
-          size_type expFidx;
-          Configuration_t* qrhs;
-          vector_t rhs;
-          RightHandSideSetter () : qrhs (NULL) {}
-          // TODO delete this constructor
-          RightHandSideSetter (ImplicitPtr_t _impF, size_type _expFidx,
-                               Configuration_t* _qrhs)
-            : impF(_impF), expFidx(_expFidx), qrhs (_qrhs) {}
-          RightHandSideSetter (ImplicitPtr_t _impF, size_type _expFidx,
-                               vector_t _rhs)
-            : impF(_impF), expFidx(_expFidx), qrhs (NULL), rhs (_rhs) {}
-          void apply(constraints::solver::BySubstitution& s)
-          {
-            if (expFidx >= 0) {
-              if (qrhs != NULL) s.explicitConstraintSet().rightHandSideFromInput
-                                  (expFidx, *qrhs);
-              else              s.explicitConstraintSet().rightHandSide
-                                  (expFidx, rhs);
-            } else {
-              if (qrhs != NULL) s.rightHandSideFromConfig (impF, *qrhs);
-              else              s.rightHandSide          (impF, rhs);
-            }
-          }
-        };
-        typedef std::vector<RightHandSideSetter> RightHandSideSetters_t;
-        RightHandSideSetters_t rhsSetters_;
+        // Matrix specifying for each constraint and each waypoint how
+        // the right hand side is initialized in the solver.
+        Eigen::Matrix < vector_t, Eigen::Dynamic, Eigen::Dynamic > M_rhs;
+        Eigen::Matrix < RightHandSideStatus_t, Eigen::Dynamic, Eigen::Dynamic >
+        M_status;
 
-        OptimizationData (const std::size_t& _N, const core::DevicePtr_t _robot)
-          : N (_N), nq (_robot->configSize()), nv (_robot->numberDof()),
-            solver (_robot->configSpace () ^ N), robot (_robot),
-            statesPerConf_ (N)
+        OptimizationData (const core::DevicePtr_t _robot,
+                          const Configuration_t& _q1,
+                          const Configuration_t& _q2,
+                          const Edges_t& transitions
+                          ) :
+          N (transitions.size () - 1), nq (_robot->configSize()),
+          nv (_robot->numberDof()), solvers (N, _robot->configSpace ()),
+          waypoint (nq, N), q1 (_q1), q2 (_q2), robot (_robot), M_rhs (),
+          M_status ()
         {
-          solver.saturation  (boost::bind(&OptimizationData::_saturate , this,
-                                          _1, _2, _3));
-        }
-
-        void addGraphConstraints (const graph::GraphPtr_t& graph)
-        {
-          for (std::size_t i = 0; i < N; ++i) {
-            _add (graph->lockedJoints(), i);
-            _add (graph->numericalConstraints(), i);
-          }
-        }
-
-        void addConstraints (const StatePtr_t& state, const std::size_t& i)
-        {
-          bool alreadyAdded = (
-              std::find (statesPerConf_[i].begin(), statesPerConf_[i].end(), state)
-              != statesPerConf_[i].end());
-          if (alreadyAdded) return;
-          _add (state->lockedJoints(), i);
-          _add (state->numericalConstraints(), i);
-          statesPerConf_[i].push_back(state);
-        }
-
-        void addConstraints (const EdgePtr_t& trans, const std::size_t& i)
-        {
-          const LockedJoints_t& ljs = trans->lockedJoints();
-          for (LockedJoints_t::const_iterator _lj = ljs.begin();
-              _lj != ljs.end(); ++_lj) {
-            LockedJointPtr_t lj (*_lj);
-            std::ostringstream os;
-            os << lj->jointName() << " | " << i << " -> " << (i+1);
-            DifferentiableFunctionPtr_t f, f_implicit;
-            ImplicitPtr_t c_implicit;
-            // i = Input, o = Output,
-            // c = Config, v = Velocity
-            RowBlockIndices ic, oc, ov;
-            ColBlockIndices iv;
-            ComparisonTypes_t cts;
-            vector_t rhs;
-            if (i == 0) {
-              f = lj->explicitFunction();
-              ic = _row(lj->inputConf()     , 0);
-              oc = _row(lj->outputConf()    , 0);
-              iv = _col(lj->inputVelocity() , 0);
-              ov = _row(lj->outputVelocity(), 0);
-              cts = lj->comparisonType();
-              lj->rightHandSideFromConfig (q1);
-              rhs = lj->rightHandSide();
-            } else if (i == N) {
-              f = lj->explicitFunction();
-              // Currently, this function is mandatory because if the same
-              // joint is locked all along the path, then, one of the LockedJoint
-              // has to be treated implicitely.
-              // TODO it would be smarter to detect this case beforehand. If the
-              // chain in broken in the middle, an explicit formulation exists
-              // (by inverting the equality in the next else section) and we
-              // miss it.
-              f_implicit = _stateFunction (lj->functionPtr(), N-1);
-              ic = _row(lj->inputConf()     , 0);
-              oc = _row(lj->outputConf()    , (N-1) * nq);
-              iv = _col(lj->inputVelocity() , 0);
-              ov = _row(lj->outputVelocity(), (N-1) * nv);
-              cts = lj->comparisonType();
-              lj->rightHandSideFromConfig (q2);
-              rhs = lj->rightHandSide();
-            } else {
-              f = constraints::Identity::create (lj->configSpace(), os.str());
-              ic = _row(lj->outputConf()    , (i - 1) * nq);
-              oc = _row(lj->outputConf()    ,  i      * nq);
-              iv = _col(lj->outputVelocity(), (i - 1) * nv);
-              ov = _row(lj->outputVelocity(),  i      * nv);
-              cts = ComparisonTypes_t (lj->numberDof(), constraints::EqualToZero);
-            }
-
-            // It is important to use the index of the function since the same
-            // function may be added several times on different part.
-            constraints::ExplicitPtr_t ec
-              (constraints::Explicit::create (solver.configSpace (), f,
-                                              ic.indices (), oc.indices (),
-                                              iv.indices (), ov.indices (),
-                                              cts));
-            size_type expFidx = solver.explicitConstraintSet().add (ec);
-            if (expFidx < 0) {
-              if (f_implicit) {
-                c_implicit = constraints::Implicit::create (f_implicit, cts);
-                solver.add (c_implicit);
-              } else {
-                HPP_THROW (std::invalid_argument,
-                    "Could not add locked joint " << lj->jointName() <<
-                    " of transition " << trans->name() << " at id " << i);
-              }
-            }
-
-            // Setting the right hand side must be done later
-            if (rhs.size() > 0) {
-              assert (c_implicit);
-              rhsSetters_.push_back
-                (RightHandSideSetter(c_implicit, expFidx, rhs));
-            }
-            f_implicit.reset();
-            c_implicit.reset();
-          }
-
-          // TODO handle numerical constraints
-          using namespace ::hpp::core;
-          constraints::ExplicitPtr_t enc;
-          const NumericalConstraints_t& ncs = trans->numericalConstraints();
-          for (NumericalConstraints_t::const_iterator _nc = ncs.begin();
-               _nc != ncs.end(); ++_nc) {
-            constraints::ImplicitPtr_t nc (*_nc);
-            enc = HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nc);
-
-            DifferentiableFunctionPtr_t f, ef;
-            constraints::ImplicitPtr_t constraint;
-            // i = Input, o = Output,
-            // c = Config, v = Velocity
-            // Configuration_t* qrhs;
-            RowBlockIndices ic, oc, ov;
-            ColBlockIndices iv;
-            ComparisonTypes_t cts;
-            vector_t rhs;
-            if (i == 0) {
-              f = _stateFunction(nc->functionPtr(), 0);
-              // if (enc) {
-                // ef = enc->explicitFunction();
-                // ic = _row(enc->inputConf()     , 0);
-                // oc = _row(enc->outputConf()    , 0);
-                // iv = _col(enc->inputVelocity() , 0);
-                // ov = _row(enc->outputVelocity(), 0);
-              // }
-              // cts = ComparisonTypes_t (enc->outputDerivativeSize(), constraints::Equality);
-              cts = nc->comparisonType ();
-              nc->rightHandSideFromConfig (q1);
-              rhs = nc->rightHandSide();
-              // qrhs = &q1;
-            } else if (i == N) {
-              f = _stateFunction(nc->functionPtr(), N - 1);
-              cts = nc->comparisonType ();
-              nc->rightHandSideFromConfig (q2);
-              rhs = nc->rightHandSide();
-              // qrhs = &q2;
-            } else {
-              f = _edgeFunction (nc->functionPtr(), i - 1, i);
-              cts = ComparisonTypes_t (f->outputSize(), constraints::EqualToZero);
-              // qrhs = NULL;
-            }
-            constraint = constraints::Implicit::create (f, cts);
-            size_type expFidx = -1;
-            // if (ef) {
-            //   constraints::ExplicitPtr_t ec
-            //     (constraints::Explicit::create (solver.configSpace (), ef,
-            //                                     ic.indices (), oc.indices (),
-            //                                     iv.indices (), ov.indices (),
-            //                                     cts));
-            //   expFidx = solver.explicitConstraintSet().add (ec);
-            // }
-            if (expFidx < 0) solver.add (constraint);
-
-            // TODO This must be done later...
-            // if (qrhs != NULL) {
-            if (rhs.size() > 0) {
-              // solver.rightHandSideFromConfig (f, ef, rhs);
-              rhsSetters_.push_back (RightHandSideSetter
-                                     (constraint, expFidx, rhs));
-            }
-          }
-        }
-
-        void setRightHandSide ()
-        {
-          for (std::size_t i = 0; i < rhsSetters_.size(); ++i)
-            rhsSetters_[i].apply(solver);
-        }
-
-        bool solve ()
-        {
-          if (N == 0) return true;
-          constraints::HierarchicalIterativeSolver::Status status =
-            solver.solve <constraints::solver::lineSearch::FixedSequence> (q);
-          bool success = (status == constraints::HierarchicalIterativeSolver::SUCCESS);
-          if (!success) {
-            hppDout (warning, "Projection failed with status " << status <<
-                ". Configuration after projection is\n"
-                << pinocchio::displayConfig(q));
-          }
-          return success;
-        }
-
-        void _add (const NumericalConstraints_t& ncs, const std::size_t& i)
-        {
-          using namespace ::hpp::core;
-          constraints::ExplicitPtr_t enc;
-          for (NumericalConstraints_t::const_iterator _nc = ncs.begin();
-              _nc != ncs.end(); ++_nc) {
-            constraints::ImplicitPtr_t nc (*_nc);
-            enc = HPP_DYNAMIC_PTR_CAST (constraints::Explicit, nc);
-            bool added = false;
-            if (enc) {
-              added = solver.explicitConstraintSet().add
-                (explicitConstraintOnWaypoint (enc, i));
-            }
-            if (!added)
-              solver.add (implicitConstraintOnWayPoint (nc, i));
-          }
-        }
-        void _add (const LockedJoints_t& ljs, const std::size_t i)
-        {
-          for (LockedJoints_t::const_iterator _lj = ljs.begin();
-              _lj != ljs.end(); ++_lj) {
-            LockedJointPtr_t lj (*_lj);
-            size_type expFidx = solver.explicitConstraintSet().add
-              (explicitConstraintOnWaypoint (lj, i));
-            if (expFidx < 0)
-              throw std::invalid_argument ("Could not add locked joint " + lj->jointName());
-
-            // This must be done later
-            rhsSetters_.push_back
-              (RightHandSideSetter(constraints::Implicit::create
-                                   (DifferentiableFunctionPtr_t()),
-                                   expFidx,
-                                   lj->rightHandSide()));
-            // solver.rightHandSide (DifferentiableFunctionPtr_t(),
-                // lj->explicitFunction(),
-                // lj->rightHandSide());
-          }
-        }
-
-        /// Apply constraint on a give waypoint
-        /// \param constaint explicit constraint defined on the configuration
-        ///        space,
-        /// \param i rank of the waypoint in the vector of parameters.
-        constraints::ExplicitPtr_t explicitConstraintOnWaypoint
-        (const constraints::ExplicitPtr_t& constraint,
-         std::size_t i)
-        {
-          assert (i < N);
-          // size_type nq (constraint->explicitFunction ().inputSize ()),
-          //   nv (constraint->function ().inputDerrivativeSize ());
-          segments_t ic (constraint->inputConf ()),
-            oc (constraint->outputConf ()),
-            iv (constraint->inputVelocity ()),
-            ov (constraint->outputVelocity ());
-          // TODO: implicit formulation should be built from input constraint
-          return constraints::Explicit::create
-            (solver.configSpace (), constraint->functionPtr (),
-             _row (ic, i*nq).indices (), _row (oc, i*nq).indices (),
-             _col (iv, i*nv).indices (), _col (ov, i*nv).indices (),
-             constraint->comparisonType ());
-        }
-
-        RowBlockIndices _row (segments_t s, const std::size_t& shift)
-        {
-          for (std::size_t j = 0; j < s.size(); ++j) s[j].first += shift;
-          return RowBlockIndices (s);
-        }
-        ColBlockIndices _col (segments_t s, const std::size_t& shift)
-        {
-          for (std::size_t j = 0; j < s.size(); ++j) s[j].first += shift;
-          return ColBlockIndices (s);
-        }
-        constraints::ImplicitPtr_t implicitConstraintOnWayPoint
-        (const constraints::ImplicitPtr_t& constraint, std::size_t i)
-        {
-          assert (i < N);
-          ImplicitPtr_t res (constraints::Implicit::create
-                             (StateFunction::Ptr_t
-                              (new StateFunction (constraint->functionPtr (),
-                                                  N * nq, N * nv,
-                                                  segment_t (i * nq, nq),
-                                                  segment_t (i * nv, nv))),
-                              constraint->comparisonType ()));
-          return res;
-        }
-        StateFunction::Ptr_t _stateFunction(const DifferentiableFunctionPtr_t inner, const std::size_t i)
-        {
-          assert (i < N);
-          return StateFunction::Ptr_t (new StateFunction (inner, N * nq, N * nv,
-                segment_t (i * nq, nq), segment_t (i * nv, nv)
-                ));
-        }
-        EdgeFunction::Ptr_t _edgeFunction(const DifferentiableFunctionPtr_t inner,
-            const std::size_t iL, const std::size_t iR)
-        {
-          assert (iL < N && iR < N);
-          return EdgeFunction::Ptr_t (new EdgeFunction (inner, N * nq, N * nv,
-                segment_t (iL * nq, nq), segment_t (iL * nv, nv),
-                segment_t (iR * nq, nq), segment_t (iR * nv, nv)));
-        }
-        void _integrate (vectorIn_t qin, vectorIn_t v, vectorOut_t qout)
-        {
-          for (std::size_t i = 0, iq = 0, iv = 0; i < N; ++i, iq += nq, iv += nv)
-            pinocchio::integrate (robot,
-                qin.segment(iq,nq),
-                v.segment(iv,nv),
-                qout.segment(iq,nq));
-        }
-        bool _saturate (vectorIn_t q, vectorOut_t qSat, Eigen::VectorXi& sat)
-        {
-          bool ret = false;
-          const pinocchio::Model& model = robot->model();
-
-          for (std::size_t i = 1; i < model.joints.size(); ++i) {
-            const size_type jnq = model.joints[i].nq();
-            const size_type jnv = model.joints[i].nv();
-            const size_type jiq = model.joints[i].idx_q();
-            const size_type jiv = model.joints[i].idx_v();
-            for (std::size_t k = 0; k < N; ++k) {
-              const size_type idx_q = k * nq + jiq;
-              const size_type idx_v = k * nv + jiv;
-              for (size_type j = 0; j < jnq; ++j) {
-                const size_type iq = idx_q + j;
-                const size_type iv = idx_v + std::min(j,jnv-1);
-                if        (q[iq] >= model.upperPositionLimit[jiq + j]) {
-                  qSat [iq] = model.upperPositionLimit[jiq + j];
-                  sat[iv] =  1;
-                  ret = true;
-                } else if (q[iq] <= model.lowerPositionLimit[jiq + j]) {
-                  qSat [iq] = model.lowerPositionLimit[jiq + j];
-                  sat[iv] = -1;
-                  ret = true;
-                } else
-                  qSat [iq] = q [iq];
-                  sat[iv] =  0;
-              }
-            }
-          }
-
-          const hpp::pinocchio::ExtraConfigSpace& ecs = robot->extraConfigSpace();
-          const size_type& d = ecs.dimension();
-
-          for (size_type k = 0; k < d; ++k) {
-            for (std::size_t j = 0; j < N; ++j) {
-              const size_type iq = j * nq + model.nq + k;
-              const size_type iv = j * nv + model.nv + k;
-              if        (q[iq] >= ecs.upper(k)) {
-                sat[iv] =  1;
-                ret = true;
-              } else if (q[iq] <= ecs.lower(k)) {
-                sat[iv] = -1;
-                ret = true;
-              } else
-                sat[iv] =  0;
-            }
-          }
-          return ret;
+          assert (transitions.size () > 0);
         }
       };
 
-      void CrossStateOptimization::buildOptimizationProblem (
-          OptimizationData& d, const Edges_t& transitions) const
+      bool CrossStateOptimization::checkConstantRightHandSide
+      (OptimizationData& d, size_type index) const
       {
-        if (d.N == 0) return;
-        size_type maxIter = problem_.getParameter ("CrossStateOptimization/maxIteration").intValue();
-        value_type thr = problem_.getParameter ("CrossStateOptimization/errorThreshold").floatValue();
-        d.solver.maxIterations (maxIter);
-        d.solver.errorThreshold (thr);
-
-        // Add graph constraints      (decoupled)
-        d.addGraphConstraints (problem_.constraintGraph());
-
-        std::size_t i = 0;
-        for (Edges_t::const_iterator _t = transitions.begin();
-            _t != transitions.end(); ++_t)
-        {
-          const EdgePtr_t& t = *_t;
-          bool first = (i == 0);
-          bool last  = (i == d.N);
-
-          // Add state constraints      (decoupled)
-          if (!last ) d.addConstraints (t->to()   , i);
-          if (!last ) d.addConstraints (t->state(), i);
-          if (!first) d.addConstraints (t->from() , i - 1);
-          if (!first) d.addConstraints (t->state(), i - 1);
-
-          // Add transition constraints (coupled)
-          d.addConstraints (t, i);
-
-          ++i;
+        const ImplicitPtr_t c (constraints_ [index]);
+        c->rightHandSideFromConfig (d.q1);
+        vector_t rhsInit (c->rightHandSide ());
+        c->rightHandSideFromConfig (d.q2);
+        vector_t rhsGoal (c->rightHandSide ());
+        // Check that right hand sides are close to each other
+        value_type eps (problem_.constraintGraph ()->errorThreshold ());
+        value_type eps2 (eps * eps);
+        if ((rhsGoal - rhsInit).squaredNorm () > eps2) {
+          return false;
         }
-
-        d.solver.explicitConstraintSetHasChanged();
-        d.setRightHandSide();
-
-        hppDout (info, "Solver informations\n" << d.solver);
-
-        // Initial guess
-        std::vector<size_type> ks;
-        size_type K = 0;
-        ks.resize(d.N);
-        for (std::size_t i = 0; i < d.N + 1; ++i) {
-          if (!transitions[i]->isShort()) ++K;
-          if (i < d.N) ks[i] = K;
+        // Matrix of solver right hand sides
+        for (size_type j=0; j<d.M_rhs.cols (); ++j) {
+          d.M_rhs (index, j) = rhsInit;
         }
-        if (K==0) {
-          ++K;
-          for (std::size_t i = d.N/2; i < d.N; ++i)
-            ks[i] = 1;
+        return true;
+      }
+
+      void displayRhsMatrix (const Eigen::Matrix < vector_t, Eigen::Dynamic,
+                             Eigen::Dynamic >& m,
+                             const NumericalConstraints_t& constraints)
+      {
+        std::ostringstream oss; oss.precision (5);
+        oss << "\\documentclass[12pt,landscape]{article}" << std::endl;
+        oss << "\\usepackage[a3paper]{geometry}" << std::endl;
+        oss << "\\begin {document}" << std::endl;
+        oss << "\\begin {tabular}{";
+        for (size_type j=0; j<m.cols () + 1; ++j)
+          oss << "c";
+        oss << "}" << std::endl;
+        for (size_type i=0; i<m.rows (); ++i) {
+          oss << constraints [i]->function ().name () << " & ";
+          for (size_type j=0; j<m.cols (); ++j) {
+            oss << "$\\left(\\begin{array}{c}" << std::endl;
+            for (size_type k=0; k<m (i,j).size (); ++k) {
+              oss << m (i,j) [k] << "\\\\" << std::endl;
+            }
+            oss << "\\end{array}\\right)$" << std::endl;
+            if (j < m.cols () - 1) {
+              oss << " & " << std::endl;
+            }
+          }
+          oss << "\\\\" << std::endl;
         }
-        d.q.resize (d.N * d.nq);
-        for (std::size_t i = 0; i < d.N; ++i) {
-          value_type u = value_type(ks[i]) / value_type(K);
-          pinocchio::interpolate (d.robot, d.q1, d.q2, u, d.q.segment (i * d.nq, d.nq));
+        oss << "\\end{tabular}" << std::endl;
+        oss << "\\end {document}" << std::endl;
+        hppDout (info, oss.str ());
+      }
+
+      void displayStatusMatrix (const Eigen::Matrix < CrossStateOptimization::OptimizationData::RightHandSideStatus_t, Eigen::Dynamic, Eigen::Dynamic >& m,
+                                const NumericalConstraints_t& constraints)
+      {
+        std::ostringstream oss; oss.precision (5);
+        oss << "\\documentclass[12pt,landscape]{article}" << std::endl;
+        oss << "\\usepackage[a3paper]{geometry}" << std::endl;
+        oss << "\\begin {document}" << std::endl;
+        oss << "\\begin {tabular}{";
+        for (size_type j=0; j<m.cols () + 1; ++j)
+          oss << "c";
+        oss << "}" << std::endl;
+        for (size_type i=0; i<m.rows (); ++i) {
+          oss << constraints [i]->function ().name () << " & ";
+          for (size_type j=0; j<m.cols (); ++j) {
+            oss << m (i,j);
+            if (j < m.cols () - 1) {
+              oss << " & " << std::endl;
+            }
+          }
+          oss << "\\\\" << std::endl;
         }
+        oss << "\\end{tabular}" << std::endl;
+        oss << "\\end {document}" << std::endl;
+        hppDout (info, oss.str ());
+      }
+
+      bool CrossStateOptimization::contains
+      (const Solver_t& solver, const ImplicitPtr_t& c) const
+      {
+        if (solver.contains (c)) return true;
+        std::map <ImplicitPtr_t, ImplicitPtr_t>::const_iterator it
+          (sameRightHandSide_.find (c));
+        if ((it != sameRightHandSide_.end () &&
+             solver.contains (it->second))) {
+          return true;
+        }
+        return false;
+      }
+
+      bool CrossStateOptimization::buildOptimizationProblem
+      (OptimizationData& d, const graph::Edges_t& transitions) const
+      {
+        if (d.N == 0) return true;
+        d.M_status.resize (constraints_.size (), d.N);
+        d.M_status.fill (OptimizationData::ABSENT);
+        d.M_rhs.resize (constraints_.size (), d.N);
+        d.M_rhs.fill (vector_t ());
+        size_type index = 0;
+        // Loop over constraints
+        for (NumericalConstraints_t::const_iterator it (constraints_.begin ());
+             it != constraints_.end (); ++it) {
+          const ImplicitPtr_t& c (*it);
+          // Loop forward over waypoints to determine right hand sides equal
+          // to initial configuration
+          for (std::size_t j = 0; j < d.N; ++j) {
+            // Get transition solver
+            const Solver_t& trSolver
+              (transitions [j]->pathConstraint ()->configProjector ()->
+               solver ());
+            if (contains (trSolver, c)) {
+              if ((j==0) || d.M_status (index, j-1) ==
+                  OptimizationData::EQUAL_TO_INIT) {
+                d.M_status (index, j) = OptimizationData::EQUAL_TO_INIT;
+              } else {
+                d.M_status (index, j) = OptimizationData::EQUAL_TO_PREVIOUS;
+              }
+            }
+          }
+          // Loop backward over waypoints to determine right hand sides equal
+          // to initial configuration
+          for (size_type j = d.N-1; j > 0; --j) {
+            // Get transition solver
+            const Solver_t& trSolver
+              (transitions [(std::size_t)j+1]->pathConstraint ()->
+               configProjector ()->solver ());
+            if (contains (trSolver, c)) {
+              if ((j==(size_type) d.N-1) || d.M_status (index, j+1) ==
+                  OptimizationData::EQUAL_TO_GOAL) {
+                // If constraint right hand side is already equal to
+                // initial config, check that right hand side is equal
+                // for init and goal configs.
+                if (d.M_status (index, j) ==
+                    OptimizationData::EQUAL_TO_INIT) {
+                  if (checkConstantRightHandSide (d, index)) {
+                    // stop for this constraint
+                    break;
+                  } else {
+                    // Right hand side of constraint should be equal along the
+                    // whole path but is different at init and at goal configs.
+                    return false;
+                  }
+                } else {
+                  d.M_status (index, j) = OptimizationData::EQUAL_TO_GOAL;
+                }
+              }
+            }
+          }
+          ++index;
+        } // for (NumericalConstraints_t::const_iterator it
+        displayStatusMatrix (d.M_status, constraints_);
+        graph::GraphPtr_t cg (problem_.constraintGraph ());
+        // Fill solvers with graph, node and edge constraints
+        for (std::size_t j = 0; j < d.N; ++j) {
+          graph::StatePtr_t state (transitions [(std::size_t)j]->to ());
+          // initialize solver with state constraints
+          d.solvers [(std::size_t)j] = state->configConstraint ()->
+            configProjector ()->solver ();
+          // Add graph constraints
+          const NumericalConstraints_t c (cg->numericalConstraints ());
+          for (NumericalConstraints_t::const_iterator it (c.begin ());
+               it != c.end (); ++it) {
+            d.solvers [(std::size_t)j].add (*it);
+          }
+          // Add edge constraints
+          for (std::size_t i=0; i<constraints_.size (); ++i) {
+            if (d.M_status (i, j) != OptimizationData::ABSENT) {
+              d.solvers [(std::size_t)j].add (constraints_ [i]);
+            }
+          }
+        }
+        return true;
+      }
+
+      bool CrossStateOptimization::solveOptimizationProblem
+      (OptimizationData& d) const
+      {
+        // Iterate on waypoint solvers, for each of them
+        //  1. initialize right hand side,
+        //  2. solve.
+        for (std::size_t j=0; j<d.solvers.size (); ++j) {
+          Solver_t& solver (d.solvers [j]);
+          for (std::size_t i=0; i<constraints_.size (); ++i) {
+            const ImplicitPtr_t& c (constraints_ [i]);
+              switch (d.M_status ((size_type)i, (size_type)j)) {
+            case OptimizationData::EQUAL_TO_PREVIOUS:
+              assert (j != 0);
+              solver.rightHandSideFromConfig (c, d.waypoint.col (j-1));
+              break;
+            case OptimizationData::EQUAL_TO_INIT:
+              solver.rightHandSideFromConfig (c, d.q1);
+              break;
+            case OptimizationData::EQUAL_TO_GOAL:
+              solver.rightHandSideFromConfig (c, d.q2);
+              break;
+            case OptimizationData::ABSENT:
+            default:
+              ;
+            }
+          }
+          if (j==0) d.waypoint.col (j) = d.q1;
+          else d.waypoint.col (j) = d.waypoint.col (j-1);
+          Solver_t::Status status = solver.solve
+            (d.waypoint.col (j),
+             constraints::solver::lineSearch::Backtracking ());
+
+          switch (status) {
+          case Solver_t::ERROR_INCREASED:
+            hppDout (info, "error increased.");
+            return false;
+          case Solver_t::MAX_ITERATION_REACHED:
+            hppDout (info, "max iteration reached.");
+            return false;
+          case Solver_t::INFEASIBLE:
+            hppDout (info, "infeasible.");
+            return false;
+          case Solver_t::SUCCESS:
+            hppDout (info, "success.");
+          }
+        }
+        return true;
       }
 
       core::PathVectorPtr_t CrossStateOptimization::buildPath (
@@ -680,17 +565,15 @@ namespace hpp {
           if (first && last)
             status = t->build (path, d.q1, d.q2);
           else if (first)
-            status = t->build (path, d.q1, d.q.head (d.nq));
+            status = t->build (path, d.q1, d.waypoint.col (i));
           else if (last)
-            status = t->build (path, d.q.tail (d.nq), d.q2);
+            status = t->build (path, d.waypoint.col (i-1), d.q2);
           else {
-            std::size_t j = (i-1) * d.nq;
-            status = t->build (path, d.q.segment (j, d.nq), d.q.segment (j + d.nq, d.nq));
+            status = t->build (path, d.waypoint.col (i-1), d.waypoint.col (i));
           }
 
           if (!status || !path) {
-            hppDout (warning, "Could not build path from solution "
-                << pinocchio::displayConfig(d.q));
+            hppDout (warning, "Could not build path from solution ");
             return PathVectorPtr_t();
           }
           pv->appendPath(path);
@@ -726,26 +609,16 @@ namespace hpp {
             hppDout (info, ss.str());
 #endif // HPP_DEBUG
 
-            OptimizationData optData (transitions.size() - 1, problem().robot());
-            optData.q1 = q1;
-            optData.q2 = q2;
-            bool ok = true;
-            try {
-              buildOptimizationProblem (optData, transitions);
-            } catch (const std::invalid_argument& e) {
-              hppDout (info, e.what ());
-              ok = false;
+            OptimizationData optData (problem().robot(), q1, q2, transitions);
+            if (buildOptimizationProblem (optData, transitions)) {
+              if (solveOptimizationProblem (optData)) {
+                core::PathPtr_t path = buildPath (optData, transitions);
+                if (path) return path;
+                hppDout (info, "Failed to build path from solution: ");
+              } else {
+                hppDout (info, "Failed to solve");
+              }
             }
-
-            if (ok && optData.solve()) {
-              core::PathPtr_t path = buildPath (optData, transitions);
-              if (path) return path;
-              hppDout (info, "Failed to build path from solution: "
-                    << pinocchio::displayConfig(optData.q));
-            } else {
-              hppDout (info, "Failed to solve");
-            }
-
             ++idxSol;
             transitions = getTransitionList(d, idxSol);
           }

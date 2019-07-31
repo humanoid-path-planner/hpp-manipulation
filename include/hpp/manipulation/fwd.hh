@@ -100,6 +100,8 @@ namespace hpp {
     typedef std::vector <ObjectPtr_t> Objects_t;
     typedef core::Constraint Constraint;
     typedef core::ConstraintPtr_t ConstraintPtr_t;
+    typedef constraints::Explicit Explicit;
+    typedef constraints::ExplicitPtr_t ExplicitPtr_t;
     typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     typedef constraints::LockedJoint LockedJoint;
     typedef constraints::LockedJointPtr_t LockedJointPtr_t;
@@ -112,6 +114,7 @@ namespace hpp {
     typedef core::ConfigurationShooter ConfigurationShooter;
     typedef core::ConfigurationShooterPtr_t ConfigurationShooterPtr_t;
     typedef core::ValidationReport ValidationReport;
+    typedef core::NumericalConstraints_t NumericalConstraints_t;
     typedef core::PathValidationPtr_t PathValidationPtr_t;
     typedef core::PathValidationReportPtr_t PathValidationReportPtr_t;
     typedef core::matrix_t matrix_t;

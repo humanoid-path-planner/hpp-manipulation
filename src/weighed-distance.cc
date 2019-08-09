@@ -88,8 +88,8 @@ namespace hpp {
       value_type d = core::WeighedDistance::impl_distance (q1, q2);
 
       graph::Edges_t pes = graph_->getEdges (
-          graph_->getNode (static_cast <RoadmapNodePtr_t>(n1)),
-          graph_->getNode (static_cast <RoadmapNodePtr_t>(n2)));
+          graph_->getState (static_cast <RoadmapNodePtr_t>(n1)),
+          graph_->getState (static_cast <RoadmapNodePtr_t>(n2)));
       while (!pes.empty ()) {
         if (pes.back ()->canConnect (q1, q2))
           return d;

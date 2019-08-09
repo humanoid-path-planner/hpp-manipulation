@@ -772,12 +772,6 @@ namespace hpp {
         paramPassiveDofs_.push_back (passiveDofs);
       }
 
-      void LevelSetEdge::insertParamConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypes_t ineq)
-      {
-        isInit_ = false;
-        insertParamConstraint (constraints::Implicit::create (function, ineq));
-      }
-
       void LevelSetEdge::insertParamConstraint (const LockedJointPtr_t lockedJoint)
       {
         isInit_ = false;

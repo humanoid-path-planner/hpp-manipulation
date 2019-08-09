@@ -59,22 +59,12 @@ namespace hpp {
         isInit_ = true;
       }
 
-      StateSelectorPtr_t Graph::createNodeSelector (const std::string& name)
-      {
-        return createStateSelector (name);
-      }
-
       StateSelectorPtr_t Graph::createStateSelector (const std::string& name)
       {
         isInit_ = false;
         stateSelector_ = StateSelector::create (name);
         stateSelector_->parentGraph (wkPtr_);
         return stateSelector_;
-      }
-
-      void Graph::nodeSelector (StateSelectorPtr_t ns)
-      {
-        stateSelector (ns);
       }
 
       void Graph::stateSelector (StateSelectorPtr_t ns)
@@ -124,20 +114,10 @@ namespace hpp {
 	return problem_;
       }
 
-      StatePtr_t Graph::getNode (ConfigurationIn_t config) const
-      {
-        return getState (config);
-      }
-
       StatePtr_t Graph::getState (ConfigurationIn_t config) const
       {
         if (!stateSelector_) throw std::runtime_error ("No StateSelector in Constraint Graph.");
         return stateSelector_->getState (config);
-      }
-
-      StatePtr_t Graph::getNode(RoadmapNodePtr_t coreNode) const
-      {
-        return stateSelector_->getState (coreNode);
       }
 
       StatePtr_t Graph::getState(RoadmapNodePtr_t coreNode) const
@@ -202,13 +182,6 @@ namespace hpp {
       ConstraintSetPtr_t Graph::configConstraint (const StatePtr_t& state) const
       {
         return state->configConstraint ();
-      }
-
-      bool Graph::getConfigErrorForNode (ConfigurationIn_t config,
-					 const StatePtr_t& state,
-					 vector_t& error) const
-      {
-	return getConfigErrorForState (config, state, error);
       }
 
       bool Graph::getConfigErrorForState (ConfigurationIn_t config,

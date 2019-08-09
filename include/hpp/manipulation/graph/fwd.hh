@@ -60,6 +60,9 @@ namespace hpp {
       typedef boost::shared_ptr <StateHistogram> StateHistogramPtr_t;
       typedef boost::shared_ptr <LeafHistogram> LeafHistogramPtr_t;
       typedef std::list < HistogramPtr_t > Histograms_t;
+
+      class Validation;
+      typedef boost::shared_ptr < Validation > ValidationPtr_t;
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

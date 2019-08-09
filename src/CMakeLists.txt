@@ -44,6 +44,7 @@ SET(SOURCES
   graph/helper.cc
 
   graph/dot.cc
+  graph/validation.cc
 
   path-optimization/random-shortcut.cc
   path-optimization/enforce-transition-semantic.cc

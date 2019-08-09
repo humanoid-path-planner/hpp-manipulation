@@ -87,6 +87,7 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/graph/fwd.hh
   include/hpp/manipulation/graph/dot.hh
   include/hpp/manipulation/graph/helper.hh
+  include/hpp/manipulation/graph/validation.hh
 
   include/hpp/manipulation/path-optimization/small-steps.hh
   include/hpp/manipulation/path-optimization/enforce-transition-semantic.hh

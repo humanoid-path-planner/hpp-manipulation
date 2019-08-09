@@ -147,16 +147,8 @@ namespace hpp {
         bool success = true;
 
         States_t states = graph->stateSelector()->getStates();
-        for (States_t::const_iterator _state = states.begin();
-            _state != states.end(); ++_state) {
-          if (!validateState(*_state)) success = false;
-        }
-
-        states = graph->stateSelector()->getWaypointStates();
-        for (States_t::const_iterator _state = states.begin();
-            _state != states.end(); ++_state) {
-          if (!validateState(*_state)) success = false;
-        }
+        for (std::size_t i = 1; i < graph->nbComponents(); ++i)
+          if (!validate(graph->get(i).lock())) success = false;
 
         return success;
       }

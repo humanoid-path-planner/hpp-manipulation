@@ -72,6 +72,11 @@ namespace hpp {
         return ret;
       }
 
+      States_t StateSelector::getWaypointStates () const
+      {
+        return waypoints_;
+      }
+
       StatePtr_t StateSelector::getState(ConfigurationIn_t config) const
       {
         for (WeighedStates_t::const_iterator it = orderedStates_.begin();

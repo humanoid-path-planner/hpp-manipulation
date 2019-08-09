@@ -48,6 +48,9 @@ namespace hpp {
           /// Returns a list of all the states
           States_t getStates () const;
 
+          /// Returns a list of all the states
+          States_t getWaypointStates () const;
+
           /// Select randomly an outgoing edge of the given state.
           virtual EdgePtr_t chooseEdge(RoadmapNodePtr_t from) const;
 

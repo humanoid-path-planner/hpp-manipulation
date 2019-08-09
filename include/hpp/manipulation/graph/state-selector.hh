@@ -55,14 +55,14 @@ namespace hpp {
           void addNumericalConstraint (const constraints::ImplicitPtr_t& /* function */,
               const segments_t& /* passiveDofs */ = segments_t ())
           {
-            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
+            throw std::logic_error ("StateSelector component does not have constraints.");
           }
 
           /// Should never be called.
           void addLockedJointConstraint
 	    (const constraints::LockedJoint& /* constraint */)
           {
-            HPP_THROW_EXCEPTION (Bad_function_call, "This component does not have constraints.");
+            throw std::logic_error ("StateSelector component does not have constraints.");
           }
 
           /// Print the object in a stream.

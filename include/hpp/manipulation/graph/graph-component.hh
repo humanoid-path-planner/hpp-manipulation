@@ -19,7 +19,6 @@
 
 # include <string>
 # include <ostream>
-# include <hpp/util/exception.hh>
 
 # include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/fwd.hh"
@@ -30,8 +29,6 @@ namespace hpp {
   namespace manipulation {
     typedef constraints::ImplicitPtr_t ImplicitPtr_t;
     namespace graph {
-      HPP_MAKE_EXCEPTION ( HPP_MANIPULATION_DLLAPI, Bad_function_call );
-
       /// \defgroup constraint_graph Constraint Graph
 
       /// \addtogroup constraint_graph

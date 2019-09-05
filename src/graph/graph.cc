@@ -55,6 +55,7 @@ namespace hpp {
         assert(components_.size() >= 1 && components_[0].lock() == wkPtr_.lock());
         for (std::size_t i = 1; i < components_.size(); ++i)
           components_[i].lock()->initialize();
+        constraintsAndComplements_.clear ();
         isInit_ = true;
       }
 
@@ -166,6 +167,11 @@ namespace hpp {
        const ImplicitPtr_t& complement,
        const ImplicitPtr_t& both)
       {
+        for (ConstraintsAndComplements_t::const_iterator it
+               (constraintsAndComplements_.begin ());
+             it != constraintsAndComplements_.end (); ++it) {
+          assert (it->constraint != constraint);
+        }
         constraintsAndComplements_.push_back (ConstraintAndComplement_t
                                               (constraint, complement, both));
       }

@@ -187,6 +187,12 @@ namespace hpp {
         return false;
       }
 
+      const ConstraintsAndComplements_t& Graph::constraintsAndComplements ()
+        const
+      {
+        return constraintsAndComplements_;
+      }
+
       ConstraintSetPtr_t Graph::configConstraint (const StatePtr_t& state) const
       {
         return state->configConstraint ();

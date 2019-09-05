@@ -139,6 +139,12 @@ namespace hpp {
                              const ImplicitPtr_t& complement,
                              ImplicitPtr_t& combinationOfBoth) const;
 
+          /// Return the vector of tuples as registered in registerConstraints
+          /// \return a vector of tuples (c, c/complement, c/both) each of them
+          ///         corresponding to a constraint, the complement constraint
+          ///         and the combination of boths.
+          const ConstraintsAndComplements_t& constraintsAndComplements () const;
+
           /// Constraint to project onto the Node.
           /// \param state the state on which to project.
           /// \return The initialized projector.

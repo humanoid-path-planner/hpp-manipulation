@@ -296,6 +296,8 @@ namespace hpp {
         std::vector <Solver_t> solvers;
         // Waypoints lying in each intermediate state
         matrix_t waypoint;
+        // Initial guess of each solver stored as matrix columns
+        matrix_t qInit;
         Configuration_t q1, q2;
         core::DevicePtr_t robot;
         // Matrix specifying for each constraint and each waypoint how
@@ -311,8 +313,8 @@ namespace hpp {
                           ) :
           N (transitions.size () - 1), nq (_robot->configSize()),
           nv (_robot->numberDof()), solvers (N, _robot->configSpace ()),
-          waypoint (nq, N), q1 (_q1), q2 (_q2), robot (_robot), M_rhs (),
-          M_status ()
+          waypoint (nq, N), qInit (nq, N), q1 (_q1), q2 (_q2), robot (_robot),
+          M_rhs (), M_status ()
         {
           assert (transitions.size () > 0);
         }
@@ -490,6 +492,26 @@ namespace hpp {
             }
           }
         }
+        // Initial guess
+        std::vector<size_type> ks;
+        size_type K = 0;
+        ks.resize(d.N);
+        for (std::size_t i = 0; i < d.N + 1; ++i) {
+          if (!transitions[i]->isShort()) ++K;
+          if (i < d.N) ks[i] = K;
+        }
+        if (K==0) {
+          ++K;
+          for (std::size_t i = d.N/2; i < d.N; ++i)
+            ks[i] = 1;
+        }
+        for (std::size_t i = 0; i < d.N; ++i) {
+          value_type u = value_type(ks[i]) / value_type(K);
+          pinocchio::interpolate (d.robot, d.q1, d.q2, u, d.qInit.col (i));
+          hppDout (info, "qInit = " << pinocchio::displayConfig
+                   (d.qInit.col (i)));
+        }
+
         return true;
       }
 
@@ -519,8 +541,7 @@ namespace hpp {
               ;
             }
           }
-          if (j==0) d.waypoint.col (j) = d.q1;
-          else d.waypoint.col (j) = d.waypoint.col (j-1);
+          d.waypoint.col (j) = d.qInit.col (j);
           Solver_t::Status status = solver.solve
             (d.waypoint.col (j),
              constraints::solver::lineSearch::Backtracking ());

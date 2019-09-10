@@ -90,34 +90,18 @@ namespace hpp {
         void FoliatedManifold::addToState (StatePtr_t comp) const
         {
           nc.addToComp <false> (comp);
-          for (LockedJoints_t::const_iterator it = lj.begin ();
-              it != lj.end (); ++it)
-            if (*it && (*it)->numberDof() > 0)
-              comp->addLockedJointConstraint (*it);
           nc_path.addToComp <true> (comp);
         }
 
         void FoliatedManifold::addToEdge (EdgePtr_t comp) const
         {
           nc_fol.addToComp <false> (comp);
-          for (LockedJoints_t::const_iterator it = lj_fol.begin ();
-              it != lj_fol.end (); ++it)
-            if (*it && (*it)->numberDof() > 0)
-              comp->addLockedJointConstraint (*it);
         }
 
         void FoliatedManifold::specifyFoliation (LevelSetEdgePtr_t lse) const
         {
           nc.specifyFoliation <false> (lse);
-          for (LockedJoints_t::const_iterator it = lj.begin ();
-              it != lj.end (); ++it)
-            if (*it && (*it)->numberDof() > 0)
-              lse->insertConditionConstraint (*it);
-
           nc_fol.specifyFoliation <true> (lse);
-          for (LockedJoints_t::const_iterator it = lj_fol.begin ();
-              it != lj_fol.end (); ++it)
-            lse->insertParamConstraint (*it);
         }
 
         namespace {
@@ -1112,7 +1096,7 @@ namespace hpp {
                                    .segment (oj->rankInConfiguration (),
                                              oj->configSize ()), space);
               LockedJointPtr_t lj = core::LockedJoint::create (oj, lge);
-              ps->lockedJoints.add ("lock_" + oj->name (), lj);
+              ps->numericalConstraints.add ("lock_" + oj->name (), lj);
               objects[i].get<0> ().get<2> ().push_back (lj);
             }
             ++i;

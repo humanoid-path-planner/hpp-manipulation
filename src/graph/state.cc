@@ -117,9 +117,6 @@ namespace hpp {
         g->insertNumericalConstraints (proj);
         insertNumericalConstraints (proj);
         configConstraints_->addConstraint (proj);
-
-        g->insertLockedJoints (proj);
-        insertLockedJoints (proj);
       }
 
       void State::updateWeight (const EdgePtr_t& e, const Weight_t& w)

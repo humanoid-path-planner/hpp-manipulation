@@ -1,4 +1,6 @@
                                                                 -*- outline -*-
+* Rewrite steering method CrossStateOptimization
+  - decouple waypoint computations.
 New in 4.6.0
 * Add setter to relative motion matrix in edges.
 * Add method Edge::neighborEdges.

@@ -60,11 +60,6 @@ namespace hpp {
               const ImplicitPtr_t& numConstraint,
               const segments_t& passiveDofs = segments_t ());
 
-          /// Add core::DifferentiableFunction to the component.
-          virtual void addNumericalConstraint
-            (const DifferentiableFunctionPtr_t& function, const ComparisonTypes_t& ineq)
-            HPP_MANIPULATION_DEPRECATED;
-
 	  /// Reset the numerical constraints stored in the component.
 	  virtual void resetNumericalConstraints ();
 

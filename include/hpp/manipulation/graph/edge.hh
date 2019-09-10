@@ -310,9 +310,6 @@ namespace hpp {
           void insertParamConstraint (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ());
 
-          void insertParamConstraint (const DifferentiableFunctionPtr_t function, const ComparisonTypes_t ineq)
-            HPP_MANIPULATION_DEPRECATED;
-
           /// Insert a LockedJoint that parametrizes the foliation
           void insertParamConstraint (const LockedJointPtr_t lockedJoint);
 

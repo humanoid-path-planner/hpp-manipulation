@@ -77,7 +77,6 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/manipulation-planner.hh
   include/hpp/manipulation/graph-path-validation.hh
   include/hpp/manipulation/graph-optimizer.hh
-  include/hpp/manipulation/graph/node.hh
   include/hpp/manipulation/graph/state.hh
   include/hpp/manipulation/graph/edge.hh
   include/hpp/manipulation/graph/node-selector.hh

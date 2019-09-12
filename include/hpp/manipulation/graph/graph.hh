@@ -238,9 +238,7 @@ namespace hpp {
 
           /// Constructor
 	  /// \param sm a steering method to create paths from edges
-          Graph (const std::string& name, const ProblemPtr_t& problem) :
-	    GraphComponent (name), problem_ (problem)
-          {}
+          Graph (const std::string& name, const ProblemPtr_t& problem);
 
           /// Print the object in a stream.
           std::ostream& print (std::ostream& os) const;

@@ -21,6 +21,7 @@
 # include <ostream>
 
 # include "hpp/manipulation/config.hh"
+# include "hpp/manipulation/deprecated.hh"
 # include "hpp/manipulation/fwd.hh"
 # include "hpp/manipulation/graph/fwd.hh"
 # include "hpp/manipulation/graph/dot.hh"

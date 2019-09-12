@@ -35,6 +35,7 @@ namespace hpp {
         Graph* ptr = new Graph (name, problem);
         GraphPtr_t shPtr (ptr);
         ptr->init (shPtr, robot);
+        shPtr->createStateSelector (name);
         return shPtr;
       }
 
@@ -240,6 +241,11 @@ namespace hpp {
       GraphComponents_t& Graph::components ()
       {
         return components_;
+      }
+
+      Graph::Graph (const std::string& name, const ProblemPtr_t& problem) :
+        GraphComponent (name), problem_ (problem)
+      {
       }
 
       std::ostream& Graph::dotPrint (std::ostream& os, dot::DrawingAttributes da) const

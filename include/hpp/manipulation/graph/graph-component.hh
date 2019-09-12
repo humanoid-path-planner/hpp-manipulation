@@ -60,11 +60,15 @@ namespace hpp {
 	  virtual void resetNumericalConstraints ();
 
           /// Add core::LockedJoint constraint to the component.
+          /// \deprecated LockedJoint are handled as classical explicit
+          ///             constraint
           virtual void addLockedJointConstraint
-	    (const LockedJointPtr_t& constraint);
+	    (const LockedJointPtr_t& constraint) HPP_MANIPULATION_DEPRECATED;
 
+          /// \deprecated LockedJoint are handled as classical explicit
+          ///             constraint
 	  /// Reset the locked joint in the component.
-	  virtual void resetLockedJoints ();
+	  virtual void resetLockedJoints () HPP_MANIPULATION_DEPRECATED;
 
           /// Insert the numerical constraints in a ConfigProjector
           /// \return true is at least one ImplicitPtr_t was inserted.
@@ -72,7 +76,10 @@ namespace hpp {
 
           /// Insert the LockedJoint constraints in a ConstraintSet
           /// \return true is at least one LockedJointPtr_t was inserted.
-          bool insertLockedJoints (ConfigProjectorPtr_t& cs) const;
+          /// \deprecated LockedJoint are handled as classical explicit
+          ///             constraint
+          bool insertLockedJoints (ConfigProjectorPtr_t& cs) const
+            HPP_MANIPULATION_DEPRECATED;
 
           /// Get a reference to the NumericalConstraints_t
           const NumericalConstraints_t& numericalConstraints() const;
@@ -81,7 +88,8 @@ namespace hpp {
           const IntervalsContainer_t& passiveDofs() const;
 
           /// Get a reference to the LockedJoints_t
-          const LockedJoints_t& lockedJoints () const;
+          const LockedJoints_t& lockedJoints () const
+            HPP_MANIPULATION_DEPRECATED;
 
           /// Set the parent graph.
           void parentGraph(const GraphWkPtr_t& parent);
@@ -108,8 +116,8 @@ namespace hpp {
           NumericalConstraints_t numericalConstraints_;
           /// Stores the passive dofs for each numerical constraints.
           IntervalsContainer_t passiveDofs_;
-          /// List of LockedJoint constraints
-          LockedJoints_t lockedJoints_;
+          /// List of LockedJoint constraints: to be removed
+          const LockedJoints_t lockedJoints_;
           /// A weak pointer to the parent graph.
           GraphWkPtr_t graph_;
 

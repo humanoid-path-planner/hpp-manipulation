@@ -310,15 +310,10 @@ namespace hpp {
           void insertParamConstraint (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ());
 
-          /// Insert a LockedJoint that parametrizes the foliation
-          void insertParamConstraint (const LockedJointPtr_t lockedJoint);
-
           /// Insert a numerical constraint that defines the foliation
           void insertConditionConstraint (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ());
 
-          /// Insert a LockedJoint that defines the foliation
-          void insertConditionConstraint (const LockedJointPtr_t lockedJoint);
           /// \}
 
           /// Print the object in a stream.
@@ -347,15 +342,11 @@ namespace hpp {
           // NumericalConstraints_t
           NumericalConstraints_t paramNumericalConstraints_;
           IntervalsContainer_t paramPassiveDofs_;
-          // LockedJoints_t
-          LockedJoints_t paramLockedJoints_;
 
           // Condition
           // NumericalConstraints_t
           NumericalConstraints_t condNumericalConstraints_;
           IntervalsContainer_t condPassiveDofs_;
-          // LockedJoints_t
-          LockedJoints_t condLockedJoints_;
 
           /// This histogram will be used to find a good level set.
           LeafHistogramPtr_t hist_;

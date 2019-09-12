@@ -69,14 +69,11 @@ namespace hpp {
       void GraphComponent::addLockedJointConstraint
       (const LockedJointPtr_t& constraint)
       {
-        isInit_ = false;
-        lockedJoints_.push_back (constraint);
+        addNumericalConstraint (constraint);
       }
 
       void GraphComponent::resetLockedJoints ()
       {
-        isInit_ = false;
-	lockedJoints_.clear();
       }
 
       bool GraphComponent::insertNumericalConstraints (ConfigProjectorPtr_t& proj) const
@@ -89,14 +86,6 @@ namespace hpp {
         }
         assert (itpdof == passiveDofs_.end ());
         return !numericalConstraints_.empty ();
-      }
-
-      bool GraphComponent::insertLockedJoints (ConfigProjectorPtr_t& cp) const
-      {
-        for (LockedJoints_t::const_iterator it = lockedJoints_.begin();
-            it != lockedJoints_.end(); ++it)
-          cp->add (*it);
-        return !lockedJoints_.empty ();
       }
 
       const NumericalConstraints_t& GraphComponent::numericalConstraints() const
@@ -149,10 +138,6 @@ namespace hpp {
         for (NumericalConstraints_t::const_iterator it = numericalConstraints_.begin ();
             it != numericalConstraints_.end (); ++it) {
           tp.addLine ("- " + (*it)->function ().name ());
-        }
-        for (LockedJoints_t::const_iterator it = lockedJoints_.begin ();
-            it != lockedJoints_.end (); ++it) {
-          tp.addLine ("- " + (*it)->jointName ());
         }
       }
     } // namespace graph

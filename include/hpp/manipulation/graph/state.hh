@@ -113,8 +113,10 @@ namespace hpp {
             return hiddenNeighbors_;
           }
 
+          /// Set weight of edge starting from this state.
           void updateWeight (const EdgePtr_t&edge, const Weight_t& w);
 
+          /// Get weight of edge starting from this state.
           Weight_t getWeight (const EdgePtr_t&edge);
 
           /// Constraint to project onto this state.

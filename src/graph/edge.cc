@@ -279,7 +279,7 @@ namespace hpp {
 
         // Build steering method
         const ProblemPtr_t& problem (g->problem());
-        steeringMethod_ = problem->steeringMethod()->innerSteeringMethod()->copy();
+        steeringMethod_ = problem->manipulationSteeringMethod()->innerSteeringMethod()->copy();
         steeringMethod_->constraints (constraint);
         // Build path validation and relative motion matrix
         // TODO this path validation will not contain obstacles added after

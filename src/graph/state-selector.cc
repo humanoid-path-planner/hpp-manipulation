@@ -35,7 +35,6 @@ namespace hpp {
 
       void StateSelector::init (const StateSelectorPtr_t& weak)
       {
-        GraphComponent::init (weak);
         wkPtr_ = weak;
       }
 
@@ -129,13 +128,24 @@ namespace hpp {
 
       std::ostream& StateSelector::print (std::ostream& os) const
       {
-        os << "|-- ";
-        GraphComponent::print (os) << std::endl;
         for (WeighedStates_t::const_iterator it = orderedStates_.begin();
             orderedStates_.end() != it; ++it)
           os << it->first << " " << *it->second;
         return os;
       }
+
+      GraphPtr_t StateSelector::parentGraph() const
+      {
+        return graph_.lock ();
+      }
+
+      void StateSelector::parentGraph(const GraphWkPtr_t& parent)
+      {
+        graph_ = parent;
+        GraphPtr_t g = graph_.lock();
+        assert(g);
+      }
+
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

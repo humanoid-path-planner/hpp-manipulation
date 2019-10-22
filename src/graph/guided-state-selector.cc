@@ -138,12 +138,7 @@ namespace hpp {
 
       std::ostream& GuidedStateSelector::print (std::ostream& os) const
       {
-        os << "|-- ";
-        GraphComponent::print (os) << std::endl;
-        for (WeighedStates_t::const_iterator it = orderedStates_.begin();
-            orderedStates_.end() != it; ++it)
-          os << it->first << " " << *it->second;
-        return os;
+        return StateSelector::print (os);
       }
     } // namespace graph
   } // namespace manipulation

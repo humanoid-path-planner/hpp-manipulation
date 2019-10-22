@@ -89,6 +89,8 @@ namespace hpp {
           const IntervalsContainer_t& passiveDofs() const;
 
           /// Get a reference to the LockedJoints_t
+          /// \deprecated LockedJoint are handled as classical explicit
+          ///             constraint
           const LockedJoints_t& lockedJoints () const
             HPP_MANIPULATION_DEPRECATED;
 
@@ -117,7 +119,7 @@ namespace hpp {
           NumericalConstraints_t numericalConstraints_;
           /// Stores the passive dofs for each numerical constraints.
           IntervalsContainer_t passiveDofs_;
-          /// List of LockedJoint constraints: to be removed
+          /// List of LockedJoint constraints: \todo to be removed
           const LockedJoints_t lockedJoints_;
           /// A weak pointer to the parent graph.
           GraphWkPtr_t graph_;

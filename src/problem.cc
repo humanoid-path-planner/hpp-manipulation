@@ -84,7 +84,7 @@ namespace hpp {
       return pv;
     }
 
-    SteeringMethodPtr_t Problem::steeringMethod () const
+    SteeringMethodPtr_t Problem::manipulationSteeringMethod () const
     {
       return HPP_DYNAMIC_PTR_CAST (SteeringMethod,
           Parent::steeringMethod());

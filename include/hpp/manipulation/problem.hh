@@ -57,12 +57,7 @@ namespace hpp {
         void pathValidation (const PathValidationPtr_t& pathValidation);
 
         /// Get the steering method as a SteeringMethod
-        SteeringMethodPtr_t steeringMethod () const;
-
-        void steeringMethod (core::SteeringMethodPtr_t sm)
-        {
-          Parent::steeringMethod (sm);
-        }
+        SteeringMethodPtr_t manipulationSteeringMethod () const;
 
         /// Build a new path validation
         /// \note Current obstacles are added to the created object.

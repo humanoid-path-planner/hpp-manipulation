@@ -37,6 +37,17 @@
 namespace hpp {
   namespace manipulation {
     namespace graph {
+      bool stateAIncludedInStateB (const StatePtr_t& A, const StatePtr_t& B)
+      {
+        const NumericalConstraints_t& Ancs = A->numericalConstraints();
+        const NumericalConstraints_t& Bncs = B->numericalConstraints();
+        for (NumericalConstraints_t::const_iterator _nc = Ancs.begin();
+            _nc != Ancs.end(); ++_nc)
+          if (std::find (Bncs.begin(), Bncs.end(), *_nc) == Bncs.end())
+            return false;
+        return true;
+      }
+
       std::ostream& Validation::print (std::ostream& os) const
       {
         for (std::size_t i = 0; i < warnings_.size(); ++i) {
@@ -164,9 +175,24 @@ namespace hpp {
         if (!graph) return false;
         bool success = true;
 
-        States_t states = graph->stateSelector()->getStates();
         for (std::size_t i = 1; i < graph->nbComponents(); ++i)
           if (!validate(graph->get(i).lock())) success = false;
+
+        // Check that no state is included in a state which has a higher priority.
+        States_t states = graph->stateSelector()->getStates();
+        for (States_t::const_iterator _state = states.begin();
+            _state != states.end(); ++_state) {
+          for (States_t::const_iterator _stateHO = states.begin();
+              _stateHO != _state; ++_stateHO) {
+            if (stateAIncludedInStateB (*_state, *_stateHO)) {
+              std::ostringstream oss;
+              oss << "State " << (*_state)->name() << " is included in state "
+                << (*_stateHO)->name() << " but the latter has a higher priority.";
+              addError (*_state, oss.str());
+              success = false;
+            }
+          }
+        }
 
         return success;
       }

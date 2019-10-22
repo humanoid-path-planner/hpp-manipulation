@@ -22,6 +22,8 @@
 
 #include <hpp/util/indent.hh>
 
+#include <hpp/constraints/differentiable-function.hh>
+
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/relative-motion.hh>
@@ -64,11 +66,21 @@ namespace hpp {
 
       bool Validation::validateState (const StatePtr_t& state)
       {
-        std::ostringstream oss;
-        oss << incindent;
         bool success = true;
 
-        // 1. try to generate a configuration in this state.
+        // 1. Check that all the constraint are not parameterizable.
+        const NumericalConstraints_t& ncs = state->numericalConstraints();
+        for (NumericalConstraints_t::const_iterator _nc = ncs.begin();
+            _nc != ncs.end(); ++_nc)
+          if ((*_nc)->parameterSize() > 0) {
+            std::ostringstream oss;
+            oss << incindent << "Constraint " << (*_nc)->function().name() <<
+              " has a varying right hand side while constraints of a state must"
+              " have a constant one.";
+            addError (state, oss.str());
+          }
+
+        // 2. try to generate a configuration in this state.
         bool projOk;
         Configuration_t q;
         std::size_t i, Nrand = 100;
@@ -79,17 +91,21 @@ namespace hpp {
           if (projOk) break;
         }
         if (!projOk) {
-          oss << "Failed to apply the constraints to " << Nrand << "random configurations.";
+          std::ostringstream oss;
+          oss << incindent << "Failed to apply the constraints to " << Nrand <<
+            "random configurations.";
           addError (state, oss.str());
           return false;
         }
         if (4 * i > 3 * Nrand) {
-          oss << "Success rate of constraint projection is " << i / Nrand << '.';
+          std::ostringstream oss;
+          oss << incindent << "Success rate of constraint projection is " <<
+            i / Nrand << '.';
           addWarning (state, oss.str());
           oss.clear();
         }
 
-        // 2. check the collision pairs which will be disabled because of the
+        // 3. check the collision pairs which will be disabled because of the
         //    constraint.
         core::CollisionValidationPtr_t colValidation (
             core::CollisionValidation::create (problem_->robot()));
@@ -128,7 +144,9 @@ namespace hpp {
         bool colOk = colValidation->validate (q, colReport);
 
         if (!colOk) {
-          oss << "The following collision pairs will always collide." << incendl << *colReport << decindent;
+          std::ostringstream oss;
+          oss << incindent << "The following collision pairs will always "
+            "collide." << incendl << *colReport << decindent;
           addError (state, oss.str());
           success = false;
         }

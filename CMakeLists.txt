@@ -17,18 +17,17 @@
 # hpp-manipulation  If not, see
 # <http://www.gnu.org/licenses/>.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+
+SET(PROJECT_NAME hpp-manipulation)
+SET(PROJECT_DESCRIPTION "Classes for manipulation planning.")
 
 SET(CXX_DISABLE_WERROR TRUE)
-INCLUDE(cmake/base.cmake)
 INCLUDE(cmake/hpp.cmake)
 INCLUDE(cmake/boost.cmake)
 
-SET(PROJECT_NAME hpp-manipulation)
-SET(PROJECT_URL "")
-SET(PROJECT_DESCRIPTION "Classes for manipulation planning.")
-
-SETUP_HPP_PROJECT()
+COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
+PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
 LIST(APPEND PKG_CONFIG_ADDITIONAL_VARIABLES cmake_plugin)
 
@@ -109,5 +108,3 @@ ADD_SUBDIRECTORY(tests)
 # Add dependency toward hpp-manipulation library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-manipulation")
 PKG_CONFIG_APPEND_BOOST_LIBS(${BOOST_INSTALL_COMPONENTS})
-
-SETUP_HPP_PROJECT_FINALIZE()

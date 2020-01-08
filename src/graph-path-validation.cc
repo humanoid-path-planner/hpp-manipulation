@@ -193,10 +193,5 @@ namespace hpp {
       validPart = pathNoCollision;
       return false;
     }
-
-    void GraphPathValidation::addObstacle (const hpp::core::CollisionObjectPtr_t& collisionObject)
-    {
-      pathValidation_->addObstacle (collisionObject);
-    }
   } // namespace manipulation
 } // namespace hpp

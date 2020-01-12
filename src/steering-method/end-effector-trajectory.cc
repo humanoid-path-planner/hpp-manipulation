@@ -27,6 +27,7 @@
 
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/path.hh>
+#include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/straight-path.hh>
 
@@ -78,6 +79,29 @@ namespace hpp {
           private:
             PathPtr_t path_;
         };
+      }
+
+      PathPtr_t EndEffectorTrajectory::makePiecewiseLinearTrajectory (matrixIn_t points)
+      {
+        if (points.cols() != 7)
+          throw std::invalid_argument("The input matrix should have 7 columns");
+        LiegroupSpacePtr_t se3 = LiegroupSpace::SE3();
+        if (points.rows() == 1)
+          return core::StraightPath::create (se3,
+              points.row(0),
+              points.row(0), interval_t(0,0));
+
+        core::PathVectorPtr_t path = core::PathVector::create(7, 6);
+        for (size_type i = 1; i < points.rows(); ++i) {
+          value_type d = (
+              se3->elementConstRef(points.row(i)) - se3->elementConstRef(points.row(i-1))
+              ).norm();
+          path->appendPath (core::StraightPath::create (se3,
+                points.row(i-1),
+                points.row(i),
+                interval_t(0, d)));
+        }
+        return path;
       }
 
       void EndEffectorTrajectory::trajectoryConstraint (const constraints::ImplicitPtr_t& ic)

@@ -46,6 +46,10 @@ namespace hpp {
             return ptr;
           }
 
+          /// Build a trajectory in SE(3).
+          /// \param points a Nx7 matrix whose rows corresponds to a pose.
+          static PathPtr_t makePiecewiseLinearTrajectory (matrixIn_t points);
+
           /// Set the constraint whose right hand side will vary.
           void trajectoryConstraint (const constraints::ImplicitPtr_t& ic);
 

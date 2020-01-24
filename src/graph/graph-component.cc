@@ -59,11 +59,18 @@ namespace hpp {
         passiveDofs_.push_back (passiveDofs);
       }
 
+      void GraphComponent::addNumericalCost (const ImplicitPtr_t& cost)
+      {
+        isInit_ = false;
+        numericalCosts_.push_back(cost);
+      }
+
       void GraphComponent::resetNumericalConstraints ()
       {
         isInit_ = false;
 	numericalConstraints_.clear();
         passiveDofs_.clear();
+        numericalCosts_.clear();
       }
 
       void GraphComponent::addLockedJointConstraint
@@ -85,12 +92,21 @@ namespace hpp {
           ++itpdof;
         }
         assert (itpdof == passiveDofs_.end ());
+        for (NumericalConstraints_t::const_iterator it = numericalCosts_.begin();
+            it != numericalCosts_.end(); ++it) {
+          proj->add (*it, 1);
+        }
         return !numericalConstraints_.empty ();
       }
 
       const NumericalConstraints_t& GraphComponent::numericalConstraints() const
       {
         return numericalConstraints_;
+      }
+
+      const NumericalConstraints_t& GraphComponent::numericalCosts() const
+      {
+        return numericalCosts_;
       }
 
       const std::vector <segments_t>& GraphComponent::passiveDofs() const

@@ -80,6 +80,13 @@ namespace hpp {
       PathPtr_t Graph::impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const
       {
         graph::Edges_t possibleEdges;
+        // If q1 and q2 are the same, call the problem steering method between
+        // them
+        if (q1 == q2) {
+          core::SteeringMethodPtr_t sm
+            (problem_.manipulationSteeringMethod()->innerSteeringMethod());
+          return (*sm) (q1, q2);
+        }
         if (!problem_.constraintGraph())
           throw std::invalid_argument ("The constraint graph should be set to use the steeringMethod::Graph");
         const graph::Graph& graph = *problem_.constraintGraph ();

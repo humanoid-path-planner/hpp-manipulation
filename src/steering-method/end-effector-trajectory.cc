@@ -26,6 +26,7 @@
 #include <hpp/constraints/implicit.hh>
 
 #include <hpp/core/config-projector.hh>
+#include <hpp/core/interpolated-path.hh>
 #include <hpp/core/path.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
@@ -179,6 +180,61 @@ namespace hpp {
           std::cout << e.what() << std::endl;
           throw;
         }
+      }
+
+      PathPtr_t EndEffectorTrajectory::projectedPath (vectorIn_t times,
+          matrixIn_t configs) const
+      {
+        if (!eeTraj_) throw std::logic_error ("EndEffectorTrajectory not initialized.");
+        // Update (or check) the constraints
+        core::ConstraintSetPtr_t c (constraints());
+        if (!c || !c->configProjector()) {
+          throw std::logic_error ("EndEffectorTrajectory steering method must "
+              "have a ConfigProjector");
+        }
+        ConfigProjectorPtr_t cp (c->configProjector());
+
+        const core::NumericalConstraints_t& ncs = cp->numericalConstraints();
+        bool ok = false;
+        for (std::size_t i = 0; i < ncs.size(); ++i) {
+          if (ncs[i] == constraint_) {
+            ok = true;
+            break; // Same pointer
+          }
+          // Here, we do not check the right hand side on purpose.
+          // if (*ncs[i] == *constraint_) {
+          if (ncs[i]->functionPtr() == constraint_->functionPtr()
+              && ncs[i]->comparisonType() == constraint_->comparisonType()) {
+            ok = true;
+            // TODO We should only modify the path constraint.
+            // However, only the pointers to implicit constraints are copied
+            // while we would like the implicit constraints to be copied as well.
+            ncs[i]->rightHandSideFunction (eeTraj_);
+            break; // logically identical
+          }
+        }
+        if (!ok) {
+          HPP_THROW (std::logic_error, "EndEffectorTrajectory could not find "
+              "constraint " << constraint_->function());
+        }
+
+        size_type N = configs.cols();
+        if (timeRange_.first != times[0] || timeRange_.second != times[N-1]) {
+          HPP_THROW (std::logic_error, "Time range (" << timeRange_.first <<
+              ", " << timeRange_.second << ") does not match configuration "
+              "times (" << times[0] << ", " << times[N-1]);
+        }
+
+        using core::InterpolatedPath;
+        using core::InterpolatedPathPtr_t;
+
+        InterpolatedPathPtr_t path = InterpolatedPath::create(
+            problem().robot(), configs.col(0), configs.col(N-1), timeRange_, c);
+
+        for (size_type i = 1; i < configs.cols()-1; ++i)
+          path->insert(times[i], configs.col(i));
+
+        return path;
       }
     } // namespace steeringMethod
   } // namespace manipulation

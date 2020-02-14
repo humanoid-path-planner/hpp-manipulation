@@ -85,6 +85,12 @@ namespace hpp {
             return ptr;
           }
 
+          /// Computes an core::InterpolatedPath from the provided interpolation
+          /// points.
+          /// \param times the time of each configuration
+          /// \param configs each column correspond to a configuration
+          PathPtr_t projectedPath (vectorIn_t times, matrixIn_t configs) const;
+
         protected:
           EndEffectorTrajectory (const core::Problem& problem)
             : core::SteeringMethod (problem)

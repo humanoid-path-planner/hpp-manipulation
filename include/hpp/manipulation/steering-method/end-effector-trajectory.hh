@@ -109,6 +109,8 @@ namespace hpp {
           PathPtr_t impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
         private:
+          core::ConstraintSetPtr_t getUpdatedConstraints () const;
+
           DifferentiableFunctionPtr_t eeTraj_;
           interval_t timeRange_;
           constraints::ImplicitPtr_t constraint_;

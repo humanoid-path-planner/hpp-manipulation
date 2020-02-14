@@ -142,38 +142,7 @@ namespace hpp {
           ConfigurationIn_t q2) const
       {
         try {
-        if (!eeTraj_) throw std::logic_error ("EndEffectorTrajectory not initialized.");
-        // Update (or check) the constraints
-        core::ConstraintSetPtr_t c (constraints());
-        if (!c || !c->configProjector()) {
-          throw std::logic_error ("EndEffectorTrajectory steering method must "
-              "have a ConfigProjector");
-        }
-        ConfigProjectorPtr_t cp (c->configProjector());
-
-        const core::NumericalConstraints_t& ncs = cp->numericalConstraints();
-        bool ok = false;
-        for (std::size_t i = 0; i < ncs.size(); ++i) {
-          if (ncs[i] == constraint_) {
-            ok = true;
-            break; // Same pointer
-          }
-          // Here, we do not check the right hand side on purpose.
-          // if (*ncs[i] == *constraint_) {
-          if (ncs[i]->functionPtr() == constraint_->functionPtr()
-              && ncs[i]->comparisonType() == constraint_->comparisonType()) {
-            ok = true;
-            // TODO We should only modify the path constraint.
-            // However, only the pointers to implicit constraints are copied
-            // while we would like the implicit constraints to be copied as well.
-            ncs[i]->rightHandSideFunction (eeTraj_);
-            break; // logically identical
-          }
-        }
-        if (!ok) {
-          HPP_THROW (std::logic_error, "EndEffectorTrajectory could not find "
-              "constraint " << constraint_->function());
-        }
+        core::ConstraintSetPtr_t c (getUpdatedConstraints());
 
         return core::StraightPath::create (problem().robot(), q1, q2, timeRange_, c);
         } catch (const std::exception& e) {
@@ -190,38 +159,7 @@ namespace hpp {
       PathPtr_t EndEffectorTrajectory::projectedPath (vectorIn_t times,
           matrixIn_t configs) const
       {
-        if (!eeTraj_) throw std::logic_error ("EndEffectorTrajectory not initialized.");
-        // Update (or check) the constraints
-        core::ConstraintSetPtr_t c (constraints());
-        if (!c || !c->configProjector()) {
-          throw std::logic_error ("EndEffectorTrajectory steering method must "
-              "have a ConfigProjector");
-        }
-        ConfigProjectorPtr_t cp (c->configProjector());
-
-        const core::NumericalConstraints_t& ncs = cp->numericalConstraints();
-        bool ok = false;
-        for (std::size_t i = 0; i < ncs.size(); ++i) {
-          if (ncs[i] == constraint_) {
-            ok = true;
-            break; // Same pointer
-          }
-          // Here, we do not check the right hand side on purpose.
-          // if (*ncs[i] == *constraint_) {
-          if (ncs[i]->functionPtr() == constraint_->functionPtr()
-              && ncs[i]->comparisonType() == constraint_->comparisonType()) {
-            ok = true;
-            // TODO We should only modify the path constraint.
-            // However, only the pointers to implicit constraints are copied
-            // while we would like the implicit constraints to be copied as well.
-            ncs[i]->rightHandSideFunction (eeTraj_);
-            break; // logically identical
-          }
-        }
-        if (!ok) {
-          HPP_THROW (std::logic_error, "EndEffectorTrajectory could not find "
-              "constraint " << constraint_->function());
-        }
+        core::ConstraintSetPtr_t c (getUpdatedConstraints());
 
         size_type N = configs.cols();
         if (timeRange_.first != times[0] || timeRange_.second != times[N-1]) {
@@ -241,6 +179,44 @@ namespace hpp {
 
         return path;
       }
+
+      core::ConstraintSetPtr_t EndEffectorTrajectory::getUpdatedConstraints () const
+      {
+        if (!eeTraj_) throw std::logic_error ("EndEffectorTrajectory not initialized.");
+
+        // Update (or check) the constraints
+        core::ConstraintSetPtr_t c (constraints());
+        if (!c || !c->configProjector()) {
+          throw std::logic_error ("EndEffectorTrajectory steering method must "
+              "have a ConfigProjector");
+        }
+        ConfigProjectorPtr_t cp (c->configProjector());
+
+        const core::NumericalConstraints_t& ncs = cp->numericalConstraints();
+        bool ok = false;
+        for (std::size_t i = 0; i < ncs.size(); ++i) {
+          if (ncs[i] == constraint_) {
+            ok = true;
+            break; // Same pointer
+          }
+          // Here, we do not check the right hand side on purpose.
+          // if (*ncs[i] == *constraint_) {
+          if (ncs[i]->functionPtr() == constraint_->functionPtr()
+              && ncs[i]->comparisonType() == constraint_->comparisonType()) {
+            ok = true;
+            // TODO We should only modify the path constraint.
+            // However, only the pointers to implicit constraints are copied
+            // while we would like the implicit constraints to be copied as well.
+            ncs[i]->rightHandSideFunction (eeTraj_);
+            break; // logically identical
+          }
+        }
+        if (!ok) {
+          HPP_THROW (std::logic_error, "EndEffectorTrajectory could not find "
+              "constraint " << constraint_->function());
+        }
+        return c;
+        }
     } // namespace steeringMethod
   } // namespace manipulation
 } // namespace hpp

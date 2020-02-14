@@ -82,26 +82,31 @@ namespace hpp {
         };
       }
 
-      PathPtr_t EndEffectorTrajectory::makePiecewiseLinearTrajectory (matrixIn_t points)
+      PathPtr_t EndEffectorTrajectory::makePiecewiseLinearTrajectory (
+          matrixIn_t points,
+          vectorIn_t weights)
       {
         if (points.cols() != 7)
           throw std::invalid_argument("The input matrix should have 7 columns");
+        if (weights.size() != 6)
+          throw std::invalid_argument("The weights vector should have 6 elements");
         LiegroupSpacePtr_t se3 = LiegroupSpace::SE3();
-        if (points.rows() == 1)
-          return core::StraightPath::create (se3,
-              points.row(0),
-              points.row(0), interval_t(0,0));
-
         core::PathVectorPtr_t path = core::PathVector::create(7, 6);
-        for (size_type i = 1; i < points.rows(); ++i) {
-          value_type d = (
-              se3->elementConstRef(points.row(i)) - se3->elementConstRef(points.row(i-1))
-              ).norm();
+        if (points.rows() == 1)
           path->appendPath (core::StraightPath::create (se3,
-                points.row(i-1),
-                points.row(i),
-                interval_t(0, d)));
-        }
+              points.row(0),
+              points.row(0), interval_t(0,0)));
+        else
+          for (size_type i = 1; i < points.rows(); ++i) {
+            value_type d =
+              ( se3->elementConstRef(points.row(i))
+                - se3->elementConstRef(points.row(i-1))
+              ).cwiseProduct(weights).norm();
+            path->appendPath (core::StraightPath::create (se3,
+                  points.row(i-1),
+                  points.row(i),
+                  interval_t(0, d)));
+          }
         return path;
       }
 

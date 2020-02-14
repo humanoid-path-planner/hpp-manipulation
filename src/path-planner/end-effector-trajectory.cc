@@ -148,11 +148,19 @@ namespace hpp {
         bool success = false;
         bool resetRightHandSide = true;
         std::size_t i;
-        Configuration_t q1;
+
+        vector_t times (nDiscreteSteps_+1);
+        matrix_t steps (problem().robot()->configSize(), nDiscreteSteps_+1);
+
+        times[0] = timeRange.first;
+        for (int j = 1; j < nDiscreteSteps_; ++j)
+          times[j] = timeRange.first + j * (timeRange.second - timeRange.first) / nDiscreteSteps_;
+        times[nDiscreteSteps_] = timeRange.second;
+
         for (i = 0; i < qs.size(); ++i)
         {
           if (resetRightHandSide) {
-            constraints->rightHandSideAt (timeRange.first);
+            constraints->rightHandSideAt (times[0]);
             resetRightHandSide = false;
           }
           Configuration_t& q (qs[i]);
@@ -160,13 +168,13 @@ namespace hpp {
           if (!cfgValidation->validate (q, cfgReport)) continue;
           resetRightHandSide = true;
 
-          q1 = q;
+          steps.col(0) = q;
           success = true;
           for (int j = 1; j <= nDiscreteSteps_; ++j) {
-            value_type t = timeRange.first + j * (timeRange.second - timeRange.first) / nDiscreteSteps_;
-            constraints->rightHandSideAt (t);
+            constraints->rightHandSideAt (times[j]);
             hppDout (info, "RHS: " << setpyformat << constraints->rightHandSide().transpose());
-            if (!constraints->apply (q)) {
+            steps.col(j) = steps.col(j-1);
+            if (!constraints->apply (steps.col(j))) {
               hppDout (info, "Failed to generate destination config.\n" << setpyformat
                   << *constraints
                   << "\nq=" << one_line (q));
@@ -177,16 +185,16 @@ namespace hpp {
           if (!success) continue;
           success = false;
 
-          if (!cfgValidation->validate (q, cfgReport)) {
+          if (!cfgValidation->validate (steps.col(nDiscreteSteps_), cfgReport)) {
             hppDout (info, "Destination config is in collision.");
             continue;
           }
 
-          core::PathPtr_t path = (*sm) (q1, q);
+          core::PathPtr_t path = sm->projectedPath(times, steps);
           if (!path) {
             hppDout (info, "Steering method failed.\n" << setpyformat
-                << one_line(q1) << '\n'
-                << one_line(q ) << '\n'
+                << "times: " << one_line(times) << '\n'
+                << "configs:\n" << condensed(steps.transpose()) << '\n'
                 );
             continue;
           }
@@ -197,9 +205,10 @@ namespace hpp {
             continue;
           }
 
-          roadmap()->initNode (boost::make_shared<Configuration_t>(q1));
+          roadmap()->initNode (boost::make_shared<Configuration_t>(steps.col(0)));
           core::NodePtr_t init = roadmap()->   initNode ();
-          core::NodePtr_t goal = roadmap()->addGoalNode (boost::make_shared<Configuration_t>(q ));
+          core::NodePtr_t goal = roadmap()->addGoalNode (
+              boost::make_shared<Configuration_t>(steps.col(nDiscreteSteps_)));
           roadmap()->addEdge (init, goal, path);
           success = true;
           if (feasibilityOnly_) break;

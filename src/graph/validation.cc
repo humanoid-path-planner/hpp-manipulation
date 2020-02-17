@@ -41,9 +41,9 @@ namespace hpp {
       {
         const NumericalConstraints_t& Ancs = A->numericalConstraints();
         const NumericalConstraints_t& Bncs = B->numericalConstraints();
-        for (NumericalConstraints_t::const_iterator _nc = Ancs.begin();
-            _nc != Ancs.end(); ++_nc)
-          if (std::find (Bncs.begin(), Bncs.end(), *_nc) == Bncs.end())
+        for (NumericalConstraints_t::const_iterator _nc = Bncs.begin();
+            _nc != Bncs.end(); ++_nc)
+          if (std::find (Ancs.begin(), Ancs.end(), *_nc) == Ancs.end())
             return false;
         return true;
       }

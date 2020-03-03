@@ -57,6 +57,9 @@ namespace hpp {
               const ImplicitPtr_t& numConstraint,
               const segments_t& passiveDofs = segments_t ());
 
+          /// Add a cost function Implicit to the component.
+          virtual void addNumericalCost (const ImplicitPtr_t& numCost);
+
 	  /// Reset the numerical constraints stored in the component.
 	  virtual void resetNumericalConstraints ();
 
@@ -84,6 +87,9 @@ namespace hpp {
 
           /// Get a reference to the NumericalConstraints_t
           const NumericalConstraints_t& numericalConstraints() const;
+
+          /// Get a reference to the NumericalConstraints_t
+          const NumericalConstraints_t& numericalCosts() const;
 
           /// Get a reference to the NumericalConstraints_t
           const IntervalsContainer_t& passiveDofs() const;
@@ -119,6 +125,8 @@ namespace hpp {
           NumericalConstraints_t numericalConstraints_;
           /// Stores the passive dofs for each numerical constraints.
           IntervalsContainer_t passiveDofs_;
+          /// Stores the numerical costs.
+          NumericalConstraints_t numericalCosts_;
           /// List of LockedJoint constraints: \todo to be removed
           const LockedJoints_t lockedJoints_;
           /// A weak pointer to the parent graph.

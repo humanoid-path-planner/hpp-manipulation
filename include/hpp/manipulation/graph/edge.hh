@@ -144,6 +144,16 @@ namespace hpp {
           /// Update the relative motion matrix
           void relativeMotion(const RelativeMotion::matrix_type & m);
 
+          /// Set Security margin for a pair of joints
+          ///
+          /// \param row index of joint1 + 1 in robot,
+          /// \param col index of joint2 + 1 in robot,
+          /// \param margin security margin for collision checking between
+          ///        those joints.
+          ///
+          /// \note set value to matrix [row, col] and matrix [col, row].
+          void securityMarginForPair(const size_type& row, const size_type& col,
+                                     const value_type& margin);
           /// Get direction of the path compare to the edge
           /// \return true is reverse
           virtual bool direction (const core::PathPtr_t& path) const;
@@ -208,6 +218,9 @@ namespace hpp {
 
 	  /// Path validation associated to the edge
           mutable RelativeMotion::matrix_type relMotion_;
+          /// matrix of security margins for collision checking between joints
+          matrix_t securityMargins_;
+
           core::PathValidationPtr_t pathValidation_;
 
           /// Weak pointer to itself.

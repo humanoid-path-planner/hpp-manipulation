@@ -26,7 +26,9 @@
 #include <hpp/constraints/implicit.hh>
 
 #include <hpp/core/config-projector.hh>
+#include <hpp/core/interpolated-path.hh>
 #include <hpp/core/path.hh>
+#include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/straight-path.hh>
 
@@ -80,6 +82,34 @@ namespace hpp {
         };
       }
 
+      PathPtr_t EndEffectorTrajectory::makePiecewiseLinearTrajectory (
+          matrixIn_t points,
+          vectorIn_t weights)
+      {
+        if (points.cols() != 7)
+          throw std::invalid_argument("The input matrix should have 7 columns");
+        if (weights.size() != 6)
+          throw std::invalid_argument("The weights vector should have 6 elements");
+        LiegroupSpacePtr_t se3 = LiegroupSpace::SE3();
+        core::PathVectorPtr_t path = core::PathVector::create(7, 6);
+        if (points.rows() == 1)
+          path->appendPath (core::StraightPath::create (se3,
+              points.row(0),
+              points.row(0), interval_t(0,0)));
+        else
+          for (size_type i = 1; i < points.rows(); ++i) {
+            value_type d =
+              ( se3->elementConstRef(points.row(i))
+                - se3->elementConstRef(points.row(i-1))
+              ).cwiseProduct(weights).norm();
+            path->appendPath (core::StraightPath::create (se3,
+                  points.row(i-1),
+                  points.row(i),
+                  interval_t(0, d)));
+          }
+        return path;
+      }
+
       void EndEffectorTrajectory::trajectoryConstraint (const constraints::ImplicitPtr_t& ic)
       {
         constraint_ = ic;
@@ -112,7 +142,48 @@ namespace hpp {
           ConfigurationIn_t q2) const
       {
         try {
+        core::ConstraintSetPtr_t c (getUpdatedConstraints());
+
+        return core::StraightPath::create (problem().robot(), q1, q2, timeRange_, c);
+        } catch (const std::exception& e) {
+          std::cout << timeRange_.first << ", " << timeRange_.second << '\n';
+          if (eeTraj_)
+            std::cout << (*eeTraj_) (vector_t::Constant(1,timeRange_.first )) << '\n'
+                      << (*eeTraj_) (vector_t::Constant(1,timeRange_.second)) << std::endl;
+          std::cout << *constraints() << std::endl;
+          std::cout << e.what() << std::endl;
+          throw;
+        }
+      }
+
+      PathPtr_t EndEffectorTrajectory::projectedPath (vectorIn_t times,
+          matrixIn_t configs) const
+      {
+        core::ConstraintSetPtr_t c (getUpdatedConstraints());
+
+        size_type N = configs.cols();
+        if (timeRange_.first != times[0] || timeRange_.second != times[N-1]) {
+          HPP_THROW (std::logic_error, "Time range (" << timeRange_.first <<
+              ", " << timeRange_.second << ") does not match configuration "
+              "times (" << times[0] << ", " << times[N-1]);
+        }
+
+        using core::InterpolatedPath;
+        using core::InterpolatedPathPtr_t;
+
+        InterpolatedPathPtr_t path = InterpolatedPath::create(
+            problem().robot(), configs.col(0), configs.col(N-1), timeRange_, c);
+
+        for (size_type i = 1; i < configs.cols()-1; ++i)
+          path->insert(times[i], configs.col(i));
+
+        return path;
+      }
+
+      core::ConstraintSetPtr_t EndEffectorTrajectory::getUpdatedConstraints () const
+      {
         if (!eeTraj_) throw std::logic_error ("EndEffectorTrajectory not initialized.");
+
         // Update (or check) the constraints
         core::ConstraintSetPtr_t c (constraints());
         if (!c || !c->configProjector()) {
@@ -144,18 +215,8 @@ namespace hpp {
           HPP_THROW (std::logic_error, "EndEffectorTrajectory could not find "
               "constraint " << constraint_->function());
         }
-
-        return core::StraightPath::create (problem().robot(), q1, q2, timeRange_, c);
-        } catch (const std::exception& e) {
-          std::cout << timeRange_.first << ", " << timeRange_.second << '\n';
-          if (eeTraj_)
-            std::cout << (*eeTraj_) (vector_t::Constant(1,timeRange_.first )) << '\n'
-                      << (*eeTraj_) (vector_t::Constant(1,timeRange_.second)) << std::endl;
-          std::cout << *constraints() << std::endl;
-          std::cout << e.what() << std::endl;
-          throw;
+        return c;
         }
-      }
     } // namespace steeringMethod
   } // namespace manipulation
 } // namespace hpp

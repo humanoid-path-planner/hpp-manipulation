@@ -57,6 +57,7 @@
 #include "hpp/manipulation/graph-node-optimizer.hh"
 #include "hpp/manipulation/path-optimization/random-shortcut.hh"
 #include "hpp/manipulation/path-optimization/enforce-transition-semantic.hh"
+#include "hpp/manipulation/path-planner/end-effector-trajectory.hh"
 #include "hpp/manipulation/problem-target/state.hh"
 #include "hpp/manipulation/steering-method/cross-state-optimization.hh"
 #include "hpp/manipulation/steering-method/graph.hh"
@@ -121,6 +122,7 @@ namespace hpp {
       robotType ("hpp::manipulation::Device");
 
       pathPlanners.add ("M-RRT", ManipulationPlanner::create);
+      pathPlanners.add ("EndEffectorTrajectory", pathPlanner::EndEffectorTrajectory::createWithRoadmap);
 
       pathValidations.add ("Graph-Discretized"                      , createDiscretizedCollisionGraphPathValidation);
       pathValidations.add ("Graph-DiscretizedCollision"             , createDiscretizedCollisionGraphPathValidation);

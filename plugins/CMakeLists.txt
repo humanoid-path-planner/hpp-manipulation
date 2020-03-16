@@ -20,3 +20,8 @@ HPP_ADD_PLUGIN(manipulation-spline-gradient-based
   SOURCES spline-gradient-based.cc
   LINK_DEPENDENCIES ${PROJECT_NAME} ${PROJECT_NAME}-gpl hpp-core-gpl
   PKG_CONFIG_DEPENDENCIES hpp-core)
+
+HPP_ADD_PLUGIN(end-effector-trajectory
+  SOURCES end-effector-trajectory.cc
+  LINK_DEPENDENCIES ${PROJECT_NAME}
+  PKG_CONFIG_DEPENDENCIES hpp-core)

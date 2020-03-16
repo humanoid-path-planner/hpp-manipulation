@@ -46,6 +46,13 @@ namespace hpp {
             return ptr;
           }
 
+          /// Build a trajectory in SE(3).
+          /// \param points a Nx7 matrix whose rows corresponds to a pose.
+          /// \param weights a 6D vector, weights to be applied when computing
+          ///        the distance between two SE3 points.
+          static PathPtr_t makePiecewiseLinearTrajectory (matrixIn_t points,
+              vectorIn_t weights);
+
           /// Set the constraint whose right hand side will vary.
           void trajectoryConstraint (const constraints::ImplicitPtr_t& ic);
 
@@ -81,6 +88,12 @@ namespace hpp {
             return ptr;
           }
 
+          /// Computes an core::InterpolatedPath from the provided interpolation
+          /// points.
+          /// \param times the time of each configuration
+          /// \param configs each column correspond to a configuration
+          PathPtr_t projectedPath (vectorIn_t times, matrixIn_t configs) const;
+
         protected:
           EndEffectorTrajectory (const core::Problem& problem)
             : core::SteeringMethod (problem)
@@ -96,6 +109,8 @@ namespace hpp {
           PathPtr_t impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
         private:
+          core::ConstraintSetPtr_t getUpdatedConstraints () const;
+
           DifferentiableFunctionPtr_t eeTraj_;
           interval_t timeRange_;
           constraints::ImplicitPtr_t constraint_;

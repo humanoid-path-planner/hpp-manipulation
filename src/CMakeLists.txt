@@ -49,6 +49,8 @@ SET(SOURCES
   path-optimization/random-shortcut.cc
   path-optimization/enforce-transition-semantic.cc
 
+  path-planner/end-effector-trajectory.cc
+
   problem-target/state.cc
 
   steering-method/end-effector-trajectory.cc

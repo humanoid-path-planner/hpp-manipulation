@@ -59,6 +59,16 @@ namespace hpp {
         return from_.lock();
       }
 
+      StatePtr_t Edge::stateTo () const
+      {
+        return to_.lock();
+      }
+
+      StatePtr_t Edge::stateFrom () const
+      {
+        return from_.lock();
+      }
+
       void Edge::relativeMotion(const RelativeMotion::matrix_type & m)
       {
         if(!isInit_) throw std::logic_error("The graph must be initialized before changing the relative motion matrix.");
@@ -72,10 +82,10 @@ namespace hpp {
       {
         Configuration_t q0 = path->initial (),
                         q1 = path->end ();
-        const bool src_contains_q0 = from()->contains (q0);
-        const bool dst_contains_q0 = to  ()->contains (q0);
-        const bool src_contains_q1 = from()->contains (q1);
-        const bool dst_contains_q1 = to  ()->contains (q1);
+        const bool src_contains_q0 = stateFrom()->contains (q0);
+        const bool dst_contains_q0 = stateTo  ()->contains (q0);
+        const bool src_contains_q1 = stateFrom()->contains (q1);
+        const bool dst_contains_q1 = stateTo  ()->contains (q1);
         // Karnaugh table:
         // 1 = forward, 0 = reverse, ? = I don't know, * = 0 or 1
         // s0s1 \ d0d1 | 00 | 01 | 11 | 10
@@ -159,7 +169,8 @@ namespace hpp {
         populateTooltip (tp);
         da.insertWithQuote ("tooltip", tp.toStr());
         da.insertWithQuote ("labeltooltip", tp.toStr());
-        os << from()->id () << " -> " << to()->id () << " " << da << ";";
+        os << stateFrom()->id() << " -> " << stateTo()->id() << " " << da
+           << ";";
         return os;
       }
 
@@ -246,8 +257,8 @@ namespace hpp {
         std::vector <GraphComponentPtr_t> components;
         components.push_back (g);
         components.push_back (wkPtr_.lock ());
-        components.push_back (to ());
-	if (state () != to ()) {
+        components.push_back (stateTo ());
+	if (state () != stateTo ()) {
           components.push_back (state ());
 	}
         mergeConstraintsIntoConfigProjector (proj, components, parentGraph ());
@@ -463,7 +474,7 @@ namespace hpp {
       {
         edges_.resize (number + 1);
         states_.resize (number + 1);
-        states_.back() = to();
+        states_.back() = stateTo();
         const size_type nbDof = graph_.lock ()->robot ()->configSize ();
         configs_ = matrix_t (nbDof, number + 2);
       }
@@ -475,7 +486,7 @@ namespace hpp {
         assert (edges_.size() == states_.size());
         assert (index < edges_.size());
         if (index == states_.size() - 1) {
-          assert (!wTo || wTo == to());
+          assert (!wTo || wTo == stateTo());
         } else {
           states_[index] = wTo;
         }
@@ -492,7 +503,7 @@ namespace hpp {
       {
         os << "|   |   |-- ";
         GraphComponent::print (os)
-          << " (waypoint) --> " << to ()->name ();
+          << " (waypoint) --> " << stateTo ()->name ();
         return os;
       }
 
@@ -518,7 +529,7 @@ namespace hpp {
       {
         os << "|   |   |-- ";
         GraphComponent::print (os)
-          << " (level set) --> " << to ()->name ();
+          << " (level set) --> " << stateTo ()->name ();
         return os;
       }
 
@@ -709,8 +720,8 @@ namespace hpp {
         assert (itpdof == paramPassiveDofs_.end ());
 
         insertNumericalConstraints (proj);
-        to ()->insertNumericalConstraints (proj);
-        if (state () != to ()) {
+        stateTo ()->insertNumericalConstraints (proj);
+        if (state () != stateTo ()) {
 	  state ()->insertNumericalConstraints (proj);
 	}
         constraint->addConstraint (proj);

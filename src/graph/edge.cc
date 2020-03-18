@@ -43,6 +43,7 @@ namespace hpp {
         pathConstraints_ (),
 	configConstraints_ (),
         steeringMethod_ (),
+        securityMargins_ (),
         pathValidation_ ()
       {}
 
@@ -106,6 +107,28 @@ namespace hpp {
         return !(src_contains_q0 && (!src_contains_q1 || dst_contains_q1));
       }
 
+      void Edge::securityMarginForPair
+      (const size_type& row, const size_type& col, const value_type& margin)
+      {
+        if ((row < 0) || (row >= securityMargins_.rows())) {
+          std::ostringstream os;
+          os << "Row index should be between 0 and "
+             << securityMargins_.rows()+1 << ", got " << row << ".";
+          throw std::runtime_error(os.str().c_str());
+        }
+        if ((col < 0) || (col >= securityMargins_.cols())) {
+          std::ostringstream os;
+          os << "Column index should be between 0 and "
+             << securityMargins_.cols()+1 << ", got " << col << ".";
+          throw std::runtime_error(os.str().c_str());
+        }
+        if (securityMargins_(row, col) != margin) {
+          securityMargins_(row, col) = margin;
+          securityMargins_(col, row) = margin;
+          isInit_ = false;
+        }
+      }
+
       bool Edge::intersectionConstraint (const EdgePtr_t& other,
           ConfigProjectorPtr_t proj) const
       {
@@ -144,6 +167,10 @@ namespace hpp {
         from_ = from;
         to_ = to;
         state_ = to;
+        // add 1 joint for the environment
+        size_type n (graph.lock()->robot()->nbJoints() + 1);
+        securityMargins_.resize(n, n);
+        securityMargins_.setZero();
       }
 
       void Edge::initialize ()
@@ -305,6 +332,7 @@ namespace hpp {
           relMotion_ = RelativeMotion::matrix (g->robot());
           RelativeMotion::fromConstraint (relMotion_, g->robot(), constraint);
           oui->filterCollisionPairs (relMotion_);
+          oui->setSecurityMargins(securityMargins_);
         }
         return constraint;
       }

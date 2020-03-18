@@ -71,7 +71,8 @@ namespace hpp {
           const Configuration_t& q1, const Configuration_t& q2,
           const graph::StatePtr_t& s1, const graph::StatePtr_t& s2,
           const graph::GraphPtr_t& graph,
-          const PathProjectorPtr_t& pathProjector)
+          const PathProjectorPtr_t& pathProjector,
+          const PathValidationPtr_t& pathValidation)
       {
         assert (graph && s1 && s2);
         graph::Edges_t possibleEdges = graph->getEdges (s1, s2);
@@ -91,7 +92,7 @@ namespace hpp {
         }
 
         PathValidationReportPtr_t report;
-        if (edge->pathValidation()->validate (path, false, tmpPath, report))
+        if (pathValidation->validate (path, false, tmpPath, report))
           return path;
         return core::PathPtr_t();
       }
@@ -302,7 +303,7 @@ namespace hpp {
         }
         HPP_STOP_TIMECOUNTER (projectPath);
       } else projPath = path;
-      PathValidationPtr_t pathValidation (edge->pathValidation ());
+      PathValidationPtr_t pathValidation (problem_.pathValidation ());
       PathValidationReportPtr_t report;
       core::PathPtr_t fullValidPath;
       HPP_START_TIMECOUNTER (validatePath);
@@ -406,7 +407,7 @@ namespace hpp {
             graph::StatePtr_t s2 = getState (graph, *itn2);
             assert (q1 != q2);
 
-            path = connect (q1, q2, s1, s2, graph, pathProjector);
+            path = connect (q1, q2, s1, s2, graph, pathProjector, problem_.pathValidation());
 
             if (path) {
               nbConnection++;
@@ -452,7 +453,7 @@ namespace hpp {
           graph::StatePtr_t s2 = getState (graph, *itn2);
           assert (q1 != q2);
 
-          path = connect (q1, q2, s1, s2, graph, pathProjector);
+          path = connect (q1, q2, s1, s2, graph, pathProjector, problem_.pathValidation());
           if (path) {
             nbConnection++;
             if (!_1to2) roadmap ()->addEdge (*itn1, *itn2, path);

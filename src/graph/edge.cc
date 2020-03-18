@@ -124,6 +124,7 @@ namespace hpp {
         }
         if (securityMargins_(row, col) != margin) {
           securityMargins_(row, col) = margin;
+          securityMargins_(col, row) = margin;
           isInit_ = false;
         }
       }

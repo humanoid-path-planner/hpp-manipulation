@@ -154,6 +154,13 @@ namespace hpp {
           /// \note set value to matrix [row, col] and matrix [col, row].
           void securityMarginForPair(const size_type& row, const size_type& col,
                                      const value_type& margin);
+
+          /// Accessor to the security margin.
+          const matrix_t& securityMargins() const
+          {
+            return securityMargins_;
+          }
+
           /// Get direction of the path compare to the edge
           /// \return true is reverse
           virtual bool direction (const core::PathPtr_t& path) const;

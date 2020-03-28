@@ -71,24 +71,53 @@ namespace hpp {
 	     const StateWkPtr_t& from,
 	     const StateWkPtr_t& to);
 
-	  /// Apply edge constraint
+	  /// Generate a reachable configuration in the target state
 	  ///
-	  /// \param nnear node containing the configuration defining the right
+	  /// \param nStart node containing the configuration defining the right
 	  ///        hand side of the edge constraint,
-	  /// \param[in,out] q configuration to which the edge constraint is
-	  ///                applied.
+	  /// \param[in,out] q input configuration used to initialize the
+          ///                numerical solver and output configuration lying
+          ///                in the target state and reachable along the edge
+          ///                from nnear
+          /// \deprecated Use generateTargetConfig instead.
+          virtual bool applyConstraints (core::NodePtr_t nStart,
+                                         ConfigurationOut_t q) const
+            HPP_MANIPULATION_DEPRECATED;
+
+	  /// Generate a reachable configuration in the target state
 	  ///
-	  /// \sa hpp::core::ConfigProjector::rightHandSideFromConfig
-          virtual bool applyConstraints (core::NodePtr_t nnear, ConfigurationOut_t q) const;
-	  /// Apply edge constraint
+	  /// \param qStart node containing the configuration defining the right
+	  ///        hand side of the edge path constraint,
+	  /// \param[in,out] q input configuration used to initialize the
+          ///                numerical solver and output configuration lying
+          ///                in the target state and reachable along the edge
+          ///                from nnear.
+          /// \deprecated Use generateTargetConfig instead.
+          virtual bool applyConstraints (ConfigurationIn_t qStart,
+                                         ConfigurationOut_t q) const
+            HPP_MANIPULATION_DEPRECATED;
+
+	  /// Generate a reachable configuration in the target state
 	  ///
-	  /// \param qoffset configuration defining the right hand side of the
-	  ///        edge constraint,
-	  /// \param[in,out] q configuration to which the edge constraint is
-	  ///                applied.
+	  /// \param nStart node containing the configuration defining the right
+	  ///        hand side of the edge path constraint,
+	  /// \param[in,out] q input configuration used to initialize the
+          ///                numerical solver and output configuration lying
+          ///                in the target state and reachable along the edge
+          ///                from nStart.
+          virtual bool generateTargetConfig(core::NodePtr_t nStart,
+                                            ConfigurationOut_t q) const;
+
+	  /// Generate a reachable configuration in the target state
 	  ///
-	  /// \sa hpp::core::ConfigProjector::rightHandSideFromConfig
-          virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
+	  /// \param qStart node containing the configuration defining the right
+	  ///        hand side of the edge path constraint,
+	  /// \param[in,out] q input configuration used to initialize the
+          ///                numerical solver and output configuration lying
+          ///                in the target state and reachable along the edge
+          ///                from nnear.
+          virtual bool generateTargetConfig (ConfigurationIn_t qStart,
+                                             ConfigurationOut_t q) const;
 
           virtual bool canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
@@ -258,7 +287,30 @@ namespace hpp {
 
           virtual bool build (core::PathPtr_t& path, ConfigurationIn_t q1, ConfigurationIn_t q2) const;
 
-          virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
+
+	  /// Generate a reachable configuration in the target state
+	  ///
+	  /// \param qStart node containing the configuration defining the right
+	  ///        hand side of the edge path constraint,
+	  /// \param[in,out] q input configuration used to initialize the
+          ///                numerical solver and output configuration lying
+          ///                in the target state and reachable along the edge
+          ///                from nnear.
+          /// deprecated Used generateTargetConfig instead.
+          virtual bool applyConstraints (ConfigurationIn_t qStart,
+                                         ConfigurationOut_t q) const
+            HPP_MANIPULATION_DEPRECATED;
+
+	  /// Generate a reachable configuration in the target state
+	  ///
+	  /// \param qStart node containing the configuration defining the right
+	  ///        hand side of the edge path constraint,
+	  /// \param[in,out] q input configuration used to initialize the
+          ///                numerical solver and output configuration lying
+          ///                in the target state and reachable along the edge
+          ///                from nnear.
+          virtual bool generateTargetConfig (ConfigurationIn_t qStart,
+                                             ConfigurationOut_t q) const;
 
           /// Return the index-th edge.
           const EdgePtr_t& waypoint (const std::size_t index) const;
@@ -313,10 +365,53 @@ namespace hpp {
 	     const GraphWkPtr_t& graph, const StateWkPtr_t& from,
 	     const StateWkPtr_t& to);
 
-          virtual bool applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const;
+	  /// Generate a reachable configuration in the target state
+	  ///
+	  /// \param nStart node containing the configuration defining the right
+	  ///        hand side of the edge constraint,
+	  /// \param[in,out] q input configuration used to initialize the
+          ///                numerical solver and output configuration lying
+          ///                in the target state and reachable along the edge
+          ///                from nnear
+          /// \deprecated Use generateTargetConfig instead.
+          virtual bool applyConstraints (core::NodePtr_t nStart,
+                                         ConfigurationOut_t q) const
+            HPP_MANIPULATION_DEPRECATED;
 
-          virtual bool applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const;
+	  /// Generate a reachable configuration in the target state
+	  ///
+	  /// \param qStart node containing the configuration defining the right
+	  ///        hand side of the edge path constraint,
+	  /// \param[in,out] q input configuration used to initialize the
+          ///                numerical solver and output configuration lying
+          ///                in the target state and reachable along the edge
+          ///                from nnear.
+          /// \deprecated Use generateTargetConfig instead.
+          virtual bool applyConstraints (ConfigurationIn_t qStart,
+                                         ConfigurationOut_t q) const
+            HPP_MANIPULATION_DEPRECATED;
 
+	  /// Generate a reachable configuration in the target state
+	  ///
+	  /// \param nStart node containing the configuration defining the right
+	  ///        hand side of the edge path constraint,
+	  /// \param[in,out] q input configuration used to initialize the
+          ///                numerical solver and output configuration lying
+          ///                in the target state and reachable along the edge
+          ///                from nStart.
+          virtual bool generateTargetConfig(core::NodePtr_t nStart,
+                                            ConfigurationOut_t q) const;
+
+	  /// Generate a reachable configuration in the target state
+	  ///
+	  /// \param qStart node containing the configuration defining the right
+	  ///        hand side of the edge path constraint,
+	  /// \param[in,out] q input configuration used to initialize the
+          ///                numerical solver and output configuration lying
+          ///                in the target state and reachable along the edge
+          ///                from nnear.
+          virtual bool generateTargetConfig (ConfigurationIn_t qStart,
+                                             ConfigurationOut_t q) const;
           virtual ConstraintSetPtr_t buildConfigConstraint();
 
           void buildHistogram ();

@@ -84,7 +84,7 @@ namespace hpp {
         // 01          |  ? |  ? |  0 |  0
         // 11          |  ? |  1 |  * |  0
         // 10          |  ? |  1 |  1 |  1
-        // 
+        //
         /// true if reverse
         if (   (!src_contains_q0 && !src_contains_q1)
             || (!dst_contains_q0 && !dst_contains_q1)
@@ -123,7 +123,7 @@ namespace hpp {
           ConfigProjectorPtr_t proj) const
       {
         GraphPtr_t g = graph_.lock ();
-        
+
         g->insertNumericalConstraints (proj);
         insertNumericalConstraints (proj);
         state ()->insertNumericalConstraints (proj);
@@ -371,18 +371,31 @@ namespace hpp {
 	}
       }
 
-      bool Edge::applyConstraints (core::NodePtr_t nnear, ConfigurationOut_t q) const
+      bool Edge::applyConstraints (core::NodePtr_t nStart,
+                                   ConfigurationOut_t q) const
       {
-        return applyConstraints (*(nnear->configuration ()), q);
+        return generateTargetConfig (*(nStart->configuration ()), q);
       }
 
       bool Edge::applyConstraints (ConfigurationIn_t qoffset,
 				   ConfigurationOut_t q) const
       {
+        return generateTargetConfig(qoffset, q);
+      }
+
+      bool Edge::generateTargetConfig (core::NodePtr_t nStart,
+                                       ConfigurationOut_t q) const
+      {
+        return generateTargetConfig (*(nStart->configuration ()), q);
+      }
+
+      bool Edge::generateTargetConfig (ConfigurationIn_t qStart,
+                                       ConfigurationOut_t q) const
+      {
         ConstraintSetPtr_t c = configConstraint ();
         ConfigProjectorPtr_t proj = c->configProjector ();
-        proj->rightHandSideFromConfig (qoffset);
-        if (isShort_) q = qoffset;
+        proj->rightHandSideFromConfig (qStart);
+        if (isShort_) q = qStart;
         if (c->apply (q)) return true;
 	const ::hpp::statistics::SuccessStatistics& ss = proj->statistics ();
 	if (ss.nbFailure () > ss.nbSuccess ()) {
@@ -431,7 +444,7 @@ namespace hpp {
         core::PathVectorPtr_t pv = core::PathVector::create
           (graph_.lock ()->robot ()->configSize (),
            graph_.lock ()->robot ()->numberDof ());
-        // Many times, this will be called rigth after WaypointEdge::applyConstraints so config_
+        // Many times, this will be called rigth after WaypointEdge::generateTargetConfig so config_
         // already satisfies the constraints.
         size_type n = edges_.size();
         assert (configs_.cols() == n + 1);
@@ -443,8 +456,8 @@ namespace hpp {
 
         for (size_type i = 0; i < n; ++i) {
           if (i < (n-1) && !useCache) configs_.col (i+1) = q2;
-          if (i < (n-1) && !edges_[i]->applyConstraints (configs_.col(i), configs_.col (i+1))) {
-            hppDout (info, "Waypoint edge " << name() << ": applyConstraints failed at waypoint " << i << "."
+          if (i < (n-1) && !edges_[i]->generateTargetConfig (configs_.col(i), configs_.col (i+1))) {
+            hppDout (info, "Waypoint edge " << name() << ": generateTargetConfig failed at waypoint " << i << "."
                 << "\nUse cache: " << useCache
                 );
             lastSucceeded_ = false;
@@ -471,13 +484,20 @@ namespace hpp {
         return true;
       }
 
-      bool WaypointEdge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
+      bool WaypointEdge::applyConstraints (ConfigurationIn_t qStart,
+                                           ConfigurationOut_t q) const
+      {
+        return generateTargetConfig(qStart,q);
+      }
+
+      bool WaypointEdge::generateTargetConfig (ConfigurationIn_t qStart,
+                                               ConfigurationOut_t q) const
       {
         assert (configs_.cols() == size_type(edges_.size() + 1));
-        configs_.col(0) = qoffset;
+        configs_.col(0) = qStart;
         for (std::size_t i = 0; i < edges_.size (); ++i) {
           configs_.col (i+1) = q;
-          if (!edges_[i]->applyConstraints (configs_.col(i), configs_.col (i+1))) {
+          if (!edges_[i]->generateTargetConfig (configs_.col(i), configs_.col (i+1))) {
             q = configs_.col(i+1);
             lastSucceeded_ = false;
             return false;
@@ -513,7 +533,7 @@ namespace hpp {
 
       const EdgePtr_t& WaypointEdge::waypoint (const std::size_t index) const
       {
-        assert (index < edges_.size()); 
+        assert (index < edges_.size());
         return edges_[index];
       }
 
@@ -574,7 +594,14 @@ namespace hpp {
         }
       }
 
-      bool LevelSetEdge::applyConstraints (ConfigurationIn_t qoffset, ConfigurationOut_t q) const
+      bool LevelSetEdge::applyConstraints(ConfigurationIn_t qStart,
+                                          ConfigurationOut_t q) const
+      {
+        return generateTargetConfig(qStart, q);
+      }
+
+      bool LevelSetEdge::generateTargetConfig(ConfigurationIn_t qStart,
+                                              ConfigurationOut_t q) const
       {
         // First, get an offset from the histogram
         statistics::DiscreteDistribution < RoadmapNodePtr_t > distrib = hist_->getDistrib ();
@@ -584,24 +611,31 @@ namespace hpp {
         }
         const Configuration_t& qlevelset = *(distrib ()->configuration ());
 
-        return applyConstraintsWithOffset (qoffset, qlevelset, q);
+        return applyConstraintsWithOffset (qStart, qlevelset, q);
       }
 
-      bool LevelSetEdge::applyConstraints (core::NodePtr_t n_offset, ConfigurationOut_t q) const
+      bool LevelSetEdge::applyConstraints(core::NodePtr_t nStart,
+                                          ConfigurationOut_t q) const
       {
-        // First, get an offset from the histogram that is not in the same connected component.
-        statistics::DiscreteDistribution < RoadmapNodePtr_t > distrib = hist_->getDistribOutOfConnectedComponent (n_offset->connectedComponent ());
+        return generateTargetConfig(nStart, q);
+      }
+
+      bool LevelSetEdge::generateTargetConfig(core::NodePtr_t nStart,
+                                              ConfigurationOut_t q) const
+      {
+      // First, get an offset from the histogram that is not in the same connected component.
+        statistics::DiscreteDistribution < RoadmapNodePtr_t > distrib = hist_->getDistribOutOfConnectedComponent (nStart->connectedComponent ());
         if (distrib.size () == 0) {
           hppDout (warning, "Edge " << name() << ": Distrib is empty");
           return false;
         }
         const Configuration_t& qlevelset = *(distrib ()->configuration ()),
-                               qoffset = *(n_offset->configuration ());
+                               qStart = *(nStart->configuration ());
 
-        return applyConstraintsWithOffset (qoffset, qlevelset, q);
+        return applyConstraintsWithOffset (qStart, qlevelset, q);
       }
 
-      bool LevelSetEdge::applyConstraintsWithOffset (ConfigurationIn_t qoffset,
+      bool LevelSetEdge::applyConstraintsWithOffset (ConfigurationIn_t qStart,
           ConfigurationIn_t qlevelset, ConfigurationOut_t q) const
       {
         // First, set the offset.
@@ -609,7 +643,7 @@ namespace hpp {
         const ConfigProjectorPtr_t cp = cs->configProjector ();
         assert (cp);
 
-	cp->rightHandSideFromConfig (qoffset);
+	cp->rightHandSideFromConfig (qStart);
 	for (NumericalConstraints_t::const_iterator it =
 	       paramNumericalConstraints_.begin ();
 	     it != paramNumericalConstraints_.end (); ++it) {
@@ -617,7 +651,7 @@ namespace hpp {
         }
 
         // Eventually, do the projection.
-        if (isShort_) q = qoffset;
+        if (isShort_) q = qStart;
         if (cs->apply (q)) return true;
 	::hpp::statistics::SuccessStatistics& ss = cp->statistics ();
 	if (ss.nbFailure () > ss.nbSuccess ()) {

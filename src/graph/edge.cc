@@ -50,16 +50,6 @@ namespace hpp {
       Edge::~Edge ()
       {}
 
-      StatePtr_t Edge::to () const
-      {
-        return to_.lock();
-      }
-
-      StatePtr_t Edge::from () const
-      {
-        return from_.lock();
-      }
-
       StatePtr_t Edge::stateTo () const
       {
         return to_.lock();

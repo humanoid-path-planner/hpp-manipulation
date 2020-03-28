@@ -96,18 +96,6 @@ namespace hpp {
               ConfigurationIn_t q2) const;
 
           /// Get the destination
-          /// \deprecated from and to method are renamed stateFrom and stateTo.
-          ///             method from cannot be binded in python since "from"
-          ///             is a keyword in python.
-          StatePtr_t to () const HPP_MANIPULATION_DEPRECATED;
-
-          /// Get the origin
-          /// \deprecated from and to method are renamed stateFrom and stateTo.
-          ///             method from cannot be binded in python since "from"
-          ///             is a keyword in python.
-          StatePtr_t from () const HPP_MANIPULATION_DEPRECATED;
-
-          /// Get the destination
           StatePtr_t stateTo () const;
 
           /// Get the origin

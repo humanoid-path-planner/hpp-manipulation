@@ -92,13 +92,13 @@ namespace hpp {
             const Neighbors_t& n = state->neighbors();
             /// You stay in the same state
             for (Neighbors_t::const_iterator it = n.begin (); it != n.end (); ++it)
-              if (it->second->to () == state)
+              if (it->second->stateTo () == state)
                 nn.insert (it->second, it->first);
             /// Go from state it1 to state
             // The path will be build from state. So we must find an edge from
             // state to it1, that will be reversely 
             for (Neighbors_t::const_iterator it = n.begin (); it != n.end (); ++it)
-              if (it->second->to () == *it1)
+              if (it->second->stateTo () == *it1)
                 nn.insert (it->second, it->first);
           } else {
             States_t::const_iterator it1 = stateList_.begin ();
@@ -118,7 +118,8 @@ namespace hpp {
             for (Neighbors_t::const_iterator it = n.begin (); it != n.end (); ++it)
               /// You stay in the same state
               /// or go from state to state it1 
-              if (it->second->to () == state || it->second->to () == *it1)
+              if (it->second->stateTo () == state ||
+                  it->second->stateTo () == *it1)
                 nn.insert (it->second, it->first);
           }
           if (nn.size () > 0 && nn.totalWeight() > 0)

@@ -91,7 +91,7 @@ namespace hpp {
           std::size_t i; // index in parent state_with_depths_t
           inline state_with_depth () : s(), e(), l(0), i (0) {}
           inline state_with_depth (EdgePtr_t _e, std::size_t _l, std::size_t _i)
-            : s(_e->from()), e(_e), l(_l), i (_i) {}
+            : s(_e->stateFrom()), e(_e), l(_l), i (_i) {}
         };
         typedef std::vector<state_with_depth> state_with_depths_t;
         typedef std::map<StatePtr_t,state_with_depths_t> StateMap_t;
@@ -131,7 +131,7 @@ namespace hpp {
           // Insert state to if necessary
           StateMap_t::iterator next = parent1.insert (
               StateMap_t::value_type(
-                transition->to(), state_with_depths_t ()
+                transition->stateTo(), state_with_depths_t ()
                 )).first;
 
           next->second.push_back (
@@ -233,7 +233,7 @@ namespace hpp {
                 d.addParent (_state, transition)
                 );
 
-            done = done || (transition->to() == d.s2);
+            done = done || (transition->stateTo() == d.s2);
           }
           if (done) break;
         }
@@ -475,7 +475,7 @@ namespace hpp {
         graph::GraphPtr_t cg (problem_.constraintGraph ());
         // Fill solvers with graph, node and edge constraints
         for (std::size_t j = 0; j < d.N; ++j) {
-          graph::StatePtr_t state (transitions [(std::size_t)j]->to ());
+          graph::StatePtr_t state (transitions [(std::size_t)j]->stateTo ());
           // initialize solver with state constraints
           d.solvers [(std::size_t)j] = state->configConstraint ()->
             configProjector ()->solver ();

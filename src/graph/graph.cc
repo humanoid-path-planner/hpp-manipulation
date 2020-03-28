@@ -132,7 +132,7 @@ namespace hpp {
         Edges_t edges;
         for (Neighbors_t::const_iterator it = from->neighbors ().begin ();
             it != from->neighbors ().end (); ++it) {
-          if (it->second->to () == to)
+          if (it->second->stateTo () == to)
             edges.push_back (it->second);
         }
         return edges;

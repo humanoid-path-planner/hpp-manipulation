@@ -253,21 +253,34 @@ namespace hpp {
           friend class Graph;
       }; // class Edge
 
-      /// Edge with waypoint.
-      /// Waypoints are handled recursively, i.e.\ class WaypointEdge contains only a
-      /// State and an Edge, the second Edge being itself.
-      /// In this package, the State in a WaypointEdge is semantically different from other State
-      /// because it does not correspond to a state with different manipulation rules. It has
-      /// the same rules as another State (either Edge::from() or Edge::to()).
+      /// Edge with intermediate waypoint states.
       ///
-      /// Semantically, a waypoint State is fully part of the WaypointEdge. When a corresponding path
-      /// reaches it, no planning is required to know what to do next. To the contrary, when a path reaches
-      /// Edge::from() or Edge::to(), there may be several possibilities.
+      /// This class implements a transition from one state to another state
+      /// with intermediate states in-between. This feature is particularly
+      /// interesting when manipulating objects. Between a state where a gripper
+      /// does not grasp an object and a state where the same gripper grasps
+      /// the object, it is useful to add an intermediate state where the
+      /// gripper is close to the object.
+      ///
+      /// Waypoints are handled recursively, i.e.\ class WaypointEdge
+      /// contains only a State and an Edge, the second Edge being
+      /// itself. In this package, the State in a WaypointEdge is
+      /// semantically different from other State because it does not
+      /// correspond to a state with different manipulation rules. It
+      /// has the same rules as another State (either Edge::stateFrom() or
+      /// Edge::stateTo()).
+      ///
+      /// Semantically, a waypoint State is fully part of the WaypointEdge.
+      /// When a corresponding path reaches it, no planning is required to know
+      /// what to do next. To the contrary, when a path reaches
+      /// Edge::stateFrom() or Edge::stateTo(), there may be several
+      /// possibilities.
       ///
       /// \note
-      ///   Implementation details: let's say, between the two states \f$N_f\f$ and \f$N_t\f$,
-      ///   two waypoints are required:
-      ///   \f$ N_f \xrightarrow{e_0} n_0 \xrightarrow{e_1} n_1 \xrightarrow{e_2} N_t\f$.
+      ///   Implementation details: let's say, between the two states \f$N_f\f$
+      ///   and \f$N_t\f$, two waypoints are required:
+      ///   \f$ N_f \xrightarrow{e_0} n_0 \xrightarrow{e_1} n_1
+      ///   \xrightarrow{e_2} N_t\f$.
       ///   The WaypointEdge contains:
       ///   \li from: \f$N_f\f$,
       ///   \li to: \f$N_t\f$,

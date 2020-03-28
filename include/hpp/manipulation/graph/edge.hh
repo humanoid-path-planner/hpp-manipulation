@@ -191,7 +191,12 @@ namespace hpp {
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
           /// Constraint of the destination state and of the path
-          ConstraintSetPtr_t configConstraint() const;
+          /// \deprecated Use targetConstraint instead
+          ConstraintSetPtr_t configConstraint() const
+            HPP_MANIPULATION_DEPRECATED;
+
+          /// Constraint of the destination state and of the path
+          ConstraintSetPtr_t targetConstraint() const;
 
           void setShort (bool isShort) {
             isShort_ = isShort;
@@ -212,8 +217,13 @@ namespace hpp {
           /// Constructor
           Edge (const std::string& name);
 
-          virtual ConstraintSetPtr_t buildConfigConstraint();
+          virtual ConstraintSetPtr_t buildConfigConstraint()
+            HPP_MANIPULATION_DEPRECATED;
 
+          /// Build path and target state constraint set.
+          virtual ConstraintSetPtr_t buildTargetConstraint();
+
+          /// Build path constraints
           virtual ConstraintSetPtr_t buildPathConstraint();
 
           virtual void initialize ();
@@ -229,7 +239,7 @@ namespace hpp {
 
           /// Constraint ensuring that a q_proj will be in to_ and in the
           /// same leaf of to_ as the configuration used for initialization.
-          ConstraintSetPtr_t configConstraints_;
+          ConstraintSetPtr_t targetConstraints_;
 
           /// The two ends of the transition.
           StateWkPtr_t from_, to_;
@@ -425,7 +435,13 @@ namespace hpp {
           ///                from nnear.
           virtual bool generateTargetConfig (ConfigurationIn_t qStart,
                                              ConfigurationOut_t q) const;
-          virtual ConstraintSetPtr_t buildConfigConstraint();
+
+          /// \deprecated Use buildTargetConstraint instead
+          virtual ConstraintSetPtr_t buildConfigConstraint()
+            HPP_MANIPULATION_DEPRECATED;
+
+          /// Build path and target state constraints
+          virtual ConstraintSetPtr_t buildTargetConstraint();
 
           void buildHistogram ();
 

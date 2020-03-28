@@ -205,7 +205,7 @@ namespace hpp {
       (ConfigurationIn_t leafConfig, ConfigurationIn_t config,
        const EdgePtr_t& edge, vector_t& error) const
       {
-	ConstraintSetPtr_t cs (configConstraint (edge));
+	ConstraintSetPtr_t cs (targetConstraint (edge));
 	ConfigProjectorPtr_t cp (cs->configProjector ());
 	if (cp) cp->rightHandSideFromConfig (leafConfig);
 	return cs->isSatisfied (config, error);
@@ -223,7 +223,12 @@ namespace hpp {
 
       ConstraintSetPtr_t Graph::configConstraint (const EdgePtr_t& edge) const
       {
-        return edge->configConstraint ();
+        return edge->targetConstraint ();
+      }
+
+      ConstraintSetPtr_t Graph::targetConstraint (const EdgePtr_t& edge) const
+      {
+        return edge->targetConstraint ();
       }
 
       ConstraintSetPtr_t Graph::pathConstraint (const EdgePtr_t& edge) const

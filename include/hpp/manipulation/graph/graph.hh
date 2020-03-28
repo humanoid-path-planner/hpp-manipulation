@@ -122,10 +122,18 @@ namespace hpp {
           /// \return The initialized projector.
           ConstraintSetPtr_t configConstraint (const StatePtr_t& state) const;
 
-          /// Constraint to project onto the same leaf as config.
-          /// \param edges a list of edges defining the foliation.
-          /// \return The constraint.
-          ConstraintSetPtr_t configConstraint (const EdgePtr_t& edge) const;
+          /// Constraints of path and target state of an edge
+          /// \deprecated Use tagetConstraint instead.
+          ConstraintSetPtr_t configConstraint (const EdgePtr_t& edge) const
+            HPP_MANIPULATION_DEPRECATED;
+
+          /// Constraints a configuration in target state should satisfy
+          /// \param edge a transition
+          /// \return The set of constraints a configuration lying in the
+          ///         target state of the edge should satisfy. This set
+          ///         includes the paths constraints of the edge.
+          /// \sa Edge::targetConstraint.
+          ConstraintSetPtr_t targetConstraint (const EdgePtr_t& edge) const;
 
 	  /// Get error of a config with respect to a state constraint
 	  ///

@@ -41,7 +41,7 @@ namespace hpp {
       Edge::Edge (const std::string& name) :
 	GraphComponent (name), isShort_ (false),
         pathConstraints_ (),
-	configConstraints_ (),
+	targetConstraints_ (),
         steeringMethod_ (),
         securityMargins_ (),
         pathValidation_ ()
@@ -165,7 +165,7 @@ namespace hpp {
 
       void Edge::initialize ()
       {
-        configConstraints_ = buildConfigConstraint ();
+        targetConstraints_ = buildTargetConstraint ();
         pathConstraints_ = buildPathConstraint ();
         isInit_ = true;
       }
@@ -191,10 +191,16 @@ namespace hpp {
         return os;
       }
 
+      ConstraintSetPtr_t Edge::targetConstraint() const
+      {
+        throwIfNotInitialized ();
+        return targetConstraints_;
+      }
+
       ConstraintSetPtr_t Edge::configConstraint() const
       {
         throwIfNotInitialized ();
-        return configConstraints_;
+        return targetConstraints_;
       }
 
       // Merge constraints of several graph components into a config projectors
@@ -264,6 +270,11 @@ namespace hpp {
       }
 
       ConstraintSetPtr_t Edge::buildConfigConstraint()
+      {
+        return buildTargetConstraint();
+      }
+
+      ConstraintSetPtr_t Edge::buildTargetConstraint()
       {
         std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();
@@ -392,7 +403,7 @@ namespace hpp {
       bool Edge::generateTargetConfig (ConfigurationIn_t qStart,
                                        ConfigurationOut_t q) const
       {
-        ConstraintSetPtr_t c = configConstraint ();
+        ConstraintSetPtr_t c = targetConstraint();
         ConfigProjectorPtr_t proj = c->configProjector ();
         proj->rightHandSideFromConfig (qStart);
         if (isShort_) q = qStart;
@@ -463,10 +474,10 @@ namespace hpp {
             lastSucceeded_ = false;
             return false;
           }
-          assert (configConstraint ());
-          assert (configConstraint ()->configProjector ());
+          assert (targetConstraint());
+          assert (targetConstraint()->configProjector ());
           value_type eps
-            (configConstraint ()->configProjector ()->errorThreshold ());
+            (targetConstraint()->configProjector ()->errorThreshold ());
           if ((configs_.col(i) - configs_.col (i+1)).squaredNorm () > eps*eps) {
             if (!edges_[i]->build (p, configs_.col(i), configs_.col (i+1))) {
               hppDout (info, "Waypoint edge " << name()
@@ -639,7 +650,7 @@ namespace hpp {
           ConfigurationIn_t qlevelset, ConfigurationOut_t q) const
       {
         // First, set the offset.
-        ConstraintSetPtr_t cs = configConstraint ();
+        ConstraintSetPtr_t cs = targetConstraint();
         const ConfigProjectorPtr_t cp = cs->configProjector ();
         assert (cp);
 
@@ -754,6 +765,11 @@ namespace hpp {
       }
 
       ConstraintSetPtr_t LevelSetEdge::buildConfigConstraint()
+      {
+        return buildTargetConstraint();
+      }
+
+      ConstraintSetPtr_t LevelSetEdge::buildTargetConstraint()
       {
         std::string n = "(" + name () + ")";
         GraphPtr_t g = graph_.lock ();

@@ -203,7 +203,7 @@ namespace hpp {
         return targetConstraints_;
       }
 
-      // Merge constraints of several graph components into a config projectors
+      // Merge constraints of several graph components into a config projector
       // Replace constraints and complement by combination of both when
       // necessary.
       static void mergeConstraintsIntoConfigProjector
@@ -289,6 +289,11 @@ namespace hpp {
 	if (state () != stateTo ()) {
           components.push_back (state ());
 	}
+        // Copy constraints from
+        // - graph,
+        // - this edge,
+        // - the destination state,
+        // - the state in which the transition lies if different
         mergeConstraintsIntoConfigProjector (proj, components, parentGraph ());
 
         constraint->addConstraint (proj);
@@ -654,7 +659,10 @@ namespace hpp {
         const ConfigProjectorPtr_t cp = cs->configProjector ();
         assert (cp);
 
+        // Set right hand side of edge constraints with qStart
 	cp->rightHandSideFromConfig (qStart);
+        // Set right hand side of constraints parameterizing the target state
+        // foliation with qLeaf.
 	for (NumericalConstraints_t::const_iterator it =
 	       paramNumericalConstraints_.begin ();
 	     it != paramNumericalConstraints_.end (); ++it) {
@@ -777,6 +785,13 @@ namespace hpp {
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+
+        // Copy constraints from
+        // - graph,
+        // - param numerical constraints
+        // - this edge,
+        // - the destination state,
+        // - the state in which the transition lies if different
 
         g->insertNumericalConstraints (proj);
         IntervalsContainer_t::const_iterator itpdof = paramPassiveDofs_.begin ();

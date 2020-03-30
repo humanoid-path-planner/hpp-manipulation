@@ -376,7 +376,78 @@ namespace hpp {
           WaypointEdgeWkPtr_t wkPtr_;
       }; // class WaypointEdge
 
-      /// Edge that find intersection of level set.
+      /// Edge that handles crossed foliations
+      ///
+      /// Let us consider the following simple constraint graph
+      /// corresponding to a robot grasping an object with one gripper.
+      ///
+      /// \image html constraint-graph.png "Simple constraint graph corresponding to a robot grasping an object."
+      ///
+      /// In order to disambiguate, we assume here that
+      /// \li transition <b>Grasp object</b> is in \b Placement state,
+      /// \li transition <b>Release object</b> is in \b Grasp state.
+      ///
+      /// If state \b Placement is defined by the object lying on a planar
+      /// polygonal surface, then
+      /// \li state \b Placement,
+      /// \li transition \b Transit, and
+      /// \li transition <b>Grasp object</b>
+      ///
+      /// are all constrained in a foliated manifold parameterized by the
+      /// position of the box on the surface.
+      ///
+      /// Likewise, if the object is cylindrical the grasp may have a degree
+      /// of freedom corresponding to the angle around z-axis of the gripper
+      /// with respect to the object. See classes
+      /// \link hpp::manipulation::Handle Handle\endlink and
+      /// \link hpp::pinocchio::Gripper Gripper\endlink for details.
+      /// In this latter case,
+      /// \li state \b Grasp,
+      /// \li transition \b Transfer, and
+      /// \li transition <b>Release object</b>
+      ///
+      /// are all constrained in a foliated manifold parameterized by the
+      /// angle around z-axis of the gripper with respect to the object.
+      ///
+      /// Let us denote
+      /// \li \c grasp the numerical constraint defining state \b Grasp,
+      /// \li \c placement the numerical constraint defining state \b Placement,
+      /// \li \c grasp_comp the parameterized constraint defining a leaf
+      ///     of \c Transfer (the angle between the gripper and the
+      ///     object),
+      /// \li \c placement_comp the parameterized constraint defining a leaf
+      ///     of \b Placement (the position of the object on the contact
+      ///     surface).
+      ///
+      /// As explained in <a
+      /// href="https://hal.archives-ouvertes.fr/hal-01358767">this
+      /// paper </a>, we are in the crossed foliation case and manipulation RRT
+      /// will never be able to connect trees expanding in different leaves of
+      /// the foliation.
+      ///
+      /// This class solves this issue in the following way by creating an
+      /// instance of LevelSetEdge between \b Placement and \b Grasp.
+      ///
+      /// When extending a configuration \f$\mathbf{q}_{start}\f$ in state
+      /// \b Placement, this transition will produce a target configuration
+      /// (method \link LevelSetEdge::generateTargetConfig generateTargetConfig)
+      /// \endlink as follows.
+      ///
+      /// \li pick a random configuration \f$\mathbf{q}_rand\f$, in the edge
+      /// histogram (see method \link LevelSetEdge::histogram histogram\endlink)
+      /// \li compute right hand side of \c grasp_comp with
+      ///     \f$\mathbf{q}_{rand}\f$,
+      /// \li compute right hand side of \c placement_comp with
+      ///     \f$\mathbf{q}_{start}\f$,
+      /// \li solve (\c grasp, \c placement, \c placement_comp, \c grasp_comp)
+      ///     using input configuration \f$\mathbf{q}\f$. Note that the
+      /// parent method Edge::generateTargetConfig does the same without
+      /// adding \c grasp_comp.
+      ///
+      /// The constraints parameterizing the target state foliation
+      /// (\c graps_comp in our example) are passed to class instances
+      /// using method \link LevelSetEdge::insertParamConstraint
+      /// insertParamConstraint\endlink.
       class HPP_MANIPULATION_DLLAPI LevelSetEdge : public Edge
       {
         public:
@@ -443,18 +514,39 @@ namespace hpp {
           /// Build path and target state constraints
           virtual ConstraintSetPtr_t buildTargetConstraint();
 
+          /// Build the histogram
+          /// \sa LevelSetEdge::histogram.
           void buildHistogram ();
 
+          /// Return pointer on histogram of the edge
+          ///
+          /// The edge histogram is a container of configurations defined by
+          /// a set of constraints called the <b>condition constraints</b>
+          /// that a configuration should satisfy to be inserted in the
+          /// histogram.
+          ///
+          /// The histogram is passed to the Roadmap via the graph (method
+          /// Graph::insertHistogram). The roadmap then populates the histogram
+          /// with all new configurations satisfying the condition constraints.
+          ///
+          /// The condition constraints should therefore be the constraints of
+          /// the target state of the level set edge.
+          ///
+          /// \sa LevelSetEdge::insertConditionConstraint
           LeafHistogramPtr_t histogram () const;
 
           /// \name Foliation definition
           /// \{
 
-          /// Insert a numerical constraint that parametrizes the foliation
+          /// Insert a constraints parameterizing the target state foliation
+          /// \param nm the numerical constraint,
+          /// \param passiveDofs the passive degrees of freedom of the
+          ///        constraint.
           void insertParamConstraint (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ());
 
-          /// Insert a numerical constraint that defines the foliation
+          /// Insert a condition constraint
+          /// \sa LevelSetEdge::histogram
           void insertConditionConstraint (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ());
 

@@ -532,7 +532,8 @@ namespace hpp {
           /// The condition constraints should therefore be the constraints of
           /// the target state of the level set edge.
           ///
-          /// \sa LevelSetEdge::insertConditionConstraint
+          /// \sa LevelSetEdge::conditionConstraints
+          ///     LevelSetEdge::insertConditionConstraint
           LeafHistogramPtr_t histogram () const;
 
           /// \name Foliation definition
@@ -545,11 +546,17 @@ namespace hpp {
           void insertParamConstraint (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ());
 
+          /// Get constraints parameterizing the target state foliation
+          const NumericalConstraints_t& paramConstraints() const;
+
           /// Insert a condition constraint
           /// \sa LevelSetEdge::histogram
           void insertConditionConstraint (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ());
 
+          /// Get constraints parameterizing the target state foliation
+          /// \sa LevelSetEdge::histogram
+          const NumericalConstraints_t& conditionConstraints() const;
           /// \}
 
           /// Print the object in a stream.

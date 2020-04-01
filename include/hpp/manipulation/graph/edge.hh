@@ -498,14 +498,25 @@ namespace hpp {
 
 	  /// Generate a reachable configuration in the target state
 	  ///
-	  /// \param qStart node containing the configuration defining the right
-	  ///        hand side of the edge path constraint,
+	  /// \param qStart configuration defining the right hand side of the
+          ///               edge path constraint,
 	  /// \param[in,out] q input configuration used to initialize the
           ///                numerical solver and output configuration lying
           ///                in the target state and reachable along the edge
           ///                from nnear.
           virtual bool generateTargetConfig (ConfigurationIn_t qStart,
                                              ConfigurationOut_t q) const;
+
+          /// Generate a reachable configuration in leaf of target state
+	  /// \param qStart configuration defining the right hand side of the
+          ///               edge path constraint,
+          /// \param qLeaf configuration used to set the right hand side of
+          ///        the target state foliation. See method
+          ///        \link LevelSetEdge::insertParamConstraint
+          ///        insertParamConstraint\endlink.
+          bool generateTargetConfigOnLeaf(ConfigurationIn_t qStart,
+                                          ConfigurationIn_t qLeaf,
+                                          ConfigurationOut_t q) const;
 
           /// \deprecated Use buildTargetConstraint instead
           virtual ConstraintSetPtr_t buildConfigConstraint()
@@ -578,9 +589,6 @@ namespace hpp {
           virtual void initialize ();
 
         private:
-          bool applyConstraintsWithOffset (ConfigurationIn_t qoffset,
-              ConfigurationIn_t qlevelset, ConfigurationOut_t q) const;
-
           // Parametrizer
           // NumericalConstraints_t
           NumericalConstraints_t paramNumericalConstraints_;

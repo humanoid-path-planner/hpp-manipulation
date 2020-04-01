@@ -625,9 +625,9 @@ namespace hpp {
           hppDout (warning, "Edge " << name() << ": Distrib is empty");
           return false;
         }
-        const Configuration_t& qlevelset = *(distrib ()->configuration ());
+        const Configuration_t& qLeaf = *(distrib ()->configuration ());
 
-        return applyConstraintsWithOffset (qStart, qlevelset, q);
+        return generateTargetConfigOnLeaf (qStart, qLeaf, q);
       }
 
       bool LevelSetEdge::applyConstraints(core::NodePtr_t nStart,
@@ -645,14 +645,15 @@ namespace hpp {
           hppDout (warning, "Edge " << name() << ": Distrib is empty");
           return false;
         }
-        const Configuration_t& qlevelset = *(distrib ()->configuration ()),
+        const Configuration_t& qLeaf = *(distrib ()->configuration ()),
                                qStart = *(nStart->configuration ());
 
-        return applyConstraintsWithOffset (qStart, qlevelset, q);
+        return generateTargetConfigOnLeaf (qStart, qLeaf, q);
       }
 
-      bool LevelSetEdge::applyConstraintsWithOffset (ConfigurationIn_t qStart,
-          ConfigurationIn_t qlevelset, ConfigurationOut_t q) const
+      bool LevelSetEdge::generateTargetConfigOnLeaf(ConfigurationIn_t qStart,
+                                                    ConfigurationIn_t qLeaf,
+                                                    ConfigurationOut_t q) const
       {
         // First, set the offset.
         ConstraintSetPtr_t cs = targetConstraint();
@@ -666,7 +667,7 @@ namespace hpp {
 	for (NumericalConstraints_t::const_iterator it =
 	       paramNumericalConstraints_.begin ();
 	     it != paramNumericalConstraints_.end (); ++it) {
-          cp->rightHandSideFromConfig (*it, qlevelset);
+          cp->rightHandSideFromConfig (*it, qLeaf);
         }
 
         // Eventually, do the projection.

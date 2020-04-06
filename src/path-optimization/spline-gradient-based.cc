@@ -91,8 +91,8 @@ namespace hpp {
           // The path should always go through the start and end states of the
           // transition.
           assert(!HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, transition));
-          graph::StatePtr_t from = transition->from();
-          graph::StatePtr_t to = transition->to();
+          graph::StatePtr_t from = transition->stateFrom();
+          graph::StatePtr_t to = transition->stateTo();
           graph::StatePtr_t from2 = from, to2 = to;
 
           Configuration_t q0 = path->initial (),
@@ -120,7 +120,8 @@ namespace hpp {
           if (use_direct) {
             // Nominal case
             if (transition->state() != to) {
-              constrainEndIntoState (path, i, splines[i], transition->to(), lc);
+              constrainEndIntoState (path, i, splines[i], transition->stateTo(),
+                                     lc);
             }
             stateOfStart = to;
           } else if (use_reverse) {

@@ -40,12 +40,12 @@ namespace hpp {
         Edges_t edges;
         for (graph::Neighbors_t::const_iterator it = from->neighbors ().begin ();
             it != from->neighbors ().end (); ++it) {
-          if (it->second->to () == to)
+          if (it->second->stateTo () == to)
             edges.push_back (it->second);
         }
         for (Edges_t::const_iterator it = from->hiddenNeighbors ().begin ();
             it != from->hiddenNeighbors ().end (); ++it) {
-          if ((*it)->to () == to)
+          if ((*it)->stateTo () == to)
             edges.push_back (*it);
         }
         return edges;
@@ -70,8 +70,8 @@ namespace hpp {
           }
           Configuration_t q0 = current->initial();
           Configuration_t q1 = current->end    ();
-          StatePtr_t src = c->edge()->from();
-          StatePtr_t dst = c->edge()->to  ();
+          StatePtr_t src = c->edge()->stateFrom();
+          StatePtr_t dst = c->edge()->stateTo  ();
           if (src == dst) continue;
 
           bool q0_in_src = src->contains(q0);

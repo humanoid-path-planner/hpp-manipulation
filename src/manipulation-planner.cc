@@ -55,7 +55,7 @@ namespace hpp {
       HPP_DEFINE_TIMECOUNTER(tryConnectToRoadmap);
       /// extend steps
       HPP_DEFINE_TIMECOUNTER(chooseEdge);
-      HPP_DEFINE_TIMECOUNTER(applyConstraints);
+      HPP_DEFINE_TIMECOUNTER(generateTargetConfig);
       HPP_DEFINE_TIMECOUNTER(buildPath);
       HPP_DEFINE_TIMECOUNTER(projectPath);
       HPP_DEFINE_TIMECOUNTER(validatePath);
@@ -241,7 +241,7 @@ namespace hpp {
       HPP_DISPLAY_TIMECOUNTER(nearestNeighbor);
       HPP_DISPLAY_TIMECOUNTER(delayedEdges);
       HPP_DISPLAY_TIMECOUNTER(chooseEdge);
-      HPP_DISPLAY_TIMECOUNTER(applyConstraints);
+      HPP_DISPLAY_TIMECOUNTER(generateTargetConfig);
       HPP_DISPLAY_TIMECOUNTER(buildPath);
       HPP_DISPLAY_TIMECOUNTER(projectPath);
       HPP_DISPLAY_TIMECOUNTER(validatePath);
@@ -265,10 +265,10 @@ namespace hpp {
         return false;
       }
       qProj_ = *q_rand;
-      HPP_START_TIMECOUNTER (applyConstraints);
+      HPP_START_TIMECOUNTER (generateTargetConfig);
       SuccessStatistics& es = edgeStat (edge);
-      if (!edge->applyConstraints (n_near, qProj_)) {
-        HPP_STOP_TIMECOUNTER (applyConstraints);
+      if (!edge->generateTargetConfig(n_near, qProj_)) {
+        HPP_STOP_TIMECOUNTER (generateTargetConfig);
         es.addFailure (reasons_[FAILURE]);
         es.addFailure (reasons_[PROJECTION]);
         return false;
@@ -278,7 +278,7 @@ namespace hpp {
 	es.addFailure (reasons_[PATH_PROJECTION_ZERO]);
 	return false;
       }
-      HPP_STOP_TIMECOUNTER (applyConstraints);
+      HPP_STOP_TIMECOUNTER (generateTargetConfig);
       core::PathPtr_t path;
       HPP_START_TIMECOUNTER (buildPath);
       if (!edge->build (path, *q_near, qProj_)) {

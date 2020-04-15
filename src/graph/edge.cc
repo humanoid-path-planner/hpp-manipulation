@@ -165,8 +165,10 @@ namespace hpp {
 
       void Edge::initialize ()
       {
-        targetConstraints_ = buildTargetConstraint ();
-        pathConstraints_ = buildPathConstraint ();
+        if (!isInit_) {
+          targetConstraints_ = buildTargetConstraint ();
+          pathConstraints_ = buildPathConstraint ();
+        }
         isInit_ = true;
       }
 
@@ -769,8 +771,10 @@ namespace hpp {
 
       void LevelSetEdge::initialize ()
       {
-        Edge::initialize();
-        buildHistogram ();
+        if (!isInit_) {
+          Edge::initialize();
+          buildHistogram ();
+        }
       }
 
       ConstraintSetPtr_t LevelSetEdge::buildConfigConstraint()

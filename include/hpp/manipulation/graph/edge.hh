@@ -58,6 +58,7 @@ namespace hpp {
       /// configuration in the start state by an admissible path.
       class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent
       {
+        friend class WaypointEdge;
         public:
           typedef core::RelativeMotion RelativeMotion;
 
@@ -363,6 +364,8 @@ namespace hpp {
           void init (const WaypointEdgeWkPtr_t& weak, const GraphWkPtr_t& graph, const StateWkPtr_t& from,
               const StateWkPtr_t& to);
 
+          /// Initialize each of the internal edges
+          virtual void initialize ();
           /// Print the object in a stream.
           virtual std::ostream& print (std::ostream& os) const;
 

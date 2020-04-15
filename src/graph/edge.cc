@@ -447,6 +447,22 @@ namespace hpp {
         wkPtr_ = weak;
       }
 
+      void WaypointEdge::initialize ()
+      {
+        Edge::initialize();
+        // Set error threshold of internal edge to error threshold of
+        // waypoint edge divided by number of edges.
+        assert(targetConstraint()->configProjector());
+        value_type eps(targetConstraint()->configProjector()
+                       ->errorThreshold()/(value_type)edges_.size());
+        for(Edges_t::iterator it(edges_.begin()); it != edges_.end(); ++it){
+          (*it)->initialize();
+          assert ((*it)->targetConstraint());
+          assert ((*it)->targetConstraint()->configProjector());
+          (*it)->targetConstraint()->configProjector()->errorThreshold(eps);
+        }
+      }
+
       bool WaypointEdge::canConnect (ConfigurationIn_t q1, ConfigurationIn_t q2) const
       {
         /// TODO: This is not correct
@@ -533,6 +549,7 @@ namespace hpp {
         states_.back() = stateTo();
         const size_type nbDof = graph_.lock ()->robot ()->configSize ();
         configs_ = matrix_t (nbDof, number + 2);
+        invalidate();
       }
 
       void WaypointEdge::setWaypoint (const std::size_t index,

@@ -140,7 +140,10 @@ namespace hpp {
 
       void GraphComponent::throwIfNotInitialized () const
       {
-        if (!isInit_ || (graph_.lock() && !graph_.lock()->isInit_)) throw std::logic_error ("The graph should have been initialized first.");
+        if (!isInit_){
+          throw std::logic_error
+            ("The graph should have been initialized first.");
+        }
       }
 
       std::ostream& operator<< (std::ostream& os,

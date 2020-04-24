@@ -21,6 +21,7 @@
 #include <hpp/core/path-validation-report.hh>
 
 #include <hpp/constraints/generic-transformation.hh>
+#include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/relative-com.hh>
 
 #include <hpp/manipulation/constraint-set.hh>
@@ -68,12 +69,17 @@ namespace hpp_test {
 
   void initialize (bool ur5)
   {
+    components.clear();
     robot = hpp::manipulation::Device::create ("test-robot");
     hpp::manipulation::ProblemPtr_t problem(hpp::manipulation::Problem::create
                                             (robot));
     if (ur5) {
-      hpp::pinocchio::urdf::loadUrdfModel (robot, "anchor", "ur_description",
-                                           "ur5_joint_limited_robot");
+      hpp::pinocchio::urdf::loadModel
+        (robot, 0, "ur5/", "anchor",
+         "package://example-robot-data/robots/ur_description/urdf/"
+         "ur5_joint_limited_robot.urdf",
+         "package://example-robot-data/robots/ur_description/srdf/"
+         "ur5_joint_limited_robot.srdf");
     }
     SteeringMethodPtr_t sm
       (hpp::manipulation::steeringMethod::Graph::create (*problem));
@@ -129,3 +135,32 @@ BOOST_AUTO_TEST_CASE (GraphStructure)
   BOOST_CHECK (node == n1);
 }
 
+BOOST_AUTO_TEST_CASE (Initialization)
+{
+  using namespace hpp_test;
+  using hpp_test::graph_;
+  using hpp::pinocchio::LiegroupElement;
+  using hpp::pinocchio::LiegroupSpace;
+  using hpp::constraints::LockedJoint;
+  using hpp::manipulation::graph::Edge;
+  using hpp::manipulation::graph::EdgePtr_t;
+
+  initialize(true);
+  hpp::manipulation::DevicePtr_t robot(graph_->robot());
+  graph_->addNumericalConstraint(LockedJoint::create
+    (robot->jointAt(1), LiegroupElement(LiegroupSpace::R1())));
+  for (std::size_t i=0; i < components.size(); ++i)
+  {
+    EdgePtr_t edge(HPP_DYNAMIC_PTR_CAST(Edge, components[i]));
+    if (edge) {
+      try {
+        edge->targetConstraint();
+        BOOST_CHECK(false && "should have thrown.");
+      } catch (const std::logic_error& exc) {
+        std::string msg(exc.what());
+        BOOST_CHECK(msg == std::string
+                    ("The graph should have been initialized first."));
+      }
+    }
+  }
+}

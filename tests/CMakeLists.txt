@@ -20,32 +20,7 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 # Make Boost.Test generates the main function in test cases.
 ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
 
-# ADD_TESTCASE(NAME)
-# ------------------------
-#
-# Define a test named `NAME'.
-#
-# This macro will create a binary from `NAME.cc', link it against
-# Boost and add it to the test suite.
-#
-MACRO(ADD_TESTCASE NAME GENERATED)
-  IF (${GENERATED} STREQUAL TRUE)
-    ADD_EXECUTABLE(${NAME} ${CMAKE_CURRENT_BINARY_DIR}/${NAME}.cc)
-  ELSE()
-    ADD_EXECUTABLE(${NAME} ${NAME}.cc)
-  ENDIF()
-  ADD_TEST(${NAME} ${RUNTIME_OUTPUT_DIRECTORY}/${NAME})
+ADD_UNIT_TEST(test-constraintgraph test-constraintgraph.cc)
+PKG_CONFIG_USE_DEPENDENCY(test-constraintgraph hpp-core)
+TARGET_LINK_LIBRARIES(test-constraintgraph ${LIBRARY_NAME})
 
-  PKG_CONFIG_USE_DEPENDENCY (${NAME} hpp-constraints)
-  # Link against Boost and project library.
-  TARGET_LINK_LIBRARIES(${NAME}
-    ${PROJECT_NAME}
-    ${Boost_LIBRARIES}
-    )
-
-ENDMACRO(ADD_TESTCASE)
-
-IF (TEST_UR5)
-  ADD_TESTCASE (test-constraintgraph FALSE)
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DTEST_UR5")
-ENDIF ()

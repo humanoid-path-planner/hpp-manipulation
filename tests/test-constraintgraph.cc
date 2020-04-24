@@ -14,7 +14,6 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include <hpp/util/pointer.hh>
 #include <hpp/pinocchio/urdf/util.hh>
 #include <hpp/pinocchio/liegroup-element.hh>
 
@@ -70,15 +69,11 @@ namespace hpp_test {
   void initialize (bool ur5)
   {
     robot = hpp::manipulation::Device::create ("test-robot");
-    hpp::manipulation::ProblemPtr_t problem
-      (new hpp::manipulation::Problem (robot));
+    hpp::manipulation::ProblemPtr_t problem(hpp::manipulation::Problem::create
+                                            (robot));
     if (ur5) {
-#ifdef TEST_UR5
       hpp::pinocchio::urdf::loadUrdfModel (robot, "anchor", "ur_description",
                                            "ur5_joint_limited_robot");
-#else // TEST_UR5
-      BOOST_ERROR ("Set TEST_UR5 in cmake to activate this.");
-#endif // TEST_UR5
     }
     SteeringMethodPtr_t sm
       (hpp::manipulation::steeringMethod::Graph::create (*problem));
@@ -89,7 +84,7 @@ namespace hpp_test {
     components.push_back(graph_);
     graph_->maxIterations (20);
     graph_->errorThreshold (1e-4);
-    ns = graph_->createStateSelector("node-selector"); components.push_back(ns);
+    ns = graph_->createStateSelector("node-selector");
     n1 = ns->createState ("node 1"); components.push_back(n1);
     n2 = ns->createState ("node 2"); components.push_back(n2);
     e11 = n1->linkTo ("edge 11", n1); components.push_back(e11);

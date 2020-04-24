@@ -17,8 +17,6 @@
 # hpp-manipulation  If not, see
 # <http://www.gnu.org/licenses/>.
 
-SET(LIBRARY_NAME ${PROJECT_NAME})
-
 SET(SOURCES
   handle.cc
   manipulation-planner.cc

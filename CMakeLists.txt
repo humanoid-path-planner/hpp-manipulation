@@ -25,14 +25,12 @@ SET(PROJECT_DESCRIPTION "Classes for manipulation planning.")
 SET(CXX_DISABLE_WERROR TRUE)
 INCLUDE(cmake/hpp.cmake)
 INCLUDE(cmake/boost.cmake)
+INCLUDE(cmake/test.cmake)
 
 COMPUTE_PROJECT_ARGS(PROJECT_ARGS LANGUAGES CXX)
 PROJECT(${PROJECT_NAME} ${PROJECT_ARGS})
 
 LIST(APPEND PKG_CONFIG_ADDITIONAL_VARIABLES cmake_plugin)
-
-# Activate test using UR5 if requested
-SET (TEST_UR5 FALSE CACHE BOOL "Activate tests using ur5")
 
 # Ask Doxygen to create a tree view in html documentation
 SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
@@ -53,8 +51,8 @@ ADD_REQUIRED_DEPENDENCY("hpp-statistics >= 1.1")
 IF (HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
    ADD_REQUIRED_DEPENDENCY("hpp-wholebody-step >= 4")
 ENDIF ()
-IF (TEST_UR5)
-  ADD_REQUIRED_DEPENDENCY("hpp_universal_robot")
+IF (BUILD_TESTING)
+  ADD_REQUIRED_DEPENDENCY("example-robot-data >= 3")
 ENDIF ()
 
 CONFIG_FILES (doc/main.hh
@@ -103,9 +101,13 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/steering-method/end-effector-trajectory.hh
   )
 
+SET(LIBRARY_NAME ${PROJECT_NAME})
+
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(plugins)
-ADD_SUBDIRECTORY(tests)
+IF(BUILD_TESTING)
+  ADD_SUBDIRECTORY(tests)
+ENDIF()
 
 # Add dependency toward hpp-manipulation library in pkg-config file.
 PKG_CONFIG_APPEND_LIBS("hpp-manipulation")

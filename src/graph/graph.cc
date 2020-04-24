@@ -50,7 +50,7 @@ namespace hpp {
             );
       }
 
-      void Graph::initialize ()
+      void Graph::initialize()
       {
         hists_.clear ();
         assert(components_.size() >= 1 && components_[0].lock() == wkPtr_.lock());
@@ -60,9 +60,19 @@ namespace hpp {
         isInit_ = true;
       }
 
+      void Graph::invalidate ()
+      {
+        for (std::size_t i = 1; i < components_.size(); ++i)
+        {
+          assert(components_[i].lock());
+          components_[i].lock()->invalidate();
+        }
+        isInit_ = false;
+      }
+
       StateSelectorPtr_t Graph::createStateSelector (const std::string& name)
       {
-        isInit_ = false;
+        invalidate ();
         stateSelector_ = StateSelector::create (name);
         stateSelector_->parentGraph (wkPtr_);
         return stateSelector_;
@@ -70,14 +80,14 @@ namespace hpp {
 
       void Graph::stateSelector (StateSelectorPtr_t ns)
       {
-        isInit_ = false;
+        invalidate ();
         stateSelector_ = ns;
         stateSelector_->parentGraph (wkPtr_);
       }
 
       void Graph::maxIterations (size_type iterations)
       {
-        isInit_ = false;
+        invalidate ();
         maxIterations_ = iterations;
       }
 
@@ -88,7 +98,7 @@ namespace hpp {
 
       void Graph::errorThreshold (const value_type& threshold)
       {
-        isInit_ = false;
+        invalidate ();
         errorThreshold_ = threshold;
       }
 
@@ -106,7 +116,7 @@ namespace hpp {
       {
         if (problem_ != problem) {
           problem_ = problem;
-          setDirty();
+          invalidate();
         }
       }
 

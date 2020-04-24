@@ -109,8 +109,16 @@ namespace hpp {
           /// Print the component in DOT language.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
+          /// Invalidate the component
+          /// The component needs to be initialized again.
+          virtual void invalidate()
+          {
+            isInit_ = false;
+          }
+
           /// Declare a component as dirty
-          void setDirty();
+          /// \deprecated call invalidate instead
+          void setDirty() HPP_MANIPULATION_DEPRECATED;
 
         protected:
           /// Initialize the component
@@ -143,7 +151,7 @@ namespace hpp {
           /// Populate DrawingAttributes tooltip
           virtual void populateTooltip (dot::Tooltip& tp) const;
 
-          virtual void initialize () = 0;
+          virtual void initialize() = 0;
 
         private:
           /// Name of the component.

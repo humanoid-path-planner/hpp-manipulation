@@ -115,7 +115,7 @@ namespace hpp {
         if (securityMargins_(row, col) != margin) {
           securityMargins_(row, col) = margin;
           securityMargins_(col, row) = margin;
-          isInit_ = false;
+          invalidate ();
         }
       }
 
@@ -839,7 +839,7 @@ namespace hpp {
       (const constraints::ImplicitPtr_t& nm,
               const segments_t& passiveDofs)
       {
-        isInit_ = false;
+        invalidate ();
         paramNumericalConstraints_.push_back (nm);
         paramPassiveDofs_.push_back (passiveDofs);
       }
@@ -853,7 +853,7 @@ namespace hpp {
       (const constraints::ImplicitPtr_t& nm,
               const segments_t& passiveDofs)
       {
-        isInit_ = false;
+        invalidate ();
         condNumericalConstraints_.push_back (nm);
         condPassiveDofs_.push_back (passiveDofs);
       }

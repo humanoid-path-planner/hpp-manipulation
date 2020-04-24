@@ -130,7 +130,7 @@ namespace hpp {
           virtual void addNumericalConstraintForPath (const ImplicitPtr_t& nm,
               const segments_t& passiveDofs = segments_t ())
           {
-            isInit_ = false;
+            invalidate();
             numericalConstraintsForPath_.push_back (nm);
             passiveDofsForPath_.push_back (passiveDofs);
           }

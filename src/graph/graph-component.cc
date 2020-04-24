@@ -48,26 +48,26 @@ namespace hpp {
 
       void GraphComponent::setDirty()
       {
-        isInit_ = false;
+        invalidate();
       }
 
       void GraphComponent::addNumericalConstraint (const ImplicitPtr_t& nm,
           const segments_t& passiveDofs)
       {
-        isInit_ = false;
+        invalidate();
         numericalConstraints_.push_back(nm);
         passiveDofs_.push_back (passiveDofs);
       }
 
       void GraphComponent::addNumericalCost (const ImplicitPtr_t& cost)
       {
-        isInit_ = false;
+        invalidate();
         numericalCosts_.push_back(cost);
       }
 
       void GraphComponent::resetNumericalConstraints ()
       {
-        isInit_ = false;
+        invalidate();
 	numericalConstraints_.clear();
         passiveDofs_.clear();
         numericalCosts_.clear();

@@ -238,7 +238,11 @@ namespace hpp {
           /// Print the component in DOT language.
           virtual std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
 
+          /// Initialize all components of the graph (edges and states)
           virtual void initialize ();
+
+          /// Invalidate all states and edges of the graph
+          virtual void invalidate();
 
         protected:
           /// Initialization of the object.

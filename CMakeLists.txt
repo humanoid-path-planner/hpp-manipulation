@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2014 CNRS
-# Authors: Florent Lamiraux
+# Copyright (c) 2014, 2020 CNRS
+# Authors: Florent Lamiraux, Guilhem Saurel
 #
 #
 # This file is part of hpp-manipulation
@@ -17,12 +17,14 @@
 # hpp-manipulation  If not, see
 # <http://www.gnu.org/licenses/>.
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
 SET(PROJECT_NAME hpp-manipulation)
 SET(PROJECT_DESCRIPTION "Classes for manipulation planning.")
 
+SET(PROJECT_USE_CMAKE_EXPORT TRUE)
 SET(CXX_DISABLE_WERROR TRUE)
+
 INCLUDE(cmake/hpp.cmake)
 INCLUDE(cmake/boost.cmake)
 INCLUDE(cmake/test.cmake)
@@ -38,27 +40,21 @@ SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in th
 SET(HPP_MANIPULATION_HAS_WHOLEBODY_STEP TRUE
   CACHE BOOL "Compile with dependency to hpp-wholebody-step")
 
-SET(BOOST_BUILD_COMPONENTS unit_test_framework)
-SET(BOOST_INSTALL_COMPONENTS regex)
-SET(BOOST_COMPONENTS ${BOOST_INSTALL_COMPONENTS} ${BOOST_BUILD_COMPONENTS})
+SET(BOOST_COMPONENTS unit_test_framework regex)
 
 SEARCH_FOR_BOOST()
-ADD_DOC_DEPENDENCY("hpp-pinocchio >= 4")
-ADD_DOC_DEPENDENCY("hpp-fcl >= 0.4.3")
-ADD_REQUIRED_DEPENDENCY("hpp-core >= 4")
-ADD_REQUIRED_DEPENDENCY("hpp-constraints >= 4")
-ADD_REQUIRED_DEPENDENCY("hpp-statistics >= 1.1")
-IF (HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
-   ADD_REQUIRED_DEPENDENCY("hpp-wholebody-step >= 4")
-ENDIF ()
-IF (BUILD_TESTING)
-  ADD_REQUIRED_DEPENDENCY("example-robot-data >= 3")
-ENDIF ()
+ADD_PROJECT_DEPENDENCY("hpp-core" REQUIRED)
+IF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
+  ADD_PROJECT_DEPENDENCY("hpp-wholebody-step" REQUIRED)
+ENDIF()
+IF(BUILD_TESTING)
+  ADD_PROJECT_DEPENDENCY("example-robot-data" REQUIRED)
+ENDIF()
 
-CONFIG_FILES (doc/main.hh
+CONFIG_FILES(doc/main.hh
   include/hpp/manipulation/package-config.hh)
 
-SET (${PROJECT_NAME}_HEADERS
+SET(${PROJECT_NAME}_HEADERS
   ${CMAKE_BINARY_DIR}/include/hpp/manipulation/package-config.hh
   include/hpp/manipulation/fwd.hh
   include/hpp/manipulation/handle.hh
@@ -101,14 +97,75 @@ SET (${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/steering-method/end-effector-trajectory.hh
   )
 
-SET(LIBRARY_NAME ${PROJECT_NAME})
+SET(${PROJECT_NAME}_SOURCES
+  src/handle.cc
+  src/manipulation-planner.cc
+  src/problem-solver.cc
+  src/roadmap.cc
+  src/connected-component.cc
+  src/leaf-connected-comp.cc
+  src/constraint-set.cc
+  src/roadmap-node.cc
+  src/device.cc
+  src/weighed-distance.cc
+  src/problem.cc
+  src/graph-path-validation.cc
+  src/graph-optimizer.cc
 
-ADD_SUBDIRECTORY(src)
+  src/graph/state.cc
+  src/graph/edge.cc
+  src/graph/graph.cc
+  src/graph/graph-component.cc
+  src/graph/state-selector.cc
+  src/graph/guided-state-selector.cc
+  src/graph/statistics.cc
+  src/graph/helper.cc
+
+  src/graph/dot.cc
+  src/graph/validation.cc
+
+  src/path-optimization/random-shortcut.cc
+  src/path-optimization/enforce-transition-semantic.cc
+
+  src/path-planner/end-effector-trajectory.cc
+
+  src/problem-target/state.cc
+
+  src/steering-method/end-effector-trajectory.cc
+  src/steering-method/cross-state-optimization.cc
+  src/steering-method/graph.cc
+  )
+
+IF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
+  SET(${PROJECT_NAME}_SOURCES
+    ${${PROJECT_NAME}_SOURCES}
+    src/path-optimization/small-steps.cc
+    )
+ENDIF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
+
+ADD_LIBRARY(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
+TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} hpp-core::hpp-core ${Boost_REGEX_LIBRARY})
+IF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
+  TARGET_LINK_LIBRARIES(${PROJECT_NAME} hpp-wholebody-step::hpp-wholebody-step)
+ENDIF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
+
+INSTALL(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
+
+# GPL licenced part
+
+SET(${PROJECT_NAME}_SOURCES_GPL
+  src/path-optimization/spline-gradient-based.cc
+  )
+
+ADD_LIBRARY(${PROJECT_NAME}-gpl SHARED ${${PROJECT_NAME}_SOURCES_GPL})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME}-gpl ${PROJECT_NAME} hpp-core::hpp-core-gpl)
+
+INSTALL(TARGETS ${PROJECT_NAME}-gpl EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
+
 ADD_SUBDIRECTORY(plugins)
 IF(BUILD_TESTING)
   ADD_SUBDIRECTORY(tests)
 ENDIF()
 
-# Add dependency toward hpp-manipulation library in pkg-config file.
-PKG_CONFIG_APPEND_LIBS("hpp-manipulation")
-PKG_CONFIG_APPEND_BOOST_LIBS(${BOOST_INSTALL_COMPONENTS})
+PKG_CONFIG_APPEND_LIBS(${PROJECT_NAME})

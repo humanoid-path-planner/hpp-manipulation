@@ -1,5 +1,6 @@
-# Copyright (c) 2019, Joseph Mirabel
+# Copyright (c) 2019, 2020, CNRS
 # Authors: Joseph Mirabel (joseph.mirabel@laas.fr)
+# Authors: Guilhem Saurel (guilhem.saurel@laas.fr)
 #
 # This file is part of hpp-manipulation.
 # hpp-manipulation is free software: you can redistribute it
@@ -18,10 +19,8 @@ INCLUDE(${HPP_CORE_CMAKE_PLUGIN})
 
 HPP_ADD_PLUGIN(manipulation-spline-gradient-based
   SOURCES spline-gradient-based.cc
-  LINK_DEPENDENCIES ${PROJECT_NAME} ${PROJECT_NAME}-gpl hpp-core-gpl
-  PKG_CONFIG_DEPENDENCIES hpp-core)
+  LINK_DEPENDENCIES ${PROJECT_NAME}-gpl)
 
 HPP_ADD_PLUGIN(end-effector-trajectory
   SOURCES end-effector-trajectory.cc
-  LINK_DEPENDENCIES ${PROJECT_NAME}
-  PKG_CONFIG_DEPENDENCIES hpp-core)
+  LINK_DEPENDENCIES ${PROJECT_NAME})

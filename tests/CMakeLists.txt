@@ -1,6 +1,6 @@
-# Copyright 2012, 2013, 2014 CNRS-LAAS
+# Copyright 2012, 2013, 2014, 2020 CNRS-LAAS
 #
-# Author: Mathieu Geisert
+# Authors: Mathieu Geisert, Guilhem Saurel
 #
 # This file is part of hpp-core
 # hpp-manipulation is free software: you can redistribute it and/or modify
@@ -15,12 +15,8 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with hpp-manipulation  If not, see <http://www.gnu.org/licenses/>.
 
-INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
-
 # Make Boost.Test generates the main function in test cases.
 ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
 
 ADD_UNIT_TEST(test-constraintgraph test-constraintgraph.cc)
-PKG_CONFIG_USE_DEPENDENCY(test-constraintgraph hpp-core)
-TARGET_LINK_LIBRARIES(test-constraintgraph ${LIBRARY_NAME})
-
+TARGET_LINK_LIBRARIES(test-constraintgraph ${PROJECT_NAME} ${Boost_LIBRARIES})

@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE (Initialization)
   initialize(true);
   hpp::manipulation::DevicePtr_t robot(graph_->robot());
   graph_->addNumericalConstraint(LockedJoint::create
-    (robot->jointAt(1), LiegroupElement(LiegroupSpace::R1())));
+    (robot->jointAt(1), LiegroupElement(LiegroupSpace::R1(true))));
   for (std::size_t i=0; i < components.size(); ++i)
   {
     EdgePtr_t edge(HPP_DYNAMIC_PTR_CAST(Edge, components[i]));

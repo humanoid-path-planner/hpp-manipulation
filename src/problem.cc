@@ -101,7 +101,7 @@ namespace hpp {
     {
       pvFactory_ = factory;
       pvTol_ = tol;
-      if (graph_) graph_->setDirty();
+      if (graph_) graph_->invalidate();
     }
 
     void Problem::checkProblem () const

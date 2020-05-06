@@ -41,7 +41,7 @@ namespace hpp {
         {
           public:
             FunctionFromPath (const PathPtr_t& p)
-              : DifferentiableFunction (1, 1, SE3 ? LiegroupSpace::SE3() : LiegroupSpace::Rn(p->outputSize())),
+              : DifferentiableFunction (1, 1, SE3 ? LiegroupSpace::R3xSO3() : LiegroupSpace::Rn(p->outputSize())),
               path_ (p)
             {
               assert (!SE3 ||

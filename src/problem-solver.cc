@@ -282,6 +282,21 @@ namespace hpp {
                              std::get<1>(constraints));
       addNumericalConstraint(std::get<2>(constraints)->function().name(),
                              std::get<2>(constraints));
+      // Set security margin to contact constraint
+      assert(HPP_DYNAMIC_PTR_CAST(constraints::ConvexShapeContact,
+                                  std::get<0>(constraints)->functionPtr()));
+      constraints::ConvexShapeContactPtr_t contactFunction
+        (HPP_STATIC_PTR_CAST(constraints::ConvexShapeContact,
+                             std::get<0>(constraints)->functionPtr()));
+      contactFunction->setNormalMargin(margin);
+      constraintsAndComplements.push_back (
+          ConstraintAndComplement_t (std::get<0>(constraints),
+                                     std::get<1>(constraints),
+                                     std::get<2>(constraints)));
+      if (constraintGraph ())
+        constraintGraph ()->registerConstraints(std::get<0>(constraints),
+                                                std::get<1>(constraints),
+                                                std::get<2>(constraints));
     }
 
     void ProblemSolver::createPrePlacementConstraint

@@ -250,10 +250,7 @@ namespace hpp {
         if (!robot_->jointAndShapes.has (*it1))
           throw std::runtime_error ("First list of triangles not found.");
         l = robot_->jointAndShapes.get (*it1);
-        for (JointAndShapes_t::const_iterator it(l.begin()); it!=l.end();++it)
-        {
-          objectSurfaces.push_back(*it);
-        }
+        objectSurfaces.insert(objectSurfaces.end(), l.begin(), l.end());
       }
 
       for (StringList_t::const_iterator it2 = surface2.begin ();
@@ -265,10 +262,7 @@ namespace hpp {
         else if (jointAndShapes.has (*it2))
           l = jointAndShapes.get (*it2);
         else throw std::runtime_error ("Second list of triangles not found.");
-        for (JointAndShapes_t::const_iterator it(l.begin()); it!=l.end();++it)
-        {
-          floorSurfaces.push_back(*it);
-        }
+        floorSurfaces.insert(floorSurfaces.end(), l.begin(), l.end());
       }
 
       typedef hpp::constraints::explicit_::ConvexShapeContact Constraint_t;
@@ -311,10 +305,7 @@ namespace hpp {
         if (!robot_->jointAndShapes.has (*it1))
           throw std::runtime_error ("First list of triangles not found.");
         l = robot_->jointAndShapes.get (*it1);
-        for (JointAndShapes_t::const_iterator it(l.begin()); it!=l.end();++it)
-        {
-          objectSurfaces.push_back(*it);
-        }
+        objectSurfaces.insert(objectSurfaces.end(), l.begin(), l.end());
       }
 
       for (StringList_t::const_iterator it2 = surface2.begin ();
@@ -326,10 +317,7 @@ namespace hpp {
         else if (jointAndShapes.has (*it2))
           l = jointAndShapes.get (*it2);
         else throw std::runtime_error ("Second list of triangles not found.");
-        for (JointAndShapes_t::const_iterator it(l.begin()); it!=l.end();++it)
-        {
-          floorSurfaces.push_back(*it);
-        }
+        floorSurfaces.insert(floorSurfaces.end(), l.begin(), l.end());
       }
 
       hpp::constraints::ConvexShapeContactPtr_t cvxShape

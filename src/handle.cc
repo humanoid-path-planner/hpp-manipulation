@@ -205,7 +205,7 @@ namespace hpp {
       ImplicitPtr_t result (Implicit::create
          (RelativeTransformation::create
           (n, robot(), gripper->joint (), joint (),
-           transform, localPosition(), mask_),
+           M, localPosition(), mask_),
           ComparisonTypes_t(maskSize (mask_), constraints::EqualToZero)));
       return result;
     }

@@ -72,13 +72,13 @@ namespace hpp {
       return false;
     }
 
-    inline std::size_t maskSize (const std::vector<bool>& mask)
+    inline int maskSize (const std::vector<bool>& mask)
     {
       std::size_t res (0);
       for (std::size_t i = 0; i < 6; ++i) {
         if (mask[i]) ++res;
       }
-      return res;
+      return (int)res;
     }
 
     inline bool is6Dmask (const std::vector<bool>& mask)
@@ -130,7 +130,7 @@ namespace hpp {
 	return constraints::explicit_::RelativePose::create
 	  (n, robot (), gripper->joint (), joint (),
 	   gripper->objectPositionInJoint (), localPosition(),
-           mask_, ComparisonTypes_t (6, constraints::EqualToZero));
+           6 * constraints::EqualToZero);
       }
       return Implicit::create (RelativeTransformation::create
          (n, robot (), gripper->joint (), joint (),
@@ -150,15 +150,14 @@ namespace hpp {
       if (is6Dmask(mask_)) {
         return Implicit::create (
             boost::shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
-                r->configSize(), r->numberDof (), n))
-            );
+              r->configSize(), r->numberDof (), n)), ComparisonTypes_t());
       } else {
         std::vector<bool> Cmask = complementMask(mask_);
         return  Implicit::create (RelativeTransformation::create
            (n, r, gripper->joint (), joint (),
             gripper->objectPositionInJoint (), localPosition(),
             Cmask),
-           ComparisonTypes_t (maskSize (Cmask), constraints::Equality));
+           maskSize(Cmask) * constraints::Equality);
       }
     }
 
@@ -184,8 +183,7 @@ namespace hpp {
       if (isHandleOnFreeflyer (*this)) {
 	return constraints::explicit_::RelativePose::create
 	  (n, robot (), gripper->joint (), joint (),
-	   gripper->objectPositionInJoint (), localPosition(),
-           std::vector <bool> (6, true), comp);
+	   gripper->objectPositionInJoint (), localPosition(), comp);
       }
       return Implicit::create (RelativeTransformation::create
          (n, robot (), gripper->joint (), joint (),
@@ -206,7 +204,7 @@ namespace hpp {
          (RelativeTransformation::create
           (n, robot(), gripper->joint (), joint (),
            M, localPosition(), mask_),
-          ComparisonTypes_t(maskSize (mask_), constraints::EqualToZero)));
+          maskSize(mask_) * constraints::EqualToZero));
       return result;
     }
 

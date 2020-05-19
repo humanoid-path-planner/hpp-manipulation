@@ -324,7 +324,8 @@ namespace hpp {
         (hpp::constraints::ConvexShapeContact::create
          (name, robot_, floorSurfaces, objectSurfaces));
       cvxShape->setNormalMargin(margin + width);
-      addNumericalConstraint (name, Implicit::create (cvxShape));
+      addNumericalConstraint (name, Implicit::create
+                              (cvxShape, 5 * constraints::EqualToZero));
     }
 
     void ProblemSolver::createGraspConstraint

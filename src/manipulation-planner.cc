@@ -398,10 +398,7 @@ namespace hpp {
               itn2 != knearest.end (); ++itn2) {
             bool _1to2 = (*itn1)->isOutNeighbor (*itn2);
             bool _2to1 = (*itn1)->isInNeighbor (*itn2);
-            if (_1to2 && _2to1) {
-              hppDout (info, "the two nodes are already connected");
-              continue;
-            }
+            assert (!_1to2 || !_2to1);
 
             const Configuration_t& q2 (*(*itn2)->configuration ());
             graph::StatePtr_t s2 = getState (graph, *itn2);
@@ -445,10 +442,7 @@ namespace hpp {
             continue;
           bool _1to2 = (*itn1)->isOutNeighbor (*itn2);
           bool _2to1 = (*itn1)->isInNeighbor (*itn2);
-          if (_1to2 && _2to1) {
-            hppDout (info, "the two nodes are already connected");
-            continue;
-          }
+          assert (!_1to2 || !_2to1);
           const Configuration_t& q2 (*(*itn2)->configuration ());
           graph::StatePtr_t s2 = getState (graph, *itn2);
           assert (q1 != q2);

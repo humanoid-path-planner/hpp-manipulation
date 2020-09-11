@@ -19,4 +19,4 @@
 ADD_DEFINITIONS(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
 
 ADD_UNIT_TEST(test-constraintgraph test-constraintgraph.cc)
-TARGET_LINK_LIBRARIES(test-constraintgraph ${PROJECT_NAME} ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES(test-constraintgraph ${PROJECT_NAME} Boost::unit_test_framework)

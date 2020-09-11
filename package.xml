@@ -1,33 +1,33 @@
-<?xml version='1.0'?> 
- <package format='2'> 
- <name>hpp-manipulation</name> 
- <version>4.10.0</version>
- <description>Classes for manipulation planning. </description> 
- 
- <maintainer email='hpp@laas.fr'>Joseph Mirabel</maintainer> 
- <license>LGPL</license> 
- 
- <!-- <url type='website'>https://github.com/humanoid-path-planner/hpp-manipulation </url> --> 
- 
- <author>Joseph Mirabel</author> 
- <author>Florent Lamiraux et al.</author> 
- 
- <buildtool_depend>catkin</buildtool_depend> 
- <build_depend>hpp-core</build_depend> 
- <exec_depend>hpp-core</exec_depend> 
+<?xml version='1.0'?>
+ <package format='2'>
+ <name>hpp-manipulation</name>
+ <version>4.10.1</version>
+ <description>Classes for manipulation planning. </description>
+
+ <maintainer email='hpp@laas.fr'>Joseph Mirabel</maintainer>
+ <license>LGPL</license>
+
+ <!-- <url type='website'>https://github.com/humanoid-path-planner/hpp-manipulation </url> -->
+
+ <author>Joseph Mirabel</author>
+ <author>Florent Lamiraux et al.</author>
+
+ <buildtool_depend>catkin</buildtool_depend>
+ <build_depend>hpp-core</build_depend>
+ <exec_depend>hpp-core</exec_depend>
  <build_export_depend>hpp-core</build_export_depend>
- <build_depend>hpp-wholebody-step</build_depend> 
- <exec_depend>hpp-wholebody-step</exec_depend> 
+ <build_depend>hpp-wholebody-step</build_depend>
+ <exec_depend>hpp-wholebody-step</exec_depend>
  <build_export_depend>hpp-wholebody-step</build_export_depend>
- <test_depend>example-robot-data</test_depend> 
- <build_depend>eigen3</build_depend> 
- <exec_depend>eigen3</exec_depend> 
+ <test_depend>example-robot-data</test_depend>
+ <build_depend>eigen3</build_depend>
+ <exec_depend>eigen3</exec_depend>
  <build_export_depend>eigen3</build_export_depend>
- <build_depend>urdfdom</build_depend> 
- <exec_depend>urdfdom</exec_depend> 
+ <build_depend>urdfdom</build_depend>
+ <exec_depend>urdfdom</exec_depend>
  <build_export_depend>urdfdom</build_export_depend>
- <build_depend>hpp-fcl</build_depend> 
- <exec_depend>hpp-fcl</exec_depend> 
+ <build_depend>hpp-fcl</build_depend>
+ <exec_depend>hpp-fcl</exec_depend>
  <build_export_depend>hpp-fcl</build_export_depend>
- <test_depend>romeo_description</test_depend> 
+ <test_depend>romeo_description</test_depend>
  </package>

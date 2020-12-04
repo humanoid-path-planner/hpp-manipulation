@@ -87,8 +87,13 @@ namespace hpp {
           self_ = self;
         }
 
+        /// For serialization only
+        Device() {}
+
       private:
         DeviceWkPtr_t self_;
+
+        HPP_SERIALIZABLE();
     }; // class Device
   } // namespace manipulation
 } // namespace hpp

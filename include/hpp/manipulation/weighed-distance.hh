@@ -69,6 +69,9 @@ namespace hpp {
     private:
       graph::GraphPtr_t graph_;
       WeighedDistanceWkPtr_t weak_;
+
+      WeighedDistance() {}
+      HPP_SERIALIZABLE();
     }; // class Distance
     /// \}
   } //   namespace manipulation

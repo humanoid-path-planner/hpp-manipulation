@@ -98,6 +98,9 @@ namespace hpp {
         graph::StatePtr_t state_;
         RoadmapNodes_t nodes_;
 
+        /// For serialization only.
+        LeafConnectedComp() {}
+
       private:
         static void clean (LeafConnectedComps_t& set);
         // status variable to indicate whether or not CC has been visited
@@ -106,6 +109,8 @@ namespace hpp {
         LeafConnectedComps_t to_, from_;
         LeafConnectedCompWkPtr_t weak_;
         friend class Roadmap;
+
+        HPP_SERIALIZABLE();
     }; // class LeafConnectedComp
 
     class HPP_MANIPULATION_DLLAPI WeighedLeafConnectedComp :
@@ -136,6 +141,8 @@ namespace hpp {
           : LeafConnectedComp(r), weight_(1) {}
 
       private:
+        WeighedLeafConnectedComp() {}
+        HPP_SERIALIZABLE();
     }; // class LeafConnectedComp
   } //   namespace manipulation
 } // namespace hpp

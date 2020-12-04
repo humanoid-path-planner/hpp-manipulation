@@ -92,3 +92,5 @@ namespace hpp {
     HPP_SERIALIZATION_IMPLEMENT(ConstraintSet);
   } // namespace manipulation
 } // namespace hpp
+
+BOOST_CLASS_EXPORT(hpp::manipulation::ConstraintSet)

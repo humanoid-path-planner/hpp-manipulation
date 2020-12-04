@@ -16,12 +16,18 @@
 
 #include <hpp/manipulation/weighed-distance.hh>
 
+#include <boost/serialization/serialization.hpp>
+#include <boost/serialization/weak_ptr.hpp>
+
 #include <hpp/util/debug.hh>
+#include <hpp/util/serialization.hh>
+#include <hpp/pinocchio/serialization.hh>
 
 #include <hpp/manipulation/device.hh>
 #include <hpp/manipulation/roadmap-node.hh>
 #include <hpp/manipulation/graph/graph.hh>
 #include <hpp/manipulation/graph/edge.hh>
+#include <hpp/manipulation/serialization.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -97,5 +103,20 @@ namespace hpp {
       }
       return d + 100;
     }
+
+    template <typename Archive>
+    inline void WeighedDistance::serialize(Archive& ar, const unsigned int version)
+    {
+      using namespace boost::serialization;
+      (void) version;
+      ar & make_nvp("base", base_object<core::WeighedDistance>(*this));
+      ar & BOOST_SERIALIZATION_NVP(graph_);
+      ar & BOOST_SERIALIZATION_NVP(weak_);
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(WeighedDistance);
+
   } //   namespace manipulation
 } // namespace hpp
+
+BOOST_CLASS_EXPORT(hpp::manipulation::WeighedDistance)

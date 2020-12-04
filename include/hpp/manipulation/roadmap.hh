@@ -115,6 +115,9 @@ namespace hpp {
         graph::GraphPtr_t graph_;
         RoadmapWkPtr_t weak_;
         LeafConnectedComps_t leafCCs_;
+
+        Roadmap() {}
+        HPP_SERIALIZABLE();
     };
     /// \}
   } // namespace manipulation

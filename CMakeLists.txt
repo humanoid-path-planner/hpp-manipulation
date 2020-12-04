@@ -91,11 +91,12 @@ SET(${PROJECT_NAME}_HEADERS
 
   include/hpp/manipulation/problem-target/state.hh
 
+  include/hpp/manipulation/serialization.hh
+
   include/hpp/manipulation/steering-method/cross-state-optimization.hh
   include/hpp/manipulation/steering-method/fwd.hh
   include/hpp/manipulation/steering-method/graph.hh
   include/hpp/manipulation/steering-method/end-effector-trajectory.hh
-  include/hpp/manipulation/serialization.hh
   )
 
 SET(${PROJECT_NAME}_SOURCES
@@ -131,6 +132,8 @@ SET(${PROJECT_NAME}_SOURCES
   src/path-planner/end-effector-trajectory.cc
 
   src/problem-target/state.cc
+
+  src/serialization.cc
 
   src/steering-method/end-effector-trajectory.cc
   src/steering-method/cross-state-optimization.cc

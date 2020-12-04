@@ -19,14 +19,19 @@
 
 #include <hpp/manipulation/device.hh>
 
+#include <boost/serialization/weak_ptr.hpp>
+
 #include <pinocchio/multibody/model.hpp>
 #include <pinocchio/multibody/geometry.hpp>
+
+#include <hpp/util/serialization.hh>
 
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/gripper.hh>
 
 #include <hpp/manipulation/handle.hh>
+#include <hpp/manipulation/serialization.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -130,5 +135,29 @@ namespace hpp {
       grippers.print (os);
       return os;
     }
-  } // namespace manipulation
+
+    template<class Archive>
+    void Device::serialize(Archive & ar, const unsigned int version)
+    {
+      using hpp::serialization::archive_device_wrapper;
+      using namespace boost::serialization;
+
+      (void) version;
+      ar & make_nvp("base", base_object<pinocchio::HumanoidRobot>(*this));
+      archive_device_wrapper* adw = dynamic_cast<archive_device_wrapper*>(&ar);
+      bool written = (adw != NULL);
+      ar & BOOST_SERIALIZATION_NVP(written);
+      if (written) {
+        ar & BOOST_SERIALIZATION_NVP(self_);
+        // TODO (easy) add serialization of core::Container ?
+        //ar & BOOST_SERIALIZATION_NVP(handles);
+        //ar & BOOST_SERIALIZATION_NVP(grippers);
+        //ar & BOOST_SERIALIZATION_NVP(jointAndShapes);
+      }
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(Device);
+  } // namespace pinocchio
 } // namespace hpp
+
+BOOST_CLASS_EXPORT(hpp::manipulation::Device)

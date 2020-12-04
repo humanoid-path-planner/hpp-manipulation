@@ -107,6 +107,9 @@ namespace hpp {
 
         graph::StateWkPtr_t state_;
         LeafConnectedCompPtr_t leafCC_;
+
+        RoadmapNode() {}
+        HPP_SERIALIZABLE();
     };
   } // namespace manipulation
 } // namespace hpp

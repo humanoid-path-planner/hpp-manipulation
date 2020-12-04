@@ -16,8 +16,11 @@
 
 #include "hpp/manipulation/constraint-set.hh"
 
+#include <hpp/util/serialization.hh>
+
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/graph/edge.hh"
+#include "hpp/manipulation/serialization.hh"
 
 namespace hpp {
   namespace manipulation {
@@ -75,5 +78,17 @@ namespace hpp {
       if (edge_) os << iendl << "Built by edge " << edge_->name();
       return os;
     }
+
+    template<class Archive>
+    void ConstraintSet::serialize(Archive & ar, const unsigned int version)
+    {
+      using namespace boost::serialization;
+      (void) version;
+      ar & make_nvp("base", base_object<core::ConstraintSet>(*this));
+      ar & BOOST_SERIALIZATION_NVP(edge_);
+      ar & BOOST_SERIALIZATION_NVP(weak_);
+    }
+
+    HPP_SERIALIZATION_IMPLEMENT(ConstraintSet);
   } // namespace manipulation
 } // namespace hpp

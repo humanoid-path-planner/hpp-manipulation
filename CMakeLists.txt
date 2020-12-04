@@ -95,6 +95,7 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/steering-method/fwd.hh
   include/hpp/manipulation/steering-method/graph.hh
   include/hpp/manipulation/steering-method/end-effector-trajectory.hh
+  include/hpp/manipulation/serialization.hh
   )
 
 SET(${PROJECT_NAME}_SOURCES

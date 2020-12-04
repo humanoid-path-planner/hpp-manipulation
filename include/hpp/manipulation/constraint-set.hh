@@ -62,6 +62,9 @@ namespace hpp {
     private:
       graph::EdgePtr_t edge_;
       ConstraintSetWkPtr_t weak_;
+
+      ConstraintSet() {}
+      HPP_SERIALIZABLE();
     }; // class ConstraintSet
 
     struct ConstraintAndComplement_t {

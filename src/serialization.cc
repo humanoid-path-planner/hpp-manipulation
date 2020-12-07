@@ -29,10 +29,10 @@
 #include <hpp/manipulation/roadmap.hh>
 #include <hpp/manipulation/serialization.hh>
 
-BOOST_CLASS_EXPORT(hpp::manipulation::RoadmapNode)
-BOOST_CLASS_EXPORT(hpp::manipulation::LeafConnectedComp)
-BOOST_CLASS_EXPORT(hpp::manipulation::WeighedLeafConnectedComp)
-BOOST_CLASS_EXPORT(hpp::manipulation::Roadmap)
+BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::RoadmapNode)
+BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::LeafConnectedComp)
+BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::WeighedLeafConnectedComp)
+BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::Roadmap)
 
 namespace hpp {
 namespace manipulation {

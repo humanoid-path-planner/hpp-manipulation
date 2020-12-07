@@ -97,4 +97,7 @@ namespace hpp {
     }; // class Device
   } // namespace manipulation
 } // namespace hpp
+
+BOOST_CLASS_EXPORT_KEY(hpp::manipulation::Device)
+
 #endif // HPP_MANIPULATION_DEVICE_HH

@@ -160,4 +160,4 @@ namespace hpp {
   } // namespace pinocchio
 } // namespace hpp
 
-BOOST_CLASS_EXPORT(hpp::manipulation::Device)
+BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::Device)

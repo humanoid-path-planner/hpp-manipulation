@@ -84,4 +84,6 @@ namespace hpp {
   } // namespace manipulation
 } // namespace hpp
 
+BOOST_CLASS_EXPORT_KEY(hpp::manipulation::ConstraintSet)
+
 #endif // HPP_MANIPULATION_CONSTRAINT_SET_HH

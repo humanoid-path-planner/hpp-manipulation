@@ -93,4 +93,4 @@ namespace hpp {
   } // namespace manipulation
 } // namespace hpp
 
-BOOST_CLASS_EXPORT(hpp::manipulation::ConstraintSet)
+BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::ConstraintSet)

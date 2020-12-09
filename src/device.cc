@@ -145,7 +145,7 @@ namespace hpp {
       (void) version;
       ar & make_nvp("base", base_object<pinocchio::HumanoidRobot>(*this));
       archive_device_wrapper* adw = dynamic_cast<archive_device_wrapper*>(&ar);
-      bool written = (adw != NULL);
+      bool written = (adw == NULL);
       ar & BOOST_SERIALIZATION_NVP(written);
       if (written) {
         ar & BOOST_SERIALIZATION_NVP(self_);

@@ -20,12 +20,9 @@
 
 namespace hpp {
   namespace manipulation {
-    RoadmapNode::CachingSystem RoadmapNode::defaultCachingSystem = RoadmapNode::CACHE_DISABLED;
-
     RoadmapNode::RoadmapNode (const ConfigurationPtr_t& configuration,
         ConnectedComponentPtr_t cc) :
       core::Node (configuration, cc),
-      cacheSystem_ (defaultCachingSystem),
       state_ ()
     {}
   } // namespace manipulation

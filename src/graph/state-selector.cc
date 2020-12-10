@@ -90,22 +90,9 @@ namespace hpp {
 
       StatePtr_t StateSelector::getState(RoadmapNodePtr_t node) const
       {
-        StatePtr_t n;
-        switch (node->cachingSystem ()) {
-          case RoadmapNode::CACHE_UP_TO_DATE:
-            n = node->graphState ();
-            break;
-          case RoadmapNode::CACHE_DISABLED:
-          case RoadmapNode::CACHE_NEED_UPDATE:
-            n = getState (*(node->configuration ()));
-            node->graphState (n);
-            break;
-          default:
-            n = getState (*(node->configuration ()));
-            hppDout (error, "Unimplemented caching system.");
-            break;
-        }
-        return n;
+        if (!node->cacheUpToDate())
+          node->graphState(getState(*(node->configuration())));
+        return node->graphState();
       }
 
       EdgePtr_t StateSelector::chooseEdge(RoadmapNodePtr_t from) const

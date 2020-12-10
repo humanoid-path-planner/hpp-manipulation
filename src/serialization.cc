@@ -44,9 +44,8 @@ inline void RoadmapNode::serialize(Archive& ar, const unsigned int version)
   using namespace boost::serialization;
   (void) version;
   ar & make_nvp("base", base_object<core::Node>(*this));
-  ar & BOOST_SERIALIZATION_NVP(cacheSystem_);
   ar & BOOST_SERIALIZATION_NVP(state_);
-  //ar & BOOST_SERIALIZATION_NVP(leafCC_);
+  ar & BOOST_SERIALIZATION_NVP(leafCC_);
 }
 HPP_SERIALIZATION_IMPLEMENT(RoadmapNode);
 

@@ -34,39 +34,19 @@ namespace hpp {
       public:
         RoadmapNode (const ConfigurationPtr_t& configuration) :
           core::Node (configuration),
-          cacheSystem_ (defaultCachingSystem),
           state_ ()
         {}
 
         RoadmapNode (const ConfigurationPtr_t& configuration,
             ConnectedComponentPtr_t cc);
 
-        /// \name Cache system
+        /// \name Cache
         /// \{
 
-        enum CachingSystem {
-          /// The caching system is disabled. The graph::Node containing this
-          /// node can be obtained by checking the constraints.
-          CACHE_DISABLED,
-          /// The chaching system is enabled and up to date.
-          CACHE_UP_TO_DATE,
-          /// The chaching system is enabled but the cache is not up to date.
-          CACHE_NEED_UPDATE
-        };
-
-        static CachingSystem defaultCachingSystem;
-
         /// Get the caching system being used.
-        CachingSystem cachingSystem () const
+        bool cacheUpToDate () const
         {
-          return cacheSystem_;
-        }
-
-        /// Getter for the graph::State.
-	/// \deprecated use graphState instead.
-        graph::StatePtr_t graphNode () const HPP_MANIPULATION_DEPRECATED
-        {
-          return state_.lock();
+          return static_cast<bool>(graphState());
         }
 
         /// Getter for the graph::State.
@@ -76,18 +56,8 @@ namespace hpp {
         }
 
         /// Setter for the graph::State.
-	/// \deprecated use graphState instead
-        void graphNode (const graph::StatePtr_t& state)
-	  HPP_MANIPULATION_DEPRECATED
-        {
-          if (cacheSystem_ != CACHE_DISABLED) cacheSystem_ = CACHE_UP_TO_DATE;
-          state_ = state;
-        }
-
-        /// Setter for the graph::State.
         void graphState (const graph::StatePtr_t& state)
         {
-          if (cacheSystem_ != CACHE_DISABLED) cacheSystem_ = CACHE_UP_TO_DATE;
           state_ = state;
         }
         /// \}
@@ -103,8 +73,6 @@ namespace hpp {
         }
 
       private:
-        CachingSystem cacheSystem_;
-
         graph::StateWkPtr_t state_;
         LeafConnectedCompPtr_t leafCC_;
 

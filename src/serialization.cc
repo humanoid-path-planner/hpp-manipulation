@@ -24,13 +24,14 @@
 #include <pinocchio/serialization/eigen.hpp>
 #include <hpp/util/serialization.hh>
 
+#include <hpp/manipulation/device.hh>
 #include <hpp/manipulation/leaf-connected-comp.hh>
 #include <hpp/manipulation/roadmap-node.hh>
 #include <hpp/manipulation/roadmap.hh>
 #include <hpp/manipulation/serialization.hh>
 
 BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::RoadmapNode)
-BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::LeafConnectedComp)
+BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::ConnectedComponent)
 BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::WeighedLeafConnectedComp)
 BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::Roadmap)
 
@@ -48,6 +49,24 @@ inline void RoadmapNode::serialize(Archive& ar, const unsigned int version)
   //ar & BOOST_SERIALIZATION_NVP(leafCC_);
 }
 HPP_SERIALIZATION_IMPLEMENT(RoadmapNode);
+
+template <typename Archive>
+inline void ConnectedComponent::serialize(Archive& ar, const unsigned int version)
+{
+  using namespace boost::serialization;
+  (void) version;
+  ar & make_nvp("base", base_object<core::ConnectedComponent>(*this));
+  ar & BOOST_SERIALIZATION_NVP(roadmap_);
+  if (!Archive::is_saving::value) {
+    RoadmapPtr_t roadmap = roadmap_.lock();
+    for (const core::NodePtr_t& node : nodes()) {
+      const RoadmapNodePtr_t& n = static_cast <const RoadmapNodePtr_t> (node);
+      graphStateMap_[roadmap->getState(n)].push_back(n);
+    }
+  }
+  //ar & BOOST_SERIALIZATION_NVP(graphStateMap_);
+}
+HPP_SERIALIZATION_IMPLEMENT(ConnectedComponent);
 
 template <typename Archive>
 inline void LeafConnectedComp::serialize(Archive& ar, const unsigned int version)
@@ -81,11 +100,12 @@ inline void Roadmap::serialize(Archive& ar, const unsigned int version)
 {
   using namespace boost::serialization;
   (void) version;
+  // Must deserialize the graph before the connected components (so the base class).
+  ar & BOOST_SERIALIZATION_NVP(graph_);
+  ar & BOOST_SERIALIZATION_NVP(weak_);
   ar & make_nvp("base", base_object<core::Roadmap>(*this));
   //ar & BOOST_SERIALIZATION_NVP(histograms_);
-  ar & BOOST_SERIALIZATION_NVP(graph_);
   ar & BOOST_SERIALIZATION_NVP(leafCCs_);
-  ar & BOOST_SERIALIZATION_NVP(weak_);
 }
 HPP_SERIALIZATION_IMPLEMENT(Roadmap);
 

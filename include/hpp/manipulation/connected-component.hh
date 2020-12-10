@@ -55,8 +55,11 @@ class HPP_MANIPULATION_DLLAPI ConnectedComponent : public core::ConnectedCompone
   private:
       bool check () const;
 	GraphStates_t graphStateMap_;
-	RoadmapPtr_t roadmap_;
+	// a RoadmapWkPtr_t so that memory can be released ?
+	RoadmapWkPtr_t roadmap_;
         static RoadmapNodes_t empty_;
+
+      HPP_SERIALIZABLE();
     }; // class ConnectedComponent
   } //   namespace manipulation
 } // namespace hpp

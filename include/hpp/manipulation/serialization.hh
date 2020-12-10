@@ -42,7 +42,7 @@ struct archive_graph_wrapper {
 } // namespace hpp
 
 BOOST_CLASS_EXPORT_KEY(hpp::manipulation::RoadmapNode)
-BOOST_CLASS_EXPORT_KEY(hpp::manipulation::LeafConnectedComp)
+BOOST_CLASS_EXPORT_KEY(hpp::manipulation::ConnectedComponent)
 BOOST_CLASS_EXPORT_KEY(hpp::manipulation::WeighedLeafConnectedComp)
 BOOST_CLASS_EXPORT_KEY(hpp::manipulation::Roadmap)
 

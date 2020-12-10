@@ -184,7 +184,7 @@ namespace hpp {
         core::value_type distance;
         for (itState = graphStates.begin (); itState != graphStates.end (); ++itState) {
           HPP_START_TIMECOUNTER(nearestNeighbor);
-          RoadmapNodePtr_t near = roadmap_->nearestNode (q_rand, HPP_STATIC_PTR_CAST(ConnectedComponent,*itcc), *itState, distance);
+          RoadmapNodePtr_t near = roadmap_->nearestNodeInState (q_rand, HPP_STATIC_PTR_CAST(ConnectedComponent,*itcc), *itState, distance);
           HPP_STOP_TIMECOUNTER(nearestNeighbor);
           HPP_DISPLAY_LAST_TIMECOUNTER(nearestNeighbor);
           if (!near) continue;

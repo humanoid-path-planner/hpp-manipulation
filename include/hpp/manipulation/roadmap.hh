@@ -55,7 +55,7 @@ namespace hpp {
 
         /// Get the nearest neighbor in a given graph::Node and in a given
         /// ConnectedComponent.
-        RoadmapNodePtr_t nearestNode (const ConfigurationPtr_t& configuration,
+        RoadmapNodePtr_t nearestNodeInState (const ConfigurationPtr_t& configuration,
             const ConnectedComponentPtr_t& connectedComponent,
             const graph::StatePtr_t& state,
             value_type& minDistance) const;
@@ -105,7 +105,7 @@ namespace hpp {
 	  weak_ = shPtr;
 	}
 
-        virtual void addEdge (const core::EdgePtr_t& edge);
+        virtual void impl_addEdge (const core::EdgePtr_t& edge);
 
       private:
         typedef graph::Histograms_t Histograms_t;

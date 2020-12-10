@@ -91,7 +91,7 @@ namespace hpp {
       // graph->histograms() and this class will not know it.
     }
 
-    RoadmapNodePtr_t Roadmap::nearestNode (const ConfigurationPtr_t& configuration,
+    RoadmapNodePtr_t Roadmap::nearestNodeInState (const ConfigurationPtr_t& configuration,
         const ConnectedComponentPtr_t& connectedComponent,
         const graph::StatePtr_t& state,
         value_type& minDistance) const
@@ -159,9 +159,9 @@ namespace hpp {
       }
     }
 
-    void Roadmap::addEdge (const core::EdgePtr_t& edge)
+    void Roadmap::impl_addEdge (const core::EdgePtr_t& edge)
     {
-      Parent::addEdge(edge);
+      Parent::impl_addEdge(edge);
       const RoadmapNodePtr_t& f = static_cast <const RoadmapNodePtr_t> (edge->from());
       const RoadmapNodePtr_t& t = static_cast <const RoadmapNodePtr_t> (edge->to());
       if (f->graphState () == t->graphState ()) {

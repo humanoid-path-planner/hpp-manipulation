@@ -39,7 +39,7 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI SmallSteps : public PathOptimizer
       {
         public:
-          static SmallStepsPtr_t create (const core::Problem& problem)
+          static SmallStepsPtr_t create (const core::ProblemConstPtr_t& problem)
           {
             SmallSteps* ptr (new SmallSteps (problem));
             return SmallStepsPtr_t (ptr);
@@ -49,7 +49,7 @@ namespace hpp {
 
         protected:
           /// Constructor
-          SmallSteps (const core::Problem& problem) :
+          SmallSteps (const core::ProblemConstPtr_t& problem) :
             PathOptimizer (problem)
         {}
       };

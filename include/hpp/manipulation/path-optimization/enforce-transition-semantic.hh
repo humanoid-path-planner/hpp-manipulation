@@ -36,8 +36,8 @@ namespace hpp {
           typedef hpp::core::PathVectorPtr_t PathVectorPtr_t;
           typedef boost::shared_ptr<EnforceTransitionSemantic> Ptr_t;
 
-          static Ptr_t create (const core::Problem& problem) {
-            const Problem& p = dynamic_cast <const Problem&> (problem);
+          static Ptr_t create (const core::ProblemConstPtr_t& problem) {
+            ProblemConstPtr_t p (HPP_DYNAMIC_PTR_CAST(const Problem, problem));
             return Ptr_t (new EnforceTransitionSemantic (p));
           }
 
@@ -45,11 +45,11 @@ namespace hpp {
 
         protected:
           /// Constructor
-          EnforceTransitionSemantic (const Problem& problem) :
+          EnforceTransitionSemantic (const ProblemConstPtr_t& problem) :
             PathOptimizer (problem), problem_ (problem) {}
 
         private:
-          const Problem& problem_;
+          ProblemConstPtr_t problem_;
       };
 
       /// \}

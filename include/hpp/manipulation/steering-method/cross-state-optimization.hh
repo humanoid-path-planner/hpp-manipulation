@@ -89,20 +89,21 @@ namespace hpp {
         public:
           struct OptimizationData;
 
-          static CrossStateOptimizationPtr_t create (const Problem& problem);
+          static CrossStateOptimizationPtr_t create
+	    (const ProblemConstPtr_t& problem);
 
           /// \warning core::Problem will be casted to Problem
           static CrossStateOptimizationPtr_t create
-            (const core::Problem& problem);
+            (const core::ProblemConstPtr_t& problem);
 
           template <typename T>
             static CrossStateOptimizationPtr_t create
-            (const core::Problem& problem);
+            (const core::ProblemConstPtr_t& problem);
 
           core::SteeringMethodPtr_t copy () const;
 
         protected:
-          CrossStateOptimization (const Problem& problem) :
+          CrossStateOptimization (const ProblemConstPtr_t& problem) :
             SteeringMethod (problem),
             sameRightHandSide_ ()
           {
@@ -167,9 +168,10 @@ namespace hpp {
 
       template <typename T>
         CrossStateOptimizationPtr_t CrossStateOptimization::create
-        (const core::Problem& problem)
+        (const core::ProblemConstPtr_t& problem)
       {
-        CrossStateOptimizationPtr_t gsm = CrossStateOptimization::create (problem);
+        CrossStateOptimizationPtr_t gsm = CrossStateOptimization::create
+	  (problem);
         gsm->innerSteeringMethod (T::create (problem));
         return gsm;
       }

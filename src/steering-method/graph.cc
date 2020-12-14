@@ -27,7 +27,7 @@
 
 namespace hpp {
   namespace manipulation {
-    SteeringMethod::SteeringMethod (const Problem& problem) :
+    SteeringMethod::SteeringMethod (const ProblemConstPtr_t& problem) :
       core::SteeringMethod (problem), problem_ (problem),
       steeringMethod_ (core::SteeringMethodStraight::create (problem))
     {
@@ -42,17 +42,11 @@ namespace hpp {
     namespace steeringMethod {
 
       GraphPtr_t Graph::create
-        (const core::Problem& problem)
+        (const core::ProblemConstPtr_t& problem)
         {
-          HPP_STATIC_CAST_REF_CHECK (const Problem, problem);
-          const Problem& p = static_cast <const Problem&> (problem);
-          return create (p);
-        }
-
-      GraphPtr_t Graph::create
-        (const Problem& problem)
-        {
-          Graph* ptr = new Graph (problem);
+          assert(HPP_DYNAMIC_PTR_CASE (const Problem, problem));
+          ProblemConstPtr_t p = HPP_STATIC_PTR_CAST(const Problem, problem);
+          Graph* ptr = new Graph (p);
           GraphPtr_t shPtr (ptr);
           ptr->init (shPtr);
           return shPtr;
@@ -67,7 +61,7 @@ namespace hpp {
           return shPtr;
         }
 
-      Graph::Graph (const Problem& problem) :
+      Graph::Graph (const ProblemConstPtr_t& problem) :
         SteeringMethod (problem), weak_ ()
       {
       }
@@ -84,12 +78,12 @@ namespace hpp {
         // them
         if (q1 == q2) {
           core::SteeringMethodPtr_t sm
-            (problem_.manipulationSteeringMethod()->innerSteeringMethod());
+            (problem_->manipulationSteeringMethod()->innerSteeringMethod());
           return (*sm) (q1, q2);
         }
-        if (!problem_.constraintGraph())
+        if (!problem_->constraintGraph())
           throw std::invalid_argument ("The constraint graph should be set to use the steeringMethod::Graph");
-        const graph::Graph& graph = *problem_.constraintGraph ();
+        const graph::Graph& graph = *(problem_->constraintGraph ());
         try {
           possibleEdges = graph.getEdges
             (graph.getState (q1), graph.getState (q2));

@@ -82,7 +82,7 @@ namespace hpp_test {
          "ur5_joint_limited_robot.srdf");
     }
     SteeringMethodPtr_t sm
-      (hpp::manipulation::steeringMethod::Graph::create (*problem));
+      (hpp::manipulation::steeringMethod::Graph::create (problem));
     hpp::core::ProblemPtr_t pb (problem);
     pb->steeringMethod (sm);
 

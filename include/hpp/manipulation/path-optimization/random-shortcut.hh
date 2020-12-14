@@ -35,13 +35,14 @@ namespace hpp {
       {
         public:
           /// Return shared pointer to new object.
-          static RandomShortcutPtr_t create (const core::Problem& problem)
+          static RandomShortcutPtr_t create
+	    (const core::ProblemConstPtr_t problem)
           {
             return RandomShortcutPtr_t (new RandomShortcut (problem));
           }
 
         protected:
-          RandomShortcut (const core::Problem& problem)
+          RandomShortcut (const core::ProblemConstPtr_t& problem)
             : core::pathOptimization::RandomShortcut (problem)
           {}
 

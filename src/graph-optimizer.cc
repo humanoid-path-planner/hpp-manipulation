@@ -35,7 +35,7 @@ namespace hpp {
           (path->outputSize(), path->outputDerivativeSize()),
         toConcat;
       GraphPathValidationPtr_t gpv = HPP_DYNAMIC_PTR_CAST (GraphPathValidation,
-              this->problem().pathValidation ());
+              this->problem()->pathValidation ());
 
       path->flatten (expanded);
       ConstraintSetPtr_t c;
@@ -65,18 +65,18 @@ namespace hpp {
         if (isShort)
           toConcat = toOpt;
         else {
-          core::ProblemPtr_t p = core::Problem::create (problem().robot());
-          p->distance(problem().distance());
+          core::ProblemPtr_t p = core::Problem::create (problem()->robot());
+          p->distance(problem()->distance());
           // It should be ok to use the path validation of each edge because it
           // corresponds to the global path validation minus the collision pairs
           // disabled using the edge constraint.
           // p.pathValidation(gpv->innerValidation());
-          p->pathProjector(problem().pathProjector());
+          p->pathProjector(problem()->pathProjector());
           p->steeringMethod(edge->steeringMethod()->copy());
           p->constraints(p->steeringMethod()->constraints());
           p->constraints()->configProjector()->rightHandSideFromConfig(toOpt->initial());
           p->pathValidation(edge->pathValidation());
-          pathOptimizer_ = factory_ (*p);
+          pathOptimizer_ = factory_ (p);
           toConcat = pathOptimizer_->optimize (toOpt);
         }
         i_s = i_e;

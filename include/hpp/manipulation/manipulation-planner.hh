@@ -40,7 +40,8 @@ namespace hpp {
         typedef std::list<std::size_t> ErrorFreqs_t;
 
         /// Create an instance and return a shared pointer to the instance
-        static ManipulationPlannerPtr_t create (const core::Problem& problem,
+        static ManipulationPlannerPtr_t create
+	  (const core::ProblemConstPtr_t& problem,
             const core::RoadmapPtr_t& roadmap);
 
         /// One step of extension.
@@ -71,7 +72,7 @@ namespace hpp {
 
       protected:
         /// Protected constructor
-        ManipulationPlanner (const Problem& problem,
+        ManipulationPlanner (const ProblemConstPtr_t& problem,
             const RoadmapPtr_t& roadmap);
 
         /// Store weak pointer to itself
@@ -88,7 +89,7 @@ namespace hpp {
         /// Configuration shooter
         ConfigurationShooterPtr_t shooter_;
         /// Pointer to the problem
-        const Problem& problem_;
+        ProblemConstPtr_t problem_;
         /// Pointer to the roadmap
         RoadmapPtr_t roadmap_;
         /// weak pointer to itself

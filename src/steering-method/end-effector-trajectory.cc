@@ -144,7 +144,8 @@ namespace hpp {
         try {
         core::ConstraintSetPtr_t c (getUpdatedConstraints());
 
-        return core::StraightPath::create (problem().robot(), q1, q2, timeRange_, c);
+        return core::StraightPath::create
+	  (problem()->robot(), q1, q2, timeRange_, c);
         } catch (const std::exception& e) {
           std::cout << timeRange_.first << ", " << timeRange_.second << '\n';
           if (eeTraj_)
@@ -171,8 +172,8 @@ namespace hpp {
         using core::InterpolatedPath;
         using core::InterpolatedPathPtr_t;
 
-        InterpolatedPathPtr_t path = InterpolatedPath::create(
-            problem().robot(), configs.col(0), configs.col(N-1), timeRange_, c);
+        InterpolatedPathPtr_t path = InterpolatedPath::create
+	  (problem()->robot(), configs.col(0), configs.col(N-1), timeRange_, c);
 
         for (size_type i = 1; i < configs.cols()-1; ++i)
           path->insert(times[i], configs.col(i));

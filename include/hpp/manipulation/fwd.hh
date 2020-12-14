@@ -53,6 +53,7 @@ namespace hpp {
     typedef ProblemSolver* ProblemSolverPtr_t;
     HPP_PREDEF_CLASS (Problem);
     typedef boost::shared_ptr <Problem> ProblemPtr_t;
+    typedef boost::shared_ptr <const Problem> ProblemConstPtr_t;
     HPP_PREDEF_CLASS (Roadmap);
     typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
     HPP_PREDEF_CLASS (RoadmapNode);

@@ -41,7 +41,8 @@ namespace hpp {
       typedef manipulation::steeringMethod::EndEffectorTrajectory      SM_t;
       typedef manipulation::steeringMethod::EndEffectorTrajectoryPtr_t SMPtr_t;
 
-      EndEffectorTrajectoryPtr_t EndEffectorTrajectory::create (const core::Problem& problem)
+      EndEffectorTrajectoryPtr_t EndEffectorTrajectory::create
+      (const core::ProblemConstPtr_t& problem)
       {
         EndEffectorTrajectoryPtr_t ptr (new EndEffectorTrajectory(problem));
         ptr->init(ptr);
@@ -49,9 +50,11 @@ namespace hpp {
       }
 
       EndEffectorTrajectoryPtr_t EndEffectorTrajectory::createWithRoadmap (
-          const core::Problem& problem, const core::RoadmapPtr_t& roadmap)
+          const core::ProblemConstPtr_t& problem,
+	  const core::RoadmapPtr_t& roadmap)
       {
-        EndEffectorTrajectoryPtr_t ptr (new EndEffectorTrajectory(problem, roadmap));
+        EndEffectorTrajectoryPtr_t ptr (new EndEffectorTrajectory(problem,
+								  roadmap));
         ptr->init(ptr);
         return ptr;
       }
@@ -63,13 +66,13 @@ namespace hpp {
       {
         //core::PathPlanner::startSolve();
         //problem().checkProblem ();
-        if (!problem().robot ()) {
+        if (!problem()->robot ()) {
           std::string msg ("No device in problem.");
           hppDout (error, msg);
           throw std::runtime_error (msg);
         }
 
-        if (!problem().initConfig ()) {
+        if (!problem()->initConfig ()) {
           std::string msg ("No init config in problem.");
           hppDout (error, msg);
           throw std::runtime_error (msg);
@@ -78,7 +81,7 @@ namespace hpp {
         // Tag init and goal configurations in the roadmap
         roadmap()->resetGoalNodes ();
 
-        SMPtr_t sm (HPP_DYNAMIC_PTR_CAST (SM_t, problem().steeringMethod()));
+        SMPtr_t sm (HPP_DYNAMIC_PTR_CAST (SM_t, problem()->steeringMethod()));
         if (!sm)
           throw std::invalid_argument ("Steering method must be of type hpp::manipulation::steeringMethod::EndEffectorTrajectory");
 
@@ -119,7 +122,7 @@ namespace hpp {
 
       void EndEffectorTrajectory::oneStep ()
       {
-        SMPtr_t sm (HPP_DYNAMIC_PTR_CAST (SM_t, problem().steeringMethod()));
+        SMPtr_t sm (HPP_DYNAMIC_PTR_CAST (SM_t, problem()->steeringMethod()));
         if (!sm)
           throw std::invalid_argument ("Steering method must be of type hpp::manipulation::steeringMethod::EndEffectorTrajectory");
         if (!sm->trajectoryConstraint ())
@@ -131,14 +134,14 @@ namespace hpp {
           throw std::invalid_argument ("Steering method constraint has no ConfigProjector.");
         core::ConfigProjectorPtr_t constraints (sm->constraints()->configProjector());
 
-        core::ConfigValidationPtr_t  cfgValidation (problem().configValidations());
-        core::  PathValidationPtr_t pathValidation (problem().pathValidation());
+        core::ConfigValidationPtr_t  cfgValidation (problem()->configValidations());
+        core::  PathValidationPtr_t pathValidation (problem()->pathValidation());
         core::    ValidationReportPtr_t cfgReport;
         core::PathValidationReportPtr_t pathReport;
 
         core::interval_t timeRange (sm->timeRange());
 
-        std::vector<core::Configuration_t> qs (configurations(*problem().initConfig()));
+        std::vector<core::Configuration_t> qs (configurations(*problem()->initConfig()));
         if (qs.empty()) {
           hppDout (info, "Failed to generate initial configs.");
           return;
@@ -150,7 +153,7 @@ namespace hpp {
         std::size_t i;
 
         vector_t times (nDiscreteSteps_+1);
-        matrix_t steps (problem().robot()->configSize(), nDiscreteSteps_+1);
+        matrix_t steps (problem()->robot()->configSize(), nDiscreteSteps_+1);
 
         times[0] = timeRange.first;
         for (int j = 1; j < nDiscreteSteps_; ++j)
@@ -221,7 +224,7 @@ namespace hpp {
           std::vector<core::Configuration_t> configs(nRandomConfig_ + 1);
           configs[0] = q_init;
           for (int i = 1; i < nRandomConfig_ + 1; ++i)
-            problem().configurationShooter()->shoot(configs[i]);
+            problem()->configurationShooter()->shoot(configs[i]);
           return configs;
         }
 
@@ -231,11 +234,13 @@ namespace hpp {
         throw std::runtime_error ("Using an IkSolverInitialization is not implemented yet");
       }
 
-      EndEffectorTrajectory::EndEffectorTrajectory (const core::Problem& problem)
-        : core::PathPlanner (problem)
+      EndEffectorTrajectory::EndEffectorTrajectory
+      (const core::ProblemConstPtr_t& problem) : core::PathPlanner (problem)
       {}
 
-      EndEffectorTrajectory::EndEffectorTrajectory (const core::Problem& problem, const core::RoadmapPtr_t& roadmap)
+      EndEffectorTrajectory::EndEffectorTrajectory
+      (const core::ProblemConstPtr_t& problem,
+       const core::RoadmapPtr_t& roadmap)
         : core::PathPlanner (problem, roadmap)
       {}
 

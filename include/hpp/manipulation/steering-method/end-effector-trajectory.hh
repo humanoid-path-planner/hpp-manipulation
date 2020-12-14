@@ -39,9 +39,10 @@ namespace hpp {
         public:
           typedef core::interval_t interval_t;
 
-          static EndEffectorTrajectoryPtr_t create (const core::Problem& problem)
+          static EndEffectorTrajectoryPtr_t create
+	    (const core::ProblemConstPtr_t& problem)
           {
-            EndEffectorTrajectoryPtr_t ptr (new EndEffectorTrajectory (problem));
+            EndEffectorTrajectoryPtr_t ptr(new EndEffectorTrajectory (problem));
             ptr->init(ptr);
             return ptr;
           }
@@ -95,7 +96,7 @@ namespace hpp {
           PathPtr_t projectedPath (vectorIn_t times, matrixIn_t configs) const;
 
         protected:
-          EndEffectorTrajectory (const core::Problem& problem)
+          EndEffectorTrajectory (const core::ProblemConstPtr_t& problem)
             : core::SteeringMethod (problem)
           {}
 

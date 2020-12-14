@@ -38,9 +38,10 @@ namespace hpp {
           toConcat;
         path->flatten (flat);
 
-        GraphPathValidationPtr_t gpv = HPP_DYNAMIC_PTR_CAST (GraphPathValidation,
-            this->problem().pathValidation ());
-        const_cast <core::Problem&>(this->problem ()).pathValidation (gpv->innerValidation());
+        GraphPathValidationPtr_t gpv(HPP_DYNAMIC_PTR_CAST(GraphPathValidation,
+					    this->problem()->pathValidation()));
+        const_cast<core::Problem&>(*this->problem()).pathValidation
+	  (gpv->innerValidation());
 
         wholebodyStep::SmallStepsPtr_t stepPtr
           (wholebodyStep::SmallSteps::create(problem()));
@@ -69,7 +70,7 @@ namespace hpp {
           opted->concatenate (toConcat);
         }
 
-        const_cast <core::Problem&>(this->problem ()).pathValidation (gpv);
+        const_cast<core::Problem&>(*this->problem ()).pathValidation (gpv);
         return opted;
       }
     } // namespace pathOptimization

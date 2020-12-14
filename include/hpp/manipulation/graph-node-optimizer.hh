@@ -46,13 +46,14 @@ namespace hpp {
     class HPP_MANIPULATION_DLLAPI GraphNodeOptimizer : public PathOptimizer
     {
       public:
-        static GraphNodeOptimizerPtr_t create (const core::Problem& problem);
+        static GraphNodeOptimizerPtr_t create
+	  (const core::ProblemConstPtr_t& problem);
 
         virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
 
       protected:
         /// Constructor
-        GraphNodeOptimizer (const core::Problem& problem) :
+        GraphNodeOptimizer (const core::ProblemConstPtr_t& problem) :
           PathOptimizer (problem)
         {}
 

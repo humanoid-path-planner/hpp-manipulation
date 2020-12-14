@@ -46,7 +46,8 @@ namespace hpp {
         typedef core::PathOptimizerBuilder_t PathOptimizerBuilder_t;
 
         template <typename TraitsOrInnerType>
-          static GraphOptimizerPtr_t create (const core::Problem& problem);
+          static GraphOptimizerPtr_t create
+	  (const core::ProblemConstPtr_t& problem);
 
         virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
 
@@ -58,7 +59,8 @@ namespace hpp {
 
       protected:
         /// Constructor
-        GraphOptimizer (const core::Problem& problem, PathOptimizerBuilder_t factory) :
+        GraphOptimizer (const core::ProblemConstPtr_t& problem,
+			PathOptimizerBuilder_t factory) :
           PathOptimizer (problem), factory_ (factory), pathOptimizer_ ()
         {}
 
@@ -73,7 +75,7 @@ namespace hpp {
     /// Member function definition
     template <typename TraitsOrInnerType>
       GraphOptimizerPtr_t GraphOptimizer::create
-      (const core::Problem& problem)
+      (const core::ProblemConstPtr_t& problem)
     {
       return GraphOptimizerPtr_t (
           new GraphOptimizer (problem, TraitsOrInnerType::create)

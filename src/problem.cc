@@ -42,7 +42,7 @@ namespace hpp {
       Parent::init (wkPtr);
       wkPtr_ = wkPtr;
 
-      Parent::steeringMethod (steeringMethod::Graph::create (*this));
+      Parent::steeringMethod (steeringMethod::Graph::create (wkPtr_.lock()));
       distance (WeighedDistance::create (HPP_DYNAMIC_PTR_CAST(Device, robot()), graph_));
       setPathValidationFactory(core::pathValidation::createDiscretizedCollisionChecking, 0.05);
     }

@@ -21,7 +21,7 @@
 namespace hpp {
   namespace manipulation {
     GraphNodeOptimizerPtr_t GraphNodeOptimizer::create
-      (const core::Problem& problem)
+      (const core::ProblemConstPtr_t& problem)
     {
       GraphNodeOptimizer* ptr = new GraphNodeOptimizer (problem);
       return GraphNodeOptimizerPtr_t (ptr);
@@ -29,7 +29,7 @@ namespace hpp {
 
     PathVectorPtr_t GraphNodeOptimizer::optimize (const PathVectorPtr_t& path)
     {
-      core::Problem& p = const_cast <core::Problem&> (this->problem ());
+      core::ProblemPtr_t p = const_cast <core::ProblemPtr_t> (this->problem ());
       core::SteeringMethodPtr_t sm = p.steeringMethod ();
 
       /// Start by flattening the path

@@ -53,12 +53,14 @@ namespace hpp {
       public:
         /// Return shared pointer to new instance
         /// \param problem the path planning problem
-        static EndEffectorTrajectoryPtr_t create (const core::Problem& problem);
+        static EndEffectorTrajectoryPtr_t create
+	  (const core::ProblemConstPtr_t& problem);
         /// Return shared pointer to new instance
         /// \param problem the path planning problem
         /// \param roadmap previously built roadmap
         static EndEffectorTrajectoryPtr_t createWithRoadmap
-          (const core::Problem& problem, const core::RoadmapPtr_t& roadmap);
+          (const core::ProblemConstPtr_t& problem,
+	   const core::RoadmapPtr_t& roadmap);
 
         /// Initialize the problem resolution
         ///  \li call parent implementation
@@ -108,11 +110,12 @@ namespace hpp {
       protected:
         /// Protected constructor
         /// \param problem the path planning problem
-        EndEffectorTrajectory (const core::Problem& problem);
+        EndEffectorTrajectory (const core::ProblemConstPtr_t& problem);
         /// Protected constructor
         /// \param problem the path planning problem
         /// \param roadmap previously built roadmap
-        EndEffectorTrajectory (const core::Problem& problem, const core::RoadmapPtr_t& roadmap);
+        EndEffectorTrajectory (const core::ProblemConstPtr_t& problem,
+			       const core::RoadmapPtr_t& roadmap);
         /// Store weak pointer to itself
         void init (const EndEffectorTrajectoryWkPtr_t& weak);
 

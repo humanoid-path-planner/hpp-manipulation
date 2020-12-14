@@ -45,19 +45,19 @@ namespace hpp {
           using typename Parent_t::Splines_t;
 
           /// Return shared pointer to new object.
-          static Ptr_t create (const Problem& problem);
+          static Ptr_t create (const ProblemConstPtr_t& problem);
 
           /// This is only for compatibility purpose (with ProblemSolver).
           /// problem is statically casted to an object of type
           /// const manipulation::Problem& and method create(const Problem&)
           /// is called.
-          static Ptr_t createFromCore (const core::Problem& problem);
+          static Ptr_t createFromCore (const core::ProblemConstPtr_t& problem);
 
         protected:
           typedef typename hpp::core::pathOptimization::LinearConstraint LinearConstraint;
           using typename Parent_t::SplineOptimizationDatas_t;
 
-          SplineGradientBased (const Problem& problem);
+          SplineGradientBased(const ProblemConstPtr_t& problem);
 
           /// Get path validation for each spline
           ///

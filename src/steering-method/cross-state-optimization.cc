@@ -56,18 +56,18 @@ namespace hpp {
       using graph::segments_t;
 
       CrossStateOptimizationPtr_t CrossStateOptimization::create (
-          const Problem& problem)
+          const ProblemConstPtr_t& problem)
       {
-        CrossStateOptimizationPtr_t shPtr (new CrossStateOptimization (problem));
+        CrossStateOptimizationPtr_t shPtr(new CrossStateOptimization (problem));
         shPtr->init(shPtr);
         return shPtr;
       }
 
       CrossStateOptimizationPtr_t CrossStateOptimization::create (
-          const core::Problem& problem)
+          const core::ProblemConstPtr_t& problem)
       {
-        HPP_STATIC_CAST_REF_CHECK (const Problem, problem);
-        const Problem& p = static_cast <const Problem&> (problem);
+        assert(HPP_DYNAMIC_PTR_CAST(const Problem, problem));
+        ProblemConstPtr_t p(HPP_STATIC_PTR_CAST(const Problem, problem));
         return create (p);
       }
 
@@ -150,7 +150,7 @@ namespace hpp {
 
         std::map <ImplicitPtr_t, ImplicitPtr_t> constraintCopy, constraintOrig;
         ImplicitPtr_t copy;
-        GraphPtr_t cg (problem_.constraintGraph ());
+        GraphPtr_t cg (problem_->constraintGraph ());
         const ConstraintsAndComplements_t& cac
           (cg->constraintsAndComplements ());
         for (std::size_t i = 0; i < cg->nbComponents (); ++i) {
@@ -329,7 +329,7 @@ namespace hpp {
         c->rightHandSideFromConfig (d.q2);
         vector_t rhsGoal (c->rightHandSide ());
         // Check that right hand sides are close to each other
-        value_type eps (problem_.constraintGraph ()->errorThreshold ());
+        value_type eps (problem_->constraintGraph ()->errorThreshold ());
         value_type eps2 (eps * eps);
         if ((rhsGoal - rhsInit).squaredNorm () > eps2) {
           return false;
@@ -472,7 +472,7 @@ namespace hpp {
           ++index;
         } // for (NumericalConstraints_t::const_iterator it
         displayStatusMatrix (d.M_status, constraints_);
-        graph::GraphPtr_t cg (problem_.constraintGraph ());
+        graph::GraphPtr_t cg (problem_->constraintGraph ());
         // Fill solvers with graph, node and edge constraints
         for (std::size_t j = 0; j < d.N; ++j) {
           graph::StatePtr_t state (transitions [(std::size_t)j]->stateTo ());
@@ -569,7 +569,7 @@ namespace hpp {
         using core::PathVector;
         using core::PathVectorPtr_t;
 
-        const core::DevicePtr_t& robot = problem().robot();
+        const core::DevicePtr_t& robot = problem()->robot();
         PathVectorPtr_t pv = PathVector::create (
             robot->configSize(), robot->numberDof());
         core::PathPtr_t path;
@@ -607,12 +607,13 @@ namespace hpp {
       core::PathPtr_t CrossStateOptimization::impl_compute (
           ConfigurationIn_t q1, ConfigurationIn_t q2) const
       {
-        const graph::Graph& graph = *problem_.constraintGraph ();
+        const graph::GraphPtr_t& graph(problem_->constraintGraph ());
         GraphSearchData d;
-        d.s1 = graph.getState (q1);
-        d.s2 = graph.getState (q2);
+        d.s1 = graph->getState (q1);
+        d.s2 = graph->getState (q2);
         // d.maxDepth = 2;
-        d.maxDepth = problem_.getParameter ("CrossStateOptimization/maxDepth").intValue();
+        d.maxDepth = problem_->getParameter
+	  ("CrossStateOptimization/maxDepth").intValue();
 
         // Find
         d.queue1.push (d.addInitState());
@@ -630,7 +631,7 @@ namespace hpp {
             hppDout (info, ss.str());
 #endif // HPP_DEBUG
 
-            OptimizationData optData (problem().robot(), q1, q2, transitions);
+            OptimizationData optData (problem()->robot(), q1, q2, transitions);
             if (buildOptimizationProblem (optData, transitions)) {
               if (solveOptimizationProblem (optData)) {
                 core::PathPtr_t path = buildPath (optData, transitions);

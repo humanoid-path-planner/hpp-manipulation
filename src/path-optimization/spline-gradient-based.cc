@@ -27,8 +27,8 @@ namespace hpp {
     namespace pathOptimization {
 
       template <int _PB, int _SO>
-      SplineGradientBased<_PB, _SO>::SplineGradientBased (const Problem& problem)
-        : Parent_t (problem)
+      SplineGradientBased<_PB, _SO>::SplineGradientBased
+      (const ProblemConstPtr_t& problem) : Parent_t (problem)
       {
         this->checkOptimum_ = true;
       }
@@ -39,7 +39,7 @@ namespace hpp {
 
       template <int _PB, int _SO>
       typename SplineGradientBased<_PB, _SO>::Ptr_t SplineGradientBased<_PB, _SO>::create
-      (const Problem& problem)
+      (const ProblemConstPtr_t& problem)
       {
 	SplineGradientBased* ptr = new SplineGradientBased (problem);
 	Ptr_t shPtr (ptr);
@@ -48,10 +48,10 @@ namespace hpp {
 
       template <int _PB, int _SO>
       typename SplineGradientBased<_PB, _SO>::Ptr_t SplineGradientBased<_PB, _SO>::createFromCore
-      (const core::Problem& problem)
+      (const core::ProblemConstPtr_t& problem)
       {
-        HPP_STATIC_CAST_REF_CHECK(const Problem, problem);
-        return create (static_cast<const Problem&>(problem));
+        assert(HPP_DYNAMIC_PTR_CAST(const Problem, problem));
+        return create (HPP_STATIC_PTR_CAST(const Problem, problem));
       }
 
       template <int _PB, int _SO>
@@ -64,7 +64,7 @@ namespace hpp {
           if (set && set->edge())
             this->validations_[i] = set->edge()->pathValidation();
           else
-            this->validations_[i] = this->problem().pathValidation();
+            this->validations_[i] = this->problem()->pathValidation();
         }
       }
 
@@ -74,7 +74,9 @@ namespace hpp {
       {
         assert (init->numberPaths() == splines.size() && sods.size() == splines.size());
 
-        bool zeroDerivative = this->problem().getParameter ("SplineGradientBased/zeroDerivativesAtStateIntersection").boolValue();
+        bool zeroDerivative = this->problem()->getParameter
+	  ("SplineGradientBased/zeroDerivativesAtStateIntersection").
+	  boolValue();
 
         const std::size_t last = splines.size() - 1;
         graph::StatePtr_t stateOfStart;
@@ -179,7 +181,8 @@ namespace hpp {
         // TODO Should we add zero velocity sometimes ?
 
         ConstraintSetPtr_t set = state->configConstraint();
-        value_type guessThreshold = this->problem().getParameter ("SplineGradientBased/guessThreshold").floatValue();
+        value_type guessThreshold = this->problem()->getParameter
+	  ("SplineGradientBased/guessThreshold").floatValue();
         Eigen::RowBlockIndices select =
           this->computeActiveParameters (path, set->configProjector()->solver(), guessThreshold, true);
         hppDout (info, "End of path " << idxSpline << ": do not change this dof " << select);

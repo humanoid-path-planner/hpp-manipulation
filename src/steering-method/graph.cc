@@ -44,7 +44,7 @@ namespace hpp {
       GraphPtr_t Graph::create
         (const core::ProblemConstPtr_t& problem)
         {
-          assert(HPP_DYNAMIC_PTR_CASE (const Problem, problem));
+          assert(HPP_DYNAMIC_PTR_CAST (const Problem, problem));
           ProblemConstPtr_t p = HPP_STATIC_PTR_CAST(const Problem, problem);
           Graph* ptr = new Graph (p);
           GraphPtr_t shPtr (ptr);

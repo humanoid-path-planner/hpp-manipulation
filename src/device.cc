@@ -139,13 +139,16 @@ namespace hpp {
     template<class Archive>
     void Device::serialize(Archive & ar, const unsigned int version)
     {
-      using hpp::serialization::archive_device_wrapper;
       using namespace boost::serialization;
-
       (void) version;
+      auto* har = hpp::serialization::cast(&ar);
+
       ar & make_nvp("base", base_object<pinocchio::HumanoidRobot>(*this));
-      archive_device_wrapper* adw = dynamic_cast<archive_device_wrapper*>(&ar);
-      bool written = (adw == NULL);
+
+      // TODO we should throw if a pinocchio::Device instance with name name_
+      // and not of type manipulation::Device is found.
+      bool written = (!har ||
+          har->template getChildClass<pinocchio::Device, Device>(name_, false) != this);
       ar & BOOST_SERIALIZATION_NVP(written);
       if (written) {
         ar & BOOST_SERIALIZATION_NVP(self_);

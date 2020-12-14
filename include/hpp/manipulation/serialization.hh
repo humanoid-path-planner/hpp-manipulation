@@ -34,10 +34,33 @@
 
 namespace hpp {
 namespace serialization {
-struct archive_graph_wrapper {
-  manipulation::graph::GraphPtr_t graph;
-  virtual ~archive_graph_wrapper() {}
-};
+template<typename Archive>
+manipulation::graph::GraphPtr_t getGraphFromArchive(Archive& ar, const std::string& name)
+{
+  auto* har = hpp::serialization::cast(&ar);
+  if (!har || !har->contains(name))
+    throw std::runtime_error("Cannot deserialize edges with a provided graph with correct name.");
+  return har->template get<manipulation::graph::Graph>(name, true)->self();
+}
+
+template<class Archive, class GraphCompT>
+inline void serializeGraphComponent(Archive & ar, boost::shared_ptr<GraphCompT>& c, const unsigned int version)
+{
+  (void) version;
+
+  std::size_t id;
+  std::string name;
+  if (Archive::is_saving::value) {
+    id = (c ? c->id() : -1);
+    if (c && c->parentGraph()) name = c->parentGraph()->name();
+  }
+  ar & BOOST_SERIALIZATION_NVP(id);
+  ar & BOOST_SERIALIZATION_NVP(name);
+  if (!Archive::is_saving::value) {
+    auto graph = getGraphFromArchive(ar, name);
+    c = HPP_DYNAMIC_PTR_CAST(GraphCompT, graph->get(id).lock());
+  }
+}
 } // namespace manipulation
 } // namespace hpp
 
@@ -51,64 +74,32 @@ namespace serialization {
 template<class Archive>
 inline void serialize(Archive & ar, hpp::manipulation::graph::GraphPtr_t& g, const unsigned int version)
 {
-  using hpp::serialization::archive_graph_wrapper;
-  using namespace hpp::manipulation::graph;
+  using hpp::serialization::getGraphFromArchive;
   (void) version;
 
-  std::size_t id;
-  if (Archive::is_saving::value) id = g->id();
-  ar & BOOST_SERIALIZATION_NVP(id);
-  if (!Archive::is_saving::value) {
-    archive_graph_wrapper* agw = dynamic_cast<archive_graph_wrapper*>(&ar);
-    if (agw == NULL)
-      throw std::runtime_error("Cannot deserialize edges with a archive_graph_wrapper");
-    g = agw->graph;
-  }
+  std::string name;
+  if (Archive::is_saving::value) name = g->name();
+  ar & BOOST_SERIALIZATION_NVP(name);
+  if (!Archive::is_saving::value)
+    g = getGraphFromArchive(ar, name);
 }
 
 template<class Archive>
 inline void serialize(Archive & ar, hpp::manipulation::graph::EdgePtr_t& e, const unsigned int version)
 {
-  using hpp::serialization::archive_graph_wrapper;
-  using namespace hpp::manipulation::graph;
-  (void) version;
-
-  std::size_t id;
-  if (Archive::is_saving::value) id = (e ? e->id() : -1);
-  ar & BOOST_SERIALIZATION_NVP(id);
-  if (!Archive::is_saving::value) {
-    archive_graph_wrapper* agw = dynamic_cast<archive_graph_wrapper*>(&ar);
-    if (agw == NULL)
-      throw std::runtime_error("Cannot deserialize edges with a archive_graph_wrapper");
-    GraphComponentPtr_t gc = agw->graph->get(id).lock();
-    e = HPP_DYNAMIC_PTR_CAST(Edge, gc);
-  }
+  hpp::serialization::serializeGraphComponent (ar, e, version);
 }
 
 template<class Archive>
 inline void serialize(Archive & ar, hpp::manipulation::graph::StatePtr_t& s, const unsigned int version)
 {
-  using hpp::serialization::archive_graph_wrapper;
-  using namespace hpp::manipulation::graph;
-  (void) version;
-
-  std::size_t id;
-  if (Archive::is_saving::value) id = (s ? s->id() : -1);
-  ar & BOOST_SERIALIZATION_NVP(id);
-  if (!Archive::is_saving::value) {
-    archive_graph_wrapper* agw = dynamic_cast<archive_graph_wrapper*>(&ar);
-    if (agw == NULL)
-      throw std::runtime_error("Cannot deserialize edges with a archive_graph_wrapper");
-    GraphComponentPtr_t gc = agw->graph->get(id).lock();
-    s = HPP_DYNAMIC_PTR_CAST(State, gc);
-  }
+  hpp::serialization::serializeGraphComponent (ar, s, version);
 }
 
 template<class Archive>
 inline void serialize(Archive & ar, hpp::manipulation::graph::EdgeWkPtr_t& e, const unsigned int version)
 {
-  using namespace hpp::manipulation::graph;
-  EdgePtr_t e_ = e.lock();
+  auto e_ = e.lock();
   serialize(ar, e_, version);
   e = e_;
 }
@@ -116,8 +107,7 @@ inline void serialize(Archive & ar, hpp::manipulation::graph::EdgeWkPtr_t& e, co
 template<class Archive>
 inline void serialize(Archive & ar, hpp::manipulation::graph::StateWkPtr_t& s, const unsigned int version)
 {
-  using namespace hpp::manipulation::graph;
-  StatePtr_t s_ = s.lock();
+  auto s_ = s.lock();
   serialize(ar, s_, version);
   s = s_;
 }
@@ -126,18 +116,20 @@ template<class Archive>
 inline void load (Archive& ar, hpp::manipulation::DevicePtr_t& d, const unsigned int version)
 {
   load<Archive, hpp::manipulation::Device> (ar, d, version);
-  using hpp::serialization::archive_device_wrapper;
-  archive_device_wrapper* adw = dynamic_cast<archive_device_wrapper*>(&ar);
-  if (adw) d = boost::dynamic_pointer_cast<hpp::manipulation::Device>(adw->device);
+  auto* har = hpp::serialization::cast(&ar);
+  if (d && har && har->contains(d->name()))
+    d = har->template getChildClass<hpp::pinocchio::Device, hpp::manipulation::Device>(d->name(), true)->self();
 }
 
 template<class Archive>
 inline void load (Archive& ar, hpp::manipulation::DeviceWkPtr_t& d, const unsigned int version)
 {
   load<Archive, hpp::manipulation::Device> (ar, d, version);
-  using hpp::serialization::archive_device_wrapper;
-  archive_device_wrapper* adw = dynamic_cast<archive_device_wrapper*>(&ar);
-  if (adw) d = boost::dynamic_pointer_cast<hpp::manipulation::Device>(adw->device);
+  auto* har = hpp::serialization::cast(&ar);
+  auto dd = d.lock();
+  if (!dd) return;
+  if (har && har->contains(dd->name()))
+    d = har->template getChildClass<hpp::pinocchio::Device, hpp::manipulation::Device>(dd->name(), true)->self();
 }
 } // namespace serialization
 } // namespace boost

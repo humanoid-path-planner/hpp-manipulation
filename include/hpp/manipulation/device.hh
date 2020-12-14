@@ -50,6 +50,8 @@ namespace hpp {
           return shPtr;
         }
 
+        DevicePtr_t self () const { return self_.lock(); }
+
         /// Print object in a stream
         virtual std::ostream& print (std::ostream& os) const;
 

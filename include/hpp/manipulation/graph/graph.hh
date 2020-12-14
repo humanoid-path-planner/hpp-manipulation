@@ -52,6 +52,8 @@ namespace hpp {
 	  static GraphPtr_t create(const std::string& name, DevicePtr_t robot,
 				   const ProblemPtr_t& problem);
 
+          GraphPtr_t self () const { return wkPtr_.lock(); }
+
           /// Create and insert a state selector inside the graph.
           StateSelectorPtr_t createStateSelector (const std::string& name);
 
@@ -300,5 +302,7 @@ namespace hpp {
   } // namespace manipulation
 
 } // namespace hpp
+
+BOOST_CLASS_EXPORT_KEY(hpp::manipulation::graph::Graph)
 
 #endif // HPP_MANIPULATION_GRAPH_GRAPH_HH

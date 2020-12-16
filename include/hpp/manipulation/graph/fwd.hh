@@ -32,15 +32,15 @@ namespace hpp {
       HPP_PREDEF_CLASS (StateSelector);
       HPP_PREDEF_CLASS (GraphComponent);
       HPP_PREDEF_CLASS (GuidedStateSelector);
-      typedef boost::shared_ptr < Graph > GraphPtr_t;
-      typedef boost::shared_ptr < State > StatePtr_t;
-      typedef boost::shared_ptr < Edge > EdgePtr_t;
-      typedef boost::shared_ptr < WaypointEdge > WaypointEdgePtr_t;
-      typedef boost::shared_ptr < LevelSetEdge > LevelSetEdgePtr_t;
-      typedef boost::shared_ptr < StateSelector > StateSelectorPtr_t;
-      typedef boost::shared_ptr < GuidedStateSelector >
+      typedef shared_ptr < Graph > GraphPtr_t;
+      typedef shared_ptr < State > StatePtr_t;
+      typedef shared_ptr < Edge > EdgePtr_t;
+      typedef shared_ptr < WaypointEdge > WaypointEdgePtr_t;
+      typedef shared_ptr < LevelSetEdge > LevelSetEdgePtr_t;
+      typedef shared_ptr < StateSelector > StateSelectorPtr_t;
+      typedef shared_ptr < GuidedStateSelector >
       GuidedStateSelectorPtr_t;
-      typedef boost::shared_ptr < GraphComponent > GraphComponentPtr_t;
+      typedef shared_ptr < GraphComponent > GraphComponentPtr_t;
       typedef std::vector < GraphComponentWkPtr_t > GraphComponents_t;
       typedef std::vector < StatePtr_t > States_t;
       typedef std::vector < EdgePtr_t > Edges_t;
@@ -56,13 +56,13 @@ namespace hpp {
       class Histogram;
       class StateHistogram;
       class LeafHistogram;
-      typedef boost::shared_ptr <Histogram> HistogramPtr_t;
-      typedef boost::shared_ptr <StateHistogram> StateHistogramPtr_t;
-      typedef boost::shared_ptr <LeafHistogram> LeafHistogramPtr_t;
+      typedef shared_ptr <Histogram> HistogramPtr_t;
+      typedef shared_ptr <StateHistogram> StateHistogramPtr_t;
+      typedef shared_ptr <LeafHistogram> LeafHistogramPtr_t;
       typedef std::list < HistogramPtr_t > Histograms_t;
 
       class Validation;
-      typedef boost::shared_ptr < Validation > ValidationPtr_t;
+      typedef shared_ptr < Validation > ValidationPtr_t;
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

@@ -17,7 +17,7 @@
 #ifndef HPP_MANIPULATION_GRAPH_STATE_HH
 # define HPP_MANIPULATION_GRAPH_STATE_HH
 
-# include <boost/function.hpp>
+#include <functional>
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
@@ -44,10 +44,10 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI State : public GraphComponent
       {
         public:
-	typedef boost::function < EdgePtr_t
-				  (const std::string&,
-				   const GraphWkPtr_t&,
-				   const StateWkPtr_t&, const StateWkPtr_t&) >
+	typedef std::function < EdgePtr_t
+				(const std::string&,
+				 const GraphWkPtr_t&,
+				 const StateWkPtr_t&, const StateWkPtr_t&) >
 	EdgeFactory;
           /// Destructor
           ~State ();

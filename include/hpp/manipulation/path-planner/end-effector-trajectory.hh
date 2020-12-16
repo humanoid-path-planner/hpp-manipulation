@@ -43,10 +43,10 @@ namespace hpp {
         protected:
           virtual Configurations_t impl_solve (vectorIn_t target) = 0;
       };
-      typedef boost::shared_ptr<IkSolverInitialization> IkSolverInitializationPtr_t;
+      typedef shared_ptr<IkSolverInitialization> IkSolverInitializationPtr_t;
 
       HPP_PREDEF_CLASS (EndEffectorTrajectory);
-      typedef boost::shared_ptr<EndEffectorTrajectory> EndEffectorTrajectoryPtr_t;
+      typedef shared_ptr<EndEffectorTrajectory> EndEffectorTrajectoryPtr_t;
 
       class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory : public core::PathPlanner
       {

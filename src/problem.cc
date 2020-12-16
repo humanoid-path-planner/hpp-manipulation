@@ -75,7 +75,7 @@ namespace hpp {
     {
       PathValidationPtr_t pv (pvFactory_ (robot(), pvTol_));
 
-      boost::shared_ptr<core::ObstacleUserInterface> oui =
+      shared_ptr<core::ObstacleUserInterface> oui =
         HPP_DYNAMIC_PTR_CAST(core::ObstacleUserInterface, pv);
       if (oui) {
         const core::ObjectStdVector_t& obstacles (collisionObstacles ());

@@ -28,7 +28,7 @@ namespace hpp {
     /// \{
     namespace steeringMethod {
       HPP_PREDEF_CLASS (EndEffectorTrajectory);
-      typedef boost::shared_ptr < EndEffectorTrajectory > EndEffectorTrajectoryPtr_t;
+      typedef shared_ptr < EndEffectorTrajectory > EndEffectorTrajectoryPtr_t;
 
       using core::PathPtr_t;
 

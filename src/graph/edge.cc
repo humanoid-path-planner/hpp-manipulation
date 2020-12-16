@@ -63,7 +63,7 @@ namespace hpp {
       void Edge::relativeMotion(const RelativeMotion::matrix_type & m)
       {
         if(!isInit_) throw std::logic_error("The graph must be initialized before changing the relative motion matrix.");
-        boost::shared_ptr<core::ObstacleUserInterface> oui =
+        shared_ptr<core::ObstacleUserInterface> oui =
           HPP_DYNAMIC_PTR_CAST(core::ObstacleUserInterface, pathValidation_);
         if (oui) oui->filterCollisionPairs(m);
         relMotion_ = m;
@@ -334,7 +334,7 @@ namespace hpp {
         // TODO this path validation will not contain obstacles added after
         // its creation.
         pathValidation_ = problem->pathValidationFactory ();
-        boost::shared_ptr<core::ObstacleUserInterface> oui =
+        shared_ptr<core::ObstacleUserInterface> oui =
           HPP_DYNAMIC_PTR_CAST(core::ObstacleUserInterface, pathValidation_);
         if (oui) {
           relMotion_ = RelativeMotion::matrix (g->robot());

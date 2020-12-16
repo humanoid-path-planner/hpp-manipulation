@@ -20,7 +20,7 @@
 # include <string>
 # include <algorithm>
 
-# include <boost/tuple/tuple.hpp>
+# include <tuple>
 
 # include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/fwd.hh"
@@ -165,10 +165,10 @@ namespace hpp {
             const LockedJoints_t objectLocks,
             FoliatedManifold& place, FoliatedManifold& preplace);
 
-        typedef boost::tuple <ImplicitPtr_t,
-                              ImplicitPtr_t,
-                              LockedJoints_t>
-                              PlacementConstraint_t;
+        typedef std::tuple <ImplicitPtr_t,
+                            ImplicitPtr_t,
+                            LockedJoints_t>
+                            PlacementConstraint_t;
         typedef std::vector <HandlePtr_t> Handles_t;
         typedef std::vector <GripperPtr_t> Grippers_t;
         /// Tuple representing an object as follows:
@@ -176,7 +176,7 @@ namespace hpp {
         /// \li Handles_t             list of handles of the object
         /// \li std::size_t           the index of this tuple in Objects_t.
         /// \note the index must be unique, as object equallity is checked using this index.
-        typedef boost::tuple <PlacementConstraint_t, Handles_t, std::size_t> Object_t;
+        typedef std::tuple <PlacementConstraint_t, Handles_t, std::size_t> Object_t;
         typedef std::vector <Object_t> Objects_t;
 
         /// Fill a Graph 

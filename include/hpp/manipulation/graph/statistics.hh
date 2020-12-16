@@ -198,7 +198,7 @@ namespace hpp {
           graph::GraphPtr_t graph_;
       };
       typedef StateHistogram NodeHistogram HPP_MANIPULATION_DEPRECATED;
-      typedef boost::shared_ptr <StateHistogram> NodeHistogramPtr_t;
+      typedef shared_ptr <StateHistogram> NodeHistogramPtr_t;
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

@@ -17,7 +17,7 @@
 #ifndef HPP_MANIPULATION_GRAPH_GRAPH_HH
 # define HPP_MANIPULATION_GRAPH_GRAPH_HH
 
-# include <boost/tuple/tuple.hpp>
+# include <tuple>
 # include "hpp/manipulation/config.hh"
 # include "hpp/manipulation/constraint-set.hh"
 # include "hpp/manipulation/fwd.hh"

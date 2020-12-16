@@ -26,8 +26,8 @@
 namespace hpp {
   namespace manipulation {
     HPP_PREDEF_CLASS (Device);
-    typedef boost::shared_ptr <Device> DevicePtr_t;
-    typedef boost::shared_ptr <const Device> DeviceConstPtr_t;
+    typedef shared_ptr <Device> DevicePtr_t;
+    typedef shared_ptr <const Device> DeviceConstPtr_t;
     typedef pinocchio::Joint Joint;
     typedef pinocchio::JointPtr_t JointPtr_t;
     typedef pinocchio::JointIndex JointIndex;
@@ -43,33 +43,33 @@ namespace hpp {
     typedef pinocchio::LiegroupSpace LiegroupSpace;
     typedef pinocchio::LiegroupSpacePtr_t LiegroupSpacePtr_t;
     HPP_PREDEF_CLASS (AxialHandle);
-    typedef boost::shared_ptr <AxialHandle> AxialHandlePtr_t;
+    typedef shared_ptr <AxialHandle> AxialHandlePtr_t;
     HPP_PREDEF_CLASS (Handle);
-    typedef boost::shared_ptr <Handle> HandlePtr_t;
+    typedef shared_ptr <Handle> HandlePtr_t;
     HPP_PREDEF_CLASS (Object);
-    typedef boost::shared_ptr <Object> ObjectPtr_t;
-    typedef boost::shared_ptr <const Object> ObjectConstPtr_t;
+    typedef shared_ptr <Object> ObjectPtr_t;
+    typedef shared_ptr <const Object> ObjectConstPtr_t;
     HPP_PREDEF_CLASS (ProblemSolver);
     typedef ProblemSolver* ProblemSolverPtr_t;
     HPP_PREDEF_CLASS (Problem);
-    typedef boost::shared_ptr <Problem> ProblemPtr_t;
-    typedef boost::shared_ptr <const Problem> ProblemConstPtr_t;
+    typedef shared_ptr <Problem> ProblemPtr_t;
+    typedef shared_ptr <const Problem> ProblemConstPtr_t;
     HPP_PREDEF_CLASS (Roadmap);
-    typedef boost::shared_ptr <Roadmap> RoadmapPtr_t;
+    typedef shared_ptr <Roadmap> RoadmapPtr_t;
     HPP_PREDEF_CLASS (RoadmapNode);
     typedef RoadmapNode* RoadmapNodePtr_t;
     typedef std::vector<RoadmapNodePtr_t> RoadmapNodes_t;
     HPP_PREDEF_CLASS (ConnectedComponent);
-    typedef boost::shared_ptr<ConnectedComponent> ConnectedComponentPtr_t; 
+    typedef shared_ptr<ConnectedComponent> ConnectedComponentPtr_t; 
     HPP_PREDEF_CLASS (LeafConnectedComp);
-    typedef boost::shared_ptr<LeafConnectedComp> LeafConnectedCompPtr_t;
-    typedef boost::shared_ptr<const LeafConnectedComp>
+    typedef shared_ptr<LeafConnectedComp> LeafConnectedCompPtr_t;
+    typedef shared_ptr<const LeafConnectedComp>
     LeafConnectedCompConstPtr_t;
     typedef std::set<LeafConnectedCompPtr_t> LeafConnectedComps_t;
     HPP_PREDEF_CLASS (WeighedLeafConnectedComp);
-    typedef boost::shared_ptr<WeighedLeafConnectedComp> WeighedLeafConnectedCompPtr_t;
+    typedef shared_ptr<WeighedLeafConnectedComp> WeighedLeafConnectedCompPtr_t;
     HPP_PREDEF_CLASS (WeighedDistance);
-    typedef boost::shared_ptr<WeighedDistance> WeighedDistancePtr_t;
+    typedef shared_ptr<WeighedDistance> WeighedDistancePtr_t;
     typedef constraints::RelativeOrientation RelativeOrientation;
     typedef constraints::RelativePosition RelativePosition;
     typedef constraints::RelativeOrientationPtr_t RelativeOrientationPtr_t;
@@ -84,17 +84,17 @@ namespace hpp {
     typedef core::vectorIn_t vectorIn_t;
     typedef core::vectorOut_t vectorOut_t;
     HPP_PREDEF_CLASS (ManipulationPlanner);
-    typedef boost::shared_ptr < ManipulationPlanner > ManipulationPlannerPtr_t;
+    typedef shared_ptr < ManipulationPlanner > ManipulationPlannerPtr_t;
     HPP_PREDEF_CLASS (GraphPathValidation);
-    typedef boost::shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
+    typedef shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
     HPP_PREDEF_CLASS (SteeringMethod);
-    typedef boost::shared_ptr < SteeringMethod > SteeringMethodPtr_t;
+    typedef shared_ptr < SteeringMethod > SteeringMethodPtr_t;
     typedef core::PathOptimizer PathOptimizer;
     typedef core::PathOptimizerPtr_t PathOptimizerPtr_t;
     HPP_PREDEF_CLASS (GraphOptimizer);
-    typedef boost::shared_ptr < GraphOptimizer > GraphOptimizerPtr_t;
+    typedef shared_ptr < GraphOptimizer > GraphOptimizerPtr_t;
     HPP_PREDEF_CLASS (GraphNodeOptimizer);
-    typedef boost::shared_ptr < GraphNodeOptimizer > GraphNodeOptimizerPtr_t;
+    typedef shared_ptr < GraphNodeOptimizer > GraphNodeOptimizerPtr_t;
     typedef core::PathProjectorPtr_t PathProjectorPtr_t;
 
     typedef std::vector <pinocchio::DevicePtr_t> Devices_t;
@@ -110,7 +110,7 @@ namespace hpp {
     typedef core::ConfigProjector ConfigProjector;
     typedef core::ConfigProjectorPtr_t ConfigProjectorPtr_t;
     HPP_PREDEF_CLASS (ConstraintSet);
-    typedef boost::shared_ptr <ConstraintSet> ConstraintSetPtr_t;
+    typedef shared_ptr <ConstraintSet> ConstraintSetPtr_t;
     typedef core::DifferentiableFunctionPtr_t DifferentiableFunctionPtr_t;
     typedef core::ConfigurationShooter ConfigurationShooter;
     typedef core::ConfigurationShooterPtr_t ConfigurationShooterPtr_t;
@@ -134,14 +134,14 @@ namespace hpp {
 
     namespace pathOptimization {
       HPP_PREDEF_CLASS (SmallSteps);
-      typedef boost::shared_ptr < SmallSteps > SmallStepsPtr_t;
+      typedef shared_ptr < SmallSteps > SmallStepsPtr_t;
       HPP_PREDEF_CLASS (Keypoints);
-      typedef boost::shared_ptr < Keypoints > KeypointsPtr_t;
+      typedef shared_ptr < Keypoints > KeypointsPtr_t;
     } // namespace pathOptimization
 
     namespace problemTarget {
       HPP_PREDEF_CLASS (State);
-      typedef boost::shared_ptr < State > StatePtr_t;
+      typedef shared_ptr < State > StatePtr_t;
     } // namespace problemTarget
   } // namespace manipulation
 } // namespace hpp

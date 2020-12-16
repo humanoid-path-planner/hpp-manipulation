@@ -16,8 +16,8 @@
 
 #include "hpp/manipulation/manipulation-planner.hh"
 
-#include <boost/tuple/tuple.hpp>
-#include <boost/assign/list_of.hpp>
+#include <tuple>
+#include <iterator>
 
 #include <hpp/util/pointer.hh>
 #include <hpp/util/timer.hh>
@@ -99,15 +99,16 @@ namespace hpp {
     }
 
     const std::vector<ManipulationPlanner::Reason>
-      ManipulationPlanner::reasons_ = boost::assign::list_of
-      (SuccessBin::createReason ("--Path could not be fully projected"))        // PATH_PROJECTION_SHORTER = 0, 
-      (SuccessBin::createReason ("--Path could not be fully validated"))        // PATH_VALIDATION_SHORTER = 1, 
-      (SuccessBin::createReason ("--Reached destination node"))                 // REACHED_DESTINATION_NODE = 2,
-      (SuccessBin::createReason ("Failure"))                                    // FAILURE = 3,                 
-      (SuccessBin::createReason ("--Projection of configuration on edge leaf")) // PROJECTION = 4,              
-      (SuccessBin::createReason ("--SteeringMethod"))                           // STEERING_METHOD = 5,         
-      (SuccessBin::createReason ("--Path validation returned length 0"))        // PATH_VALIDATION_ZERO = 6,    
-      (SuccessBin::createReason ("--Path could not be projected at all"));      // PATH_PROJECTION_ZERO = 7     
+      ManipulationPlanner::reasons_ = {
+        SuccessBin::createReason("--Path could not be fully projected"),        // PATH_PROJECTION_SHORTER = 0, 
+        SuccessBin::createReason("--Path could not be fully validated"),        // PATH_VALIDATION_SHORTER = 1, 
+        SuccessBin::createReason("--Reached destination node"),                 // REACHED_DESTINATION_NODE = 2,
+        SuccessBin::createReason("Failure"),                                    // FAILURE = 3,                 
+        SuccessBin::createReason("--Projection of configuration on edge leaf"), // PROJECTION = 4,              
+        SuccessBin::createReason("--SteeringMethod"),                           // STEERING_METHOD = 5,         
+        SuccessBin::createReason("--Path validation returned length 0"),        // PATH_VALIDATION_ZERO = 6,    
+        SuccessBin::createReason("--Path could not be projected at all"),       // PATH_PROJECTION_ZERO = 7     
+      };
 
     ManipulationPlannerPtr_t ManipulationPlanner::create
     (const core::ProblemConstPtr_t& problem,
@@ -168,7 +169,7 @@ namespace hpp {
       core::Nodes_t newNodes;
       core::PathPtr_t path;
 
-      typedef boost::tuple <core::NodePtr_t, ConfigurationPtr_t, core::PathPtr_t>
+      typedef std::tuple <core::NodePtr_t, ConfigurationPtr_t, core::PathPtr_t>
 	DelayedEdge_t;
       typedef std::vector <DelayedEdge_t> DelayedEdges_t;
       DelayedEdges_t delayedEdges;
@@ -208,11 +209,10 @@ namespace hpp {
 
       HPP_START_TIMECOUNTER(delayedEdges);
       // Insert delayed edges
-      for (DelayedEdges_t::const_iterator itEdge = delayedEdges.begin ();
-	   itEdge != delayedEdges.end (); ++itEdge) {
-	const core::NodePtr_t& near = itEdge-> get <0> ();
-	const ConfigurationPtr_t& q_new = itEdge-> get <1> ();
-	const core::PathPtr_t& validPath = itEdge-> get <2> ();
+      for (const auto& edge : delayedEdges) {
+	const core::NodePtr_t& near = std::get<0>(edge);
+	const ConfigurationPtr_t& q_new = std::get<1>(edge);
+	const core::PathPtr_t& validPath = std::get<2>(edge);
         core::NodePtr_t newNode = roadmap ()->addNode (q_new);
 	roadmap ()->addEdge (near, newNode, validPath);
 	roadmap ()->addEdge (newNode, near, validPath->reverse());
@@ -437,7 +437,7 @@ namespace hpp {
         const Configuration_t& q1 (*(*itn1)->configuration ());
         graph::StatePtr_t s1 = getState (graph, *itn1);
 
-        for (core::Nodes_t::const_iterator itn2 = boost::next (itn1);
+        for (core::Nodes_t::const_iterator itn2 = std::next (itn1);
             itn2 != nodes.end (); ++itn2) {
           if ((*itn1)->connectedComponent () == (*itn2)->connectedComponent ())
             continue;

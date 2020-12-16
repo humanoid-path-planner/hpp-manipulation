@@ -208,10 +208,10 @@ namespace hpp {
             continue;
           }
 
-          roadmap()->initNode (boost::make_shared<Configuration_t>(steps.col(0)));
+          roadmap()->initNode (make_shared<Configuration_t>(steps.col(0)));
           core::NodePtr_t init = roadmap()->   initNode ();
           core::NodePtr_t goal = roadmap()->addGoalNode (
-              boost::make_shared<Configuration_t>(steps.col(nDiscreteSteps_)));
+              make_shared<Configuration_t>(steps.col(nDiscreteSteps_)));
           roadmap()->addEdge (init, goal, path);
           success = true;
           if (feasibilityOnly_) break;

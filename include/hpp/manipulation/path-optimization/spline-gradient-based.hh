@@ -38,7 +38,7 @@ namespace hpp {
           };
           typedef core::pathOptimization::SplineGradientBased<PolynomeBasis, SplineOrder>
             Parent_t;
-          typedef boost::shared_ptr<SplineGradientBased> Ptr_t;
+          typedef shared_ptr<SplineGradientBased> Ptr_t;
 
           using typename Parent_t::Spline;
           using typename Parent_t::SplinePtr_t;

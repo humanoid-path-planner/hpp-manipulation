@@ -19,8 +19,6 @@
 
 #include <hpp/manipulation/handle.hh>
 
-#include <boost/assign/list_of.hpp>
-
 #include <pinocchio/multibody/joint/joint-generic.hpp>
 
 #include <hpp/util/debug.hh>
@@ -149,7 +147,7 @@ namespace hpp {
       core::DevicePtr_t r = robot();
       if (is6Dmask(mask_)) {
         return Implicit::create (
-            boost::shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
+            shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
               r->configSize(), r->numberDof (), n)), ComparisonTypes_t());
       } else {
         std::vector<bool> Cmask = complementMask(mask_);
@@ -164,7 +162,6 @@ namespace hpp {
     ImplicitPtr_t Handle::createGraspAndComplement
     (const GripperPtr_t& gripper, std::string n) const
     {
-      using boost::assign::list_of;
       using core::ExplicitRelativeTransformation;
       if (n.empty()) {
         n = gripper->name() + "_holds_" + name();

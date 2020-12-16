@@ -19,10 +19,10 @@
 #include <tr1/unordered_map>
 #include <tr1/unordered_set>
 
-#include <boost/array.hpp>
+#include <iterator>
+#include <array>
+
 #include <boost/regex.hpp>
-#include <boost/foreach.hpp>
-#include <boost/assign/list_of.hpp>
 
 #include <pinocchio/multibody/model.hpp>
 
@@ -121,8 +121,8 @@ namespace hpp {
               static const std::size_t Nedges = 1 + nbWaypoints;
               // static const std::size_t iNpregrasp = pregrasp?1 + 1:nbWaypoints;
               // static const std::size_t iNpreplace = pregrasp?1 + 1:nbWaypoints;
-              typedef boost::array <StatePtr_t, Nstates> StateArray;
-              typedef boost::array <EdgePtr_t, Nedges> EdgeArray;
+              typedef std::array <StatePtr_t, Nstates> StateArray;
+              typedef std::array <EdgePtr_t, Nedges> EdgeArray;
 
               static inline const StatePtr_t& Npregrasp (const StateArray& n) { assert (pregrasp); return n[1]; }
               static inline const StatePtr_t& Nintersec (const StateArray& n) { assert (intersec); return n[1 + (pregrasp?1:0)]; }
@@ -145,7 +145,7 @@ namespace hpp {
                   const size_type& w)
               {
                 if (Nedges > 1) {
-                  WaypointEdgePtr_t we = boost::static_pointer_cast <WaypointEdge>
+                  WaypointEdgePtr_t we = static_pointer_cast <WaypointEdge>
                       (from->linkTo (name, to, w, WaypointEdge::create));
                   we->nbWaypoints (nbWaypoints);
                   return we;
@@ -179,7 +179,7 @@ namespace hpp {
               {
                 if (Nedges > 1) {
                   const std::size_t T = (pregrasp?1:0) + (intersec?1:0);
-                  WaypointEdgePtr_t we = boost::static_pointer_cast <WaypointEdge>
+                  WaypointEdgePtr_t we = static_pointer_cast <WaypointEdge>
                     (n.front()->linkTo (name + "_ls", n.back(), w,
                                         WaypointEdge::create));
                   we->nbWaypoints (nbWaypoints);
@@ -193,7 +193,7 @@ namespace hpp {
                 } else {
                   assert (gCase == (GraspOnly | NoPlace)
                       && "Cannot implement a LevelSetEdge for grasping");
-                  gls = boost::static_pointer_cast <LevelSetEdge>
+                  gls = static_pointer_cast <LevelSetEdge>
                     (n.front()->linkTo (name + "_ls", n.back(), w,
                                         LevelSetEdge::create));
                   return gls;
@@ -206,7 +206,7 @@ namespace hpp {
               {
                 if (Nedges > 1) {
                   const std::size_t T = (pregrasp?1:0) + (intersec?1:0);
-                  WaypointEdgePtr_t we = boost::static_pointer_cast <WaypointEdge>
+                  WaypointEdgePtr_t we = static_pointer_cast <WaypointEdge>
                     (n.back()->linkTo (name + "_ls", n.front(), w,
                                        WaypointEdge::create));
                   we->nbWaypoints (nbWaypoints);
@@ -223,7 +223,7 @@ namespace hpp {
                 } else {
                   assert (gCase == (NoGrasp | PlaceOnly)
                       && "Cannot implement a LevelSetEdge for placement");
-                  pls = boost::static_pointer_cast <LevelSetEdge>
+                  pls = static_pointer_cast <LevelSetEdge>
                     (n.back()->linkTo (name + "_ls", n.front(), w,
                                        LevelSetEdge::create));
                   return pls;
@@ -231,7 +231,7 @@ namespace hpp {
               }
 
               template <typename EdgeType>
-              static inline boost::shared_ptr<EdgeType> linkWaypoint (
+              static inline shared_ptr<EdgeType> linkWaypoint (
                   const StateArray& states,
                   const std::size_t& iF, const std::size_t& iT,
                   const std::string& prefix,
@@ -240,7 +240,7 @@ namespace hpp {
                 std::stringstream ss;
                 ss << prefix << "_" << iF << iT;
                 if (suffix.length () > 0) ss << "_" << suffix;
-                return boost::static_pointer_cast <EdgeType>
+                return static_pointer_cast <EdgeType>
                     (states[iF]->linkTo (ss.str(), states[iT], -1, EdgeType::create));
               }
 
@@ -376,7 +376,7 @@ namespace hpp {
             if (levelSetPlace)
               weBackLs = T::makeLSEplace (name, n, eB, 10*wBack, pls);
 
-            Edges_t ret = boost::assign::list_of (weForw)(weBack);
+            Edges_t ret { weForw, weBack };
 
             if (levelSetPlace) {
               if (!place.foliated ()) {
@@ -517,9 +517,7 @@ namespace hpp {
           typedef std::vector <index_t> IndexV_t;
           typedef std::list <index_t> IndexL_t;
           typedef std::pair <index_t, index_t> Grasp_t;
-          typedef boost::tuple <StatePtr_t,
-                  FoliatedManifold>
-                    StateAndManifold_t;
+          typedef std::tuple <StatePtr_t, FoliatedManifold> StateAndManifold_t;
           //typedef std::vector <index_t, index_t> GraspV_t;
           /// GraspV_t corresponds to a unique ID of a  permutation.
           /// - its size is the number of grippers,
@@ -565,7 +563,7 @@ namespace hpp {
               }
             };
             std::tr1::unordered_set<edgeid_type, edgeid_hash> edges;
-            std::vector< boost::array<ImplicitPtr_t,3> > graspCs;
+            std::vector< std::array<ImplicitPtr_t,3> > graspCs;
             index_t nG, nOH;
             GraspV_t dims;
             const Grippers_t& gs;
@@ -578,11 +576,10 @@ namespace hpp {
               ps (problem), graph (g), nG (grippers.size ()), nOH (0), gs (grippers), ohs (objects),
               defaultAcceptationPolicy (CompiledRule::Refuse)
             {
-              BOOST_FOREACH (const Object_t& o, objects) {
-                nOH += o.get<1>().size();
-                BOOST_FOREACH (const HandlePtr_t& h, o.get<1>()) {
+              for (const Object_t& o : objects) {
+                nOH += std::get<1>(o).size();
+                for (const HandlePtr_t& h : std::get<1>(o))
                   handleNames.push_back(h->name());
-                }
               }
               handleNames.push_back("");
               dims.resize (nG);
@@ -647,10 +644,10 @@ namespace hpp {
               edges.insert(edgeid_type(stateid(g1), stateid(g2)));
             }
 
-            inline boost::array<ImplicitPtr_t,3>& graspConstraint (
+            inline std::array<ImplicitPtr_t,3>& graspConstraint (
                 const index_t& iG, const index_t& iOH)
             {
-              boost::array<ImplicitPtr_t,3>& gcs =
+              std::array<ImplicitPtr_t,3>& gcs =
                 graspCs [iG * nOH + iOH];
               if (!gcs[0]) {
                 hppDout (info, "Create grasps constraints for ("
@@ -674,18 +671,18 @@ namespace hpp {
 
             const Object_t& object (const index_t& iOH) const {
               index_t iH = iOH;
-              BOOST_FOREACH (const Object_t& o, ohs) {
-                if (iH < o.get<1>().size()) return o;
-                iH -= o.get<1>().size();
+              for (const Object_t& o : ohs) {
+                if (iH < std::get<1>(o).size()) return o;
+                iH -= std::get<1>(o).size();
               }
               throw std::out_of_range ("Handle index");
             }
 
             const HandlePtr_t& handle (const index_t& iOH) const {
               index_t iH = iOH;
-              BOOST_FOREACH (const Object_t& o, ohs) {
-                if (iH < o.get<1>().size()) return o.get<1>()[iH];
-                iH -= o.get<1>().size();
+              for (const Object_t& o : ohs) {
+                if (iH < std::get<1>(o).size()) return std::get<1>(o)[iH];
+                iH -= std::get<1>(o).size();
               }
               throw std::out_of_range ("Handle index");
             }
@@ -694,7 +691,7 @@ namespace hpp {
             bool objectCanBePlaced (const Object_t& o) const
             {
               // If the object has no joint, then it cannot be placed.
-              return (o.get<0>().get<2>().size() > 0);
+              return (std::get<2>(std::get<0>(o)).size() > 0);
             }
 
             /// Check is an object is grasped by the GraspV_t
@@ -704,7 +701,7 @@ namespace hpp {
               assert (idxOH.size () == nG);
               for (std::size_t i = 0; i < idxOH.size (); ++i)
                 if (idxOH[i] < nOH) // This grippers grasps an object
-                  if (o.get<2>() == object(idxOH[i]).get<2>())
+                  if (std::get<2>(o) == std::get<2>(object(idxOH[i])))
                     return true;
               return false;
             }
@@ -753,7 +750,7 @@ namespace hpp {
             void graspManifold (const index_t& iG, const index_t& iOH,
                 FoliatedManifold& grasp, FoliatedManifold& pregrasp)
             {
-              boost::array<ImplicitPtr_t,3>& gcs
+              std::array<ImplicitPtr_t,3>& gcs
                 = graspConstraint (iG, iOH);
               grasp.nc.nc.push_back (gcs[0]);
               grasp.nc.pdof.push_back (segments_t ());
@@ -791,9 +788,9 @@ namespace hpp {
               const int priority)
           {
             StateAndManifold_t& nam = r (g);
-            if (!nam.get<0>()) {
+            if (!std::get<0>(nam)) {
               hppDout (info, "Creating state " << r.name (g));
-              nam.get<0>() = r.graph->stateSelector ()->createState
+              std::get<0>(nam) = r.graph->stateSelector ()->createState
                 (r.name (g), false, priority);
               // Loop over the grippers and create grasping constraints if required
               FoliatedManifold unused;
@@ -801,32 +798,34 @@ namespace hpp {
               for (index_t i = 0; i < r.nG; ++i) {
                 if (g[i] < r.nOH) {
                   idxsOH.insert (g[i]);
-                  r.graspManifold (i, g[i], nam.get<1>(), unused);
+                  r.graspManifold (i, g[i], std::get<1>(nam), unused);
                 }
               }
               index_t iOH = 0;
-              BOOST_FOREACH (const Object_t& o, r.ohs) {
+              for (const Object_t& o : r.ohs) {
                 if (!r.objectCanBePlaced(o)) continue;
                 bool oIsGrasped = false;
                 // TODO: use the fact that the set is sorted.
-                // BOOST_FOREACH (const HandlePtr_t& h, o.get<1>())
-                for (index_t i = 0; i < o.get<1>().size(); ++i) {
+                // for (const HandlePtr_t& h : std::get<0>(o))
+                for (index_t i = 0; i < std::get<1>(o).size(); ++i) {
                   if (idxsOH.erase (iOH) == 1) oIsGrasped = true;
                   ++iOH;
                 }
-                if (!oIsGrasped)
-                  relaxedPlacementManifold (o.get<0>().get<0>(),
-                      o.get<0>().get<1>(),
-                      o.get<0>().get<2>(),
-                      nam.get<1>(), unused);
+                if (!oIsGrasped) {
+                  const auto& pc (std::get<0>(o));
+                  relaxedPlacementManifold (std::get<0>(pc),
+                      std::get<1>(pc),
+                      std::get<2>(pc),
+                      std::get<1>(nam), unused);
+                }
               }
-              nam.get<1>().addToState (nam.get<0>());
+              std::get<1>(nam).addToState (std::get<0>(nam));
 
               createLoopEdge (r.nameLoopEdge (g),
-                  nam.get<0>(), 0, 
+                  std::get<0>(nam), 0,
                   false,
-                  // TODO nam.get<1>().foliated(),
-                  nam.get<1>());
+                  // TODO std::get<1>(nam).foliated(),
+                  std::get<1>(nam));
             }
             return nam;
           }
@@ -856,9 +855,10 @@ namespace hpp {
                              submanifold;
             r.graspManifold (iG, gTo[iG], grasp, pregrasp);
             if (!noPlace) {
-              relaxedPlacementManifold (o.get<0>().get<0>(),
-                  o.get<0>().get<1>(),
-                  o.get<0>().get<2>(),
+              const auto& pc (std::get<0>(o));
+              relaxedPlacementManifold (std::get<0>(pc),
+                  std::get<1>(pc),
+                  std::get<2>(pc),
                   place, preplace);
             }
             std::pair<std::string, std::string> names =
@@ -873,30 +873,32 @@ namespace hpp {
                 }
               }
               index_t iOH = 0;
-              BOOST_FOREACH (const Object_t& o, r.ohs) {
+              for (const Object_t& o : r.ohs) {
                 if (!r.objectCanBePlaced(o)) continue;
                 bool oIsGrasped = false;
                 const index_t iOHstart = iOH;
-                for (; iOH < iOHstart + o.get<1>().size(); ++iOH) {
+                for (; iOH < iOHstart + std::get<1>(o).size(); ++iOH) {
                   if (iOH == gTo [iG]) {
                     oIsGrasped = true;
-                    iOH = iOHstart + o.get<1>().size();
+                    iOH = iOHstart + std::get<1>(o).size();
                     break;
                   }
                   if (idxsOH.erase (iOH) == 1) oIsGrasped = true;
                 }
-                if (!oIsGrasped)
-                  relaxedPlacementManifold (o.get<0>().get<0>(),
-                      o.get<0>().get<1>(),
-                      o.get<0>().get<2>(),
+                if (!oIsGrasped) {
+                  const auto& pc (std::get<0>(o));
+                  relaxedPlacementManifold (std::get<0>(pc),
+                      std::get<1>(pc),
+                      std::get<2>(pc),
                       submanifold, unused);
+                }
               }
             }
             if (pregrasp.empty ()) {
               if (noPlace)
                 createEdges <GraspOnly | NoPlace> (
                     names.first           , names.second,
-                    from.get<0> ()        , to.get<0>(),
+                    std::get<0>(from)     , std::get<0>(to),
                     1                     , 1,
                     grasp                 , pregrasp,
                     place                 , preplace,
@@ -905,7 +907,7 @@ namespace hpp {
               else if (preplace.empty ())
                 createEdges <GraspOnly | PlaceOnly> (
                     names.first           , names.second,
-                    from.get<0> ()        , to.get<0>(),
+                    std::get<0>(from)     , std::get<0>(to),
                     1                     , 1,
                     grasp                 , pregrasp,
                     place                 , preplace,
@@ -916,7 +918,7 @@ namespace hpp {
                 /*
                    createEdges <GraspOnly | WithPrePlace> (
                    names.first           , names.second,
-                   from.get<0> ()        , to.get<0>(),
+                   std::get<0>(from)     , std::get<0>(to),
                    1                     , 1,
                    grasp                 , pregrasp,
                    place                 , preplace,
@@ -927,7 +929,7 @@ namespace hpp {
               if (noPlace)
                 createEdges <WithPreGrasp | NoPlace> (
                     names.first           , names.second,
-                    from.get<0> ()        , to.get<0>(),
+                    std::get<0>(from)     , std::get<0>(to),
                     1                     , 1,
                     grasp                 , pregrasp,
                     place                 , preplace,
@@ -936,7 +938,7 @@ namespace hpp {
               else if (preplace.empty ())
                 createEdges <WithPreGrasp | PlaceOnly> (
                     names.first           , names.second,
-                    from.get<0> ()        , to.get<0>(),
+                    std::get<0>(from)     , std::get<0>(to),
                     1                     , 1,
                     grasp                 , pregrasp,
                     place                 , preplace,
@@ -945,7 +947,7 @@ namespace hpp {
               else
                 createEdges <WithPreGrasp | WithPrePlace> (
                     names.first           , names.second,
-                    from.get<0> ()        , to.get<0>(),
+                    std::get<0>(from)     , std::get<0>(to),
                     1                     , 1,
                     grasp                 , pregrasp,
                     place                 , preplace,
@@ -969,7 +971,7 @@ namespace hpp {
             for (IndexV_t::const_iterator itx_g = idx_g.begin ();
                 itx_g != idx_g.end (); ++itx_g) {
               // Copy all element except itx_g
-              std::copy (boost::next (itx_g), idx_g.end (),
+              std::copy (std::next (itx_g), idx_g.end (),
                   std::copy (idx_g.begin (), itx_g, nIdx_g.begin ())
                   );
               for (IndexV_t::const_iterator itx_oh = idx_oh.begin ();
@@ -985,7 +987,7 @@ namespace hpp {
                   makeEdge (r, grasps, nGrasps, *itx_g, depth);
 
                 // Copy all element except itx_oh
-                std::copy (boost::next (itx_oh), idx_oh.end (),
+                std::copy (std::next (itx_oh), idx_oh.end (),
                     std::copy (idx_oh.begin (), itx_oh, nIdx_oh.begin ())
                     );
                 // Do all the possible combination below this new grasp
@@ -1037,7 +1039,7 @@ namespace hpp {
           const pinocchio::Model& model = robot.model();
           Grippers_t grippers (griNames.size());
           index_t i = 0;
-          BOOST_FOREACH (const std::string& gn, griNames) {
+          for (const std::string& gn : griNames) {
             grippers[i] = robot.grippers.get (gn);
             ++i;
           }
@@ -1045,12 +1047,12 @@ namespace hpp {
           i = 0;
           const value_type margin = 1e-3;
           bool prePlace = (prePlaceWidth > 0);
-          BOOST_FOREACH (const ObjectDef_t& od, objs) {
+          for (const ObjectDef_t& od : objs) {
             // Create handles
-            objects[i].get<2> () = i;
-            objects[i].get<1> ().resize (od.handles.size());
-            Handles_t::iterator it = objects[i].get<1> ().begin();
-            BOOST_FOREACH (const std::string hn, od.handles) {
+            std::get<2>(objects[i]) = i;
+            std::get<1>(objects[i]).resize (od.handles.size());
+            Handles_t::iterator it = std::get<1>(objects[i]).begin();
+            for (const std::string hn : od.handles) {
               *it = robot.handles.get (hn);
               ++it;
             }
@@ -1064,30 +1066,27 @@ namespace hpp {
             // else if contact surfaces are defined and selected
             //   create default placement constraint using the ProblemSolver
             //   methods createPlacementConstraint and createPrePlacementConstraint
+            auto& pc (std::get<0>(objects[i]));
             if (ps->numericalConstraints.has(placeN)) {
-              objects[i].get<0> ().get<0> () =
-                ps->numericalConstraints.get (placeN);
+              std::get<0>(pc) = ps->numericalConstraints.get (placeN);
               if (ps->numericalConstraints.has(preplaceN)) {
-                objects[i].get<0> ().get<1> () =
-                  ps->numericalConstraints.get (preplaceN);
+                std::get<1>(pc) = ps->numericalConstraints.get (preplaceN);
               }
             } else if (!envNames.empty() && !od.shapes.empty ()) {
               ps->createPlacementConstraint (placeN,
                   od.shapes, envNames, margin);
-              objects[i].get<0> ().get<0> () =
-                ps->numericalConstraints.get (placeN);
+              std::get<0>(pc) = ps->numericalConstraints.get (placeN);
               if (prePlace) {
                 ps->createPrePlacementConstraint (preplaceN,
                     od.shapes, envNames, margin, prePlaceWidth);
-                objects[i].get<0> ().get<1> () =
-                  ps->numericalConstraints.get (preplaceN);
+                std::get<1>(pc) = ps->numericalConstraints.get (preplaceN);
               }
             }
             // Create object lock
 	    // Loop over all frames of object, detect joint and create locked
 	    // joint.
             assert (robot.robotFrames (od.name).size () != 0);
-            BOOST_FOREACH (const FrameIndex& f, robot.robotFrames (od.name)) {
+            for (const FrameIndex& f : robot.robotFrames (od.name)) {
               if (model.frames[f].type != ::pinocchio::JOINT) continue;
               const JointIndex j = model.frames[f].parent;
               JointPtr_t oj (Joint::create (ps->robot(), j));
@@ -1097,7 +1096,7 @@ namespace hpp {
                                              oj->configSize ()), space);
               LockedJointPtr_t lj = core::LockedJoint::create (oj, lge);
               ps->numericalConstraints.add ("lock_" + oj->name (), lj);
-              objects[i].get<0> ().get<2> ().push_back (lj);
+              std::get<2>(pc).push_back (lj);
             }
             ++i;
           }

@@ -127,12 +127,10 @@ namespace hpp {
           }
 
           /// Add constraints::Implicit to the component.
-          virtual void addNumericalConstraintForPath (const ImplicitPtr_t& nm,
-              const segments_t& passiveDofs = segments_t ())
+          virtual void addNumericalConstraintForPath (const ImplicitPtr_t& nm)
           {
             invalidate();
             numericalConstraintsForPath_.push_back (nm);
-            passiveDofsForPath_.push_back (passiveDofs);
           }
 
           /// Insert the numerical constraints in a ConfigProjector
@@ -178,7 +176,6 @@ namespace hpp {
 
           /// Stores the numerical constraints for path.
           NumericalConstraints_t numericalConstraintsForPath_;
-          IntervalsContainer_t passiveDofsForPath_;
 
           /// A selector that will implement the selection of the next state.
           StateSelectorWkPtr_t selector_;

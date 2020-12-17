@@ -803,12 +803,10 @@ namespace hpp {
       }
 
       void LevelSetEdge::insertParamConstraint
-      (const constraints::ImplicitPtr_t& nm,
-              const segments_t& passiveDofs)
+      (const constraints::ImplicitPtr_t& nm)
       {
         invalidate ();
         paramNumericalConstraints_.push_back (nm);
-        paramPassiveDofs_.push_back (passiveDofs);
       }
 
       const NumericalConstraints_t& LevelSetEdge::paramConstraints() const
@@ -817,12 +815,10 @@ namespace hpp {
       }
 
       void LevelSetEdge::insertConditionConstraint
-      (const constraints::ImplicitPtr_t& nm,
-              const segments_t& passiveDofs)
+      (const constraints::ImplicitPtr_t& nm)
       {
         invalidate ();
         condNumericalConstraints_.push_back (nm);
-        condPassiveDofs_.push_back (passiveDofs);
       }
 
       const NumericalConstraints_t& LevelSetEdge::conditionConstraints() const

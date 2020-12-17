@@ -555,18 +555,14 @@ namespace hpp {
 
           /// Insert a constraints parameterizing the target state foliation
           /// \param nm the numerical constraint,
-          /// \param passiveDofs the passive degrees of freedom of the
-          ///        constraint.
-          void insertParamConstraint (const ImplicitPtr_t& nm,
-              const segments_t& passiveDofs = segments_t ());
+          void insertParamConstraint (const ImplicitPtr_t& nm);
 
           /// Get constraints parameterizing the target state foliation
           const NumericalConstraints_t& paramConstraints() const;
 
           /// Insert a condition constraint
           /// \sa LevelSetEdge::histogram
-          void insertConditionConstraint (const ImplicitPtr_t& nm,
-              const segments_t& passiveDofs = segments_t ());
+          void insertConditionConstraint (const ImplicitPtr_t& nm);
 
           /// Get constraints parameterizing the target state foliation
           /// \sa LevelSetEdge::histogram
@@ -595,12 +591,10 @@ namespace hpp {
           // Parametrizer
           // NumericalConstraints_t
           NumericalConstraints_t paramNumericalConstraints_;
-          IntervalsContainer_t paramPassiveDofs_;
 
           // Condition
           // NumericalConstraints_t
           NumericalConstraints_t condNumericalConstraints_;
-          IntervalsContainer_t condPassiveDofs_;
 
           /// This histogram will be used to find a good level set.
           LeafHistogramPtr_t hist_;

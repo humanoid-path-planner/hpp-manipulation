@@ -18,7 +18,6 @@
 
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
-#include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/implicit.hh>
 
 #include <hpp/constraints/differentiable-function.hh>
@@ -51,12 +50,10 @@ namespace hpp {
         invalidate();
       }
 
-      void GraphComponent::addNumericalConstraint (const ImplicitPtr_t& nm,
-          const segments_t& passiveDofs)
+      void GraphComponent::addNumericalConstraint (const ImplicitPtr_t& nm)
       {
         invalidate();
         numericalConstraints_.push_back(nm);
-        passiveDofs_.push_back (passiveDofs);
       }
 
       void GraphComponent::addNumericalCost (const ImplicitPtr_t& cost)
@@ -69,18 +66,7 @@ namespace hpp {
       {
         invalidate();
 	numericalConstraints_.clear();
-        passiveDofs_.clear();
         numericalCosts_.clear();
-      }
-
-      void GraphComponent::addLockedJointConstraint
-      (const LockedJointPtr_t& constraint)
-      {
-        addNumericalConstraint (constraint);
-      }
-
-      void GraphComponent::resetLockedJoints ()
-      {
       }
 
       bool GraphComponent::insertNumericalConstraints (ConfigProjectorPtr_t& proj) const
@@ -100,16 +86,6 @@ namespace hpp {
       const NumericalConstraints_t& GraphComponent::numericalCosts() const
       {
         return numericalCosts_;
-      }
-
-      const std::vector <segments_t>& GraphComponent::passiveDofs() const
-      {
-        return passiveDofs_;
-      }
-
-      const LockedJoints_t& GraphComponent::lockedJoints () const
-      {
-        return lockedJoints_;
       }
 
       GraphPtr_t GraphComponent::parentGraph() const

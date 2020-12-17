@@ -35,41 +35,28 @@ namespace hpp {
         /// \addtogroup helper
         /// \{
 
-        struct NumericalConstraintsAndPassiveDofs {
-          NumericalConstraints_t nc;
-          IntervalsContainer_t pdof;
-          NumericalConstraintsAndPassiveDofs merge
-            (const NumericalConstraintsAndPassiveDofs& other) {
-              NumericalConstraintsAndPassiveDofs ret;
-              // ret.nc.reserve (nc.size() + other.nc.size());
-              ret.pdof.reserve (pdof.size() + other.pdof.size());
-
-              std::copy (nc.begin(), nc.end(), ret.nc.begin());
-              std::copy (other.nc.begin(), other.nc.end(), ret.nc.begin());
-
-              std::copy (pdof.begin(), pdof.end(), ret.pdof.begin());
-              std::copy (other.pdof.begin(), other.pdof.end(), ret.pdof.begin());
-              return ret;
-            }
-
-          template <bool forPath> void addToComp (GraphComponentPtr_t comp) const;
-
-          template <bool param> void specifyFoliation (LevelSetEdgePtr_t lse) const;
-        };
+        NumericalConstraints_t merge_nc
+          (const NumericalConstraints_t& a, const NumericalConstraints_t& b) {
+            NumericalConstraints_t nc;
+            nc.reserve (a.size() + b.size());
+            std::copy (a.begin(), a.end(), nc.begin());
+            std::copy (b.begin(), b.end(), nc.begin());
+            return nc;
+          }
 
         struct FoliatedManifold {
           // Manifold definition
-          NumericalConstraintsAndPassiveDofs nc;
+          NumericalConstraints_t nc;
           LockedJoints_t lj;
-          NumericalConstraintsAndPassiveDofs nc_path;
+          NumericalConstraints_t nc_path;
           // Foliation definition
-          NumericalConstraintsAndPassiveDofs nc_fol;
+          NumericalConstraints_t nc_fol;
           LockedJoints_t lj_fol;
 
           FoliatedManifold merge (const FoliatedManifold& other) {
             FoliatedManifold both;
-            both.nc = nc.merge (other.nc);
-            both.nc_path = nc_path.merge (other.nc_path);
+            both.nc = merge_nc(nc, other.nc);
+            both.nc_path = merge_nc(nc_path, other.nc_path);
 
             std::copy (lj.begin (), lj.end (), both.lj.end ());
             std::copy (other.lj.begin (), other.lj.end (), both.lj.end ());
@@ -81,10 +68,10 @@ namespace hpp {
           void specifyFoliation (LevelSetEdgePtr_t lse) const;
 
           bool foliated () const {
-            return !lj_fol.empty () || !nc_fol.nc.empty ();
+            return !lj_fol.empty () || !nc_fol.empty ();
           }
           bool empty () const {
-            return lj.empty () && nc.nc.empty ();
+            return lj.empty () && nc.empty ();
           }
         };
 
@@ -142,8 +129,6 @@ namespace hpp {
         /// \li pregrasp
         /// \li placement
 
-        /// \todo when the handle is a free flying object, add the robot DOFs
-        ///       as passive dofs to the numerical constraints for paths
         void graspManifold (
             const GripperPtr_t& gripper, const HandlePtr_t& handle,
             FoliatedManifold& grasp, FoliatedManifold& pregrasp);

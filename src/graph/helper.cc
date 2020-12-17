@@ -49,9 +49,10 @@ namespace hpp {
       namespace helper {
         typedef constraints::Implicit Implicit;
         typedef constraints::ImplicitPtr_t ImplicitPtr_t;
+
         template <bool forPath>
-          void NumericalConstraintsAndPassiveDofs::addToComp
-          (GraphComponentPtr_t comp) const
+          void addToComp
+          (const NumericalConstraints_t& nc, GraphComponentPtr_t comp)
         {
           if (nc.empty ()) return;
           StatePtr_t n;
@@ -59,49 +60,41 @@ namespace hpp {
             n = HPP_DYNAMIC_PTR_CAST (State, comp);
             if (!n) throw std::logic_error ("Wrong type: expect a State");
           }
-          NumericalConstraints_t::const_iterator it;
-          IntervalsContainer_t::const_iterator itpdof = pdof.begin ();
-          for (it = nc.begin (); it != nc.end (); ++it) {
-            if (*it) {
-              if (forPath) n->addNumericalConstraintForPath (*it, *itpdof);
-              else      comp->addNumericalConstraint (*it, *itpdof);
+          for (const auto& c : nc)
+            if (c) {
+              if (forPath) n->addNumericalConstraintForPath (c);
+              else      comp->addNumericalConstraint (c);
             }
-            ++itpdof;
-          }
-          assert (itpdof == pdof.end ());
         }
 
         template <bool param>
-          void NumericalConstraintsAndPassiveDofs::specifyFoliation
-          (LevelSetEdgePtr_t lse) const
+          void specifyFoliation
+          (const NumericalConstraints_t& nc, LevelSetEdgePtr_t lse)
         {
-          NumericalConstraints_t::const_iterator it;
-          IntervalsContainer_t::const_iterator itpdof = pdof.begin ();
-          for (it = nc.begin (); it != nc.end (); ++it) {
-            if (*it) {
-              if (param) lse->insertParamConstraint (*it, *itpdof);
-              else   lse->insertConditionConstraint (*it, *itpdof);
+          for (const auto& c : nc)
+            if (c) {
+              if (param) lse->insertParamConstraint (c);
+              else   lse->insertConditionConstraint (c);
             }
-            ++itpdof;
-          }
-          assert (itpdof == pdof.end ());
         }
 
         void FoliatedManifold::addToState (StatePtr_t comp) const
         {
-          nc.addToComp <false> (comp);
-          nc_path.addToComp <true> (comp);
+          addToComp<false>(nc, comp);
+          addToComp<false>(nc_path, comp);
         }
 
         void FoliatedManifold::addToEdge (EdgePtr_t comp) const
         {
-          nc_fol.addToComp <false> (comp);
+          addToComp <false> (nc_fol, comp);
         }
 
         void FoliatedManifold::specifyFoliation (LevelSetEdgePtr_t lse) const
         {
-          nc.specifyFoliation <false> (lse);
-          nc_fol.specifyFoliation <true> (lse);
+          for (const auto& c : nc)
+            lse->insertConditionConstraint (c);
+          for (const auto& c : nc_fol)
+            lse->insertConditionConstraint (c);
         }
 
         namespace {
@@ -445,24 +438,17 @@ namespace hpp {
             FoliatedManifold& grasp, FoliatedManifold& pregrasp)
         {
           ImplicitPtr_t gc  = handle->createGrasp (gripper, "");
-          grasp.nc.nc.push_back (gc);
-          grasp.nc.pdof.push_back (segments_t ());
-          grasp.nc_path.nc.push_back (gc);
-          // TODO: see function declaration
-          grasp.nc_path.pdof.push_back (segments_t ());
+          grasp.nc.push_back (gc);
+          grasp.nc_path.push_back (gc);
           ImplicitPtr_t gcc = handle->createGraspComplement
             (gripper, "");
-          if (gcc->function ().outputSize () > 0) {
-            grasp.nc_fol.nc.push_back (gcc);
-            grasp.nc_fol.pdof.push_back (segments_t());
-          }
+          if (gcc->function ().outputSize () > 0)
+            grasp.nc_fol.push_back (gcc);
 
           const value_type c = handle->clearance () + gripper->clearance ();
           ImplicitPtr_t pgc = handle->createPreGrasp (gripper, c, "");
-          pregrasp.nc.nc.push_back (pgc);
-          pregrasp.nc.pdof.push_back (segments_t());
-          pregrasp.nc_path.nc.push_back (pgc);
-          pregrasp.nc_path.pdof.push_back (segments_t());
+          pregrasp.nc.push_back (pgc);
+          pregrasp.nc_path.push_back (pgc);
         }
 
         void strictPlacementManifold (
@@ -471,19 +457,13 @@ namespace hpp {
             const ImplicitPtr_t placementComplement,
             FoliatedManifold& place, FoliatedManifold& preplace)
         {
-          place.nc.nc.push_back (placement);
-          place.nc.pdof.push_back (segments_t());
-          place.nc_path.nc.push_back (placement);
-          place.nc_path.pdof.push_back (segments_t());
-          if (placementComplement && placementComplement->function().outputSize () > 0) {
-            place.nc_fol.nc.push_back (placementComplement);
-            place.nc_fol.pdof.push_back (segments_t());
-          }
+          place.nc.push_back (placement);
+          place.nc_path.push_back (placement);
+          if (placementComplement && placementComplement->function().outputSize () > 0)
+            place.nc_fol.push_back (placementComplement);
 
-          preplace.nc.nc.push_back (preplacement);
-          preplace.nc.pdof.push_back (segments_t());
-          preplace.nc_path.nc.push_back (preplacement);
-          preplace.nc_path.pdof.push_back (segments_t());
+          preplace.nc.push_back (preplacement);
+          preplace.nc_path.push_back (preplacement);
         }
 
         void relaxedPlacementManifold (
@@ -493,22 +473,18 @@ namespace hpp {
             FoliatedManifold& place, FoliatedManifold& preplace)
         {
           if (placement) {
-            place.nc.nc.push_back (placement);
-            place.nc.pdof.push_back (segments_t());
+            place.nc.push_back (placement);
             // The placement constraints are not required in the path, as long as
             // they are satisfied at both ends and the object does not move. The
             // former condition is ensured by the placement constraints on both
             // ends and the latter is ensure by the LockedJoint constraints.
-            place.nc_path.nc.push_back (placement);
-            place.nc_path.pdof.push_back (segments_t());
+            place.nc_path.push_back (placement);
           }
           std::copy (objectLocks.begin(), objectLocks.end(), std::back_inserter(place.lj_fol));
 
           if (placement && preplacement) {
-            preplace.nc.nc.push_back (preplacement);
-            preplace.nc.pdof.push_back (segments_t());
-            // preplace.nc_path.nc.push_back (preplacement);
-            // preplace.nc_path.pdof.push_back (segments_t());
+            preplace.nc.push_back (preplacement);
+            // preplace.nc_path.push_back (preplacement);
           }
         }
 
@@ -752,20 +728,13 @@ namespace hpp {
             {
               std::array<ImplicitPtr_t,3>& gcs
                 = graspConstraint (iG, iOH);
-              grasp.nc.nc.push_back (gcs[0]);
-              grasp.nc.pdof.push_back (segments_t ());
-              grasp.nc_path.nc.push_back (gcs[0]);
-              // TODO: see function declaration
-              grasp.nc_path.pdof.push_back (segments_t ());
-              if (gcs[1]->function ().outputSize () > 0) {
-                grasp.nc_fol.nc.push_back (gcs[1]);
-                grasp.nc_fol.pdof.push_back (segments_t());
-              }
+              grasp.nc.push_back (gcs[0]);
+              grasp.nc_path.push_back (gcs[0]);
+              if (gcs[1]->function ().outputSize () > 0)
+                grasp.nc_fol.push_back (gcs[1]);
 
-              pregrasp.nc.nc.push_back (gcs[2]);
-              pregrasp.nc.pdof.push_back (segments_t());
-              pregrasp.nc_path.nc.push_back (gcs[2]);
-              pregrasp.nc_path.pdof.push_back (segments_t());
+              pregrasp.nc.push_back (gcs[2]);
+              pregrasp.nc_path.push_back (gcs[2]);
             }
           };
 

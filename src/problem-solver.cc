@@ -156,7 +156,7 @@ namespace hpp {
           createPathProjector <core::pathProjector::RecursiveHermite>);
 
       steeringMethods.add ("Graph-SteeringMethodStraight",
-          steeringMethod::Graph::create <core::SteeringMethodStraight>);
+          steeringMethod::Graph::create <core::steeringMethod::Straight>);
       steeringMethods.add ("Graph-Straight",
           steeringMethod::Graph::create <core::steeringMethod::Straight>);
       steeringMethods.add ("Graph-Hermite",

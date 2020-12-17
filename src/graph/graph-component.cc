@@ -85,17 +85,10 @@ namespace hpp {
 
       bool GraphComponent::insertNumericalConstraints (ConfigProjectorPtr_t& proj) const
       {
-        IntervalsContainer_t::const_iterator itpdof = passiveDofs_.begin ();
-        for (NumericalConstraints_t::const_iterator it = numericalConstraints_.begin();
-            it != numericalConstraints_.end(); ++it) {
-          proj->add (*it, *itpdof);
-          ++itpdof;
-        }
-        assert (itpdof == passiveDofs_.end ());
-        for (NumericalConstraints_t::const_iterator it = numericalCosts_.begin();
-            it != numericalCosts_.end(); ++it) {
-          proj->add (*it, 1);
-        }
+        for (const auto& nc : numericalConstraints_)
+          proj->add (nc);
+        for (const auto& nc : numericalCosts_)
+          proj->add (nc, 1);
         return !numericalConstraints_.empty ();
       }
 

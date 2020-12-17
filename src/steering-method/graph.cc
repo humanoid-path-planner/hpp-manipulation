@@ -29,7 +29,7 @@ namespace hpp {
   namespace manipulation {
     SteeringMethod::SteeringMethod (const ProblemConstPtr_t& problem) :
       core::SteeringMethod (problem), problem_ (problem),
-      steeringMethod_ (core::SteeringMethodStraight::create (problem))
+      steeringMethod_ (core::steeringMethod::Straight::create (problem))
     {
     }
 

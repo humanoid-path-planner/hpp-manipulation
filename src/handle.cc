@@ -27,7 +27,6 @@
 #include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/gripper.hh>
 
-#include <hpp/constraints/generic-transformation.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/constraints/explicit/relative-pose.hh>
 #include <hpp/constraints/generic-transformation.hh>
@@ -162,7 +161,6 @@ namespace hpp {
     ImplicitPtr_t Handle::createGraspAndComplement
     (const GripperPtr_t& gripper, std::string n) const
     {
-      using core::ExplicitRelativeTransformation;
       if (n.empty()) {
         n = gripper->name() + "_holds_" + name();
       }

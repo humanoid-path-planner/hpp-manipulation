@@ -214,61 +214,43 @@ namespace hpp {
        const GraphPtr_t& graph)
       {
         NumericalConstraints_t nc;
-        std::vector <segments_t> pdof;
-        for (std::vector <GraphComponentPtr_t>::const_iterator it
-               (components.begin ()); it != components.end (); ++it) {
-          nc.insert (nc.end (), (*it)->numericalConstraints ().begin (),
-                     (*it)->numericalConstraints ().end ());
-          pdof.insert (pdof.end (), (*it)->passiveDofs ().begin (),
-                       (*it)->passiveDofs ().end ());
-        }
-        assert (nc.size () == pdof.size ());
-        NumericalConstraints_t::iterator itnc1, itnc2;
-        std::vector <segments_t>::iterator itpdof1, itpdof2;
+        for (const auto& gc : components)
+          nc.insert(nc.end(), gc->numericalConstraints().begin(),
+                     gc->numericalConstraints ().end ());
 
         // Remove duplicate constraints
-        for (itnc1 = nc.begin(), itpdof1 = pdof.begin(); itnc1 != nc.end(); ++itnc1, ++itpdof1) {
-          itnc2 = itnc1; ++itnc2;
-          itpdof2 = itpdof1; ++itpdof2;
-          while (itnc2 != nc.end()) {
-            if (*itnc1 == *itnc2) {
-              itnc2   = nc.erase (itnc2);
-              itpdof2 = pdof.erase (itpdof2);
-            } else {
-              ++itnc2;
-              ++itpdof2;
-            }
-          }
-        }
+        auto end = nc.end();
+        for (auto it = nc.begin(); it != end; ++it)
+          end = std::remove(std::next(it), end, *it);
+        nc.erase(end, nc.end());
+
+        NumericalConstraints_t::iterator itnc1, itnc2;
+
+        itnc2 = nc.end();
+        for (itnc1 = nc.begin(); itnc1 != itnc2; ++itnc1)
+          itnc2 = std::remove(std::next(itnc1), itnc2, *itnc1);
+        nc.erase(itnc2, nc.end());
 
         // Look for complement
-        for (itnc1 = nc.begin(), itpdof1 = pdof.begin(); itnc1 != nc.end(); ++itnc1, ++itpdof1) {
-          itnc2 = itnc1; ++itnc2;
-          itpdof2 = itpdof1; ++itpdof2;
+        for (itnc1 = nc.begin(); itnc1 != nc.end(); ++itnc1) {
+          const auto& c1 = *itnc1;
+          itnc2 = std::next(itnc1);
           constraints::ImplicitPtr_t combination;
-          while (itnc2 != nc.end()) {
+          itnc2 = std::find_if(std::next(itnc1), nc.end(),
+              [&c1, &combination, &graph](const auto& c2) -> bool {
+                assert (c1 != c2);
+                return    graph->isComplement (c1, c2, combination)
+                       || graph->isComplement (c2, c1, combination);
+              });
+          if (itnc2 != nc.end()) {
             assert (*itnc1 != *itnc2);
-            if (   graph->isComplement (*itnc1, *itnc2, combination)
-                || graph->isComplement (*itnc2, *itnc1, combination)) {
-              // Replace constraint by combination of both and remove
-              // complement.
-              *itnc1 = combination;
-              nc.erase (itnc2);
-              pdof.erase (itpdof2);
-              break;
-            } else {
-              ++itnc2;
-              ++itpdof2;
-            }
+            *itnc1 = combination;
+            nc.erase (itnc2);
           }
         }
 
-        NumericalConstraints_t::iterator itnc (nc.begin ());
-        std::vector <segments_t>::iterator itpdof (pdof.begin ());
-        while (itnc != nc.end ()) {
-          proj->add (*itnc, *itpdof);
-          ++itnc; ++itpdof;
-        }
+        for (const auto& _nc : nc)
+          proj->add (_nc);
       }
 
       ConstraintSetPtr_t Edge::buildConfigConstraint()
@@ -741,13 +723,8 @@ namespace hpp {
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "projParam_" + n, g->errorThreshold(), g->maxIterations());
 
-        IntervalsContainer_t::const_iterator itpdof = paramPassiveDofs_.begin ();
-        for (NumericalConstraints_t::const_iterator it = paramNumericalConstraints_.begin ();
-            it != paramNumericalConstraints_.end (); ++it) {
-          proj->add (*it, *itpdof);
-          ++itpdof;
-        }
-        assert (itpdof == paramPassiveDofs_.end ());
+        for (const auto& nc : paramNumericalConstraints_)
+          proj->add (nc);
 
         param->addConstraint (proj);
         param->edge (wkPtr_.lock ());
@@ -763,13 +740,8 @@ namespace hpp {
         ConstraintSetPtr_t cond = ConstraintSet::create (g->robot (), "Set " + n);
         proj = ConfigProjector::create(g->robot(), "projCond_" + n, g->errorThreshold(), g->maxIterations());
 
-        itpdof = condPassiveDofs_.begin ();
-        for (NumericalConstraints_t::const_iterator it = condNumericalConstraints_.begin ();
-            it != condNumericalConstraints_.end (); ++it) {
-          proj->add (*it, *itpdof);
-          ++itpdof;
-        }
-        assert (itpdof == condPassiveDofs_.end ());
+        for (const auto& nc : condNumericalConstraints_)
+          proj->add (nc);
 
         f.condition (cond);
         cond->addConstraint (proj);
@@ -816,13 +788,8 @@ namespace hpp {
         // - the state in which the transition lies if different
 
         g->insertNumericalConstraints (proj);
-        IntervalsContainer_t::const_iterator itpdof = paramPassiveDofs_.begin ();
-        for (NumericalConstraints_t::const_iterator it = paramNumericalConstraints_.begin ();
-            it != paramNumericalConstraints_.end (); ++it) {
-          proj->add (*it, *itpdof);
-          ++itpdof;
-        }
-        assert (itpdof == paramPassiveDofs_.end ());
+        for (const auto& nc : paramNumericalConstraints_)
+          proj->add (nc);
 
         insertNumericalConstraints (proj);
         stateTo ()->insertNumericalConstraints (proj);

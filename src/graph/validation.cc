@@ -14,8 +14,6 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#define HPP_DEBUG 1
-
 #include "hpp/manipulation/graph/validation.hh"
 
 #include <sstream>

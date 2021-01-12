@@ -132,10 +132,10 @@ namespace hpp {
 	   gripper->objectPositionInJoint (), localPosition(),
            6 * constraints::EqualToZero);
       }
-      return Implicit::create (RelativeTransformation::create
+      return Implicit::create (RelativeTransformationSE3::create
          (n, robot (), gripper->joint (), joint (),
-          gripper->objectPositionInJoint (), localPosition(), mask_),
-         ComparisonTypes_t (maskSize (mask_), constraints::EqualToZero));
+          gripper->objectPositionInJoint (), localPosition()),
+			       6 * constraints::EqualToZero, mask_);
     }
 
     ImplicitPtr_t Handle::createGraspComplement
@@ -153,19 +153,16 @@ namespace hpp {
               r->configSize(), r->numberDof (), n)), ComparisonTypes_t());
       } else {
         std::vector<bool> Cmask = complementMask(mask_);
-        return  Implicit::create (RelativeTransformation::create
+        return  Implicit::create (RelativeTransformationSE3::create
            (n, r, gripper->joint (), joint (),
-            gripper->objectPositionInJoint (), localPosition(),
-            Cmask),
-           maskSize(Cmask) * constraints::Equality);
+            gripper->objectPositionInJoint (), localPosition()),
+           6 * constraints::Equality, Cmask);
       }
     }
 
     ImplicitPtr_t Handle::createGraspAndComplement
     (const GripperPtr_t& gripper, std::string n) const
     {
-      using boost::assign::list_of;
-      using core::ExplicitRelativeTransformation;
       if (n.empty()) {
         n = gripper->name() + "_holds_" + name();
       }
@@ -185,11 +182,10 @@ namespace hpp {
 	  (n, robot (), gripper->joint (), joint (),
 	   gripper->objectPositionInJoint (), localPosition(), comp);
       }
-      return Implicit::create (RelativeTransformation::create
+      return Implicit::create (RelativeTransformationSE3::create
          (n, robot (), gripper->joint (), joint (),
-          gripper->objectPositionInJoint (), localPosition(),
-          std::vector <bool> (6, true)),
-         comp);
+          gripper->objectPositionInJoint (), localPosition()),
+         comp, std::vector <bool> (6, true));
     }
 
     ImplicitPtr_t Handle::createPreGrasp
@@ -201,10 +197,10 @@ namespace hpp {
         n = "Pregrasp_ " + maskToStr(mask_) + "_" + name ()
           + "_" + gripper->name ();
       ImplicitPtr_t result (Implicit::create
-         (RelativeTransformation::create
+         (RelativeTransformationSE3::create
           (n, robot(), gripper->joint (), joint (),
-           M, localPosition(), mask_),
-          maskSize(mask_) * constraints::EqualToZero));
+           M, localPosition()),
+          6 * constraints::EqualToZero, mask_));
       return result;
     }
 

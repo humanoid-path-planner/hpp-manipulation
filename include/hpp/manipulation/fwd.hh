@@ -75,6 +75,7 @@ namespace hpp {
     typedef constraints::RelativeOrientationPtr_t RelativeOrientationPtr_t;
     typedef constraints::RelativePositionPtr_t RelativePositionPtr_t;
     typedef constraints::RelativeTransformation RelativeTransformation;
+    typedef constraints::RelativeTransformationSE3 RelativeTransformationSE3;
     typedef constraints::RelativeTransformationPtr_t
     RelativeTransformationPtr_t;
     typedef core::value_type value_type;

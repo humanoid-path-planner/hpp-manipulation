@@ -13,7 +13,7 @@
 // General Lesser Public License for more details.  You should have
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
-
+#define HPP_DEBUG
 #include "hpp/manipulation/manipulation-planner.hh"
 
 #include <boost/tuple/tuple.hpp>
@@ -199,7 +199,14 @@ namespace hpp {
             if (t_final != path->timeRange ().first) {
 	      bool success;
               ConfigurationPtr_t q_new (new Configuration_t
-					((*path) (t_final, success)));
+					(path->eval(t_final, success)));
+	      hppDout(info, pinocchio::displayConfig(*near->configuration()));
+	      hppDout(info, pinocchio::displayConfig(*q_new));
+	      hppDout(info, path);
+	      hppDout(info, *path);
+	      assert(success);
+	      assert(path->constraints()->isSatisfied(q_new));
+	      assert(problem_->constraintGraph ()->getState(*q_new));
               delayedEdges.push_back (DelayedEdge_t (near, q_new, path));
             }
           }
@@ -295,6 +302,7 @@ namespace hpp {
         projShorter = !pathProjector->apply (path, projPath);
         if (projShorter) {
           if (!projPath || projPath->length () == 0) {
+	    hppDout(info, "");
             HPP_STOP_TIMECOUNTER (projectPath);
 	    es.addFailure (reasons_[FAILURE]);
             es.addFailure (reasons_[PATH_PROJECTION_ZERO]);
@@ -319,6 +327,7 @@ namespace hpp {
       }
       HPP_STOP_TIMECOUNTER (validatePath);
       if (fullValidPath->length () == 0) {
+	hppDout(info, "");
         es.addFailure (reasons_[FAILURE]);
         es.addFailure (reasons_[PATH_VALIDATION_ZERO]);
         validPath = fullValidPath;

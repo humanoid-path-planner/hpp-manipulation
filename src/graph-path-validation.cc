@@ -99,7 +99,7 @@ namespace hpp {
     {
 #ifndef NDEBUG
       bool success;
-      Configuration_t q0 = (*path) (path->timeRange ().second, success);
+      Configuration_t q0 = path->eval(path->timeRange ().second, success);
       assert (success);
       assert (!path->constraints () || path->constraints ()->isSatisfied (q0));
 #endif

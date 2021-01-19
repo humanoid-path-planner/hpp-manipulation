@@ -316,7 +316,8 @@ namespace hpp {
 
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
-        ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+        ConfigProjectorPtr_t proj = ConfigProjector::create
+	  (g->robot(), "proj_" + n, .5*g->errorThreshold(), g->maxIterations());
         std::vector <GraphComponentPtr_t> components;
         components.push_back (g);
         components.push_back (wkPtr_.lock ());

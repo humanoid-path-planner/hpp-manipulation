@@ -200,6 +200,13 @@ namespace hpp {
 	      bool success;
               ConfigurationPtr_t q_new (new Configuration_t
 					(path->eval(t_final, success)));
+	      hppDout(info, pinocchio::displayConfig(*near->configuration()));
+	      hppDout(info, pinocchio::displayConfig(*q_new));
+	      hppDout(info, path);
+	      hppDout(info, *path);
+	      assert(success);
+	      assert(path->constraints()->isSatisfied(*q_new));
+	      assert(problem_->constraintGraph ()->getState(*q_new));
               delayedEdges.push_back (DelayedEdge_t (near, q_new, path));
             }
           }

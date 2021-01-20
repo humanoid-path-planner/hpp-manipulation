@@ -201,7 +201,8 @@ namespace hpp {
               ConfigurationPtr_t q_new (new Configuration_t
 					(path->eval(t_final, success)));
 	      assert(success);
-	      assert(path->constraints()->isSatisfied(*q_new));
+	      assert(!path->constraints() ||
+		     path->constraints()->isSatisfied(*q_new));
 	      assert(problem_->constraintGraph ()->getState(*q_new));
               delayedEdges.push_back (DelayedEdge_t (near, q_new, path));
             }

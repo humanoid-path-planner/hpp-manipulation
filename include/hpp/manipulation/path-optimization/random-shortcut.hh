@@ -28,7 +28,7 @@ namespace hpp {
     /// \{
     namespace pathOptimization {
       HPP_PREDEF_CLASS (RandomShortcut);
-      typedef boost::shared_ptr<RandomShortcut> RandomShortcutPtr_t;
+      typedef shared_ptr<RandomShortcut> RandomShortcutPtr_t;
 
       class HPP_MANIPULATION_DLLAPI RandomShortcut :
         public core::pathOptimization::RandomShortcut

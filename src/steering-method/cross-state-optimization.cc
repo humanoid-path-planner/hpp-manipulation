@@ -21,8 +21,6 @@
 #include <queue>
 #include <vector>
 
-#include <boost/bind.hpp>
-
 #include <hpp/util/exception-factory.hh>
 
 #include <pinocchio/multibody/model.hpp>

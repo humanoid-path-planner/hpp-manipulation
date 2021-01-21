@@ -19,8 +19,6 @@
 
 #include <hpp/manipulation/handle.hh>
 
-#include <boost/assign/list_of.hpp>
-
 #include <pinocchio/multibody/joint/joint-generic.hpp>
 
 #include <hpp/util/debug.hh>
@@ -29,7 +27,6 @@
 #include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/gripper.hh>
 
-#include <hpp/constraints/generic-transformation.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/constraints/explicit/relative-pose.hh>
 #include <hpp/constraints/generic-transformation.hh>
@@ -149,7 +146,7 @@ namespace hpp {
       core::DevicePtr_t r = robot();
       if (is6Dmask(mask_)) {
         return Implicit::create (
-            boost::shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
+            shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
               r->configSize(), r->numberDof (), n)), ComparisonTypes_t());
       } else {
         std::vector<bool> Cmask = complementMask(mask_);

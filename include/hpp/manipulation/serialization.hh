@@ -44,7 +44,7 @@ manipulation::graph::GraphPtr_t getGraphFromArchive(Archive& ar, const std::stri
 }
 
 template<class Archive, class GraphCompT>
-inline void serializeGraphComponent(Archive & ar, boost::shared_ptr<GraphCompT>& c, const unsigned int version)
+inline void serializeGraphComponent(Archive & ar, shared_ptr<GraphCompT>& c, const unsigned int version)
 {
   (void) version;
 

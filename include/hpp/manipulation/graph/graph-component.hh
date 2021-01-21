@@ -51,11 +51,8 @@ namespace hpp {
           }
 
           /// Add Implicit to the component.
-          /// \param passiveDofs see ConfigProjector::addNumericalConstraint
-          //         for more information.
           virtual void addNumericalConstraint (
-              const ImplicitPtr_t& numConstraint,
-              const segments_t& passiveDofs = segments_t ());
+              const ImplicitPtr_t& numConstraint);
 
           /// Add a cost function Implicit to the component.
           virtual void addNumericalCost (const ImplicitPtr_t& numCost);
@@ -63,42 +60,15 @@ namespace hpp {
 	  /// Reset the numerical constraints stored in the component.
 	  virtual void resetNumericalConstraints ();
 
-          /// Add core::LockedJoint constraint to the component.
-          /// \deprecated LockedJoint are handled as classical explicit
-          ///             constraint
-          virtual void addLockedJointConstraint
-	    (const LockedJointPtr_t& constraint) HPP_MANIPULATION_DEPRECATED;
-
-          /// \deprecated LockedJoint are handled as classical explicit
-          ///             constraint
-	  /// Reset the locked joint in the component.
-	  virtual void resetLockedJoints () HPP_MANIPULATION_DEPRECATED;
-
           /// Insert the numerical constraints in a ConfigProjector
           /// \return true is at least one ImplicitPtr_t was inserted.
           bool insertNumericalConstraints (ConfigProjectorPtr_t& proj) const;
-
-          /// Insert the LockedJoint constraints in a ConstraintSet
-          /// \return true is at least one LockedJointPtr_t was inserted.
-          /// \deprecated LockedJoint are handled as classical explicit
-          ///             constraint
-          bool insertLockedJoints (ConfigProjectorPtr_t& cs) const
-            HPP_MANIPULATION_DEPRECATED;
 
           /// Get a reference to the NumericalConstraints_t
           const NumericalConstraints_t& numericalConstraints() const;
 
           /// Get a reference to the NumericalConstraints_t
           const NumericalConstraints_t& numericalCosts() const;
-
-          /// Get a reference to the NumericalConstraints_t
-          const IntervalsContainer_t& passiveDofs() const;
-
-          /// Get a reference to the LockedJoints_t
-          /// \deprecated LockedJoint are handled as classical explicit
-          ///             constraint
-          const LockedJoints_t& lockedJoints () const
-            HPP_MANIPULATION_DEPRECATED;
 
           /// Set the parent graph.
           void parentGraph(const GraphWkPtr_t& parent);
@@ -131,12 +101,8 @@ namespace hpp {
 
           /// Stores the numerical constraints.
           NumericalConstraints_t numericalConstraints_;
-          /// Stores the passive dofs for each numerical constraints.
-          IntervalsContainer_t passiveDofs_;
           /// Stores the numerical costs.
           NumericalConstraints_t numericalCosts_;
-          /// List of LockedJoint constraints: \todo to be removed
-          const LockedJoints_t lockedJoints_;
           /// A weak pointer to the parent graph.
           GraphWkPtr_t graph_;
 

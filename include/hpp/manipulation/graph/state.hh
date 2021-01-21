@@ -17,7 +17,7 @@
 #ifndef HPP_MANIPULATION_GRAPH_STATE_HH
 # define HPP_MANIPULATION_GRAPH_STATE_HH
 
-# include <boost/function.hpp>
+#include <functional>
 
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/config-projector.hh>
@@ -44,10 +44,10 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI State : public GraphComponent
       {
         public:
-	typedef boost::function < EdgePtr_t
-				  (const std::string&,
-				   const GraphWkPtr_t&,
-				   const StateWkPtr_t&, const StateWkPtr_t&) >
+	typedef std::function < EdgePtr_t
+				(const std::string&,
+				 const GraphWkPtr_t&,
+				 const StateWkPtr_t&, const StateWkPtr_t&) >
 	EdgeFactory;
           /// Destructor
           ~State ();
@@ -127,25 +127,18 @@ namespace hpp {
           }
 
           /// Add constraints::Implicit to the component.
-          virtual void addNumericalConstraintForPath (const ImplicitPtr_t& nm,
-              const segments_t& passiveDofs = segments_t ())
+          virtual void addNumericalConstraintForPath (const ImplicitPtr_t& nm)
           {
             invalidate();
             numericalConstraintsForPath_.push_back (nm);
-            passiveDofsForPath_.push_back (passiveDofs);
           }
 
           /// Insert the numerical constraints in a ConfigProjector
           /// \return true is at least one ImplicitPtr_t was inserted.
           bool insertNumericalConstraintsForPath (ConfigProjectorPtr_t& proj) const
           {
-            assert (numericalConstraintsForPath_.size () == passiveDofsForPath_.size ());
-            IntervalsContainer_t::const_iterator itpdofs = passiveDofsForPath_.begin ();
-            for (NumericalConstraints_t::const_iterator it = numericalConstraintsForPath_.begin();
-                it != numericalConstraintsForPath_.end(); it++) {
-              proj->add (*it, *itpdofs);
-              itpdofs++;
-            }
+            for (const auto& nc : numericalConstraintsForPath_)
+              proj->add (nc);
             return !numericalConstraintsForPath_.empty ();
           }
 
@@ -183,7 +176,6 @@ namespace hpp {
 
           /// Stores the numerical constraints for path.
           NumericalConstraints_t numericalConstraintsForPath_;
-          IntervalsContainer_t passiveDofsForPath_;
 
           /// A selector that will implement the selection of the next state.
           StateSelectorWkPtr_t selector_;

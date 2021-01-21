@@ -34,7 +34,7 @@ namespace hpp {
       {
         public:
           typedef hpp::core::PathVectorPtr_t PathVectorPtr_t;
-          typedef boost::shared_ptr<EnforceTransitionSemantic> Ptr_t;
+          typedef shared_ptr<EnforceTransitionSemantic> Ptr_t;
 
           static Ptr_t create (const core::ProblemConstPtr_t& problem) {
             ProblemConstPtr_t p (HPP_DYNAMIC_PTR_CAST(const Problem, problem));

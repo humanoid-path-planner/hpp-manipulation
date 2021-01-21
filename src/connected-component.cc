@@ -59,7 +59,7 @@ namespace hpp {
     void ConnectedComponent::merge (const core::ConnectedComponentPtr_t& otherCC)
     {
       core::ConnectedComponent::merge(otherCC);
-      const ConnectedComponentPtr_t other = boost::static_pointer_cast <ConnectedComponent> (otherCC);
+      const ConnectedComponentPtr_t other = static_pointer_cast <ConnectedComponent> (otherCC);
       /// take all graph states in other->graphStateMap_ and put them in this->graphStateMap_
       /// if they already exist in this->graphStateMap_, append roadmap nodes from other graph state
       /// to graph state in this. 

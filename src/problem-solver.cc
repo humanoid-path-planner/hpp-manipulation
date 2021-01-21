@@ -62,11 +62,6 @@
 #include "hpp/manipulation/steering-method/graph.hh"
 #include "hpp/manipulation/steering-method/end-effector-trajectory.hh"
 
-#if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
-#include <hpp/wholebody-step/small-steps.hh>
-#include "hpp/manipulation/path-optimization/small-steps.hh"
-#endif
-
 namespace hpp {
   namespace manipulation {
     typedef constraints::Implicit Implicit;
@@ -176,11 +171,6 @@ namespace hpp {
       steeringMethods.add ("CrossStateOptimization-Snibud",
           createSMWithGuess <steeringMethod::CrossStateOptimization, core::steeringMethod::Snibud>);
       steeringMethods.add ("EndEffectorTrajectory", steeringMethod::EndEffectorTrajectory::create);
-
-#if HPP_MANIPULATION_HAS_WHOLEBODY_STEP
-      pathOptimizers.add ("Walkgen", wholebodyStep::SmallSteps::create);
-      pathOptimizers.add ("Graph-Walkgen", pathOptimization::SmallSteps::create);
-#endif
 
       pathPlannerType ("M-RRT");
       steeringMethodType ("Graph-SteeringMethodStraight");

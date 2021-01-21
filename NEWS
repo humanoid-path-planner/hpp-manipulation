@@ -1,4 +1,5 @@
                                                                 -*- outline -*-
+* Dependency to hpp-wholebody-step has been removed.
 New in 4.10.0
 * In graph::steeringMethod, if q1 == q2, the steering method calls the problem
   inner steering method. This avoids a failure if no loop transition has been

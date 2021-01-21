@@ -37,15 +37,9 @@ LIST(APPEND PKG_CONFIG_ADDITIONAL_VARIABLES cmake_plugin)
 # Ask Doxygen to create a tree view in html documentation
 SET(DOXYGEN_TREEVIEW "NO" CACHE STRING "Set to YES to generate a tree view in the html documentation")
 
-SET(HPP_MANIPULATION_HAS_WHOLEBODY_STEP TRUE
-  CACHE BOOL "Compile with dependency to hpp-wholebody-step")
-
 ADD_PROJECT_DEPENDENCY(Boost REQUIRED COMPONENTS regex)
 
 ADD_PROJECT_DEPENDENCY("hpp-core" REQUIRED)
-IF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
-  ADD_PROJECT_DEPENDENCY("hpp-wholebody-step" REQUIRED)
-ENDIF()
 IF(BUILD_TESTING)
   FIND_PACKAGE(Boost REQUIRED COMPONENTS unit_test_framework)
   ADD_PROJECT_DEPENDENCY("example-robot-data" REQUIRED)
@@ -82,7 +76,6 @@ SET(${PROJECT_NAME}_HEADERS
   include/hpp/manipulation/graph/helper.hh
   include/hpp/manipulation/graph/validation.hh
 
-  include/hpp/manipulation/path-optimization/small-steps.hh
   include/hpp/manipulation/path-optimization/enforce-transition-semantic.hh
   include/hpp/manipulation/path-optimization/random-shortcut.hh
   include/hpp/manipulation/path-optimization/spline-gradient-based.hh
@@ -140,19 +133,9 @@ SET(${PROJECT_NAME}_SOURCES
   src/steering-method/graph.cc
   )
 
-IF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
-  SET(${PROJECT_NAME}_SOURCES
-    ${${PROJECT_NAME}_SOURCES}
-    src/path-optimization/small-steps.cc
-    )
-ENDIF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
-
 ADD_LIBRARY(${PROJECT_NAME} SHARED ${${PROJECT_NAME}_SOURCES} ${${PROJECT_NAME}_HEADERS})
 TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC $<INSTALL_INTERFACE:include>)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} hpp-core::hpp-core Boost::regex)
-IF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
-  TARGET_LINK_LIBRARIES(${PROJECT_NAME} hpp-wholebody-step::hpp-wholebody-step)
-ENDIF(HPP_MANIPULATION_HAS_WHOLEBODY_STEP)
 
 INSTALL(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
 

@@ -36,7 +36,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-using hpp::core::SteeringMethodStraight;
+using hpp::core::steeringMethod::Straight;
 using hpp::core::SteeringMethodPtr_t;
 
 typedef std::vector <hpp::manipulation::graph::GraphComponentPtr_t>

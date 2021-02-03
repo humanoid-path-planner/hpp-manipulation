@@ -64,6 +64,9 @@ namespace hpp {
 
         FrameIndices_t robotFrames (const std::string& robotName) const;
 
+        void removeJoints(const std::vector<std::string>& jointNames,
+            Configuration_t referenceConfig);
+
         core::Container <HandlePtr_t> handles;
         core::Container <GripperPtr_t> grippers;
         core::Container <JointAndShapes_t> jointAndShapes;

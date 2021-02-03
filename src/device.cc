@@ -124,6 +124,16 @@ namespace hpp {
       return frameIndices;
     }
 
+    void Device::removeJoints(const std::vector<std::string>& jointNames,
+        Configuration_t referenceConfig)
+    {
+      Parent_t::removeJoints(jointNames, referenceConfig);
+
+      for (auto& pair : grippers.map)
+        pair.second = pinocchio::Gripper::create(pair.second->name(), self_);
+      // TODO update handles and jointAndShapes
+    }
+
     std::ostream& Device::print (std::ostream& os) const
     {
       Parent_t::print (os);

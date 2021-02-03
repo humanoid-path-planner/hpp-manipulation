@@ -50,7 +50,7 @@ namespace hpp {
             return id_;
           }
 
-          /// Add Implicit to the component.
+          /// Add constraint to the component.
           virtual void addNumericalConstraint (
               const ImplicitPtr_t& numConstraint);
 

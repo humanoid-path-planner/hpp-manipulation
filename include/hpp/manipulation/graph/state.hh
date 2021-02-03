@@ -126,7 +126,14 @@ namespace hpp {
             return configConstraints_;
           }
 
-          /// Add constraints::Implicit to the component.
+          /// Add constraint to the state
+	  /// Call the parent implementation.
+	  /// \throw std::logic_error if the constraint is parameterizable
+	  /// (contains at least one Equality comparison type).
+          virtual void addNumericalConstraint (
+              const ImplicitPtr_t& numConstraint);
+
+          /// Add a constraint for paths that lie in this state.
           virtual void addNumericalConstraintForPath (const ImplicitPtr_t& nm)
           {
             invalidate();

@@ -142,6 +142,23 @@ namespace hpp {
         hppDout (error, "Edge not found");
         return 0;
       }
+
+      void State::addNumericalConstraint(const ImplicitPtr_t& numConstraint)
+      {
+        ComparisonTypes_t comp(numConstraint->comparisonType());
+        for(constraints::ComparisonType c : comp)
+        {
+          if (c == constraints::Equality)
+          {
+            throw std::logic_error("Failed to insert constraint \""
+	     + numConstraint->function().name()
+	     + "\" as a state constraint since it contains a comparison "
+             + "of type Equality");
+          }
+        }
+        GraphComponent::addNumericalConstraint(numConstraint);
+      }
+
     } // namespace graph
   } // namespace manipulation
 } // namespace hpp

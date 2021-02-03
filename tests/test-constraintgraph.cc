@@ -141,14 +141,24 @@ BOOST_AUTO_TEST_CASE (Initialization)
   using hpp_test::graph_;
   using hpp::pinocchio::LiegroupElement;
   using hpp::pinocchio::LiegroupSpace;
+  using hpp::constraints::ComparisonTypes_t;
+  using hpp::constraints::ImplicitPtr_t;
+  using hpp::constraints::EqualToZero;
+  using hpp::constraints::Equality;
   using hpp::constraints::LockedJoint;
   using hpp::manipulation::graph::Edge;
   using hpp::manipulation::graph::EdgePtr_t;
 
   initialize(true);
   hpp::manipulation::DevicePtr_t robot(graph_->robot());
-  graph_->addNumericalConstraint(LockedJoint::create
-    (robot->jointAt(1), LiegroupElement(LiegroupSpace::R1(true))));
+  ImplicitPtr_t constraint(LockedJoint::create
+			   (robot->jointAt(1), LiegroupElement
+			    (LiegroupSpace::R1(true))));
+  graph_->addNumericalConstraint(constraint);
+  // Check that states refuse parameterizable constraints
+  constraint->comparisonType(ComparisonTypes_t(1,Equality));
+  BOOST_CHECK_THROW(n1->addNumericalConstraint(constraint), std::logic_error);
+
   for (std::size_t i=0; i < components.size(); ++i)
   {
     EdgePtr_t edge(HPP_DYNAMIC_PTR_CAST(Edge, components[i]));

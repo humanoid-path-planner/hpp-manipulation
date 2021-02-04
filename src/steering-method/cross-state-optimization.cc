@@ -300,7 +300,7 @@ namespace hpp {
         core::DevicePtr_t robot;
         // Matrix specifying for each constraint and each waypoint how
         // the right hand side is initialized in the solver.
-        Eigen::Matrix < vector_t, Eigen::Dynamic, Eigen::Dynamic > M_rhs;
+        Eigen::Matrix < LiegroupElement, Eigen::Dynamic, Eigen::Dynamic > M_rhs;
         Eigen::Matrix < RightHandSideStatus_t, Eigen::Dynamic, Eigen::Dynamic >
         M_status;
 
@@ -322,10 +322,10 @@ namespace hpp {
       (OptimizationData& d, size_type index) const
       {
         const ImplicitPtr_t c (constraints_ [index]);
-        c->rightHandSideFromConfig (d.q1);
-        vector_t rhsInit (c->rightHandSide ());
-        c->rightHandSideFromConfig (d.q2);
-        vector_t rhsGoal (c->rightHandSide ());
+        LiegroupElement rhsInit;
+        c->rightHandSideFromConfig (d.q1, rhsInit);
+        LiegroupElement rhsGoal;
+        c->rightHandSideFromConfig (d.q2, rhsGoal);
         // Check that right hand sides are close to each other
         value_type eps (problem_->constraintGraph ()->errorThreshold ());
         value_type eps2 (eps * eps);
@@ -416,7 +416,7 @@ namespace hpp {
         d.M_status.resize (constraints_.size (), d.N);
         d.M_status.fill (OptimizationData::ABSENT);
         d.M_rhs.resize (constraints_.size (), d.N);
-        d.M_rhs.fill (vector_t ());
+        d.M_rhs.fill (LiegroupElement ());
         size_type index = 0;
         // Loop over constraints
         for (NumericalConstraints_t::const_iterator it (constraints_.begin ());

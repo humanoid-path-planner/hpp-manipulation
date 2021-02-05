@@ -221,12 +221,11 @@ namespace hpp {
       if (!constraintGraph_)
         throw std::runtime_error ("The graph is not defined.");
       initSteeringMethod();
-      constraintGraph_->initialize();
-
       for (std::size_t i = 0; i < constraintsAndComplements.size(); ++i) {
         const ConstraintAndComplement_t& c = constraintsAndComplements[i];
         constraintGraph ()->registerConstraints (c.constraint, c.complement, c.both);
       }
+      constraintGraph_->initialize();
     }
 
     void ProblemSolver::createPlacementConstraint
@@ -277,10 +276,6 @@ namespace hpp {
           ConstraintAndComplement_t (std::get<0>(constraints),
                                      std::get<1>(constraints),
                                      std::get<2>(constraints)));
-      if (constraintGraph ())
-        constraintGraph ()->registerConstraints(std::get<0>(constraints),
-                                                std::get<1>(constraints),
-                                                std::get<2>(constraints));
     }
 
     void ProblemSolver::createPrePlacementConstraint
@@ -337,8 +332,6 @@ namespace hpp {
 
       constraintsAndComplements.push_back (
           ConstraintAndComplement_t (constraint, complement, both));
-      if (constraintGraph ())
-        constraintGraph ()->registerConstraints (constraint, complement, both);
     }
 
     void ProblemSolver::createPreGraspConstraint

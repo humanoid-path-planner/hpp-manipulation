@@ -241,11 +241,6 @@ namespace hpp {
 
         NumericalConstraints_t::iterator itnc1, itnc2;
 
-        itnc2 = nc.end();
-        for (itnc1 = nc.begin(); itnc1 != itnc2; ++itnc1)
-          itnc2 = std::remove(std::next(itnc1), itnc2, *itnc1);
-        nc.erase(itnc2, nc.end());
-
         // Look for complement
         for (itnc1 = nc.begin(); itnc1 != nc.end(); ++itnc1) {
           const auto& c1 = *itnc1;

@@ -64,8 +64,11 @@ namespace hpp {
           /// \return true is at least one ImplicitPtr_t was inserted.
           bool insertNumericalConstraints (ConfigProjectorPtr_t& proj) const;
 
-          /// Get a reference to the NumericalConstraints_t
-          const NumericalConstraints_t& numericalConstraints() const;
+          /// Get a vector of numerical constraints of the instance
+          /// \return reference to member numericalConstraints_ except for
+          ///         class Edge that may merge constraints with their
+          ///         complement.
+          virtual const NumericalConstraints_t& numericalConstraints() const;
 
           /// Get a reference to the NumericalConstraints_t
           const NumericalConstraints_t& numericalCosts() const;

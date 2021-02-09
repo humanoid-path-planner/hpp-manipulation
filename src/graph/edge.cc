@@ -28,7 +28,6 @@
 
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/locked-joint.hh>
-#include <hpp/constraints/solver/by-substitution.hh>
 
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/problem.hh"
@@ -198,20 +197,6 @@ namespace hpp {
       {
         throwIfNotInitialized ();
         return targetConstraints_;
-      }
-
-      /// If the graph is not initialized, return the constraints stored
-      /// in the parent class as for other derived classes.
-      /// If the graph is initialized, return the constraints stored
-      /// in the solver of the path constraints. These latter may be different
-      /// from the former since constraints and complement are replaced
-      /// by explicit constraints.
-      const NumericalConstraints_t& Edge::numericalConstraints() const
-      {
-        if (!isInit_) return GraphComponent::numericalConstraints();
-        assert(pathConstraints_);
-        assert(pathConstraints_->configProjector());
-        return pathConstraints_->configProjector()->solver().constraints();
       }
 
       ConstraintSetPtr_t Edge::configConstraint() const

@@ -199,13 +199,6 @@ namespace hpp {
           /// Constraint of the destination state and of the path
           ConstraintSetPtr_t targetConstraint() const;
 
-          /// Get a reference to the numerical constraints of the instance
-          /// stored in the solver (hpp::constraints::solver::BySubstitution).
-          /// \note these constraints may be different from those initially
-          /// inserted in the edge since constraints and complement registered
-          /// in the graph are replaced by an explicit constraint.
-          virtual const NumericalConstraints_t& numericalConstraints() const;
-
           void setShort (bool isShort) {
             isShort_ = isShort;
           }

@@ -150,6 +150,21 @@ namespace hpp {
           if (oui) oui->setSecurityMargins(securityMargins);
         }
 
+        /// \copydoc hpp::core::ObstacleUserInterface::setSecurityMarginBetweenBodies
+        ///
+        /// Dynamic cast inner path validation into
+        /// hpp::core::ObstacleUserInterface and calls
+        /// hpp::core::ObstacleUserInterface::setSecurityMargins in case of
+        /// success.
+        void setSecurityMarginBetweenBodies(const std::string& body_a,
+                                            const std::string& body_b,
+                                            const value_type& margin)
+        {
+          shared_ptr<core::ObstacleUserInterface> oui =
+            HPP_DYNAMIC_PTR_CAST(core::ObstacleUserInterface, pathValidation_);
+          if (oui) oui->setSecurityMarginBetweenBodies(body_a, body_b, margin);
+        }
+
       protected:
         /// Constructor
         GraphPathValidation (const PathValidationPtr_t& pathValidation);

@@ -38,6 +38,7 @@ namespace hpp {
 
           static Ptr_t create (const core::ProblemConstPtr_t& problem) {
             ProblemConstPtr_t p (HPP_DYNAMIC_PTR_CAST(const Problem, problem));
+            if (!p) throw std::invalid_argument("This is not a manipulation problem.");
             return Ptr_t (new EnforceTransitionSemantic (p));
           }
 

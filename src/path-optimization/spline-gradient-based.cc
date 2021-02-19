@@ -50,7 +50,8 @@ namespace hpp {
       typename SplineGradientBased<_PB, _SO>::Ptr_t SplineGradientBased<_PB, _SO>::createFromCore
       (const core::ProblemConstPtr_t& problem)
       {
-        assert(HPP_DYNAMIC_PTR_CAST(const Problem, problem));
+        if (!HPP_DYNAMIC_PTR_CAST(const Problem, problem))
+          throw std::invalid_argument("This is not a manipulation problem.");
         return create (HPP_STATIC_PTR_CAST(const Problem, problem));
       }
 

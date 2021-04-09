@@ -358,12 +358,20 @@ namespace hpp {
 	    return false;
 	  }
         } else {
-	  std::ostringstream oss;
-	  oss << "The initial configuration " << displayConfig (q1)
-              << " does not satisfy the constraints of"
-	    " edge " << name () << "." << std::endl;
-	  oss << "The graph is probably malformed";
-	  throw std::runtime_error (oss.str ().c_str ());
+	  value_type th(constraints->configProjector()->errorThreshold());
+	  if (!constraints->configProjector()->isSatisfied
+	      (q1, 2*th))
+	  {
+	    std::ostringstream oss;
+	    oss << "The initial configuration " << displayConfig (q1)
+		<< " does not satisfy the constraints of"
+	      " edge " << name () << "." << std::endl;
+	    oss << "The graph is probably malformed";
+	    throw std::runtime_error (oss.str ().c_str ());
+	  }
+	  // q1 may slightly violate the edge constraint eventhough the graph
+	  // is well constructed.
+	  return false;
 	}
       }
 

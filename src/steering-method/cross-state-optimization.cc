@@ -322,9 +322,9 @@ namespace hpp {
       (OptimizationData& d, size_type index) const
       {
         const ImplicitPtr_t c (constraints_ [index]);
-        LiegroupElement rhsInit;
+        LiegroupElement rhsInit(c->function().outputSpace());
         c->rightHandSideFromConfig (d.q1, rhsInit);
-        LiegroupElement rhsGoal;
+        LiegroupElement rhsGoal(c->function().outputSpace());
         c->rightHandSideFromConfig (d.q2, rhsGoal);
         // Check that right hand sides are close to each other
         value_type eps (problem_->constraintGraph ()->errorThreshold ());

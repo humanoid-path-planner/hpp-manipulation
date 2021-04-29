@@ -34,6 +34,7 @@
 #include <hpp/constraints/explicit.hh>
 
 #include <hpp/core/path-vector.hh>
+#include <hpp/core/configuration-shooter.hh>
 
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/state.hh>
@@ -303,17 +304,27 @@ namespace hpp {
         Eigen::Matrix < LiegroupElement, Eigen::Dynamic, Eigen::Dynamic > M_rhs;
         Eigen::Matrix < RightHandSideStatus_t, Eigen::Dynamic, Eigen::Dynamic >
         M_status;
-
-        OptimizationData (const core::DevicePtr_t _robot,
+        // Number of trials to generate each waypoint configuration
+        OptimizationData (const core::ProblemConstPtr_t _problem,
                           const Configuration_t& _q1,
                           const Configuration_t& _q2,
                           const Edges_t& transitions
                           ) :
-          N (transitions.size () - 1), nq (_robot->configSize()),
-          nv (_robot->numberDof()), solvers (N, _robot->configSpace ()),
-          waypoint (nq, N), qInit (nq, N), q1 (_q1), q2 (_q2), robot (_robot),
+          N (transitions.size () - 1), nq (_problem->robot()->configSize()),
+          nv (_problem->robot()->numberDof()),
+          solvers (N, _problem->robot()->configSpace ()),
+          waypoint (nq, N), qInit (nq, N), q1 (_q1), q2 (_q2),
+          robot (_problem->robot()),
           M_rhs (), M_status ()
         {
+          for (auto solver: solvers){
+            // Set maximal number of iterations for each solver
+            solver.maxIterations(_problem->getParameter
+                            ("CrossStateOptimization/maxIteration").intValue());
+            // Set error threshold for each solver
+            solver.errorThreshold(_problem->getParameter
+                        ("CrossStateOptimization/errorThreshold").floatValue());
+          }
           assert (transitions.size () > 0);
         }
       };
@@ -371,12 +382,19 @@ namespace hpp {
       }
 
       void displayStatusMatrix (const Eigen::Matrix < CrossStateOptimization::OptimizationData::RightHandSideStatus_t, Eigen::Dynamic, Eigen::Dynamic >& m,
-                                const NumericalConstraints_t& constraints)
+                                const NumericalConstraints_t& constraints,
+                                const graph::Edges_t& transitions)
       {
         std::ostringstream oss; oss.precision (5);
         oss << "\\documentclass[12pt,landscape]{article}" << std::endl;
         oss << "\\usepackage[a3paper]{geometry}" << std::endl;
         oss << "\\begin {document}" << std::endl;
+        oss << "\\paragraph{Edges}" << std::endl;
+        oss << "\\begin{enumerate}" << std::endl;
+        for (auto edge : transitions) {
+          oss << "\\item " << edge->name() << std::endl;
+        }
+        oss << "\\end{enumerate}" << std::endl;
         oss << "\\begin {tabular}{";
         for (size_type j=0; j<m.cols () + 1; ++j)
           oss << "c";
@@ -439,7 +457,7 @@ namespace hpp {
             }
           }
           // Loop backward over waypoints to determine right hand sides equal
-          // to initial configuration
+          // to final configuration
           for (size_type j = d.N-1; j > 0; --j) {
             // Get transition solver
             const Solver_t& trSolver
@@ -469,7 +487,7 @@ namespace hpp {
           }
           ++index;
         } // for (NumericalConstraints_t::const_iterator it
-        displayStatusMatrix (d.M_status, constraints_);
+        displayStatusMatrix (d.M_status, constraints_, transitions);
         graph::GraphPtr_t cg (problem_->constraintGraph ());
         // Fill solvers with graph, node and edge constraints
         for (std::size_t j = 0; j < d.N; ++j) {
@@ -539,11 +557,24 @@ namespace hpp {
               ;
             }
           }
-          d.waypoint.col (j) = d.qInit.col (j);
+          if (j == 0)
+            d.waypoint.col (j) = d.qInit.col (j);
+          else
+            d.waypoint.col (j) = d.waypoint.col (j-1);
           Solver_t::Status status = solver.solve
             (d.waypoint.col (j),
              constraints::solver::lineSearch::Backtracking ());
+          size_type nbTry=0;
+          size_type nRandomConfigs(problem()->getParameter
+                         ("CrossStateOptimization/nRandomConfigs").intValue());
 
+          while(status != Solver_t::SUCCESS && nbTry < nRandomConfigs){
+            d.waypoint.col (j) = *(problem()->configurationShooter()->shoot());
+            status = solver.solve
+            (d.waypoint.col (j),
+             constraints::solver::lineSearch::Backtracking ());
+            ++nbTry;
+          }
           switch (status) {
           case Solver_t::ERROR_INCREASED:
             hppDout (info, "error increased.");
@@ -629,7 +660,7 @@ namespace hpp {
             hppDout (info, ss.str());
 #endif // HPP_DEBUG
 
-            OptimizationData optData (problem()->robot(), q1, q2, transitions);
+            OptimizationData optData (problem(), q1, q2, transitions);
             if (buildOptimizationProblem (optData, transitions)) {
               if (solveOptimizationProblem (optData)) {
                 core::PathPtr_t path = buildPath (optData, transitions);
@@ -664,6 +695,10 @@ namespace hpp {
             "CrossStateOptimization/errorThreshold",
             "Error threshold of the Newton Raphson algorithm.",
             Parameter(1e-4)));
+      core::Problem::declareParameter(ParameterDescription(Parameter::INT,
+            "CrossStateOptimization/nRandomConfigs",
+            "Number of random configurations to sample to initialize each "
+            "solver.", Parameter((size_type)0)));
       HPP_END_PARAMETER_DECLARATION(CrossStateOptimization)
     } // namespace steeringMethod
   } // namespace manipulation

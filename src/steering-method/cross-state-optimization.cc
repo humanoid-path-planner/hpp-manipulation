@@ -147,8 +147,6 @@ namespace hpp {
         typedef graph::GraphPtr_t GraphPtr_t;
         typedef constraints::solver::BySubstitution Solver_t;
 
-        std::map <ImplicitPtr_t, ImplicitPtr_t> constraintCopy, constraintOrig;
-        ImplicitPtr_t copy;
         GraphPtr_t cg (problem_->constraintGraph ());
         const ConstraintsAndComplements_t& cac
           (cg->constraintsAndComplements ());
@@ -166,27 +164,24 @@ namespace hpp {
                 if (index_.find (name) == index_.end ()) {
                   // constraint is not in map, add it
                   index_ [name] = constraints_.size ();
-                  copy = (*it)->copy ();
-                  constraintCopy [*it] = copy;
-                  constraintOrig [copy] = *it;
                   // Check whether constraint is equivalent to a previous one
                   for (NumericalConstraints_t::const_iterator it1
                          (constraints_.begin ()); it1 != constraints_.end ();
                        ++it1) {
                     for (ConstraintsAndComplements_t::const_iterator it2
                            (cac.begin ()); it2 != cac.end (); ++it2) {
-                      if (((constraintOrig [*it1] == it2->complement) &&
-                           (*it == it2->both)) ||
-                          ((constraintOrig [*it1] == it2->both) &&
-                           (*it == it2->complement))) {
+                      if (((**it1 == *(it2->complement)) &&
+                           (**it == *(it2->both))) ||
+                          ((**it1 == *(it2->both)) &&
+                           (**it == *(it2->complement)))) {
                         assert (sameRightHandSide_.count (*it1) == 0);
-                        assert (sameRightHandSide_.count (copy) == 0);
-                        sameRightHandSide_ [*it1] = copy;
-                        sameRightHandSide_ [copy] = *it1;
+                        assert (sameRightHandSide_.count (*it) == 0);
+                        sameRightHandSide_ [*it1] = *it;
+                        sameRightHandSide_ [*it] = *it1;
                       }
                     }
                   }
-                  constraints_.push_back (copy);
+                  constraints_.push_back (*it);
                   hppDout (info, "Adding constraint \"" << name << "\"");
                   hppDout (info, "Edge \"" << edge->name () << "\"");
                   hppDout (info, "parameter size: " << (*it)->parameterSize ());
@@ -489,24 +484,10 @@ namespace hpp {
         } // for (NumericalConstraints_t::const_iterator it
         displayStatusMatrix (d.M_status, constraints_, transitions);
         graph::GraphPtr_t cg (problem_->constraintGraph ());
-        // Fill solvers with graph, node and edge constraints
+        // Fill solvers with target constraints of transition
         for (std::size_t j = 0; j < d.N; ++j) {
-          graph::StatePtr_t state (transitions [(std::size_t)j]->stateTo ());
-          // initialize solver with state constraints
-          d.solvers [(std::size_t)j] = state->configConstraint ()->
-            configProjector ()->solver ();
-          // Add graph constraints
-          const NumericalConstraints_t c (cg->numericalConstraints ());
-          for (NumericalConstraints_t::const_iterator it (c.begin ());
-               it != c.end (); ++it) {
-            d.solvers [(std::size_t)j].add (*it);
-          }
-          // Add edge constraints
-          for (std::size_t i=0; i<constraints_.size (); ++i) {
-            if (d.M_status (i, j) != OptimizationData::ABSENT) {
-              d.solvers [(std::size_t)j].add (constraints_ [i]);
-            }
-          }
+          d.solvers [(std::size_t)j] = transitions [(std::size_t)j]->
+            targetConstraint()->configProjector ()->solver ();
         }
         // Initial guess
         std::vector<size_type> ks;

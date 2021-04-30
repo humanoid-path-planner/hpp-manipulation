@@ -221,6 +221,7 @@ namespace hpp {
       if (!constraintGraph_)
         throw std::runtime_error ("The graph is not defined.");
       initSteeringMethod();
+      constraintGraph_->clearConstraintsAndComplement();
       for (std::size_t i = 0; i < constraintsAndComplements.size(); ++i) {
         const ConstraintAndComplement_t& c = constraintsAndComplements[i];
         constraintGraph ()->registerConstraints (c.constraint, c.complement, c.both);

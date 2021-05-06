@@ -56,7 +56,6 @@ namespace hpp {
         assert(components_.size() >= 1 && components_[0].lock() == wkPtr_.lock());
         for (std::size_t i = 1; i < components_.size(); ++i)
           components_[i].lock()->initialize();
-        constraintsAndComplements_.clear ();
         isInit_ = true;
       }
 
@@ -151,6 +150,11 @@ namespace hpp {
       EdgePtr_t Graph::chooseEdge (RoadmapNodePtr_t from) const
       {
         return stateSelector_->chooseEdge (from);
+      }
+
+      void Graph::clearConstraintsAndComplement()
+      {
+        constraintsAndComplements_.clear();
       }
 
       void Graph::registerConstraints

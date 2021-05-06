@@ -34,6 +34,7 @@
 #include <hpp/constraints/explicit.hh>
 
 #include <hpp/core/path-vector.hh>
+#include <hpp/core/configuration-shooter.hh>
 
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/state.hh>
@@ -146,8 +147,6 @@ namespace hpp {
         typedef graph::GraphPtr_t GraphPtr_t;
         typedef constraints::solver::BySubstitution Solver_t;
 
-        std::map <ImplicitPtr_t, ImplicitPtr_t> constraintCopy, constraintOrig;
-        ImplicitPtr_t copy;
         GraphPtr_t cg (problem_->constraintGraph ());
         const ConstraintsAndComplements_t& cac
           (cg->constraintsAndComplements ());
@@ -165,27 +164,24 @@ namespace hpp {
                 if (index_.find (name) == index_.end ()) {
                   // constraint is not in map, add it
                   index_ [name] = constraints_.size ();
-                  copy = (*it)->copy ();
-                  constraintCopy [*it] = copy;
-                  constraintOrig [copy] = *it;
                   // Check whether constraint is equivalent to a previous one
                   for (NumericalConstraints_t::const_iterator it1
                          (constraints_.begin ()); it1 != constraints_.end ();
                        ++it1) {
                     for (ConstraintsAndComplements_t::const_iterator it2
                            (cac.begin ()); it2 != cac.end (); ++it2) {
-                      if (((constraintOrig [*it1] == it2->complement) &&
-                           (*it == it2->both)) ||
-                          ((constraintOrig [*it1] == it2->both) &&
-                           (*it == it2->complement))) {
+                      if (((**it1 == *(it2->complement)) &&
+                           (**it == *(it2->both))) ||
+                          ((**it1 == *(it2->both)) &&
+                           (**it == *(it2->complement)))) {
                         assert (sameRightHandSide_.count (*it1) == 0);
-                        assert (sameRightHandSide_.count (copy) == 0);
-                        sameRightHandSide_ [*it1] = copy;
-                        sameRightHandSide_ [copy] = *it1;
+                        assert (sameRightHandSide_.count (*it) == 0);
+                        sameRightHandSide_ [*it1] = *it;
+                        sameRightHandSide_ [*it] = *it1;
                       }
                     }
                   }
-                  constraints_.push_back (copy);
+                  constraints_.push_back (*it);
                   hppDout (info, "Adding constraint \"" << name << "\"");
                   hppDout (info, "Edge \"" << edge->name () << "\"");
                   hppDout (info, "parameter size: " << (*it)->parameterSize ());
@@ -303,17 +299,27 @@ namespace hpp {
         Eigen::Matrix < LiegroupElement, Eigen::Dynamic, Eigen::Dynamic > M_rhs;
         Eigen::Matrix < RightHandSideStatus_t, Eigen::Dynamic, Eigen::Dynamic >
         M_status;
-
-        OptimizationData (const core::DevicePtr_t _robot,
+        // Number of trials to generate each waypoint configuration
+        OptimizationData (const core::ProblemConstPtr_t _problem,
                           const Configuration_t& _q1,
                           const Configuration_t& _q2,
                           const Edges_t& transitions
                           ) :
-          N (transitions.size () - 1), nq (_robot->configSize()),
-          nv (_robot->numberDof()), solvers (N, _robot->configSpace ()),
-          waypoint (nq, N), qInit (nq, N), q1 (_q1), q2 (_q2), robot (_robot),
+          N (transitions.size () - 1), nq (_problem->robot()->configSize()),
+          nv (_problem->robot()->numberDof()),
+          solvers (N, _problem->robot()->configSpace ()),
+          waypoint (nq, N), qInit (nq, N), q1 (_q1), q2 (_q2),
+          robot (_problem->robot()),
           M_rhs (), M_status ()
         {
+          for (auto solver: solvers){
+            // Set maximal number of iterations for each solver
+            solver.maxIterations(_problem->getParameter
+                            ("CrossStateOptimization/maxIteration").intValue());
+            // Set error threshold for each solver
+            solver.errorThreshold(_problem->getParameter
+                        ("CrossStateOptimization/errorThreshold").floatValue());
+          }
           assert (transitions.size () > 0);
         }
       };
@@ -322,9 +328,9 @@ namespace hpp {
       (OptimizationData& d, size_type index) const
       {
         const ImplicitPtr_t c (constraints_ [index]);
-        LiegroupElement rhsInit;
+        LiegroupElement rhsInit(c->function().outputSpace());
         c->rightHandSideFromConfig (d.q1, rhsInit);
-        LiegroupElement rhsGoal;
+        LiegroupElement rhsGoal(c->function().outputSpace());
         c->rightHandSideFromConfig (d.q2, rhsGoal);
         // Check that right hand sides are close to each other
         value_type eps (problem_->constraintGraph ()->errorThreshold ());
@@ -371,12 +377,19 @@ namespace hpp {
       }
 
       void displayStatusMatrix (const Eigen::Matrix < CrossStateOptimization::OptimizationData::RightHandSideStatus_t, Eigen::Dynamic, Eigen::Dynamic >& m,
-                                const NumericalConstraints_t& constraints)
+                                const NumericalConstraints_t& constraints,
+                                const graph::Edges_t& transitions)
       {
         std::ostringstream oss; oss.precision (5);
         oss << "\\documentclass[12pt,landscape]{article}" << std::endl;
         oss << "\\usepackage[a3paper]{geometry}" << std::endl;
         oss << "\\begin {document}" << std::endl;
+        oss << "\\paragraph{Edges}" << std::endl;
+        oss << "\\begin{enumerate}" << std::endl;
+        for (auto edge : transitions) {
+          oss << "\\item " << edge->name() << std::endl;
+        }
+        oss << "\\end{enumerate}" << std::endl;
         oss << "\\begin {tabular}{";
         for (size_type j=0; j<m.cols () + 1; ++j)
           oss << "c";
@@ -439,7 +452,7 @@ namespace hpp {
             }
           }
           // Loop backward over waypoints to determine right hand sides equal
-          // to initial configuration
+          // to final configuration
           for (size_type j = d.N-1; j > 0; --j) {
             // Get transition solver
             const Solver_t& trSolver
@@ -469,26 +482,12 @@ namespace hpp {
           }
           ++index;
         } // for (NumericalConstraints_t::const_iterator it
-        displayStatusMatrix (d.M_status, constraints_);
+        displayStatusMatrix (d.M_status, constraints_, transitions);
         graph::GraphPtr_t cg (problem_->constraintGraph ());
-        // Fill solvers with graph, node and edge constraints
+        // Fill solvers with target constraints of transition
         for (std::size_t j = 0; j < d.N; ++j) {
-          graph::StatePtr_t state (transitions [(std::size_t)j]->stateTo ());
-          // initialize solver with state constraints
-          d.solvers [(std::size_t)j] = state->configConstraint ()->
-            configProjector ()->solver ();
-          // Add graph constraints
-          const NumericalConstraints_t c (cg->numericalConstraints ());
-          for (NumericalConstraints_t::const_iterator it (c.begin ());
-               it != c.end (); ++it) {
-            d.solvers [(std::size_t)j].add (*it);
-          }
-          // Add edge constraints
-          for (std::size_t i=0; i<constraints_.size (); ++i) {
-            if (d.M_status (i, j) != OptimizationData::ABSENT) {
-              d.solvers [(std::size_t)j].add (constraints_ [i]);
-            }
-          }
+          d.solvers [(std::size_t)j] = transitions [(std::size_t)j]->
+            targetConstraint()->configProjector ()->solver ();
         }
         // Initial guess
         std::vector<size_type> ks;
@@ -539,11 +538,24 @@ namespace hpp {
               ;
             }
           }
-          d.waypoint.col (j) = d.qInit.col (j);
+          if (j == 0)
+            d.waypoint.col (j) = d.qInit.col (j);
+          else
+            d.waypoint.col (j) = d.waypoint.col (j-1);
           Solver_t::Status status = solver.solve
             (d.waypoint.col (j),
              constraints::solver::lineSearch::Backtracking ());
+          size_type nbTry=0;
+          size_type nRandomConfigs(problem()->getParameter
+                         ("CrossStateOptimization/nRandomConfigs").intValue());
 
+          while(status != Solver_t::SUCCESS && nbTry < nRandomConfigs){
+            d.waypoint.col (j) = *(problem()->configurationShooter()->shoot());
+            status = solver.solve
+            (d.waypoint.col (j),
+             constraints::solver::lineSearch::Backtracking ());
+            ++nbTry;
+          }
           switch (status) {
           case Solver_t::ERROR_INCREASED:
             hppDout (info, "error increased.");
@@ -629,7 +641,7 @@ namespace hpp {
             hppDout (info, ss.str());
 #endif // HPP_DEBUG
 
-            OptimizationData optData (problem()->robot(), q1, q2, transitions);
+            OptimizationData optData (problem(), q1, q2, transitions);
             if (buildOptimizationProblem (optData, transitions)) {
               if (solveOptimizationProblem (optData)) {
                 core::PathPtr_t path = buildPath (optData, transitions);
@@ -664,6 +676,10 @@ namespace hpp {
             "CrossStateOptimization/errorThreshold",
             "Error threshold of the Newton Raphson algorithm.",
             Parameter(1e-4)));
+      core::Problem::declareParameter(ParameterDescription(Parameter::INT,
+            "CrossStateOptimization/nRandomConfigs",
+            "Number of random configurations to sample to initialize each "
+            "solver.", Parameter((size_type)0)));
       HPP_END_PARAMETER_DECLARATION(CrossStateOptimization)
     } // namespace steeringMethod
   } // namespace manipulation

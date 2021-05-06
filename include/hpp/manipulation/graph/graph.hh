@@ -81,6 +81,10 @@ namespace hpp {
           /// Select randomly outgoing edge of the given node.
           EdgePtr_t chooseEdge(RoadmapNodePtr_t node) const;
 
+          /// Clear the vector of constraints and complements
+          /// \sa registerConstraints
+          void clearConstraintsAndComplement();
+
           /// Register a triple of constraints to be inserted in nodes and edges
           /// \param constraint a constraint (grasp of placement)
           /// \param complement the complement constraint

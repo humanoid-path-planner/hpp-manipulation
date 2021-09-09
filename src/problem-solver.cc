@@ -57,6 +57,8 @@
 #include "hpp/manipulation/path-optimization/random-shortcut.hh"
 #include "hpp/manipulation/path-optimization/enforce-transition-semantic.hh"
 #include "hpp/manipulation/path-planner/end-effector-trajectory.hh"
+#include "hpp/manipulation/path-planner/states-path-finder.hh"
+#include "hpp/manipulation/path-planner/in-state-path.hh"
 #include "hpp/manipulation/problem-target/state.hh"
 #include "hpp/manipulation/steering-method/cross-state-optimization.hh"
 #include "hpp/manipulation/steering-method/graph.hh"
@@ -119,6 +121,8 @@ namespace hpp {
 
       pathPlanners.add ("M-RRT", ManipulationPlanner::create);
       pathPlanners.add ("EndEffectorTrajectory", pathPlanner::EndEffectorTrajectory::createWithRoadmap);
+      pathPlanners.add ("StatesPathFinder", pathPlanner::StatesPathFinder::createWithRoadmap);
+      pathPlanners.add ("InStatePath", pathPlanner::InStatePath::createWithRoadmap);
 
       pathValidations.add ("Graph-Discretized"                      , createDiscretizedCollisionGraphPathValidation);
       pathValidations.add ("Graph-DiscretizedCollision"             , createDiscretizedCollisionGraphPathValidation);
@@ -162,6 +166,7 @@ namespace hpp {
           createSMWithGuess <steeringMethod::Graph, core::steeringMethod::Dubins>);
       steeringMethods.add ("Graph-Snibud",
           createSMWithGuess <steeringMethod::Graph, core::steeringMethod::Snibud>);
+
       steeringMethods.add ("CrossStateOptimization-Straight",
           steeringMethod::CrossStateOptimization::create<core::steeringMethod::Straight>);
       steeringMethods.add ("CrossStateOptimization-ReedsShepp",

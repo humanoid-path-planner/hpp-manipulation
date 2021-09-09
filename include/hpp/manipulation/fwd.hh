@@ -21,6 +21,7 @@
 # define HPP_MANIPULATION_FWD_HH
 
 # include <map>
+# include <hpp/manipulation/config.hh>
 # include <hpp/core/fwd.hh>
 
 namespace hpp {
@@ -87,6 +88,16 @@ namespace hpp {
     typedef core::vectorOut_t vectorOut_t;
     HPP_PREDEF_CLASS (ManipulationPlanner);
     typedef shared_ptr < ManipulationPlanner > ManipulationPlannerPtr_t;
+    namespace pathPlanner {
+      HPP_PREDEF_CLASS (RMRStar);
+      typedef shared_ptr < RMRStar > RMRStarPtr_t;
+      HPP_PREDEF_CLASS (StatesPathFinder);
+      typedef shared_ptr < StatesPathFinder > StatesPathFinderPtr_t;
+      HPP_PREDEF_CLASS (InStatePath);
+      typedef shared_ptr < InStatePath > InStatePathPtr_t;
+      HPP_PREDEF_CLASS (StateShooter);
+      typedef shared_ptr < StateShooter > StateShooterPtr_t;
+    } // namespace pathPlanner
     HPP_PREDEF_CLASS (GraphPathValidation);
     typedef shared_ptr < GraphPathValidation > GraphPathValidationPtr_t;
     HPP_PREDEF_CLASS (SteeringMethod);

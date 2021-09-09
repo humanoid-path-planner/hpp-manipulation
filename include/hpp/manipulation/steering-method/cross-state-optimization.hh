@@ -136,7 +136,11 @@ namespace hpp {
           bool findTransitions (GraphSearchData& data) const;
 
           /// Step 2 of the algorithm
-          graph::Edges_t getTransitionList (GraphSearchData& data, const std::size_t& i) const;
+          graph::Edges_t getTransitionList (const GraphSearchData& data, const std::size_t& i) const;
+
+          // These two lines should be removed once we get rid of level set edges
+          #define LSE_GET_TRANSITION_LISTS
+          std::vector<graph::Edges_t> getTransitionLists (const GraphSearchData& data, const std::size_t& i) const;
 
           /// Step 3 of the algorithm
           bool buildOptimizationProblem

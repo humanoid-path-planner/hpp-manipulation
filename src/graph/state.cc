@@ -52,6 +52,7 @@ namespace hpp {
 			     const size_type& w, EdgeFactory create)
       {
         EdgePtr_t newEdge = create(name, graph_, wkPtr_, to);
+        assert (newEdge);
         if (w >= 0) neighbors_.insert (newEdge, (Weight_t)w);
         else hiddenNeighbors_.push_back (newEdge);
         return newEdge;
@@ -125,6 +126,7 @@ namespace hpp {
             it != neighbors_.end(); ++it) {
           if (it->second == e) {
             /// Update the weights
+            assert (e);
             neighbors_.insert (e, w);
           }
         }

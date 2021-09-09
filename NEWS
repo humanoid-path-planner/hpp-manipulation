@@ -24,7 +24,7 @@ New in 4.10.0
   - call the problem PathValidation instead of the edge one.
 * In class ProblemSolver
   - register contact constraints and complement in constraint graph.
-  
+
 New in 4.8.0
 * Rewrite steering method CrossStateOptimization.
 * In graph component classes (State, Edge, Graph) locked joints are handled as other numerical constraints.

@@ -43,6 +43,10 @@ namespace hpp {
         PathVectorPtr_t toOpt = PathVector::create (
             path->outputSize(), path->outputDerivativeSize()); 
         PathPtr_t current = expanded->pathAtRank (i_s);
+        if (current->length() == 0) {
+          i_s++;
+          continue;
+        }
         toOpt->appendPath (current);
         graph::EdgePtr_t edge;
         c = HPP_DYNAMIC_PTR_CAST (ConstraintSet, current->constraints ());

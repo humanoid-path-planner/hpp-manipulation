@@ -1289,7 +1289,7 @@ namespace hpp {
       core::Problem::declareParameter(ParameterDescription(Parameter::INT,
             "StatesPathFinder/maxDepth",
             "Maximum number of transitions to look for.",
-            Parameter((size_type)std::numeric_limits<unsigned long int>::infinity())));
+            Parameter((size_type)std::numeric_limits<int>::max())));
       core::Problem::declareParameter(ParameterDescription(Parameter::INT,
             "StatesPathFinder/maxIteration",
             "Maximum number of iterations of the Newton Raphson algorithm.",

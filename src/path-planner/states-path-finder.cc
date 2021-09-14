@@ -36,6 +36,7 @@
 #include <hpp/constraints/explicit.hh>
 
 #include <hpp/core/path-vector.hh>
+#include <hpp/core/path-planning-failed.hh>
 #include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/collision-validation-report.hh>
@@ -1083,7 +1084,7 @@ namespace hpp {
           planner->setGoal(q2);
           hppDout(info, "calling InStatePath::computePath for transition " << i);
           return planner->solve();
-        } catch(const std::exception&(e)) {
+        } catch(const core::path_planning_failed&(e)) {
           std::ostringstream oss;
           oss << "Error " << e.what() << "\n";
           oss << "Solution \"latest\":\nFailed to build path at edge " << i << ": ";
@@ -1145,7 +1146,7 @@ namespace hpp {
             hppDout(warning, "Solution " << idxSol_ << ": Success"
                     << "\n-----------------------------------------------");
             return ans;
-          } catch(const std::exception&(e)) {
+          } catch(const core::path_planning_failed&(e)) {
             std::ostringstream oss;
             oss << "Error " << e.what() << "\n";
             oss << "Solution " << idxSol_ << ": Failed to build path at edge " << i << ": ";
@@ -1222,7 +1223,7 @@ namespace hpp {
             solved_ = true;
           }
 
-        } catch(const std::exception&(e)) {
+        } catch(const core::path_planning_failed&(e)) {
           std::ostringstream oss;
           oss << "Error " << e.what() << "\n";
           oss << "Solution " << idxSol_ << ": Failed to build path at edge " << idxConfigList_ << ": ";
@@ -1248,7 +1249,7 @@ namespace hpp {
         solved_ = false;
         unsigned long int nIter (0);
         startSolve ();
-        if (interrupt_) throw std::runtime_error ("Interruption");
+        if (interrupt_) throw core::path_planning_failed("Interruption");
         while (!solved_) {
           // Execute one step
           hppStartBenchmark(ONE_STEP);
@@ -1258,7 +1259,7 @@ namespace hpp {
 
           ++nIter;
           //solved = problem()->target()->reached (roadmap());
-          if (interrupt_) throw std::runtime_error ("Interruption");
+          if (interrupt_) throw core::path_planning_failed("Interruption");
         }
         return solution_;
       }

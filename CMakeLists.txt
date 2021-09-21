@@ -82,7 +82,6 @@ SET(${PROJECT_NAME}_HEADERS
 
   include/hpp/manipulation/path-planner/end-effector-trajectory.hh
   include/hpp/manipulation/path-planner/states-path-finder.hh
-  include/hpp/manipulation/path-planner/in-state-path.hh
 
   include/hpp/manipulation/problem-target/state.hh
 
@@ -126,7 +125,6 @@ SET(${PROJECT_NAME}_SOURCES
 
   src/path-planner/end-effector-trajectory.cc
   src/path-planner/states-path-finder.cc
-  src/path-planner/in-state-path.cc
 
   src/problem-target/state.cc
 

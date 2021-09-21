@@ -114,11 +114,6 @@ namespace hpp {
 
           StatesPathFinderPtr_t copy () const;
           
-          core::ProblemConstPtr_t problem() const
-          {
-            return problem_;
-          }
-
           /// create a vector of configurations between two configurations
           /// \return a Configurations_t from q1 to q2 if found. An empty
           /// vector if a path could not be built.
@@ -139,34 +134,20 @@ namespace hpp {
           int solveStep(std::size_t wp);
           Configuration_t configSolved (std::size_t wp) const;
 
-          /// Step 7 of the algorithm
-          core::PathVectorPtr_t pathFromConfigList (std::size_t i) const;
-
           /// deletes from memory the latest working states list, which is used to
           /// resume finding solutions from that list in case of failure at a
           /// later step.
           void reset();
-          core::PathVectorPtr_t buildPath (ConfigurationIn_t q1, ConfigurationIn_t q2);
 
           virtual void startSolve();
           virtual void oneStep();
-          virtual core::PathVectorPtr_t solve ();
+          /// Do nothing
+          virtual void tryConnectInitAndGoals ();
 
         protected:
           StatesPathFinder (const core::ProblemConstPtr_t& problem,
-                const core::RoadmapPtr_t&) :
-            PathPlanner(problem),
-            problem_ (HPP_STATIC_PTR_CAST(const manipulation::Problem, problem)),
-            sameRightHandSide_ (), weak_ ()
-          {
-            gatherGraphConstraints ();
-          }
-
-          StatesPathFinder (const StatesPathFinder& other) :
-            PathPlanner(other.problem_),
-            problem_ (other.problem_), constraints_ (), index_ (other.index_),
-            sameRightHandSide_ (other.sameRightHandSide_),  weak_ ()
-          {}
+                            const core::RoadmapPtr_t&);
+          StatesPathFinder (const StatesPathFinder& other);
 
           void init (StatesPathFinderWkPtr_t weak)
           {
@@ -201,7 +182,7 @@ namespace hpp {
           bool solveOptimizationProblem ();
 
           /// Step 6 of the algorithm
-          core::Configurations_t buildConfigList () const;
+          core::Configurations_t getConfigList () const;
 
           /// Functions used in assert statements
           bool checkWaypointRightHandSide (std::size_t ictr, std::size_t jslv) const;
@@ -214,30 +195,31 @@ namespace hpp {
 
           /// A pointer to the manipulation problem
           ProblemConstPtr_t problem_;
+          /// Path planning problem in each leaf.
+          core::ProblemPtr_t inStateProblem_;
 
           /// Vector of parameterizable edge numerical constraints
           NumericalConstraints_t constraints_;
-          /// Map of indexes in constraints_
+          /// Map of indices in constraints_
           std::map < std::string, std::size_t > index_;
 
           /// associative map that stores pairs of constraints of the form
           /// (constraint, constraint/hold)
           std::map <ImplicitPtr_t, ImplicitPtr_t> sameRightHandSide_;
 
-          mutable OptimizationData* optData_ = nullptr;
+          mutable OptimizationData* optData_;
+          /// Index of the sequence of states
           std::size_t idxSol_ = 0;
           graph::Edges_t lastBuiltTransitions_;
 
-          bool skipColAnalysis_ = false;
+          bool skipColAnalysis_;
 
           // Variables used across several calls to oneStep
           ConfigurationPtr_t q1_, q2_;
           core::Configurations_t configList_;
-          std::size_t idxConfigList_ = 0;
-          size_type nTryConfigList_ = 0;
-          InStatePathPtr_t planner_;
-          core::PathVectorPtr_t solution_;
-          bool solved_ = false, interrupt_ = false;
+          std::size_t idxConfigList_;
+          size_type nTryConfigList_;
+          bool solved_, interrupt_;
 
           /// Weak pointer to itself
           StatesPathFinderWkPtr_t weak_;

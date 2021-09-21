@@ -122,8 +122,6 @@ namespace hpp {
       pathPlanners.add ("M-RRT", ManipulationPlanner::create);
       pathPlanners.add ("EndEffectorTrajectory", pathPlanner::EndEffectorTrajectory::createWithRoadmap);
       pathPlanners.add ("StatesPathFinder", pathPlanner::StatesPathFinder::createWithRoadmap);
-      pathPlanners.add ("InStatePath", pathPlanner::InStatePath::createWithRoadmap);
-
       pathValidations.add ("Graph-Discretized"                      , createDiscretizedCollisionGraphPathValidation);
       pathValidations.add ("Graph-DiscretizedCollision"             , createDiscretizedCollisionGraphPathValidation);
       pathValidations.add ("Graph-DiscretizedJointBound"            , createDiscretizedJointBoundGraphPathValidation);

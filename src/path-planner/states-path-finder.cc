@@ -69,8 +69,13 @@ namespace hpp {
       using graph::LockedJoints_t;
       using graph::segments_t;
 
-      static void displayRoadmap(const core::RoadmapPtr_t& roadmap)
+      static void displayRoadmap(const core::RoadmapPtr_t&
+#ifdef HPP_DEBUG
+                                 roadmap
+#endif
+                                 )
       {
+#ifdef HPP_DEBUG
         unsigned i=0;
         for (auto cc : roadmap->connectedComponents()){
           hppDout(info, " CC " << i); ++i;
@@ -78,6 +83,7 @@ namespace hpp {
             hppDout(info, pinocchio::displayConfig(*(n->configuration())));
           }
         }
+#endif
       }
 
       StatesPathFinder::StatesPathFinder(const core::ProblemConstPtr_t& problem,

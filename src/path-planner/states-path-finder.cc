@@ -42,7 +42,8 @@
 #include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/collision-validation-report.hh>
-#include <hpp/core/problem-target.hh>
+#include <hpp/core/problem-target/task-target.hh>
+#include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/path-optimization/random-shortcut.hh>
 
 #include <hpp/manipulation/constraint-set.hh>
@@ -68,6 +69,12 @@ namespace hpp {
       using graph::NumericalConstraints_t;
       using graph::LockedJoints_t;
       using graph::segments_t;
+
+      using core::ProblemTargetPtr_t;
+      using core::problemTarget::GoalConfigurations;
+      using core::problemTarget::GoalConfigurationsPtr_t;
+      using core::problemTarget::TaskTarget;
+      using core::problemTarget::TaskTargetPtr_t;
 
       static void displayRoadmap(const core::RoadmapPtr_t&
 #ifdef HPP_DEBUG
@@ -1126,15 +1133,26 @@ namespace hpp {
         assert(problem_);
         q1_ = problem_->initConfig();
         assert(q1_);
-        core::Configurations_t q2s = problem_->goalConfigs();
-        if (q2s.size() != 1) {
-          std::ostringstream os;
-          os << "StatesPathFinder accept one and only one goal configuration, ";
-          os << q2s.size() << " provided.";
-          throw std::logic_error(os.str().c_str());
+        // Detect whether the goal is defined by a configuration or by a
+        // set of constraints
+        ProblemTargetPtr_t target(problem()->target());
+        GoalConfigurationsPtr_t goalConfigs
+          (HPP_DYNAMIC_PTR_CAST(GoalConfigurations, target));
+        if (goalConfigs){
+          core::Configurations_t q2s = goalConfigs->configurations();
+          if (q2s.size() != 1) {
+            std::ostringstream os;
+            os << "StatesPathFinder accept one and only one goal "
+              "configuration, ";
+            os << q2s.size() << " provided.";
+            throw std::logic_error(os.str().c_str());
+          }
+          q2_ =  q2s[0];
         }
-        q2_ =  q2s[0];
-
+        TaskTargetPtr_t taskTarget(HPP_DYNAMIC_PTR_CAST(TaskTarget,target));
+        if(taskTarget){
+          goalConstraints_ = taskTarget->constraints();
+        }
         reset();
       }
 

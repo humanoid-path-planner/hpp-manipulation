@@ -214,6 +214,8 @@ namespace hpp {
 
           bool skipColAnalysis_;
 
+          // Constraints defining the goal
+          NumericalConstraints_t goalConstraints_;
           // Variables used across several calls to oneStep
           ConfigurationPtr_t q1_, q2_;
           core::Configurations_t configList_;

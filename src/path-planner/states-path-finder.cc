@@ -237,6 +237,10 @@ namespace hpp {
         return false;
       }
 
+      static bool isLoopTransition (const graph::EdgePtr_t& transition) {
+        return transition->stateTo() == transition->stateFrom();
+      }
+
       void StatesPathFinder::gatherGraphConstraints ()
       {
         typedef graph::Edge Edge;
@@ -314,6 +318,9 @@ namespace hpp {
 
             // Avoid identical consecutive transition
             if (transition == parent.e) continue;
+
+            // Avoid loop transitions
+            if (isLoopTransition(transition)) continue;
 
             // Insert parent
             d.queue1.push (

@@ -25,9 +25,9 @@
 #include <hpp/core/collision-validation.hh>
 #include <hpp/core/configuration-shooter.hh>
 #include <hpp/core/relative-motion.hh>
+#include <hpp/core/collision-validation-report.hh>
 
 #include "hpp/manipulation/problem.hh"
-#include "hpp/manipulation/graph/graph.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/state.hh"
 #include "hpp/manipulation/graph/state-selector.hh"
@@ -157,6 +157,10 @@ namespace hpp {
           oss << incindent << "The following collision pairs will always "
             "collide." << incendl << *colReport << decindent;
           addError (state, oss.str());
+          if (HPP_DYNAMIC_PTR_CAST(core::CollisionValidationReport, colReport)) {
+            std::pair<std::string, std::string> names = HPP_DYNAMIC_PTR_CAST(core::CollisionValidationReport, colReport)->getObjectNames();
+            addCollision (state, names.first, names.second);
+          }
           success = false;
         }
 

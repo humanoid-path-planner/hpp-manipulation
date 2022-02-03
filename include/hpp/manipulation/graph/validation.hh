@@ -24,6 +24,7 @@
 # include <hpp/manipulation/config.hh>
 # include <hpp/manipulation/fwd.hh>
 # include <hpp/manipulation/graph/fwd.hh>
+# include <hpp/manipulation/graph/graph.hh>
 
 namespace hpp {
   namespace manipulation {
@@ -38,6 +39,9 @@ namespace hpp {
       class HPP_MANIPULATION_DLLAPI Validation
       {
         public:
+          typedef std::vector<std::string> Collision;
+          typedef std::vector<Collision> CollisionList;
+          typedef std::map<std::string, CollisionList> CollisionMap;
           Validation(const core::ProblemPtr_t& problem)
             : problem_ (problem) {}
 
@@ -76,6 +80,11 @@ namespace hpp {
           /// \note Even if true is returned, the report can contain warnings.
           bool validateGraph (const GraphPtr_t& graph);
 
+          CollisionList getCollisionsForNode (const std::string& nodeName)
+          {
+            return collisions_[nodeName];
+          }
+
 
         private:
           void addWarning (const GraphComponentPtr_t& c, const std::string& w)
@@ -88,8 +97,16 @@ namespace hpp {
             errors_.push_back (Message (c, w));
           }
 
+          void addCollision (const GraphComponentPtr_t& c, const std::string& obj1,
+                  const std::string& obj2)
+          {
+              Collision coll = Collision{obj1, obj2};
+              collisions_[c->name()].push_back(coll);
+          }
+
           typedef std::pair<GraphComponentPtr_t, std::string> Message;
           std::vector<Message> warnings_, errors_;
+          CollisionMap collisions_;
 
           core::ProblemPtr_t problem_;
       };

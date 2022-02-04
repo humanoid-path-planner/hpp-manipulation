@@ -78,7 +78,7 @@ namespace hpp {
       /// - method analyseOptimizationProblem loops over the waypoint solvers,
       ///   tests what happens when solving each waypoint after initializing
       ///   only the right hand sides that are equal to the initial or goal
-      ///   configuraion, and detects if a collision is certain to block any attemps
+      ///   configuration, and detects if a collision is certain to block any attemps
       ///   to solve the problem in the solveOptimizationProblem step.
       /// - method solveOptimizationProblem tries to solve for each waypoint after
       ///   initializing the right hand sides with the proper values, backtracking
@@ -119,6 +119,12 @@ namespace hpp {
           /// vector if a path could not be built.
           core::Configurations_t computeConfigList (ConfigurationIn_t q1,
                                           ConfigurationIn_t q2);
+          /// create a vector of configurations from initial configuration
+          /// to a configuration satisfying the goal constraints, when goal
+          /// is defined as a set of constraints
+          /// \return a Configurations_t from q1 to q2 if found. An empty
+          /// vector if a path could not be built.
+          core::Configurations_t computeConfigList (ConfigurationIn_t q1);
 
           // access functions for Python interface
           std::vector<std::string> constraintNamesFromSolverAtWaypoint
@@ -216,6 +222,7 @@ namespace hpp {
 
           // Constraints defining the goal
           NumericalConstraints_t goalConstraints_;
+          bool goalDefinedByConstraints_;
           // Variables used across several calls to oneStep
           ConfigurationPtr_t q1_, q2_;
           core::Configurations_t configList_;

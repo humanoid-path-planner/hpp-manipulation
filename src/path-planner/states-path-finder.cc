@@ -16,12 +16,14 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#define HPP_DEBUG
 #include <hpp/manipulation/path-planner/states-path-finder.hh>
 
 #include <map>
 #include <queue>
 #include <vector>
 
+#include <hpp/util/debug.hh>
 #include <hpp/util/exception-factory.hh>
 #include <hpp/util/timer.hh>
 
@@ -679,7 +681,7 @@ namespace hpp {
           }
           ++index;
         } // for (NumericalConstraints_t::const_iterator it
-        // displayStatusMatrix (transitions);
+        displayStatusMatrix (transitions);
         // Fill solvers with target constraints of transition
         for (std::size_t j = 0; j < d.N; ++j) {
           d.solvers [j] = transitions [j]->
@@ -1066,10 +1068,75 @@ namespace hpp {
       core::Configurations_t StatesPathFinder::computeConfigList (
           ConfigurationIn_t q1, ConfigurationIn_t q2)
       {
+        assert (!goalDefinedByConstraints_);
         const graph::GraphPtr_t& graph(problem_->constraintGraph ());
         GraphSearchData d;
         d.s1 = graph->getState (q1);
         d.s2 = graph->getState (q2);
+        d.maxDepth = problem_->getParameter
+	        ("StatesPathFinder/maxDepth").intValue();
+
+        // Find
+        d.queue1.push (d.addInitState());
+        std::size_t idxSol = (d.s1 == d.s2 ? 1 : 0);
+        if (idxSol_ < idxSol) idxSol_ = idxSol;
+
+        bool maxDepthReached;
+        while (!(maxDepthReached = findTransitions (d))) { // mut
+          Edges_t transitions = getTransitionList (d, idxSol); // const, const
+          while (! transitions.empty()) {
+            if (idxSol >= idxSol_) {
+#ifdef HPP_DEBUG
+              std::ostringstream ss;
+              ss << " Trying solution " << idxSol << ": \n\t";
+              for (std::size_t j = 0; j < transitions.size(); ++j)
+                ss << transitions[j]->name() << ", \n\t";
+              hppDout (info, ss.str());
+#endif // HPP_DEBUG
+              if (optData_) {
+                delete optData_;
+                optData_ = nullptr;
+              }
+              optData_ = new OptimizationData (problem(), q1, q2, transitions);
+
+              if (buildOptimizationProblem (transitions)) {
+                lastBuiltTransitions_ = transitions;
+                if (skipColAnalysis_ || analyseOptimizationProblem (transitions)) {
+                  if (solveOptimizationProblem ()) {
+                    core::Configurations_t path = getConfigList ();
+                    hppDout (warning, " Solution " << idxSol << ": solved configurations list");
+                    return path;
+                  } else {
+                    hppDout (info, " Failed solution " << idxSol << " at step 5 (solve opt pb)");
+                  }
+                } else {
+                  hppDout (info, " Failed solution " << idxSol << " at step 4 (analyse opt pb)");
+                }
+              } else {
+                hppDout (info, " Failed solution " << idxSol << " at step 3 (build opt pb)");
+              }
+            } // if (idxSol >= idxSol_)
+            transitions = getTransitionList(d, ++idxSol);
+            if (idxSol_ < idxSol) idxSol_ = idxSol;
+          }
+        }
+        core::Configurations_t empty_path;
+        ConfigurationPtr_t q (new Configuration_t (q1));
+        empty_path.push_back(q);
+        return empty_path;
+      }
+
+      // Loop over all the possible paths in the constraint graph starting from
+      // the states of the initial configuration and with increasing lengths,
+      // apply goal constraints on the end node and try to project configurations
+      core::Configurations_t StatesPathFinder::computeConfigList (
+          ConfigurationIn_t q1)
+      {
+        assert (goalDefinedByConstraints_);
+        const graph::GraphPtr_t& graph(problem_->constraintGraph ());
+        GraphSearchData d;
+        d.s1 = graph->getState (q1);
+        d.s2 = graph->getState (q2); // TODO: fix this
         d.maxDepth = problem_->getParameter
 	        ("StatesPathFinder/maxDepth").intValue();
 
@@ -1146,6 +1213,7 @@ namespace hpp {
         GoalConfigurationsPtr_t goalConfigs
           (HPP_DYNAMIC_PTR_CAST(GoalConfigurations, target));
         if (goalConfigs){
+          goalDefinedByConstraints_ = false;
           core::Configurations_t q2s = goalConfigs->configurations();
           if (q2s.size() != 1) {
             std::ostringstream os;
@@ -1155,10 +1223,17 @@ namespace hpp {
             throw std::logic_error(os.str().c_str());
           }
           q2_ =  q2s[0];
-        }
-        TaskTargetPtr_t taskTarget(HPP_DYNAMIC_PTR_CAST(TaskTarget,target));
-        if(taskTarget){
+        } else {
+          TaskTargetPtr_t taskTarget(HPP_DYNAMIC_PTR_CAST(TaskTarget,target));
+          if(!taskTarget){
+            std::ostringstream os;
+            os << "StatesPathFinder only accept goal defined as "
+              "either a configuration or a set of constraints.";
+            throw std::logic_error(os.str().c_str());
+          }
+          goalDefinedByConstraints_ = true;
           goalConstraints_ = taskTarget->constraints();
+          hppDout(info, "goal defined as a set of constraints");
         }
         reset();
       }
@@ -1167,7 +1242,14 @@ namespace hpp {
       {
         if (idxConfigList_ == 0) {
           skipColAnalysis_ = (nTryConfigList_ >= 1); // already passed, don't redo it
-          configList_ = computeConfigList(*q1_, *q2_);
+          // TODO: accommodate when goal is a set of constraints
+          assert(q1_);
+          if (!goalDefinedByConstraints_) {
+            assert(q2_);
+            configList_ = computeConfigList(*q1_, *q2_);
+          } else {
+            configList_ = computeConfigList(*q1_);
+          }
           if (configList_.size() <= 1) { // max depth reached
             reset();
             throw core::path_planning_failed("Maximal depth reached.");
@@ -1187,12 +1269,17 @@ namespace hpp {
             core::ConstraintSet, edge->pathConstraint()->copy()));
           // Initialize right hand side
           constraints->configProjector()->rightHandSideFromConfig(*q1);
-          assert(constraints->isSatisfied(*q2));
-          inStateProblem_->constraints(constraints);
-          inStateProblem_->pathValidation(edge->pathValidation());
-          inStateProblem_->initConfig(q1);
-          inStateProblem_->resetGoalConfigs();
-          inStateProblem_->addGoalConfig(q2);
+          if (!goalDefinedByConstraints_) {
+            assert(constraints->isSatisfied(*q2)); 
+            inStateProblem_->constraints(constraints);
+            inStateProblem_->pathValidation(edge->pathValidation());
+            inStateProblem_->initConfig(q1);
+            inStateProblem_->resetGoalConfigs();
+            inStateProblem_->addGoalConfig(q2);
+          } else {
+            // TODO: algorithm when the goal is a set of constraints
+            hppDout(warning, "Not implemented for goal as a set of constraints");
+          }
 
           core::PathPlannerPtr_t inStatePlanner
             (core::DiffusingPlanner::create(inStateProblem_));

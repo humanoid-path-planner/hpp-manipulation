@@ -173,11 +173,13 @@ namespace hpp {
 
           /// Step 2 of the algorithm
           graph::Edges_t getTransitionList (const GraphSearchData& data, const std::size_t& i) const;
+          graph::Edges_t getTransitionList2 (const GraphSearchData& data) const;
 
           /// Step 3 of the algorithm
           bool contains (const Solver_t& solver, const ImplicitPtr_t& c) const;
           bool checkConstantRightHandSide (size_type index);
           bool buildOptimizationProblem (const graph::Edges_t& transitions);
+          bool buildOptimizationProblem2 (const graph::Edges_t& transitions);
 
           /// Step 4 of the algorithm
           void preInitializeRHS(std::size_t j, Configuration_t& q);

@@ -124,7 +124,7 @@ namespace hpp {
           /// is defined as a set of constraints
           /// \return a Configurations_t from q1 to q2 if found. An empty
           /// vector if a path could not be built.
-          core::Configurations_t computeConfigList (ConfigurationIn_t q1);
+          core::Configurations_t computeConfigList2 (ConfigurationIn_t q1);
 
           // access functions for Python interface
           std::vector<std::string> constraintNamesFromSolverAtWaypoint
@@ -184,6 +184,7 @@ namespace hpp {
           /// Step 4 of the algorithm
           void preInitializeRHS(std::size_t j, Configuration_t& q);
           bool analyseOptimizationProblem (const graph::Edges_t& transitions);
+          bool analyseOptimizationProblem2 (const graph::Edges_t& transitions);
 
           /// Step 5 of the algorithm
           void initializeRHS (std::size_t j);

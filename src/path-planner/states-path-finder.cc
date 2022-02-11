@@ -343,6 +343,7 @@ namespace hpp {
       Edges_t StatesPathFinder::getTransitionList (
           const GraphSearchData& d, const std::size_t& i) const
       {
+        assert (!goalDefinedByConstraints_);
         assert (d.parent1.find (d.s2) != d.parent1.end());
         const GraphSearchData::state_with_depths_t& roots = d.parent1.at(d.s2);
         Edges_t transitions;
@@ -448,7 +449,7 @@ namespace hpp {
             isTargetWaypoint[i] = transitions[i]->stateTo()->isWaypoint();
         }
 
-        // Number of trials to generate each waypoint configuration
+        // Used when goal is defined as a set of constraints
         OptimizationData (const core::ProblemConstPtr_t _problem,
                           const Configuration_t& _q1,
                           const Edges_t& transitions
@@ -512,16 +513,8 @@ namespace hpp {
           c->rightHandSideFromConfig (d.q1, rhsOther);
           break;
         case OptimizationData::EQUAL_TO_GOAL:
-          if (!goalDefinedByConstraints_) {
-            c->rightHandSideFromConfig (d.q2, rhsOther);
-            break;
-          }
-          // if the previous one is also EQUAL_TO_GOAL
-          if (d.M_status(ictr, jslv-1) == OptimizationData::EQUAL_TO_GOAL) {
-            c->rightHandSideFromConfig (d.waypoint.col (jslv-1), rhsOther);
-            break;
-          }
-          return true;
+          c->rightHandSideFromConfig (d.q2, rhsOther);
+          break;
         case OptimizationData::EQUAL_TO_PREVIOUS:
           c->rightHandSideFromConfig (d.waypoint.col (jslv-1), rhsOther);
           break;
@@ -807,25 +800,13 @@ namespace hpp {
         for (std::size_t j = 0; j < d.N; ++j) {
           d.solvers [j] = transitions [j]->
             targetConstraint ()->configProjector ()->solver ();
-          if (j > 0 && j < d.N-1) {
-            const Solver_t& otherSolver = transitions [j+1]->
-            pathConstraint ()->configProjector ()->solver ();
-            for (std::size_t i = 0; i < constraints_.size (); i++) {
-              if (d.M_status(i, j-1) == OptimizationData::ABSENT &&
-                  d.M_status(i, j) == OptimizationData::EQUAL_TO_GOAL &&
-                  !contains(d.solvers[j], constraints_[i]) &&
-                  otherSolver.contains(constraints_[i])) {
-                d.solvers[j].add(constraints_[i]);
-                hppDout(info, "Adding missing constraint " << constraints_[i]->function().name()
-                                  << " to solver for waypoint" << j+1);
-              }
-            }
-          }
         }
         // Add in the constraints for the goal
         for (auto goalConstraint: goalConstraints_) {
           if (!contains(d.solvers [d.N-1], goalConstraint)) {
             d.solvers [d.N-1].add(goalConstraint);
+            hppDout(info, "Adding goal constraint " << goalConstraint->function().name()
+                                  << " to solver for waypoint" << d.N);
           }
         }
 
@@ -849,7 +830,6 @@ namespace hpp {
           c->rightHandSideFromConfig (d.q1, rhsOther);
           break;
         case OptimizationData::EQUAL_TO_GOAL:
-          assert (!goalDefinedByConstraints_);
           c->rightHandSideFromConfig (d.q2, rhsOther);
           break;
         case OptimizationData::EQUAL_TO_PREVIOUS:
@@ -989,6 +969,14 @@ namespace hpp {
         return true;
       }
 
+      // TODO: analyse optimization problem when goal is a set of constraints
+      bool StatesPathFinder::analyseOptimizationProblem2
+        (const graph::Edges_t& transitions)
+      {
+        assert (goalDefinedByConstraints_);
+        return true;
+      }
+
       void StatesPathFinder::initializeRHS(std::size_t j) {
         OptimizationData& d = *optData_;
         Solver_t& solver (d.solvers [j]);
@@ -1004,14 +992,7 @@ namespace hpp {
             ok = solver.rightHandSideFromConfig (c, d.q1);
             break;
           case OptimizationData::EQUAL_TO_GOAL:
-            if (!goalDefinedByConstraints_) {
-              ok = solver.rightHandSideFromConfig (c, d.q2);
-            } else {
-              assert (j != 0);
-              if ((d.M_status ((size_type)i, (size_type)j-1)) == OptimizationData::EQUAL_TO_GOAL) {
-                ok = solver.rightHandSideFromConfig (c, d.waypoint.col (j-1));
-              }
-            }
+            ok = solver.rightHandSideFromConfig (c, d.q2);
             break;
           case OptimizationData::ABSENT:
           default:
@@ -1095,9 +1076,9 @@ namespace hpp {
         for (size_type j = 0; j < d.waypoint.cols(); j++)
           oss << "  " << pinocchio::displayConfig(d.waypoint.col(j)) << ",  # " << j+1 << std::endl;
         if (!goalDefinedByConstraints_) {
-          oss << "  " << pinocchio::displayConfig(d.q2);     
+          oss << "  " << pinocchio::displayConfig(d.q2) << "  # " << d.waypoint.cols()+1 << std::endl; 
         }
-        oss << "  # " << d.waypoint.cols()+1 << std::endl << "]" << std::endl;
+        oss << "]" << std::endl;
         std::string ans = oss.str();
         hppDout(info, ans);
         return ans;
@@ -1199,8 +1180,10 @@ namespace hpp {
           ConfigurationPtr_t q (new Configuration_t (d.waypoint.col (i)));
           pv.push_back(q);
         }
-        ConfigurationPtr_t q2 (new Configuration_t (d.q2));
-        pv.push_back(q2);
+        if (!goalDefinedByConstraints_) {
+          ConfigurationPtr_t q2 (new Configuration_t (d.q2));
+          pv.push_back(q2);
+        }
         return pv;
       }
 
@@ -1271,7 +1254,7 @@ namespace hpp {
       // Loop over all the possible paths in the constraint graph starting from
       // the states of the initial configuration and with increasing lengths,
       // apply goal constraints on the end node and try to project configurations
-      core::Configurations_t StatesPathFinder::computeConfigList (
+      core::Configurations_t StatesPathFinder::computeConfigList2 (
           ConfigurationIn_t q1)
       {
         assert (goalDefinedByConstraints_);
@@ -1307,7 +1290,7 @@ namespace hpp {
 
               if (buildOptimizationProblem2 (transitions)) {
                 lastBuiltTransitions_ = transitions;
-                if (goalDefinedByConstraints_) {
+                if (skipColAnalysis_ || analyseOptimizationProblem2 (transitions)) {
                   if (solveOptimizationProblem ()) {
                     core::Configurations_t path = getConfigList ();
                     hppDout (warning, " Solution " << idxSol << ": solved configurations list");
@@ -1391,7 +1374,7 @@ namespace hpp {
             assert(q2_);
             configList_ = computeConfigList(*q1_, *q2_);
           } else {
-            configList_ = computeConfigList(*q1_);
+            configList_ = computeConfigList2(*q1_);
           }
           if (configList_.size() <= 1) { // max depth reached
             reset();

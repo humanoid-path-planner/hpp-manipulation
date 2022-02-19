@@ -28,7 +28,23 @@
 namespace hpp {
   namespace manipulation {
     typedef constraints::ImplicitPtr_t ImplicitPtr_t;
-    /// Part of an object that is aimed at being grasped
+    /// Frame attached to an object that is aimed at being grasped
+    ///
+    /// Together with a hpp::pinocchio::Gripper, a handle defines a grasp.
+    /// A vector of 6 Boolean values called a mask can be passed to the
+    /// constructor to define the symmetries of the handle. For example,
+    /// {True,True,True,False,True,True} means that the handle can be
+    /// grasped with free orientation around x-axis.
+    /// See https://hal.laas.fr/hal-02995125v2 for details.
+    /// The setter method \c mask allows users to define the mask.
+    ///
+    /// Along motions where the handle is grasped by a gripper, an additional
+    /// constraint is enforced, called the complement constraint. This latter
+    /// constraint ensures that the object is rigidly fixed to the gripper.
+    ///
+    /// However, for some applications, the complement constraint can be
+    /// customized using setter \c maskComp. Note that calling setter method
+    /// \c mask reinitializes the mask complement.
     class HPP_MANIPULATION_DLLAPI Handle
     {
     public:
@@ -101,6 +117,13 @@ namespace hpp {
       /// See mask(const std::vector<bool>&)
       const std::vector<bool>& mask () const
       { return mask_; }
+
+      /// Set mask of complement constraint
+      void maskComp (const std::vector<bool>& mask);
+
+      /// Get mask of complement constraint
+      const std::vector<bool>& maskComp () const
+      { return maskComp_; }
 
       /// Create constraint corresponding to a gripper grasping this handle
       /// \param gripper object containing the gripper information
@@ -188,6 +211,8 @@ namespace hpp {
       value_type clearance_;
       /// Mask
       std::vector<bool> mask_;
+      /// Mask of complement constraint
+      std::vector<bool> maskComp_;
       /// Weak pointer to itself
       HandleWkPtr_t weakPtr_;
 

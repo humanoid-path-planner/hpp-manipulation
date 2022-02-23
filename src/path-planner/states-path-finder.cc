@@ -969,12 +969,81 @@ namespace hpp {
         return true;
       }
 
+      static std::pair<size_type, size_type> my_make_pair(size_type a, size_type b)
+      {
+        if ( a < b ) return std::pair<size_type,size_type>(a,b);
+        else return std::pair<size_type,size_type>(b,a);
+      }
+
+
+
       // TODO: analyse optimization problem when goal is a set of constraints
       bool StatesPathFinder::analyseOptimizationProblem2
-        (const graph::Edges_t& transitions)
-      {
+        (const graph::Edges_t& transitions, core::ProblemConstPtr_t _problem)
+      {        
         assert (goalDefinedByConstraints_);
-        return true;
+        typedef constraints::JointConstPtr_t JointConstPtr_t;
+        typedef core::RelativeMotion RelativeMotion;
+
+        OptimizationData& d = *optData_;
+        // map from pair of joint indices to vectors of constraints
+        typedef std::map<std::pair<int, int>, NumericalConstraints_t> JointConstraintMap;
+        JointConstraintMap jcmap;
+        std::pair<JointConstPtr_t, JointConstPtr_t> jointPair;
+        JointConstPtr_t joint1, joint2;
+        size_type index1, index2;
+        // loop through all the constraints in the goal
+        for (auto constraint: d.solvers [d.N-1].constraints()) {
+          jointPair = constraint->functionPtr()->getJointsInvolved();
+          joint1 = jointPair.first;
+          index1 = RelativeMotion::idx(joint1);
+          joint2 = jointPair.second;
+          index2 = RelativeMotion::idx(joint2);
+          // insert if necessary
+          JointConstraintMap::iterator next = jcmap.insert(
+            JointConstraintMap::value_type(
+              my_make_pair(index1, index2), NumericalConstraints_t ()
+            )
+          ).first;
+
+          next->second.push_back(constraint);
+        }
+
+        // iterate over all the transitions, and only propagate the constrained pairs
+        for (std::size_t i = 0; i < transitions.size(); ++i) {
+          const EdgePtr_t& edge = transitions[i];
+          RelativeMotion::matrix_type m = edge->relativeMotion();
+          JointConstraintMap::iterator it = jcmap.begin();
+          while (it != jcmap.end()) {
+              RelativeMotion::RelativeMotionType rmt =
+                m(it->first.first, it->first.second);
+              if (rmt == RelativeMotion::RelativeMotionType::Unconstrained) {
+                JointConstraintMap::iterator toErase = it;
+                ++it;
+                jcmap.erase(toErase);
+              } else {
+                ++it;
+              }
+          }
+        }
+
+        Solver_t analyseSolver (_problem->robot()->configSpace ());
+        // iterate through all the pairs that are left,
+        // and check that the initial config satisfies all the constraints
+        for (JointConstraintMap::iterator it (jcmap.begin());
+            it != jcmap.end(); it++) {
+          NumericalConstraints_t constraintList = it->second;
+          for (NumericalConstraints_t::iterator ctrIt (constraintList.begin());
+              ctrIt != constraintList.end(); ++ctrIt) {
+            analyseSolver.add(*ctrIt);
+          }
+        }
+
+        if (analyseSolver.isSatisfied(*q1_)) {
+          return true;
+        }
+        hppDout(info, "Analysis found initial configuration does not satisfy constraint");
+        return false;
       }
 
       void StatesPathFinder::initializeRHS(std::size_t j) {
@@ -1290,7 +1359,7 @@ namespace hpp {
 
               if (buildOptimizationProblem2 (transitions)) {
                 lastBuiltTransitions_ = transitions;
-                if (skipColAnalysis_ || analyseOptimizationProblem2 (transitions)) {
+                if (skipColAnalysis_ || analyseOptimizationProblem2 (transitions, problem())) {
                   if (solveOptimizationProblem ()) {
                     core::Configurations_t path = getConfigList ();
                     hppDout (warning, " Solution " << idxSol << ": solved configurations list");

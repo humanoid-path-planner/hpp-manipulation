@@ -184,7 +184,8 @@ namespace hpp {
           /// Step 4 of the algorithm
           void preInitializeRHS(std::size_t j, Configuration_t& q);
           bool analyseOptimizationProblem (const graph::Edges_t& transitions);
-          bool analyseOptimizationProblem2 (const graph::Edges_t& transitions);
+          bool analyseOptimizationProblem2 (const graph::Edges_t& transitions,
+                                            core::ProblemConstPtr_t _problem);
 
           /// Step 5 of the algorithm
           void initializeRHS (std::size_t j);

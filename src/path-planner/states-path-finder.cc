@@ -471,7 +471,7 @@ namespace hpp {
                         ("StatesPathFinder/errorThreshold").floatValue());
           }
           assert (transitions.size () > 0);
-          isTargetWaypoint.assign(N+1, false);
+          isTargetWaypoint.assign(N, false);
           for (std::size_t i = 0; i < transitions.size(); i++)
             isTargetWaypoint[i] = transitions[i]->stateTo()->isWaypoint();
         }
@@ -992,27 +992,13 @@ namespace hpp {
         std::pair<JointConstPtr_t, JointConstPtr_t> jointPair;
         JointConstPtr_t joint1, joint2;
         size_type index1, index2;
-        // loop through all the constraints in the goal
-        for (auto constraint: d.solvers [d.N-1].constraints()) {
-          jointPair = constraint->functionPtr()->getJointsInvolved();
-          joint1 = jointPair.first;
-          index1 = RelativeMotion::idx(joint1);
-          joint2 = jointPair.second;
-          index2 = RelativeMotion::idx(joint2);
-          // insert if necessary
-          JointConstraintMap::iterator next = jcmap.insert(
-            JointConstraintMap::value_type(
-              my_make_pair(index1, index2), NumericalConstraints_t ()
-            )
-          ).first;
-
-          next->second.push_back(constraint);
-        }
 
         // iterate over all the transitions, and only propagate the constrained pairs
-        for (std::size_t i = 0; i < transitions.size(); ++i) {
+        for (std::size_t i = transitions.size() - 1; i >= 0; --i) {
           const EdgePtr_t& edge = transitions[i];
           RelativeMotion::matrix_type m = edge->relativeMotion();
+
+          // check through the pairs already existing in jcmap
           JointConstraintMap::iterator it = jcmap.begin();
           while (it != jcmap.end()) {
               RelativeMotion::RelativeMotionType rmt =
@@ -1025,14 +1011,53 @@ namespace hpp {
                 ++it;
               }
           }
+
+          // loop through all constraints in the target node of the transition
+          for (auto constraint: d.solvers [i].constraints()) {
+            jointPair = constraint->functionPtr()->getJointsInvolved();
+            joint1 = jointPair.first;
+            index1 = RelativeMotion::idx(joint1);
+            joint2 = jointPair.second;
+            index2 = RelativeMotion::idx(joint2);
+
+            // ignore the constraints involving the same joints
+            if (index1 == index2) continue;
+
+            // check that the two joints are constrained in the transition
+            RelativeMotion::RelativeMotionType rmt = m(index1, index2);
+
+            if (rmt == RelativeMotion::RelativeMotionType::Unconstrained)
+              continue;
+
+            // insert if necessary
+            JointConstraintMap::iterator next = jcmap.insert(
+              JointConstraintMap::value_type(
+                my_make_pair(index1, index2), NumericalConstraints_t ()
+              )
+            ).first;
+            // if constraint is not in map, insert it
+            if (find_if(next->second.begin(), next->second.end(),
+                    [&constraint](const ImplicitPtr_t& arg)
+                    { return *arg == *constraint; }) == constraints_.end()) {
+              next->second.push_back(constraint);
+            }
+          }
+        }
+
+        if (jcmap.size() == 0) {
+          return true;
         }
 
         Solver_t analyseSolver (_problem->robot()->configSpace ());
+        analyseSolver.errorThreshold(_problem->getParameter
+                        ("StatesPathFinder/errorThreshold").floatValue());
         // iterate through all the pairs that are left,
         // and check that the initial config satisfies all the constraints
         for (JointConstraintMap::iterator it (jcmap.begin());
             it != jcmap.end(); it++) {
           NumericalConstraints_t constraintList = it->second;
+          hppDout(info, "Constraints involving joints " << it->first.first
+            << " and " << it->first.second << " should be satisfied at q init");
           for (NumericalConstraints_t::iterator ctrIt (constraintList.begin());
               ctrIt != constraintList.end(); ++ctrIt) {
             analyseSolver.add(*ctrIt);

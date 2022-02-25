@@ -78,6 +78,17 @@ namespace hpp {
       return (int)res;
     }
 
+    inline std::vector<bool> boolOr(std::vector<bool> mask1,
+                                    std::vector<bool> mask2)
+    {
+      assert(mask1.size() == mask2.size() == 6);
+      std::vector<bool> res(mask1.size());
+      for (std::size_t i = 0; i < 6; ++i) {
+        res[i] = mask1[i] || mask2[i];
+      }
+      return res;
+    }
+
     inline bool is6Dmask (const std::vector<bool>& mask)
     {
       for (std::size_t i = 0; i < 6; ++i) if (!mask[i]) return false;
@@ -114,6 +125,13 @@ namespace hpp {
           break;
       } 
       mask_ = mask;
+      maskComp_ = complementMask(mask);
+    }
+
+    void Handle::maskComp (const std::vector<bool>& mask)
+    {
+      assert(maskComp.size() == 6);
+      maskComp_ = mask;
     }
 
     ImplicitPtr_t Handle::createGrasp
@@ -139,21 +157,19 @@ namespace hpp {
     (const GripperPtr_t& gripper, std::string n) const
     {
       if (n.empty()) {
-        std::vector<bool> Cmask = complementMask(mask_);
         n = gripper->name() + "_grasps_" + name() + "/complement_" +
-          maskToStr (Cmask);
+          maskToStr (maskComp_);
       }
       core::DevicePtr_t r = robot();
-      if (is6Dmask(mask_)) {
+      if (maskSize(maskComp_) == 0) {
         return Implicit::create (
             shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
               r->configSize(), r->numberDof (), n)), ComparisonTypes_t());
       } else {
-        std::vector<bool> Cmask = complementMask(mask_);
         return  Implicit::create (RelativeTransformationR3xSO3::create
            (n, r, gripper->joint (), joint (),
             gripper->objectPositionInJoint (), localPosition()),
-           6 * constraints::Equality, Cmask);
+           6 * constraints::Equality, maskComp_);
       }
     }
 
@@ -174,7 +190,8 @@ namespace hpp {
         }
       }
       // If handle is on a freeflying object, create an explicit constraint
-      if (isHandleOnFreeflyer (*this)) {
+      if (isHandleOnFreeflyer (*this) &&
+          maskSize(boolOr(mask_, maskComp_)) == 6) {
 	return constraints::explicit_::RelativePose::create
 	  (n, robot (), gripper->joint (), joint (),
 	   gripper->objectPositionInJoint (), localPosition(), comp);
@@ -182,7 +199,7 @@ namespace hpp {
       return Implicit::create (RelativeTransformationR3xSO3::create
          (n, robot (), gripper->joint (), joint (),
           gripper->objectPositionInJoint (), localPosition()),
-         comp, std::vector <bool> (6, true));
+                               comp, boolOr(mask_, maskComp_));
     }
 
     ImplicitPtr_t Handle::createPreGrasp
@@ -205,6 +222,7 @@ namespace hpp {
     {
       HandlePtr_t other = Handle::create (name (), localPosition (), robot(), joint ());
       other->mask(mask_);
+      other->mask(maskComp_);
       other->clearance(clearance_);
       return other;
     }
@@ -215,6 +233,7 @@ namespace hpp {
       os << "local position :" << localPosition () << std::endl;
       os << "joint :" << joint ()->name () << std::endl;
       os << "mask :" << maskToStr (mask()) << std::endl;
+      os << "mask complement:" << maskToStr (maskComp_) << std::endl;
       return os;
     }
 

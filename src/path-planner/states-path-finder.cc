@@ -989,13 +989,12 @@ namespace hpp {
         // map from pair of joint indices to vectors of constraints
         typedef std::map<std::pair<int, int>, NumericalConstraints_t> JointConstraintMap;
         JointConstraintMap jcmap;
-        std::pair<JointConstPtr_t, JointConstPtr_t> jointPair;
-        JointConstPtr_t joint1, joint2;
-        size_type index1, index2;
 
-        // iterate over all the transitions, and only propagate the constrained pairs
-        for (std::size_t i = transitions.size() - 1; i >= 0; --i) {
-          const EdgePtr_t& edge = transitions[i];
+        // iterate over all the transitions, propagate only constrained pairs
+        for (std::size_t i = 0; i <= transitions.size() - 1; ++i) {
+          // get index of the transition
+          std::size_t transIdx = transitions.size() - 1 - i;
+          const EdgePtr_t& edge = transitions[transIdx];
           RelativeMotion::matrix_type m = edge->relativeMotion();
 
           // check through the pairs already existing in jcmap
@@ -1013,19 +1012,19 @@ namespace hpp {
           }
 
           // loop through all constraints in the target node of the transition
-          for (auto constraint: d.solvers [i].constraints()) {
-            jointPair = constraint->functionPtr()->getJointsInvolved();
-            joint1 = jointPair.first;
-            index1 = RelativeMotion::idx(joint1);
-            joint2 = jointPair.second;
-            index2 = RelativeMotion::idx(joint2);
+          for (auto constraint: d.solvers [transIdx].constraints()) {
+            std::pair<JointConstPtr_t, JointConstPtr_t> jointPair =
+              constraint->functionPtr()->jointsInvolved(_problem->robot());
+            JointConstPtr_t joint1 = jointPair.first;
+            size_type index1 = RelativeMotion::idx(joint1);
+            JointConstPtr_t joint2 = jointPair.second;
+            size_type index2 = RelativeMotion::idx(joint2);
 
-            // ignore the constraints involving the same joints
+            // ignore constraint if it involves the same joint
             if (index1 == index2) continue;
 
             // check that the two joints are constrained in the transition
             RelativeMotion::RelativeMotionType rmt = m(index1, index2);
-
             if (rmt == RelativeMotion::RelativeMotionType::Unconstrained)
               continue;
 
@@ -1038,7 +1037,7 @@ namespace hpp {
             // if constraint is not in map, insert it
             if (find_if(next->second.begin(), next->second.end(),
                     [&constraint](const ImplicitPtr_t& arg)
-                    { return *arg == *constraint; }) == constraints_.end()) {
+                    { return *arg == *constraint; }) == next->second.end()) {
               next->second.push_back(constraint);
             }
           }

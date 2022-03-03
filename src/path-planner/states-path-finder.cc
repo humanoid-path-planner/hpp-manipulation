@@ -190,10 +190,14 @@ namespace hpp {
           state_with_depth_ptr_t (const StateMap_t::iterator& it, std::size_t idx) 
             : state (it), parentIdx (idx) {}
         };
-        typedef std::queue<state_with_depth_ptr_t> Queue_t;
+        typedef std::deque<state_with_depth_ptr_t> Deque_t;
         std::size_t maxDepth;
         StateMap_t parent1;
-        Queue_t queue1;
+        Deque_t queue1;
+
+        // keep track of the first transition that has not been checked out
+        // only needed when goal is set of constraints
+        Deque_t::iterator queueIt;
 
         const state_with_depth& getParent(const state_with_depth_ptr_t& _p) const
         {
@@ -315,7 +319,7 @@ namespace hpp {
 
           const GraphSearchData::state_with_depth& parent = d.getParent(_state);
           if (parent.l >= d.maxDepth) return true;
-          d.queue1.pop();
+          d.queue1.pop_front();
 
           bool done = false;
 
@@ -334,16 +338,64 @@ namespace hpp {
             if (isLoopTransition(transition)) continue;
 
             // Insert parent
-            d.queue1.push (
+            d.queue1.push_back (
               d.addParent (_state, transition)
             );
 
             // Consider done if either the target state of a transition is the goal state
-            // or if goal is defined as a set of constraints (hence no single goal state)
-            done = done || goalDefinedByConstraints_ || (transition->stateTo() == d.s2);
+            done = done || (transition->stateTo() == d.s2);
           }
           if (done) break;
         }
+        // the queue is empty if search is exhausted and goal state not found
+        if (d.queue1.empty()) return true;
+        return false;
+      }
+
+      bool StatesPathFinder::findTransitions2 (GraphSearchData& d) const
+      {
+        assert (goalDefinedByConstraints_);
+        // the queue is empty if search is exhausted and goal state not found
+        if (d.queue1.empty()) return true;
+
+        // all the state sequences should be attempted before finding more
+        assert (d.queueIt == d.queue1.end());
+        bool itReassigned = false;
+
+        GraphSearchData::state_with_depth_ptr_t _state = d.queue1.front();
+
+        const GraphSearchData::state_with_depth& parent = d.getParent(_state);
+        if (parent.l >= d.maxDepth) return true;
+        d.queue1.pop_front();
+
+        const Neighbors_t& neighbors = _state.state->first->neighbors();
+        for (Neighbors_t::const_iterator _n = neighbors.begin();
+            _n != neighbors.end(); ++_n) {
+          EdgePtr_t transition = _n->second;
+
+          // Don't even consider level set edges
+          if (containsLevelSet(transition)) continue;
+
+          // Avoid identical consecutive transition
+          if (transition == parent.e) continue;
+
+          // Avoid loop transitions
+          if (isLoopTransition(transition)) continue;
+
+          // Insert parent
+          d.queue1.push_back (
+            d.addParent (_state, transition)
+          );
+
+          if (!itReassigned) {
+            // assign iterator to the first new state sequence added
+            d.queueIt = d.queue1.end() - 1;
+            itReassigned = true;
+          }
+        }
+
+        // the queue is empty if search is exhausted and goal state not found
+        if (d.queue1.empty()) return true;
         return false;
       }
 
@@ -375,11 +427,12 @@ namespace hpp {
       }
 
       Edges_t StatesPathFinder::getTransitionList2 (
-          const GraphSearchData& d) const
+          GraphSearchData& d) const
       {
         assert (goalDefinedByConstraints_);
-        GraphSearchData::state_with_depth_ptr_t _state = d.queue1.front();
         Edges_t transitions;
+        if (d.queueIt == d.queue1.end()) return transitions;
+        GraphSearchData::state_with_depth_ptr_t _state = *(d.queueIt);
 
         const GraphSearchData::state_with_depth* current = &d.getParent(_state);
         transitions.reserve (current->l);
@@ -396,6 +449,7 @@ namespace hpp {
           current = &d.parent1.at(current->s)[current->i];
         }
         std::reverse (transitions.begin(), transitions.end());
+        ++d.queueIt;
         return transitions;
       }
 
@@ -1328,7 +1382,7 @@ namespace hpp {
 	        ("StatesPathFinder/maxDepth").intValue();
 
         // Find
-        d.queue1.push (d.addInitState());
+        d.queue1.push_back (d.addInitState());
         std::size_t idxSol = (d.s1 == d.s2 ? 1 : 0);
         if (idxSol_ < idxSol) idxSol_ = idxSol;
 
@@ -1392,12 +1446,13 @@ namespace hpp {
 	        ("StatesPathFinder/maxDepth").intValue();
 
         // Find
-        d.queue1.push (d.addInitState());
+        d.queue1.push_back (d.addInitState());
+        d.queueIt = d.queue1.end();
         std::size_t idxSol = (d.s1 == d.s2 ? 1 : 0);
         if (idxSol_ < idxSol) idxSol_ = idxSol;
 
         bool maxDepthReached;
-        while (!(maxDepthReached = findTransitions (d))) { // mut
+        while (!(maxDepthReached = findTransitions2 (d))) { // mut
           Edges_t transitions = getTransitionList2 (d); // const, const
           while (! transitions.empty()) {
             if (idxSol >= idxSol_) {
@@ -1432,7 +1487,7 @@ namespace hpp {
               }
             } // if (idxSol >= idxSol_)
             ++idxSol;
-            transitions = {};
+            transitions = getTransitionList2(d);
             if (idxSol_ < idxSol) idxSol_ = idxSol;
           }
         }

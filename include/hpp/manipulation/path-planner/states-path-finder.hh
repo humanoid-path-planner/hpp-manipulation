@@ -78,7 +78,7 @@ namespace hpp {
       /// - method analyseOptimizationProblem loops over the waypoint solvers,
       ///   tests what happens when solving each waypoint after initializing
       ///   only the right hand sides that are equal to the initial or goal
-      ///   configuration, and detects if a collision is certain to block any attemps
+      ///   configuration, and detects if a collision is certain to block any attempts
       ///   to solve the problem in the solveOptimizationProblem step.
       /// - method solveOptimizationProblem tries to solve for each waypoint after
       ///   initializing the right hand sides with the proper values, backtracking
@@ -170,10 +170,11 @@ namespace hpp {
           /// Step 1 of the algorithm
           /// \return whether the max depth was reached.
           bool findTransitions (GraphSearchData& data) const;
+          bool findTransitions2 (GraphSearchData& data) const;
 
           /// Step 2 of the algorithm
           graph::Edges_t getTransitionList (const GraphSearchData& data, const std::size_t& i) const;
-          graph::Edges_t getTransitionList2 (const GraphSearchData& data) const;
+          graph::Edges_t getTransitionList2 (GraphSearchData& data) const;
 
           /// Step 3 of the algorithm
 

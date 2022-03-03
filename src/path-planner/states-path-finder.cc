@@ -1059,10 +1059,11 @@ namespace hpp {
             << " and " << it->first.second << " should be satisfied at q init");
           for (NumericalConstraints_t::iterator ctrIt (constraintList.begin());
               ctrIt != constraintList.end(); ++ctrIt) {
-            analyseSolver.add(*ctrIt);
+            analyseSolver.add((*ctrIt)->copy());
           }
         }
-
+        // initialize the right hand side with the initial config
+        analyseSolver.rightHandSideFromConfig(*q1_);
         if (analyseSolver.isSatisfied(*q1_)) {
           return true;
         }

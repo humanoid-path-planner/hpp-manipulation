@@ -1140,6 +1140,7 @@ namespace hpp {
           matrix_t secmat1 = edges[j]->securityMargins();
           matrix_t secmat2;
           if (j == edges.size()-1) {
+            // if j is the goal node, there is no edge after this node
             secmat2 = secmat1;
           } else {
             secmat2 = edges[j+1]->securityMargins();
@@ -1199,15 +1200,26 @@ namespace hpp {
         std::vector<std::size_t> nTriesDone(d.solvers.size()+1, 0);
         std::size_t nFails = 0;
         std::size_t wp = 1; // waypoint index starting at 1 (wp 0 = q1)
-
+        std::size_t wp_max = 0; // all waypoints up to this index are valid solved
+        matrix_t longestSolved(d.nq, d.N);
+        longestSolved.setZero();
         while (wp <= d.solvers.size()) {
           // enough tries for a waypoint: backtrack or stop
           while (nTriesDone[wp] >= nTriesMax) {
             if (wp == 1) {
               if (nTriesDone[wp] < nTriesMax1)
                 break;
+              // if cannot solve all the way, return longest VALID sequence
+              d.waypoint = longestSolved;
               displayConfigsSolved();
               return false; // too many tries that need to reset the entire solution
+            }
+            // update the longest valid sequence of waypoints solved
+            if (wp -1 > wp_max) {
+              // update the maximum index of valid waypoint
+              wp_max = wp - 1;
+              // save the sequence
+              longestSolved.leftCols(wp_max) = d.waypoint.leftCols(wp_max);
             }
             do {
               nTriesDone[wp] = 0;
@@ -1221,6 +1233,8 @@ namespace hpp {
               nTriesDone[k] = 0;
             wp = 1;
             if (nTriesDone[1] >= nTriesMax1) {
+              // if cannot solve all the way, return longest VALID sequence
+              d.waypoint = longestSolved;
               displayConfigsSolved();
               return false;
             }

@@ -195,9 +195,9 @@ namespace hpp {
         StateMap_t parent1;
         Deque_t queue1;
 
-        // keep track of the first transition that has not been checked out
+        // track index of the first transition that has not been checked out
         // only needed when goal is set of constraints
-        Deque_t::iterator queueIt;
+        size_t queueIt;
 
         const state_with_depth& getParent(const state_with_depth_ptr_t& _p) const
         {
@@ -359,14 +359,14 @@ namespace hpp {
         if (d.queue1.empty()) return true;
 
         // all the state sequences should be attempted before finding more
-        assert (d.queueIt == d.queue1.end());
-        bool itReassigned = false;
+        assert (d.queueIt == d.queue1.size());
 
         GraphSearchData::state_with_depth_ptr_t _state = d.queue1.front();
 
         const GraphSearchData::state_with_depth& parent = d.getParent(_state);
         if (parent.l >= d.maxDepth) return true;
         d.queue1.pop_front();
+        d.queueIt = d.queue1.size();
 
         const Neighbors_t& neighbors = _state.state->first->neighbors();
         for (Neighbors_t::const_iterator _n = neighbors.begin();
@@ -386,16 +386,8 @@ namespace hpp {
           d.queue1.push_back (
             d.addParent (_state, transition)
           );
-
-          if (!itReassigned) {
-            // assign iterator to the first new state sequence added
-            d.queueIt = d.queue1.end() - 1;
-            itReassigned = true;
-          }
         }
 
-        // the queue is empty if search is exhausted and goal state not found
-        if (d.queue1.empty()) return true;
         return false;
       }
 
@@ -431,8 +423,8 @@ namespace hpp {
       {
         assert (goalDefinedByConstraints_);
         Edges_t transitions;
-        if (d.queueIt == d.queue1.end()) return transitions;
-        GraphSearchData::state_with_depth_ptr_t _state = *(d.queueIt);
+        if (d.queueIt == d.queue1.size()) return transitions;
+        GraphSearchData::state_with_depth_ptr_t _state = d.queue1.at(d.queueIt);
 
         const GraphSearchData::state_with_depth* current = &d.getParent(_state);
         transitions.reserve (current->l);
@@ -1447,7 +1439,7 @@ namespace hpp {
 
         // Find
         d.queue1.push_back (d.addInitState());
-        d.queueIt = d.queue1.end();
+        d.queueIt = d.queue1.size();
         std::size_t idxSol = (d.s1 == d.s2 ? 1 : 0);
         if (idxSol_ < idxSol) idxSol_ = idxSol;
 

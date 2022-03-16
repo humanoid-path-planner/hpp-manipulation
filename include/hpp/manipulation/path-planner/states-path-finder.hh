@@ -176,7 +176,16 @@ namespace hpp {
           graph::Edges_t getTransitionList2 (const GraphSearchData& data) const;
 
           /// Step 3 of the algorithm
+
+          // check that the solver either contains exactly same constraint
+          // or a constraint with similar parametrizable form
+          // constraint/both and constraint/complement
           bool contains (const Solver_t& solver, const ImplicitPtr_t& c) const;
+
+          // check that the solver either contains exactly same constraint
+          // or a stricter version of the constraint
+          // constraint/both stricter than constraint and stricter than constraint/complement
+          bool containsStricter (const Solver_t& solver, const ImplicitPtr_t& c) const;
           bool checkConstantRightHandSide (size_type index);
           bool buildOptimizationProblem (const graph::Edges_t& transitions);
           bool buildOptimizationProblem2 (const graph::Edges_t& transitions);
@@ -214,8 +223,13 @@ namespace hpp {
           std::map < std::string, std::size_t > index_;
 
           /// associative map that stores pairs of constraints of the form
-          /// (constraint, constraint/hold)
+          /// (constraint/complement, constraint/hold)
           std::map <ImplicitPtr_t, ImplicitPtr_t> sameRightHandSide_;
+
+          /// associative map that stores pairs of constraints of either form
+          /// (constraint, constraint/hold)
+          /// or (constraint/complement, constraint/hold)
+          std::map <ImplicitPtr_t, ImplicitPtr_t> stricterConstraints_;
 
           mutable OptimizationData* optData_;
           /// Index of the sequence of states

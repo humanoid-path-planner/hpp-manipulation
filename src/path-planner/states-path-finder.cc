@@ -104,7 +104,7 @@ namespace hpp {
         goalDefinedByConstraints_(false),
         q1_(0x0), q2_(0x0), configList_(), idxConfigList_(0),
         nTryConfigList_(0), solved_(false), interrupt_(false),
-        weak_()
+        weak_(), stricterConstraints_()
       {
         gatherGraphConstraints ();
         inStateProblem_ = core::Problem::create(problem_->robot());
@@ -297,6 +297,12 @@ namespace hpp {
               }
             }
           }
+        }
+        // both is the intersection of both constraint and constraint/complement
+        for (ConstraintsAndComplements_t::const_iterator it(cac.begin ());
+              it != cac.end (); ++it) {
+          stricterConstraints_ [it->constraint] = it->both;
+          stricterConstraints_ [it->complement] = it->both;
         }
       }
 
@@ -676,6 +682,17 @@ namespace hpp {
         return false;
       }
 
+      bool StatesPathFinder::containsStricter
+      (const Solver_t& solver, const ImplicitPtr_t& c) const
+      {
+        if (solver.contains (c)) return true;
+        std::map <ImplicitPtr_t, ImplicitPtr_t>::const_iterator it
+          (stricterConstraints_.find (c));
+        if (it != stricterConstraints_.end() && solver.contains (it->second))
+          return true;
+        return false;
+      }
+
       bool StatesPathFinder::buildOptimizationProblem
         (const graph::Edges_t& transitions)
       {
@@ -803,7 +820,7 @@ namespace hpp {
         }
         // Add in the constraints for the goal
         for (auto goalConstraint: goalConstraints_) {
-          if (!contains(d.solvers [d.N-1], goalConstraint)) {
+          if (!containsStricter(d.solvers [d.N-1], goalConstraint)) {
             d.solvers [d.N-1].add(goalConstraint);
             hppDout(info, "Adding goal constraint " << goalConstraint->function().name()
                                   << " to solver for waypoint" << d.N);

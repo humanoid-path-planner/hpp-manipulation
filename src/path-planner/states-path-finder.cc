@@ -104,7 +104,8 @@ namespace hpp {
         goalDefinedByConstraints_(false),
         q1_(0x0), q2_(0x0), configList_(), idxConfigList_(0),
         nTryConfigList_(0), solved_(false), interrupt_(false),
-        weak_(), stricterConstraints_()
+        stricterConstraints_(),
+        weak_()
       {
         gatherGraphConstraints ();
         inStateProblem_ = core::Problem::create(problem_->robot());

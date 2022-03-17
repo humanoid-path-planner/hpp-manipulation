@@ -99,12 +99,12 @@ namespace hpp {
                                          const core::RoadmapPtr_t& roadmap) :
         PathPlanner(problem, roadmap),
         problem_ (HPP_STATIC_PTR_CAST(const manipulation::Problem, problem)),
-        constraints_(), index_(), sameRightHandSide_(), optData_(0x0),
+        constraints_(), index_(), sameRightHandSide_(),
+        stricterConstraints_(), optData_(0x0),
         idxSol_(0), lastBuiltTransitions_(), skipColAnalysis_(false),
-        goalDefinedByConstraints_(false),
+        goalConstraints_(), goalDefinedByConstraints_(false),
         q1_(0x0), q2_(0x0), configList_(), idxConfigList_(0),
         nTryConfigList_(0), solved_(false), interrupt_(false),
-        stricterConstraints_(),
         weak_()
       {
         gatherGraphConstraints ();

@@ -424,7 +424,7 @@ namespace hpp {
       {
         assert (goalDefinedByConstraints_);
         Edges_t transitions;
-        while (d.queueIt != d.queue1.size()) {
+        while (d.queueIt != d.queue1.size() && transitions.empty()) {
           GraphSearchData::state_with_depth_ptr_t _state = d.queue1.at(d.queueIt);
           ++d.queueIt;
           // check that the state is one of the goal states

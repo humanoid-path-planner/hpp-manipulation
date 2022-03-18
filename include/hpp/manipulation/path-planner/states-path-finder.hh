@@ -242,6 +242,8 @@ namespace hpp {
           // Constraints defining the goal
           NumericalConstraints_t goalConstraints_;
           bool goalDefinedByConstraints_;
+          /// set of potential goal states, used if goal is a set of constraints
+          graph::States_t goalStates_;
           // Variables used across several calls to oneStep
           ConfigurationPtr_t q1_, q2_;
           core::Configurations_t configList_;

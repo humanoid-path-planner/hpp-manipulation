@@ -53,6 +53,7 @@
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/state.hh>
 #include <hpp/manipulation/roadmap.hh>
+#include <hpp/manipulation/graph/state-selector.hh>
 
 #include <hpp/manipulation/path-planner/in-state-path.hh>
 
@@ -102,7 +103,7 @@ namespace hpp {
         constraints_(), index_(), sameRightHandSide_(),
         stricterConstraints_(), optData_(0x0),
         idxSol_(0), lastBuiltTransitions_(), skipColAnalysis_(false),
-        goalConstraints_(), goalDefinedByConstraints_(false),
+        goalConstraints_(), goalDefinedByConstraints_(false), goalStates_(),
         q1_(0x0), q2_(0x0), configList_(), idxConfigList_(0),
         nTryConfigList_(0), solved_(false), interrupt_(false),
         weak_()
@@ -423,25 +424,30 @@ namespace hpp {
       {
         assert (goalDefinedByConstraints_);
         Edges_t transitions;
-        if (d.queueIt == d.queue1.size()) return transitions;
-        GraphSearchData::state_with_depth_ptr_t _state = d.queue1.at(d.queueIt);
-
-        const GraphSearchData::state_with_depth* current = &d.getParent(_state);
-        transitions.reserve (current->l);
-        graph::WaypointEdgePtr_t we;
-        while (current->e) {
-          assert (current->l > 0);
-          we = HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, current->e);
-          if (we) {
-            for (int i = (int)we->nbWaypoints(); i >= 0; --i)
-              transitions.push_back(we->waypoint(i));
-          } else {
-            transitions.push_back(current->e);
+        while (d.queueIt != d.queue1.size()) {
+          GraphSearchData::state_with_depth_ptr_t _state = d.queue1.at(d.queueIt);
+          ++d.queueIt;
+          // check that the state is one of the goal states
+          if (std::find(goalStates_.begin(), goalStates_.end(),
+              _state.state->first) == goalStates_.end()) {
+            continue;
           }
-          current = &d.parent1.at(current->s)[current->i];
+          const GraphSearchData::state_with_depth* current = &d.getParent(_state);
+          transitions.reserve (current->l);
+          graph::WaypointEdgePtr_t we;
+          while (current->e) {
+            assert (current->l > 0);
+            we = HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, current->e);
+            if (we) {
+              for (int i = (int)we->nbWaypoints(); i >= 0; --i)
+                transitions.push_back(we->waypoint(i));
+            } else {
+              transitions.push_back(current->e);
+            }
+            current = &d.parent1.at(current->s)[current->i];
+          }
+          std::reverse (transitions.begin(), transitions.end());
         }
-        std::reverse (transitions.begin(), transitions.end());
-        ++d.queueIt;
         return transitions;
       }
 
@@ -1064,15 +1070,15 @@ namespace hpp {
           // check through the pairs already existing in jcmap
           JointConstraintMap::iterator it = jcmap.begin();
           while (it != jcmap.end()) {
-              RelativeMotion::RelativeMotionType rmt =
-                m(it->first.first, it->first.second);
-              if (rmt == RelativeMotion::RelativeMotionType::Unconstrained) {
-                JointConstraintMap::iterator toErase = it;
-                ++it;
-                jcmap.erase(toErase);
-              } else {
-                ++it;
-              }
+            RelativeMotion::RelativeMotionType rmt =
+              m(it->first.first, it->first.second);
+            if (rmt == RelativeMotion::RelativeMotionType::Unconstrained) {
+              JointConstraintMap::iterator toErase = it;
+              ++it;
+              jcmap.erase(toErase);
+            } else {
+              ++it;
+            }
           }
 
           // loop through all constraints in the target node of the transition
@@ -1533,6 +1539,28 @@ namespace hpp {
           goalDefinedByConstraints_ = true;
           goalConstraints_ = taskTarget->constraints();
           hppDout(info, "goal defined as a set of constraints");
+
+          int maxNumConstr = -1;
+          for (StatePtr_t state: problem_->constraintGraph()->stateSelector()->getStates()) {
+            NumericalConstraints_t stateConstr = state->numericalConstraints();
+            int numConstr = 0;
+            for (auto goalConstraint: goalConstraints_) {
+              if (std::find(stateConstr.begin(), stateConstr.end(),
+                  goalConstraint) != stateConstr.end()) {
+                ++numConstr;
+                hppDout(warning, "State \"" << state->name() << "\" "
+                        << "has goal constraint: \""
+                        << goalConstraint->function().name() << "\"");
+              }
+            }
+            if (numConstr == maxNumConstr) {
+              goalStates_.push_back(state);
+            } else if (numConstr > maxNumConstr) {
+              goalStates_.clear();
+              goalStates_.push_back(state);
+              maxNumConstr = numConstr;
+            }
+          }
         }
         reset();
       }

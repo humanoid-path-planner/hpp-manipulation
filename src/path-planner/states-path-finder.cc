@@ -102,9 +102,9 @@ namespace hpp {
         PathPlanner(problem, roadmap),
         problem_ (HPP_STATIC_PTR_CAST(const manipulation::Problem, problem)),
         constraints_(), index_(), sameRightHandSide_(),
-        stricterConstraints_(), optData_(0x0),
+        stricterConstraints_(), optData_(0x0), graphData_(0x0),
         idxSol_(0), lastBuiltTransitions_(), skipColAnalysis_(false),
-        goalConstraints_(), goalDefinedByConstraints_(false), goalStates_(),
+        goalConstraints_(), goalDefinedByConstraints_(false),
         q1_(0x0), q2_(0x0), configList_(), idxConfigList_(0),
         nTryConfigList_(0), solved_(false), interrupt_(false),
         weak_()
@@ -171,7 +171,13 @@ namespace hpp {
 
       struct StatesPathFinder::GraphSearchData
       {
-        StatePtr_t s1, s2;
+        StatePtr_t s1;
+        // list of potential goal states
+        // can be multiple if goal is defined as a set of constraints
+        graph::States_t s2;
+
+        // index of the path
+        size_t idxSol;
 
         // Datas for findNextTransitions
         struct state_with_depth {
@@ -328,6 +334,7 @@ namespace hpp {
 
       bool StatesPathFinder::findTransitions (GraphSearchData& d) const
       {
+        assert (!goalDefinedByConstraints_);
         while (! d.queue1.empty())
         {
           GraphSearchData::state_with_depth_ptr_t _state = d.queue1.front();
@@ -358,7 +365,7 @@ namespace hpp {
             );
 
             // Consider done if either the target state of a transition is the goal state
-            done = done || (transition->stateTo() == d.s2);
+            done = done || (transition->stateTo() == d.s2[0]);
           }
           if (done) break;
         }
@@ -373,15 +380,15 @@ namespace hpp {
         // the queue is empty if search is exhausted and goal state not found
         if (d.queue1.empty()) return true;
 
-        // all the state sequences should be attempted before finding more
-        assert (d.queueIt == d.queue1.size());
+        // all sequences in the queue should be attempted before finding more
+        if (d.queueIt < d.queue1.size()) return false;
 
         GraphSearchData::state_with_depth_ptr_t _state = d.queue1.front();
 
         const GraphSearchData::state_with_depth& parent = d.getParent(_state);
         if (parent.l >= d.maxDepth) return true;
         d.queue1.pop_front();
-        d.queueIt = d.queue1.size();
+        --d.queueIt;
 
         const Neighbors_t& neighbors = _state.state->first->neighbors();
         for (Neighbors_t::const_iterator _n = neighbors.begin();
@@ -410,8 +417,8 @@ namespace hpp {
           const GraphSearchData& d, const std::size_t& i) const
       {
         assert (!goalDefinedByConstraints_);
-        assert (d.parent1.find (d.s2) != d.parent1.end());
-        const GraphSearchData::state_with_depths_t& roots = d.parent1.at(d.s2);
+        assert (d.parent1.find (d.s2[0]) != d.parent1.end());
+        const GraphSearchData::state_with_depths_t& roots = d.parent1.at(d.s2[0]);
         Edges_t transitions;
         if (i >= roots.size()) return transitions;
 
@@ -442,8 +449,8 @@ namespace hpp {
           GraphSearchData::state_with_depth_ptr_t _state = d.queue1.at(d.queueIt);
           ++d.queueIt;
           // check that the state is one of the goal states
-          if (std::find(goalStates_.begin(), goalStates_.end(),
-              _state.state->first) == goalStates_.end()) {
+          if (std::find(d.s2.begin(), d.s2.end(),
+              _state.state->first) == d.s2.end()) {
             continue;
           }
           const GraphSearchData::state_with_depth* current = &d.getParent(_state);
@@ -1053,15 +1060,13 @@ namespace hpp {
         return true;
       }
 
-      static std::pair<size_type, size_type> my_make_pair(size_type a, size_type b)
+      // use this function to make a pair of ascending indexes
+      static std::pair<size_type, size_type> orderPair(size_type a, size_type b)
       {
         if ( a < b ) return std::pair<size_type,size_type>(a,b);
         else return std::pair<size_type,size_type>(b,a);
       }
 
-
-
-      // TODO: analyse optimization problem when goal is a set of constraints
       bool StatesPathFinder::analyseOptimizationProblem2
         (const graph::Edges_t& transitions, core::ProblemConstPtr_t _problem)
       {        
@@ -1115,7 +1120,7 @@ namespace hpp {
             // insert if necessary
             JointConstraintMap::iterator next = jcmap.insert(
               JointConstraintMap::value_type(
-                my_make_pair(index1, index2), NumericalConstraints_t ()
+                orderPair(index1, index2), NumericalConstraints_t ()
               )
             ).first;
             // if constraint is not in map, insert it
@@ -1387,20 +1392,15 @@ namespace hpp {
       {
         assert (!goalDefinedByConstraints_);
         const graph::GraphPtr_t& graph(problem_->constraintGraph ());
-        GraphSearchData d;
-        d.s1 = graph->getState (q1);
-        d.s2 = graph->getState (q2);
-        d.maxDepth = problem_->getParameter
-	        ("StatesPathFinder/maxDepth").intValue();
+        GraphSearchData& d = *graphData_;
 
-        // Find
-        d.queue1.push_back (d.addInitState());
-        std::size_t idxSol = (d.s1 == d.s2 ? 1 : 0);
+        size_t& idxSol = d.idxSol;
         if (idxSol_ < idxSol) idxSol_ = idxSol;
 
         bool maxDepthReached;
         while (!(maxDepthReached = findTransitions (d))) { // mut
-          Edges_t transitions = getTransitionList (d, idxSol); // const, const
+          // if there is a working sequence, try it first
+          Edges_t transitions = (nTryConfigList_ > 0)? lastBuiltTransitions_ : getTransitionList (d, idxSol); // const, const
           while (! transitions.empty()) {
             if (idxSol >= idxSol_) {
 #ifdef HPP_DEBUG
@@ -1435,6 +1435,7 @@ namespace hpp {
             } // if (idxSol >= idxSol_)
             transitions = getTransitionList(d, ++idxSol);
             if (idxSol_ < idxSol) idxSol_ = idxSol;
+            nTryConfigList_ = 0;
           }
         }
         core::Configurations_t empty_path;
@@ -1451,21 +1452,15 @@ namespace hpp {
       {
         assert (goalDefinedByConstraints_);
         const graph::GraphPtr_t& graph(problem_->constraintGraph ());
-        GraphSearchData d;
-        d.s1 = graph->getState (q1);
-        d.s2 = nullptr;
-        d.maxDepth = problem_->getParameter
-	        ("StatesPathFinder/maxDepth").intValue();
+        GraphSearchData& d = *graphData_;
 
-        // Find
-        d.queue1.push_back (d.addInitState());
-        d.queueIt = d.queue1.size();
-        std::size_t idxSol = (d.s1 == d.s2 ? 1 : 0);
+        size_t& idxSol = d.idxSol;
         if (idxSol_ < idxSol) idxSol_ = idxSol;
 
         bool maxDepthReached;
         while (!(maxDepthReached = findTransitions2 (d))) { // mut
-          Edges_t transitions = getTransitionList2 (d); // const, const
+          // if there is a working sequence, try it first before getting another transition list
+          Edges_t transitions = (nTryConfigList_ > 0)? lastBuiltTransitions_ : getTransitionList2 (d);
           while (! transitions.empty()) {
             if (idxSol >= idxSol_) {
 #ifdef HPP_DEBUG
@@ -1501,6 +1496,8 @@ namespace hpp {
             ++idxSol;
             transitions = getTransitionList2(d);
             if (idxSol_ < idxSol) idxSol_ = idxSol;
+            // reset of the number of tries for a sequence
+            nTryConfigList_ = 0;
           }
         }
         core::Configurations_t empty_path;
@@ -1526,6 +1523,17 @@ namespace hpp {
         assert(problem_);
         q1_ = problem_->initConfig();
         assert(q1_);
+
+        const graph::GraphPtr_t& graph(problem_->constraintGraph ());
+        graphData_.reset(new GraphSearchData());
+        GraphSearchData& d = *graphData_;
+        d.s1 = graph->getState (*q1_);
+        d.maxDepth = problem_->getParameter
+          ("StatesPathFinder/maxDepth").intValue();
+
+        d.queue1.push_back (d.addInitState());
+        d.queueIt = d.queue1.size();
+
         // Detect whether the goal is defined by a configuration or by a
         // set of constraints
         ProblemTargetPtr_t target(problem()->target());
@@ -1542,6 +1550,9 @@ namespace hpp {
             throw std::logic_error(os.str().c_str());
           }
           q2_ =  q2s[0];
+          d.s2.push_back(graph->getState(*q2_));
+          // skip the first entry (the root state_with_depth)
+          d.idxSol = (d.s1 == d.s2[0] ? 1 : 0);
         } else {
           TaskTargetPtr_t taskTarget(HPP_DYNAMIC_PTR_CAST(TaskTarget,target));
           if(!taskTarget){
@@ -1550,6 +1561,7 @@ namespace hpp {
               "either a configuration or a set of constraints.";
             throw std::logic_error(os.str().c_str());
           }
+          assert (!q2_);
           goalDefinedByConstraints_ = true;
           goalConstraints_ = taskTarget->constraints();
           hppDout(info, "goal defined as a set of constraints");
@@ -1567,14 +1579,15 @@ namespace hpp {
                         << goalConstraint->function().name() << "\"");
               }
             }
-            if (numConstr == maxNumConstr) {
-              goalStates_.push_back(state);
-            } else if (numConstr > maxNumConstr) {
-              goalStates_.clear();
-              goalStates_.push_back(state);
+            if (numConstr > maxNumConstr) {
+              d.s2.clear();
+              d.s2.push_back(state);
               maxNumConstr = numConstr;
+            } else if (numConstr == maxNumConstr) {
+              d.s2.push_back(state);
             }
           }
+          d.idxSol = 0;
         }
         reset();
       }
@@ -1655,6 +1668,7 @@ namespace hpp {
           if (++nTryConfigList_ >= nTryMax) {
             nTryConfigList_ = 0;
             idxSol_++;
+            graphData_->idxSol++;
           }
         }
       }

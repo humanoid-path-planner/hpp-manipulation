@@ -235,6 +235,7 @@ namespace hpp {
           std::map <ImplicitPtr_t, ImplicitPtr_t> stricterConstraints_;
 
           mutable OptimizationData* optData_;
+          mutable std::shared_ptr <GraphSearchData> graphData_;
           /// Index of the sequence of states
           std::size_t idxSol_ = 0;
           graph::Edges_t lastBuiltTransitions_;
@@ -244,8 +245,6 @@ namespace hpp {
           // Constraints defining the goal
           NumericalConstraints_t goalConstraints_;
           bool goalDefinedByConstraints_;
-          /// list of potential goal states, used if goal is defined as a set of constraints
-          graph::States_t goalStates_;
           // Variables used across several calls to oneStep
           ConfigurationPtr_t q1_, q2_;
           core::Configurations_t configList_;

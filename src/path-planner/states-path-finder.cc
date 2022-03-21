@@ -2,6 +2,7 @@
 // Authors: Joseph Mirabel (joseph.mirabel@laas.fr),
 //          Florent Lamiraux (florent.lamiraux@laas.fr)
 //          Alexandre Thiault (athiault@laas.fr)
+//          Le Quang Anh (quang-anh.le@laas.fr)
 //
 // This file is part of hpp-manipulation.
 // hpp-manipulation is free software: you can redistribute it
@@ -178,7 +179,9 @@ namespace hpp {
           EdgePtr_t e;
           std::size_t l; // depth to root
           std::size_t i; // index in parent state_with_depths_t
+          // constructor used for root node
           inline state_with_depth () : s(), e(), l(0), i (0) {}
+          // constructor used for non-root node
           inline state_with_depth (EdgePtr_t _e, std::size_t _l, std::size_t _i)
             : s(_e->stateFrom()), e(_e), l(_l), i (_i) {}
         };
@@ -192,12 +195,17 @@ namespace hpp {
             : state (it), parentIdx (idx) {}
         };
         typedef std::deque<state_with_depth_ptr_t> Deque_t;
+        // paths exceeding this depth in the constraint graph will not be considered
         std::size_t maxDepth;
+        // map each state X to a list of preceding states in paths that visit X
+        // state_with_depth struct gives info to trace the entire paths
         StateMap_t parent1;
+        // the frontier of the graph search
+        // consists states that have not been expanded on
         Deque_t queue1;
 
-        // track index of the first transition that has not been checked out
-        // only needed when goal is set of constraints
+        // track index of first transition list that has not been checked out
+        // only needed when goal is defined as set of constraints
         size_t queueIt;
 
         const state_with_depth& getParent(const state_with_depth_ptr_t& _p) const
@@ -206,6 +214,7 @@ namespace hpp {
           return parents[_p.parentIdx];
         }
 
+        // add initial state (root node) to the map parent1
         state_with_depth_ptr_t addInitState()
         {
           StateMap_t::iterator next =
@@ -213,6 +222,7 @@ namespace hpp {
           return state_with_depth_ptr_t (next, 0);
         }
 
+        // add a non-root node to the map parent1
         state_with_depth_ptr_t addParent(
             const state_with_depth_ptr_t& _p,
             const EdgePtr_t& transition)
@@ -263,48 +273,52 @@ namespace hpp {
           (cg->constraintsAndComplements ());
         for (std::size_t i = 0; i < cg->nbComponents (); ++i) {
           EdgePtr_t edge (HPP_DYNAMIC_PTR_CAST (Edge, cg->get (i).lock ()));
-          if (edge) {
-            // Don't even consider level set edges
-            if (containsLevelSet(edge)) continue;
-            const Solver_t& solver (edge->pathConstraint ()->
-                                    configProjector ()->solver ());
-            const NumericalConstraints_t& constraints
-              (solver.numericalConstraints ());
-            for (NumericalConstraints_t::const_iterator it
-                   (constraints.begin ()); it != constraints.end (); ++it) {
-              if ((*it)->parameterSize () > 0) {
-                const std::string& name ((*it)->function ().name  ());
-                if (index_.find (name) == index_.end ()) {
-                  // constraint is not in map, add it
-                  index_ [name] = constraints_.size ();
-                  // Check whether constraint is equivalent to a previous one
-                  for (NumericalConstraints_t::const_iterator it1
-                         (constraints_.begin ()); it1 != constraints_.end ();
-                       ++it1) {
-                    for (ConstraintsAndComplements_t::const_iterator it2
-                           (cac.begin ()); it2 != cac.end (); ++it2) {
-                      if (((**it1 == *(it2->complement)) &&
-                           (**it == *(it2->both))) ||
-                          ((**it1 == *(it2->both)) &&
-                           (**it == *(it2->complement)))) {
-                        assert (sameRightHandSide_.count (*it1) == 0);
-                        assert (sameRightHandSide_.count (*it) == 0);
-                        sameRightHandSide_ [*it1] = *it;
-                        sameRightHandSide_ [*it] = *it1;
-                      }
-                    }
-                  }
-                  constraints_.push_back (*it);
-                  hppDout (info, "Adding constraint \"" << name << "\"");
-                  hppDout (info, "Edge \"" << edge->name () << "\"");
-                  hppDout (info, "parameter size: " << (*it)->parameterSize ());
+          
+          // only gather the edge constraints
+          if (!edge) continue;
+          
+          // Don't even consider level set edges
+          if (containsLevelSet(edge)) continue;
 
+          const Solver_t& solver (edge->pathConstraint ()->
+                                  configProjector ()->solver ());
+          const NumericalConstraints_t& constraints
+            (solver.numericalConstraints ());
+          for (NumericalConstraints_t::const_iterator it
+                  (constraints.begin ()); it != constraints.end (); ++it) {
+            // only look at parameterized constraint
+            if ((*it)->parameterSize () == 0) continue;
+
+            const std::string& name ((*it)->function ().name  ());
+            // if constraint is in map, no need to add it
+            if (index_.find (name) != index_.end ()) continue;
+            
+            index_ [name] = constraints_.size ();
+            // Check whether constraint is equivalent to a previous one
+            for (NumericalConstraints_t::const_iterator it1
+                    (constraints_.begin ()); it1 != constraints_.end ();
+                  ++it1) {
+              for (ConstraintsAndComplements_t::const_iterator it2
+                      (cac.begin ()); it2 != cac.end (); ++it2) {
+                if (((**it1 == *(it2->complement)) &&
+                      (**it == *(it2->both))) ||
+                    ((**it1 == *(it2->both)) &&
+                      (**it == *(it2->complement)))) {
+                  assert (sameRightHandSide_.count (*it1) == 0);
+                  assert (sameRightHandSide_.count (*it) == 0);
+                  sameRightHandSide_ [*it1] = *it;
+                  sameRightHandSide_ [*it] = *it1;
                 }
               }
             }
+            constraints_.push_back (*it);
+            hppDout (info, "Adding constraint \"" << name << "\"");
+            hppDout (info, "Edge \"" << edge->name () << "\"");
+            hppDout (info, "parameter size: " << (*it)->parameterSize ());
+
           }
         }
-        // both is the intersection of both constraint and constraint/complement
+        // constraint/both is the intersection of both constraint and constraint/complement
         for (ConstraintsAndComplements_t::const_iterator it(cac.begin ());
               it != cac.end (); ++it) {
           stricterConstraints_ [it->constraint] = it->both;

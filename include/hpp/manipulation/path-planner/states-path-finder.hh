@@ -2,6 +2,7 @@
 // Authors: Joseph Mirabel (joseph.mirabel@laas.fr),
 //          Florent Lamiraux (florent.lamiraux@laas.fr)
 //          Alexandre Thiault (athiault@laas.fr)
+//          Le Quang Anh (quang-anh.le@laas.fr)
 //
 // This file is part of hpp-manipulation.
 // hpp-manipulation is free software: you can redistribute it
@@ -45,10 +46,10 @@ namespace hpp {
       ///
       /// #### Sketch of the method
       ///
-      /// Given two configuration \f$ (q_1,q_2) \f$, this class formulates and
+      /// Given two configurations \f$ (q_1,q_2) \f$, this class formulates and
       /// solves the problem as follows.
       /// - Compute the corresponding states \f$ (s_1, s_2) \f$.
-      /// - For a each path \f$ (e_0, ... e_n) \f$ of length not more than
+      /// - For each path \f$ (e_0, ... e_n) \f$ of length not more than
       ///   parameter "StatesPathFinder/maxDepth" between
       ///   \f$ (s_1, s_2)\f$ in the constraint graph, do:
       ///   - define \f$ n-1 \f$ intermediate configuration \f$ p_i \f$,
@@ -103,7 +104,7 @@ namespace hpp {
         public:
           struct OptimizationData;
 
-        virtual ~StatesPathFinder () {};
+          virtual ~StatesPathFinder () {};
 
           static StatesPathFinderPtr_t create (
             const core::ProblemConstPtr_t& problem);
@@ -122,7 +123,8 @@ namespace hpp {
           /// create a vector of configurations from initial configuration
           /// to a configuration satisfying the goal constraints, when goal
           /// is defined as a set of constraints
-          /// \return a Configurations_t from q1 to q2 if found. An empty
+          /// \return a Configurations_t from q1 to a configuration
+          /// satisfying the goal constraints if found. An empty
           /// vector if a path could not be built.
           core::Configurations_t computeConfigList2 (ConfigurationIn_t q1);
 
@@ -242,7 +244,7 @@ namespace hpp {
           // Constraints defining the goal
           NumericalConstraints_t goalConstraints_;
           bool goalDefinedByConstraints_;
-          /// set of potential goal states, used if goal is a set of constraints
+          /// list of potential goal states, used if goal is defined as a set of constraints
           graph::States_t goalStates_;
           // Variables used across several calls to oneStep
           ConfigurationPtr_t q1_, q2_;

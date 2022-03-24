@@ -139,7 +139,19 @@ namespace hpp {
           void initWPRandom(std::size_t wp);
           void initWPNear(std::size_t wp);
           void initWP(std::size_t wp, ConfigurationIn_t q);
-          int solveStep(std::size_t wp);
+          /// Status of the step to solve for a particular waypoint
+          enum SolveStepStatus {
+            /// Valid solution (no collision)
+            VALID_SOLUTION,
+            /// Bad solve status, no solution from the solver
+            NO_SOLUTION,
+            /// Solution has collision in edge leading to the waypoint
+            COLLISION_BEFORE,
+            /// Solution has collision in edge going from the waypoint
+            COLLISION_AFTER,
+          };
+
+          SolveStepStatus solveStep(std::size_t wp);
           Configuration_t configSolved (std::size_t wp) const;
 
           /// deletes from memory the latest working states list, which is used to

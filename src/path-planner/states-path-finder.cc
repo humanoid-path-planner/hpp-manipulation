@@ -48,6 +48,7 @@
 #include <hpp/core/problem-target/task-target.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/path-optimization/random-shortcut.hh>
+#include <hpp/core/path-validation.hh>
 
 #include <hpp/manipulation/constraint-set.hh>
 
@@ -1214,7 +1215,7 @@ namespace hpp {
         optData_->waypoint.col (wp-1) = q;
       }
 
-      int StatesPathFinder::solveStep(std::size_t wp) {
+      StatesPathFinder::SolveStepStatus StatesPathFinder::solveStep(std::size_t wp) {
         assert(wp >=1 && wp <= (std::size_t) optData_->waypoint.cols());
         std::size_t j = wp-1;
         Solver_t& solver (optData_->solvers [j]);
@@ -1222,34 +1223,24 @@ namespace hpp {
               constraints::solver::lineSearch::Backtracking ());
         if (status == Solver_t::SUCCESS) {
           assert (checkWaypointRightHandSide(j));
-          core::ConfigValidationsPtr_t configValidations = problem_->configValidations();
-          core::ConfigValidationsPtr_t configValidations2 = core::ConfigValidations::create();
-          core::CollisionValidationPtr_t colValidation = core::CollisionValidation::create(problem()->robot());
           const graph::Edges_t& edges = lastBuiltTransitions_;
-          matrix_t secmat1 = edges[j]->securityMargins();
-          matrix_t secmat2;
-          if (j == edges.size()-1) {
-            // if j is the goal node, there is no edge after this node
-            secmat2 = secmat1;
-          } else {
-            secmat2 = edges[j+1]->securityMargins();
-          }
-          matrix_t maxmat = secmat1.cwiseMax(secmat2);
-          colValidation->setSecurityMargins(maxmat);
-          configValidations2->add(colValidation);
           core::ValidationReportPtr_t report;
-          if (!configValidations->validate (optData_->waypoint.col (j), report))
-            return 2;
-          if (!configValidations2->validate (optData_->waypoint.col (j), report)) {
+          // check collision based on preceeding edge to the waypoint
+          if (!edges[j]->pathValidation()->validate (
+              optData_->waypoint.col (j), report))
+            return SolveStepStatus::COLLISION_BEFORE;
+          // if wp is not the goal node, check collision based on following edge
+          if (j < edges.size()-1 && !edges[j+1]->pathValidation()->validate (
+              optData_->waypoint.col (j), report)) {
             //hppDout(warning, maxmat);
             //hppDout(warning, pinocchio::displayConfig(optData_->waypoint.col (j)));
             //hppDout(warning, *report);
             //return 4;
-            return 3;
+            return SolveStepStatus::COLLISION_AFTER;
           }
-          return 0;
+          return SolveStepStatus::VALID_SOLUTION;
         }
-        return 1;
+        return SolveStepStatus::NO_SOLUTION;
       }
 
       std::string StatesPathFinder::displayConfigsSolved() const {
@@ -1345,16 +1336,16 @@ namespace hpp {
 
           nTriesDone[wp]++; // Backtrack to last state when this gets too big
 
-          int out = solveStep(wp);
+          SolveStepStatus out = solveStep(wp);
           hppDout(info, "solveStep exit code at WP" << wp << ": " << out);
           switch (out) {
-          case 0: // Valid solution, go to next waypoint
+          case SolveStepStatus::VALID_SOLUTION: // Valid solution, go to next waypoint
             wp++; break;
-          case 1: // Collision. If that happens too much, go back to first waypoint
-            nFails++; break;
-          case 2: // Bad solve status, considered usual so nothing more
-          case 3:
+          case SolveStepStatus::NO_SOLUTION: // Bad solve status, considered usual so nothing more
             break;
+          case SolveStepStatus::COLLISION_BEFORE: // Collision. If that happens too much, go back to first waypoint
+          case SolveStepStatus::COLLISION_AFTER:
+            nFails++; break;
           default:
             throw(std::logic_error("Unintended exit code for solveStep"));
           }

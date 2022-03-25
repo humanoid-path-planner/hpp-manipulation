@@ -1277,8 +1277,10 @@ namespace hpp {
 	        ("StatesPathFinder/nTriesUntilBacktrack").intValue();
         std::size_t nTriesMax1 = nTriesMax*10; // more tries for the first waypoint
         std::size_t nFailsMax = nTriesMax*20; // fails before reseting the whole solution
+        std::size_t nBadSolvesMax = nTriesMax*50; // bad solve fails before reseting the whole solution
         std::vector<std::size_t> nTriesDone(d.solvers.size()+1, 0);
         std::size_t nFails = 0;
+        std::size_t nBadSolves = 0; 
         std::size_t wp = 1; // waypoint index starting at 1 (wp 0 = q1)
         std::size_t wp_max = 0; // all waypoints up to this index are valid solved
         matrix_t longestSolved(d.nq, d.N);
@@ -1308,10 +1310,13 @@ namespace hpp {
           }
 
           // Completely reset a solution when too many tries have failed
-          if (wp > 1 && nFails >= nFailsMax) {
+          if (wp > 1 && (nFails >= nFailsMax || nBadSolves >= nBadSolvesMax)) {
             for (std::size_t k = 2; k <= d.solvers.size(); k++)
               nTriesDone[k] = 0;
             wp = 1;
+            if (nBadSolves >= nBadSolvesMax) {
+              hppDout (warning, " Solution " << idxSol_ << ": too many bad solve statuses. Resetting back to WP1");
+            }
             if (nTriesDone[1] >= nTriesMax1) {
               // if cannot solve all the way, return longest VALID sequence
               d.waypoint = longestSolved;
@@ -1320,9 +1325,10 @@ namespace hpp {
             }
           }
           // Reset the fail counter while the solution is empty
-          if (wp == 1)
+          if (wp == 1) {
             nFails = 0;
-
+            nBadSolves = 0;
+          }
           // Initialize right hand sides, and
           // Choose a starting configuration for the solver.solve method:
           // - from previous waypoint if it's the first time we see this solver
@@ -1341,8 +1347,8 @@ namespace hpp {
           switch (out) {
           case SolveStepStatus::VALID_SOLUTION: // Valid solution, go to next waypoint
             wp++; break;
-          case SolveStepStatus::NO_SOLUTION: // Bad solve status, considered usual so nothing more
-            break;
+          case SolveStepStatus::NO_SOLUTION: // Bad solve status, considered usual so has higher threshold before going back to first waypoint
+            nBadSolves++; break;
           case SolveStepStatus::COLLISION_BEFORE: // Collision. If that happens too much, go back to first waypoint
           case SolveStepStatus::COLLISION_AFTER:
             nFails++; break;

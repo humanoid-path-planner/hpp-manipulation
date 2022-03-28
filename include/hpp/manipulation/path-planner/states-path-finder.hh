@@ -252,8 +252,6 @@ namespace hpp {
           std::size_t idxSol_ = 0;
           graph::Edges_t lastBuiltTransitions_;
 
-          bool skipColAnalysis_;
-
           // Constraints defining the goal
           NumericalConstraints_t goalConstraints_;
           bool goalDefinedByConstraints_;

@@ -104,7 +104,7 @@ namespace hpp {
         problem_ (HPP_STATIC_PTR_CAST(const manipulation::Problem, problem)),
         constraints_(), index_(), sameRightHandSide_(),
         stricterConstraints_(), optData_(0x0), graphData_(0x0),
-        idxSol_(0), lastBuiltTransitions_(), skipColAnalysis_(false),
+        idxSol_(0), lastBuiltTransitions_(),
         goalConstraints_(), goalDefinedByConstraints_(false),
         q1_(0x0), q2_(0x0), configList_(), idxConfigList_(0),
         nTryConfigList_(0), solved_(false), interrupt_(false),
@@ -1415,7 +1415,7 @@ namespace hpp {
 
               if (buildOptimizationProblem (transitions)) {
                 lastBuiltTransitions_ = transitions;
-                if (skipColAnalysis_ || analyseOptimizationProblem (transitions)) {
+                if (nTryConfigList_ > 0 || analyseOptimizationProblem (transitions)) {
                   if (solveOptimizationProblem ()) {
                     core::Configurations_t path = getConfigList ();
                     hppDout (warning, " Solution " << idxSol << ": solved configurations list");
@@ -1475,7 +1475,7 @@ namespace hpp {
 
               if (buildOptimizationProblem2 (transitions)) {
                 lastBuiltTransitions_ = transitions;
-                if (skipColAnalysis_ || analyseOptimizationProblem2 (transitions, problem())) {
+                if (nTryConfigList_ > 0 || analyseOptimizationProblem2 (transitions, problem())) {
                   if (solveOptimizationProblem ()) {
                     core::Configurations_t path = getConfigList ();
                     hppDout (warning, " Solution " << idxSol << ": solved configurations list");
@@ -1592,7 +1592,6 @@ namespace hpp {
       void StatesPathFinder::oneStep ()
       {
         if (idxConfigList_ == 0) {
-          skipColAnalysis_ = (nTryConfigList_ >= 1); // already passed, don't redo it
           // TODO: accommodate when goal is a set of constraints
           assert(q1_);
           if (!goalDefinedByConstraints_) {

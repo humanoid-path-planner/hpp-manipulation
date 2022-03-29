@@ -116,17 +116,13 @@ namespace hpp {
           StatesPathFinderPtr_t copy () const;
           
           /// create a vector of configurations between two configurations
+          /// \param q1 initial configuration
+          /// \param q2 pointer to final configuration, NULL if goal is
+          /// defined as a set of constraints
           /// \return a Configurations_t from q1 to q2 if found. An empty
           /// vector if a path could not be built.
           core::Configurations_t computeConfigList (ConfigurationIn_t q1,
-                                          ConfigurationIn_t q2);
-          /// create a vector of configurations from initial configuration
-          /// to a configuration satisfying the goal constraints, when goal
-          /// is defined as a set of constraints
-          /// \return a Configurations_t from q1 to a configuration
-          /// satisfying the goal constraints if found. An empty
-          /// vector if a path could not be built.
-          core::Configurations_t computeConfigList2 (ConfigurationIn_t q1);
+                                          ConfigurationPtr_t q2);
 
           // access functions for Python interface
           std::vector<std::string> constraintNamesFromSolverAtWaypoint
@@ -184,11 +180,9 @@ namespace hpp {
           /// Step 1 of the algorithm
           /// \return whether the max depth was reached.
           bool findTransitions (GraphSearchData& data) const;
-          bool findTransitions2 (GraphSearchData& data) const;
 
           /// Step 2 of the algorithm
           graph::Edges_t getTransitionList (const GraphSearchData& data, const std::size_t& i) const;
-          graph::Edges_t getTransitionList2 (GraphSearchData& data) const;
 
           /// Step 3 of the algorithm
 
@@ -203,7 +197,6 @@ namespace hpp {
           bool containsStricter (const Solver_t& solver, const ImplicitPtr_t& c) const;
           bool checkConstantRightHandSide (size_type index);
           bool buildOptimizationProblem (const graph::Edges_t& transitions);
-          bool buildOptimizationProblem2 (const graph::Edges_t& transitions);
 
           /// Step 4 of the algorithm
           void preInitializeRHS(std::size_t j, Configuration_t& q);

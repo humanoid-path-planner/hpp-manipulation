@@ -185,16 +185,16 @@ namespace hpp {
           StatePtr_t s;
           EdgePtr_t e;
           std::size_t l; // depth to root
-          std::size_t i; // index in parent state_with_depths_t
+          std::size_t i; // index in parent state_with_depths
           // constructor used for root node
           inline state_with_depth () : s(), e(), l(0), i (0) {}
           // constructor used for non-root node
           inline state_with_depth (EdgePtr_t _e, std::size_t _l, std::size_t _i)
             : s(_e->stateFrom()), e(_e), l(_l), i (_i) {}
         };
-        typedef std::vector<state_with_depth> state_with_depths_t;
-        typedef std::map<StatePtr_t,state_with_depths_t> StateMap_t;
-        /// std::size_t is the index in state_with_depths_t at StateMap_t::iterator
+        typedef std::vector<state_with_depth> state_with_depths;
+        typedef std::map<StatePtr_t,state_with_depths> StateMap_t;
+        /// std::size_t is the index in state_with_depths at StateMap_t::iterator
         struct state_with_depth_ptr_t {
           StateMap_t::iterator state;
           std::size_t parentIdx;
@@ -202,11 +202,15 @@ namespace hpp {
             : state (it), parentIdx (idx) {}
         };
         typedef std::deque<state_with_depth_ptr_t> Deque_t;
+        // vector of pointers to state with depth
+        typedef std::vector<state_with_depth_ptr_t> state_with_depths_t;
         // paths exceeding this depth in the constraint graph will not be considered
         std::size_t maxDepth;
         // map each state X to a list of preceding states in paths that visit X
         // state_with_depth struct gives info to trace the entire paths
         StateMap_t parent1;
+        // store a vector fo pointers to the end state of each potential path
+        state_with_depths_t solutions;
         // the frontier of the graph search
         // consists states that have not been expanded on
         Deque_t queue1;
@@ -217,7 +221,7 @@ namespace hpp {
 
         const state_with_depth& getParent(const state_with_depth_ptr_t& _p) const
         {
-          const state_with_depths_t& parents = _p.state->second;
+          const state_with_depths& parents = _p.state->second;
           return parents[_p.parentIdx];
         }
 
@@ -225,22 +229,22 @@ namespace hpp {
         state_with_depth_ptr_t addInitState()
         {
           StateMap_t::iterator next =
-            parent1.insert(StateMap_t::value_type(s1, state_with_depths_t(1))).first;
+            parent1.insert(StateMap_t::value_type(s1, state_with_depths(1))).first;
           return state_with_depth_ptr_t (next, 0);
         }
 
-        // add a non-root node to the map parent1
+        // store a transition to the map parent1
         state_with_depth_ptr_t addParent(
             const state_with_depth_ptr_t& _p,
             const EdgePtr_t& transition)
         {
-          const state_with_depths_t& parents = _p.state->second;
+          const state_with_depths& parents = _p.state->second;
           const state_with_depth& from = parents[_p.parentIdx];
 
           // Insert state to if necessary
           StateMap_t::iterator next = parent1.insert (
               StateMap_t::value_type(
-                transition->stateTo(), state_with_depths_t ()
+                transition->stateTo(), state_with_depths ()
                 )).first;
 
           next->second.push_back (
@@ -335,16 +339,16 @@ namespace hpp {
 
       bool StatesPathFinder::findTransitions (GraphSearchData& d) const
       {
-        assert (!goalDefinedByConstraints_);
-        while (! d.queue1.empty())
+        // all potential solutions should be attempted before finding more
+        if (d.idxSol < d.solutions.size()) return false;
+        bool done = false;
+        while (! d.queue1.empty() && !done)
         {
           GraphSearchData::state_with_depth_ptr_t _state = d.queue1.front();
 
           const GraphSearchData::state_with_depth& parent = d.getParent(_state);
           if (parent.l >= d.maxDepth) return true;
           d.queue1.pop_front();
-
-          bool done = false;
 
           const Neighbors_t& neighbors = _state.state->first->neighbors();
           for (Neighbors_t::const_iterator _n = neighbors.begin();
@@ -360,70 +364,31 @@ namespace hpp {
             // Avoid loop transitions
             if (isLoopTransition(transition)) continue;
 
-            // Insert parent
-            d.queue1.push_back (
-              d.addParent (_state, transition)
-            );
+            // Insert the end state of the new path to parent
+            GraphSearchData::state_with_depth_ptr_t endState = d.addParent (_state, transition);
+            d.queue1.push_back (endState);
 
-            // Consider done if either the target state of a transition is the goal state
-            done = done || (transition->stateTo() == d.s2[0]);
+            // done if last state is one of potential goal states
+            if (std::find(
+                d.s2.begin(), d.s2.end(), transition->stateTo()) != d.s2.end()) {
+              done = true;
+              d.solutions.push_back(endState);
+            }
           }
-          if (done) break;
         }
-        // the queue is empty if search is exhausted and goal state not found
-        if (d.queue1.empty()) return true;
-        return false;
-      }
-
-      bool StatesPathFinder::findTransitions2 (GraphSearchData& d) const
-      {
-        assert (goalDefinedByConstraints_);
-        // the queue is empty if search is exhausted and goal state not found
-        if (d.queue1.empty()) return true;
-
-        // all sequences in the queue should be attempted before finding more
-        if (d.queueIt < d.queue1.size()) return false;
-
-        GraphSearchData::state_with_depth_ptr_t _state = d.queue1.front();
-
-        const GraphSearchData::state_with_depth& parent = d.getParent(_state);
-        if (parent.l >= d.maxDepth) return true;
-        d.queue1.pop_front();
-        --d.queueIt;
-
-        const Neighbors_t& neighbors = _state.state->first->neighbors();
-        for (Neighbors_t::const_iterator _n = neighbors.begin();
-            _n != neighbors.end(); ++_n) {
-          EdgePtr_t transition = _n->second;
-
-          // Don't even consider level set edges
-          if (containsLevelSet(transition)) continue;
-
-          // Avoid identical consecutive transition
-          if (transition == parent.e) continue;
-
-          // Avoid loop transitions
-          if (isLoopTransition(transition)) continue;
-
-          // Insert parent
-          d.queue1.push_back (
-            d.addParent (_state, transition)
-          );
-        }
-
+        // return true if search is exhausted and goal state not found
+        if (!done) return true;
         return false;
       }
 
       Edges_t StatesPathFinder::getTransitionList (
-          const GraphSearchData& d, const std::size_t& i) const
+          const GraphSearchData& d, const std::size_t& idxSol) const
       {
-        assert (!goalDefinedByConstraints_);
-        assert (d.parent1.find (d.s2[0]) != d.parent1.end());
-        const GraphSearchData::state_with_depths_t& roots = d.parent1.at(d.s2[0]);
         Edges_t transitions;
-        if (i >= roots.size()) return transitions;
+        if (idxSol >= d.solutions.size()) return transitions;
 
-        const GraphSearchData::state_with_depth* current = &roots[i];
+        const GraphSearchData::state_with_depth_ptr_t endState = d.solutions[idxSol];
+        const GraphSearchData::state_with_depth* current = &d.getParent(endState);
         transitions.reserve (current->l);
         graph::WaypointEdgePtr_t we;
         while (current->e) {
@@ -438,38 +403,6 @@ namespace hpp {
           current = &d.parent1.at(current->s)[current->i];
         }
         std::reverse (transitions.begin(), transitions.end());
-        return transitions;
-      }
-
-      Edges_t StatesPathFinder::getTransitionList2 (
-          GraphSearchData& d) const
-      {
-        assert (goalDefinedByConstraints_);
-        Edges_t transitions;
-        while (d.queueIt != d.queue1.size() && transitions.empty()) {
-          GraphSearchData::state_with_depth_ptr_t _state = d.queue1.at(d.queueIt);
-          ++d.queueIt;
-          // check that the state is one of the goal states
-          if (std::find(d.s2.begin(), d.s2.end(),
-              _state.state->first) == d.s2.end()) {
-            continue;
-          }
-          const GraphSearchData::state_with_depth* current = &d.getParent(_state);
-          transitions.reserve (current->l);
-          graph::WaypointEdgePtr_t we;
-          while (current->e) {
-            assert (current->l > 0);
-            we = HPP_DYNAMIC_PTR_CAST(graph::WaypointEdge, current->e);
-            if (we) {
-              for (int i = (int)we->nbWaypoints(); i >= 0; --i)
-                transitions.push_back(we->waypoint(i));
-            } else {
-              transitions.push_back(current->e);
-            }
-            current = &d.parent1.at(current->s)[current->i];
-          }
-          std::reverse (transitions.begin(), transitions.end());
-        }
         return transitions;
       }
 
@@ -495,7 +428,8 @@ namespace hpp {
         std::vector <bool> isTargetWaypoint;
         // Waypoints lying in each intermediate state
         matrix_t waypoint;
-        const Configuration_t q1, q2;
+        const Configuration_t q1;
+        Configuration_t q2;
         core::DevicePtr_t robot;
         // Matrix specifying for each constraint and each waypoint how
         // the right hand side is initialized in the solver.
@@ -503,45 +437,25 @@ namespace hpp {
         Eigen::Matrix < RightHandSideStatus_t, Eigen::Dynamic, Eigen::Dynamic >
         M_status;
         // Number of trials to generate each waypoint configuration
+        // _solveGoalConfig: whether we need to solve for goal configuration
         OptimizationData (const core::ProblemConstPtr_t _problem,
                           const Configuration_t& _q1,
-                          const Configuration_t& _q2,
-                          const Edges_t& transitions
+                          const ConfigurationPtr_t& _q2,
+                          const Edges_t& transitions,
+                          const bool _solveGoalConfig
                           ) :
-          N (transitions.size () - 1), nq (_problem->robot()->configSize()),
-          nv (_problem->robot()->numberDof()),
-          solvers (N, _problem->robot()->configSpace ()),
-          waypoint (nq, N), q1 (_q1), q2 (_q2),
-          robot (_problem->robot()),
-          M_rhs (), M_status ()
-        {
-          waypoint.setZero();
-          for (auto solver: solvers){
-            // Set maximal number of iterations for each solver
-            solver.maxIterations(_problem->getParameter
-                            ("StatesPathFinder/maxIteration").intValue());
-            // Set error threshold for each solver
-            solver.errorThreshold(_problem->getParameter
-                        ("StatesPathFinder/errorThreshold").floatValue());
-          }
-          assert (transitions.size () > 0);
-          isTargetWaypoint.assign(N+1, false);
-          for (std::size_t i = 0; i < transitions.size(); i++)
-            isTargetWaypoint[i] = transitions[i]->stateTo()->isWaypoint();
-        }
-
-        // Used when goal is defined as a set of constraints
-        OptimizationData (const core::ProblemConstPtr_t _problem,
-                          const Configuration_t& _q1,
-                          const Edges_t& transitions
-                          ) :
-          N (transitions.size ()), nq (_problem->robot()->configSize()),
+          N (_solveGoalConfig? transitions.size (): transitions.size () - 1),
+          nq (_problem->robot()->configSize()),
           nv (_problem->robot()->numberDof()),
           solvers (N, _problem->robot()->configSpace ()),
           waypoint (nq, N), q1 (_q1),
           robot (_problem->robot()),
           M_rhs (), M_status ()
         {
+          if (!_solveGoalConfig) {
+            assert (_q2);
+            q2 = *_q2;
+          }
           waypoint.setZero();
           for (auto solver: solvers){
             // Set maximal number of iterations for each solver
@@ -552,7 +466,7 @@ namespace hpp {
                         ("StatesPathFinder/errorThreshold").floatValue());
           }
           assert (transitions.size () > 0);
-          isTargetWaypoint.assign(N, false);
+          isTargetWaypoint.assign(transitions.size(), false);
           for (std::size_t i = 0; i < transitions.size(); i++)
             isTargetWaypoint[i] = transitions[i]->stateTo()->isWaypoint();
         }
@@ -560,6 +474,9 @@ namespace hpp {
 
       bool StatesPathFinder::checkConstantRightHandSide (size_type index)
       {
+        // a goal configuration is required to check if constraint is satisfied
+        // between initial and final configurations
+        assert (!goalDefinedByConstraints_);
         OptimizationData& d = *optData_;
         const ImplicitPtr_t c (constraints_ [index]);
         LiegroupElement rhsInit(c->function().outputSpace());
@@ -594,6 +511,7 @@ namespace hpp {
           c->rightHandSideFromConfig (d.q1, rhsOther);
           break;
         case OptimizationData::EQUAL_TO_GOAL:
+          assert (!goalDefinedByConstraints_);
           c->rightHandSideFromConfig (d.q2, rhsOther);
           break;
         case OptimizationData::EQUAL_TO_PREVIOUS:
@@ -771,7 +689,6 @@ namespace hpp {
       bool StatesPathFinder::buildOptimizationProblem
         (const graph::Edges_t& transitions)
       {
-        assert (!goalDefinedByConstraints_);
         OptimizationData& d = *optData_;
         if (d.N == 0) return false;
         d.M_status.resize (constraints_.size (), d.N);
@@ -781,22 +698,27 @@ namespace hpp {
         size_type index = 0;
         // Loop over constraints
         for (NumericalConstraints_t::const_iterator it (constraints_.begin ());
-             it != constraints_.end (); ++it) {
+            it != constraints_.end (); ++it, ++index) {
           const ImplicitPtr_t& c (*it);
           // Loop forward over waypoints to determine right hand sides equal
-          // to initial configuration
+          // to initial configuration or previous configuration
           for (std::size_t j = 0; j < d.N; ++j) {
             // Get transition solver
             const Solver_t& trSolver
               (transitions [j]->pathConstraint ()->configProjector ()->solver ());
-            if (contains (trSolver, c)) {
-              if ((j==0) || d.M_status (index, j-1) ==
-                  OptimizationData::EQUAL_TO_INIT) {
-                d.M_status (index, j) = OptimizationData::EQUAL_TO_INIT;
-              } else {
-                d.M_status (index, j) = OptimizationData::EQUAL_TO_PREVIOUS;
-              }
+            if (!contains (trSolver, c)) continue;
+
+            if ((j==0) || d.M_status (index, j-1) ==
+                OptimizationData::EQUAL_TO_INIT) {
+              d.M_status (index, j) = OptimizationData::EQUAL_TO_INIT;
+            } else {
+              d.M_status (index, j) = OptimizationData::EQUAL_TO_PREVIOUS;
             }
+          }
+          // If the goal configuration is not given
+          // no need to determine if RHS equal to goal configuration
+          if (goalDefinedByConstraints_) {
+            continue;
           }
           // Loop backward over waypoints to determine right hand sides equal
           // to final configuration
@@ -805,37 +727,41 @@ namespace hpp {
             const Solver_t& trSolver
               (transitions [(std::size_t)j+1]->pathConstraint ()->
                configProjector ()->solver ());
-            if (contains (trSolver, c)) {
-              if ((j==(size_type) d.N-1) || d.M_status (index, j+1) ==
-                  OptimizationData::EQUAL_TO_GOAL) {
-                // If constraint right hand side is already equal to
-                // initial config, check that right hand side is equal
-                // for init and goal configs.
-                if (d.M_status (index, j) ==
-                    OptimizationData::EQUAL_TO_INIT) {
-                  if (checkConstantRightHandSide (index)) {
-                    // stop for this constraint
-                    break;
-                  } else {
-                    // Right hand side of constraint should be equal along the
-                    // whole path but is different at init and at goal configs.
-                    return false;
-                  }
+            if (!contains (trSolver, c)) break;
+
+            if ((j==(size_type) d.N-1) || d.M_status (index, j+1) ==
+                OptimizationData::EQUAL_TO_GOAL) {
+              // if constraint right hand side is already equal to
+              // initial config, check that right hand side is equal
+              // for init and goal configs.
+              if (d.M_status (index, j) ==
+                  OptimizationData::EQUAL_TO_INIT) {
+                if (checkConstantRightHandSide (index)) {
+                  // stop for this constraint
+                  break;
                 } else {
-                  d.M_status (index, j) = OptimizationData::EQUAL_TO_GOAL;
+                  // Right hand side of constraint should be equal along the
+                  // whole path but is different at init and at goal configs.
+                  return false;
                 }
+              } else {
+                d.M_status (index, j) = OptimizationData::EQUAL_TO_GOAL;
               }
-            } else {
-              break;
             }
           }
-          ++index;
         } // for (NumericalConstraints_t::const_iterator it
         displayStatusMatrix (transitions);
         // Fill solvers with target constraints of transition
         for (std::size_t j = 0; j < d.N; ++j) {
           d.solvers [j] = transitions [j]->
             targetConstraint ()->configProjector ()->solver ();
+          if (goalDefinedByConstraints_) {
+            continue;
+          }
+          // when goal configuration is given, and if something
+          // (eg relative pose of two objects grasping) is fixed until goal,
+          // we need to propagate the constraint to an earlier solver, 
+          // otherwise the chance it solves for the correct config is very low
           if (j > 0 && j < d.N-1) {
             const Solver_t& otherSolver = transitions [j+1]->
             pathConstraint ()->configProjector ()->solver ();
@@ -852,53 +778,16 @@ namespace hpp {
           }
         }
 
-        return true;
-      }
-
-      bool StatesPathFinder::buildOptimizationProblem2
-        (const graph::Edges_t& transitions)
-      {
-        assert (goalDefinedByConstraints_);
-        OptimizationData& d = *optData_;
-        if (d.N == 0) return false;
-        d.M_status.resize (constraints_.size (), d.N);
-        d.M_status.fill (OptimizationData::ABSENT);
-        d.M_rhs.resize (constraints_.size (), d.N);
-        d.M_rhs.fill (LiegroupElement ());
-        size_type index = 0;
-        // Loop over constraints
-        for (NumericalConstraints_t::const_iterator it (constraints_.begin ());
-             it != constraints_.end (); ++it) {
-          const ImplicitPtr_t& c (*it);
-          // Loop forward over waypoints to determine right hand sides equal
-          // to initial configuration
-          for (std::size_t j = 0; j < d.N; ++j) {
-            // Get transition solver
-            const Solver_t& trSolver
-              (transitions [j]->pathConstraint ()->configProjector ()->solver ());
-            if (contains (trSolver, c)) {
-              if ((j==0) || d.M_status (index, j-1) ==
-                  OptimizationData::EQUAL_TO_INIT) {
-                d.M_status (index, j) = OptimizationData::EQUAL_TO_INIT;
-              } else {
-                d.M_status (index, j) = OptimizationData::EQUAL_TO_PREVIOUS;
-              }
+        // if goal is defined by constraints, some goal constraints may be
+        // missing from the end state. we should add these constraints to solver
+        // for the config in the final state
+        if (goalDefinedByConstraints_) {
+          for (auto goalConstraint: goalConstraints_) {
+            if (!containsStricter(d.solvers [d.N-1], goalConstraint)) {
+              d.solvers [d.N-1].add(goalConstraint);
+              hppDout(info, "Adding goal constraint " << goalConstraint->function().name()
+                                    << " to solver for waypoint" << d.N);
             }
-          }
-          ++index;
-        } // for (NumericalConstraints_t::const_iterator it
-        displayStatusMatrix (transitions);
-        // Fill solvers with target constraints of transition
-        for (std::size_t j = 0; j < d.N; ++j) {
-          d.solvers [j] = transitions [j]->
-            targetConstraint ()->configProjector ()->solver ();
-        }
-        // Add in the constraints for the goal
-        for (auto goalConstraint: goalConstraints_) {
-          if (!containsStricter(d.solvers [d.N-1], goalConstraint)) {
-            d.solvers [d.N-1].add(goalConstraint);
-            hppDout(info, "Adding goal constraint " << goalConstraint->function().name()
-                                  << " to solver for waypoint" << d.N);
           }
         }
 
@@ -922,6 +811,7 @@ namespace hpp {
           c->rightHandSideFromConfig (d.q1, rhsOther);
           break;
         case OptimizationData::EQUAL_TO_GOAL:
+          assert (!goalDefinedByConstraints_);
           c->rightHandSideFromConfig (d.q2, rhsOther);
           break;
         case OptimizationData::EQUAL_TO_PREVIOUS:
@@ -976,6 +866,7 @@ namespace hpp {
             ok = solver.rightHandSideFromConfig (c, d.q1);
             break;
           case OptimizationData::EQUAL_TO_GOAL:
+            assert (!goalDefinedByConstraints_);
             ok = solver.rightHandSideFromConfig (c, d.q2);
             break;
           case OptimizationData::EQUAL_TO_PREVIOUS:
@@ -1071,7 +962,6 @@ namespace hpp {
       bool StatesPathFinder::analyseOptimizationProblem2
         (const graph::Edges_t& transitions, core::ProblemConstPtr_t _problem)
       {        
-        assert (goalDefinedByConstraints_);
         typedef constraints::JointConstPtr_t JointConstPtr_t;
         typedef core::RelativeMotion RelativeMotion;
 
@@ -1100,9 +990,16 @@ namespace hpp {
               ++it;
             }
           }
-
+          NumericalConstraints_t currentConstraints;
+          if (transIdx == transitions.size() - 1 && !goalDefinedByConstraints_) {
+            // get the constraints from the goal state
+            currentConstraints = transitions [transIdx]->
+            targetConstraint ()->configProjector ()->solver ().constraints();
+          } else {
+            currentConstraints = d.solvers [transIdx].constraints();
+          }
           // loop through all constraints in the target node of the transition
-          for (auto constraint: d.solvers [transIdx].constraints()) {
+          for (auto constraint: currentConstraints) {
             std::pair<JointConstPtr_t, JointConstPtr_t> jointPair =
               constraint->functionPtr()->jointsInvolved(_problem->robot());
             JointConstPtr_t joint1 = jointPair.first;
@@ -1176,6 +1073,7 @@ namespace hpp {
             ok = solver.rightHandSideFromConfig (c, d.q1);
             break;
           case OptimizationData::EQUAL_TO_GOAL:
+            assert (!goalDefinedByConstraints_);
             ok = solver.rightHandSideFromConfig (c, d.q2);
             break;
           case OptimizationData::ABSENT:
@@ -1261,7 +1159,7 @@ namespace hpp {
 
       Configuration_t StatesPathFinder::configSolved (std::size_t wp) const {
         const OptimizationData& d = *optData_;
-        std::size_t nbs = optData_->solvers.size();
+        std::size_t nbs = d.solvers.size();
         if (wp == 0)
           return d.q1;
         if ((wp >= nbs+1) &&(!goalDefinedByConstraints_))
@@ -1382,12 +1280,13 @@ namespace hpp {
       }
 
       // Loop over all the possible paths in the constraint graph between
-      // the states of the initial configuration and of the final configurations
+      // the state of the initial configuration
+      // and either [the state of the final configurations if given] OR
+      // [one of potential goal states if goal defined as set of constraints]
       // and compute waypoint configurations in each state.
       core::Configurations_t StatesPathFinder::computeConfigList (
-          ConfigurationIn_t q1, ConfigurationIn_t q2)
+          ConfigurationIn_t q1, ConfigurationPtr_t q2)
       {
-        assert (!goalDefinedByConstraints_);
         const graph::GraphPtr_t& graph(problem_->constraintGraph ());
         GraphSearchData& d = *graphData_;
 
@@ -1396,7 +1295,7 @@ namespace hpp {
 
         bool maxDepthReached;
         while (!(maxDepthReached = findTransitions (d))) { // mut
-          // if there is a working sequence, try it first
+          // if there is a working sequence, try it first before getting another transition list
           Edges_t transitions = (nTryConfigList_ > 0)? lastBuiltTransitions_ : getTransitionList (d, idxSol); // const, const
           while (! transitions.empty()) {
             if (idxSol >= idxSol_) {
@@ -1411,69 +1310,10 @@ namespace hpp {
                 delete optData_;
                 optData_ = nullptr;
               }
-              optData_ = new OptimizationData (problem(), q1, q2, transitions);
+              optData_ = new OptimizationData (problem(), q1, q2, transitions,
+                  goalDefinedByConstraints_);
 
               if (buildOptimizationProblem (transitions)) {
-                lastBuiltTransitions_ = transitions;
-                if (nTryConfigList_ > 0 || analyseOptimizationProblem (transitions)) {
-                  if (solveOptimizationProblem ()) {
-                    core::Configurations_t path = getConfigList ();
-                    hppDout (warning, " Solution " << idxSol << ": solved configurations list");
-                    return path;
-                  } else {
-                    hppDout (info, " Failed solution " << idxSol << " at step 5 (solve opt pb)");
-                  }
-                } else {
-                  hppDout (info, " Failed solution " << idxSol << " at step 4 (analyse opt pb)");
-                }
-              } else {
-                hppDout (info, " Failed solution " << idxSol << " at step 3 (build opt pb)");
-              }
-            } // if (idxSol >= idxSol_)
-            transitions = getTransitionList(d, ++idxSol);
-            if (idxSol_ < idxSol) idxSol_ = idxSol;
-            nTryConfigList_ = 0;
-          }
-        }
-        core::Configurations_t empty_path;
-        ConfigurationPtr_t q (new Configuration_t (q1));
-        empty_path.push_back(q);
-        return empty_path;
-      }
-
-      // Loop over all the possible paths in the constraint graph starting from
-      // the states of the initial configuration and with increasing lengths,
-      // apply goal constraints on the end node and try to project configurations
-      core::Configurations_t StatesPathFinder::computeConfigList2 (
-          ConfigurationIn_t q1)
-      {
-        assert (goalDefinedByConstraints_);
-        const graph::GraphPtr_t& graph(problem_->constraintGraph ());
-        GraphSearchData& d = *graphData_;
-
-        size_t& idxSol = d.idxSol;
-        if (idxSol_ < idxSol) idxSol_ = idxSol;
-
-        bool maxDepthReached;
-        while (!(maxDepthReached = findTransitions2 (d))) { // mut
-          // if there is a working sequence, try it first before getting another transition list
-          Edges_t transitions = (nTryConfigList_ > 0)? lastBuiltTransitions_ : getTransitionList2 (d);
-          while (! transitions.empty()) {
-            if (idxSol >= idxSol_) {
-#ifdef HPP_DEBUG
-              std::ostringstream ss;
-              ss << " Trying solution " << idxSol << ": \n\t";
-              for (std::size_t j = 0; j < transitions.size(); ++j)
-                ss << transitions[j]->name() << ", \n\t";
-              hppDout (info, ss.str());
-#endif // HPP_DEBUG
-              if (optData_) {
-                delete optData_;
-                optData_ = nullptr;
-              }
-              optData_ = new OptimizationData (problem(), q1, transitions);
-
-              if (buildOptimizationProblem2 (transitions)) {
                 lastBuiltTransitions_ = transitions;
                 if (nTryConfigList_ > 0 || analyseOptimizationProblem2 (transitions, problem())) {
                   if (solveOptimizationProblem ()) {
@@ -1490,8 +1330,7 @@ namespace hpp {
                 hppDout (info, " Failed solution " << idxSol << " at step 3 (build opt pb)");
               }
             } // if (idxSol >= idxSol_)
-            ++idxSol;
-            transitions = getTransitionList2(d);
+            transitions = getTransitionList(d, ++idxSol);
             if (idxSol_ < idxSol) idxSol_ = idxSol;
             // reset of the number of tries for a sequence
             nTryConfigList_ = 0;
@@ -1548,8 +1387,6 @@ namespace hpp {
           }
           q2_ =  q2s[0];
           d.s2.push_back(graph->getState(*q2_));
-          // skip the first entry (the root state_with_depth)
-          d.idxSol = (d.s1 == d.s2[0] ? 1 : 0);
         } else {
           TaskTargetPtr_t taskTarget(HPP_DYNAMIC_PTR_CAST(TaskTarget,target));
           if(!taskTarget){
@@ -1594,12 +1431,7 @@ namespace hpp {
         if (idxConfigList_ == 0) {
           // TODO: accommodate when goal is a set of constraints
           assert(q1_);
-          if (!goalDefinedByConstraints_) {
-            assert(q2_);
-            configList_ = computeConfigList(*q1_, *q2_);
-          } else {
-            configList_ = computeConfigList2(*q1_);
-          }
+          configList_ = computeConfigList(*q1_, q2_);
           if (configList_.size() <= 1) { // max depth reached
             reset();
             throw core::path_planning_failed("Maximal depth reached.");

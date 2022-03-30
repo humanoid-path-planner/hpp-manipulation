@@ -1370,6 +1370,17 @@ namespace hpp {
         d.queue1.push_back (d.addInitState());
         d.queueIt = d.queue1.size();
 
+#ifdef HPP_DEBUG
+        // Print out the names of all the states in graph in debug mode
+        States_t allStates = graph->stateSelector()->getStates();
+        hppDout(info, "Constraint graph has " << allStates.size() << " nodes");
+        for (auto state: allStates) {
+          hppDout(info, "State: id = " << state->id()
+              << " name = \"" << state->name() << "\"");
+        }
+        hppDout(info, "Constraint graph has " << graph->nbComponents()
+            << " components");
+#endif
         // Detect whether the goal is defined by a configuration or by a
         // set of constraints
         ProblemTargetPtr_t target(problem()->target());
@@ -1401,14 +1412,14 @@ namespace hpp {
           hppDout(info, "goal defined as a set of constraints");
 
           int maxNumConstr = -1;
-          for (StatePtr_t state: problem_->constraintGraph()->stateSelector()->getStates()) {
+          for (StatePtr_t state: graph->stateSelector()->getStates()) {
             NumericalConstraints_t stateConstr = state->numericalConstraints();
             int numConstr = 0;
             for (auto goalConstraint: goalConstraints_) {
               if (std::find(stateConstr.begin(), stateConstr.end(),
                   goalConstraint) != stateConstr.end()) {
                 ++numConstr;
-                hppDout(warning, "State \"" << state->name() << "\" "
+                hppDout(info, "State \"" << state->name() << "\" "
                         << "has goal constraint: \""
                         << goalConstraint->function().name() << "\"");
               }

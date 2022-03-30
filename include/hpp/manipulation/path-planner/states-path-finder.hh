@@ -150,6 +150,16 @@ namespace hpp {
           SolveStepStatus solveStep(std::size_t wp);
           Configuration_t configSolved (std::size_t wp) const;
 
+          /// use inner state planner to plan path between two configurations.
+          /// these configs lie on same leaf (same RHS wrt edge constraints)
+          /// eg consecutive configs in the solved config list
+          /// \param q1 start configuration
+          /// \param q2 destination configuration
+          /// \param edge the edge connecting the two configurations
+          /// \throw core::path_planning_failed if fail to plan path
+          void planInState(const ConfigurationPtr_t& q1,
+              const ConfigurationPtr_t& q2, const graph::EdgePtr_t& edge);
+
           /// deletes from memory the latest working states list, which is used to
           /// resume finding solutions from that list in case of failure at a
           /// later step.
@@ -157,7 +167,8 @@ namespace hpp {
 
           virtual void startSolve();
           virtual void oneStep();
-          /// Do nothing
+          /// when both initial and goal configurations are given,
+          /// and they are in the same state, try connecting them directly
           virtual void tryConnectInitAndGoals ();
 
         protected:

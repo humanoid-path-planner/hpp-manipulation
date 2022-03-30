@@ -1029,7 +1029,13 @@ namespace hpp {
             }
           }
         }
-
+        // at this point jcmap contains all the constraints that
+        // - depend on relative pose between 2 joints j1 and j2,
+        // - are present in the solver of any waypoint wp_i
+        // - j1 and j2 are constrained by all the transitions from q_init to wp_i
+        //
+        // in the following we test that q_init satisfies the above constraints
+        // otherwise the list of transitions is discarded
         if (jcmap.size() == 0) {
           return true;
         }
@@ -1437,6 +1443,38 @@ namespace hpp {
         reset();
       }
 
+      void StatesPathFinder::planInState(const ConfigurationPtr_t& q1,
+          const ConfigurationPtr_t& q2, const graph::EdgePtr_t& edge) {
+        // Copy edge constraints
+        core::ConstraintSetPtr_t constraints(HPP_DYNAMIC_PTR_CAST(
+            core::ConstraintSet, edge->pathConstraint()->copy()));
+        // Initialize right hand side
+        constraints->configProjector()->rightHandSideFromConfig(*q1);
+        assert(constraints->isSatisfied(*q2));
+        inStateProblem_->constraints(constraints);
+        inStateProblem_->pathValidation(edge->pathValidation());
+        inStateProblem_->initConfig(q1);
+        inStateProblem_->resetGoalConfigs();
+        inStateProblem_->addGoalConfig(q2);
+
+        core::PathPlannerPtr_t inStatePlanner
+          (core::DiffusingPlanner::create(inStateProblem_));
+        core::PathOptimizerPtr_t inStateOptimizer
+          (core::pathOptimization::RandomShortcut::create(inStateProblem_));
+        inStatePlanner->maxIterations(problem_->getParameter
+            ("StatesPathFinder/innerPlannerMaxIterations").intValue());
+        inStatePlanner->timeOut(problem_->getParameter
+            ("StatesPathFinder/innerPlannerTimeOut").floatValue());
+
+        core::PathVectorPtr_t path = inStatePlanner->solve();
+        for (std::size_t r = 0; r < path->numberPaths()-1; r++)
+          assert(path->pathAtRank(r)->end() ==
+                  path->pathAtRank(r+1)->initial());
+        roadmap()->merge(inStatePlanner->roadmap());
+        // core::PathVectorPtr_t opt = inStateOptimizer->optimize(path);
+        // roadmap()->insertPathVector(opt, true);
+      }
+
       void StatesPathFinder::oneStep ()
       {
         if (idxConfigList_ == 0) {
@@ -1457,45 +1495,18 @@ namespace hpp {
           q2 = ConfigurationPtr_t(new Configuration_t(configSolved
                                                       (idxConfigList_+1)));
           const graph::EdgePtr_t& edge(transitions[idxConfigList_]);
-          // Copy edge constraints
-          core::ConstraintSetPtr_t constraints(HPP_DYNAMIC_PTR_CAST(
-            core::ConstraintSet, edge->pathConstraint()->copy()));
-          // Initialize right hand side
-          constraints->configProjector()->rightHandSideFromConfig(*q1);
-          assert(constraints->isSatisfied(*q2)); 
-          inStateProblem_->constraints(constraints);
-          inStateProblem_->pathValidation(edge->pathValidation());
-          inStateProblem_->initConfig(q1);
-          inStateProblem_->resetGoalConfigs();
-          inStateProblem_->addGoalConfig(q2);
-
-          core::PathPlannerPtr_t inStatePlanner
-            (core::DiffusingPlanner::create(inStateProblem_));
-          core::PathOptimizerPtr_t inStateOptimizer
-            (core::pathOptimization::RandomShortcut::create(inStateProblem_));
-          inStatePlanner->maxIterations(problem_->getParameter
-              ("StatesPathFinder/innerPlannerMaxIterations").intValue());
-          inStatePlanner->timeOut(problem_->getParameter
-              ("StatesPathFinder/innerPlannerTimeOut").floatValue());
           hppDout(info, "calling InStatePlanner_.solve for transition "
                   << idxConfigList_);
-
-          core::PathVectorPtr_t path = inStatePlanner->solve();
-          for (std::size_t r = 0; r < path->numberPaths()-1; r++)
-            assert(path->pathAtRank(r)->end() ==
-                   path->pathAtRank(r+1)->initial());
-          roadmap()->merge(inStatePlanner->roadmap());
-          // core::PathVectorPtr_t opt = inStateOptimizer->optimize(path);
-          // roadmap()->insertPathVector(opt, true);
+          planInState(q1, q2, edge);
           idxConfigList_++;
           if (idxConfigList_ == configList_.size()-1) {
             hppDout(warning, "Solution " << idxSol_ << ": Success"
                     << "\n-----------------------------------------------");
           }
 
-        } catch(const core::path_planning_failed&(e)) {
+        } catch(const core::path_planning_failed& error) {
           std::ostringstream oss;
-          oss << "Error " << e.what() << "\n";
+          oss << "Error " << error.what() << "\n";
           oss << "Solution " << idxSol_ << ": Failed to build path at edge " << idxConfigList_ << ": ";
           oss << lastBuiltTransitions_[idxConfigList_]->name();
           hppDout(warning, oss.str());
@@ -1512,9 +1523,45 @@ namespace hpp {
         }
       }
 
-       void StatesPathFinder::tryConnectInitAndGoals()
-       {
-       }
+      void StatesPathFinder::tryConnectInitAndGoals()
+      {
+        GraphSearchData& d = *graphData_;
+        if (goalDefinedByConstraints_ || d.s1 != d.s2[0]) return;
+
+        // get the loop edge connecting the initial state to itself
+        const graph::Edges_t& loopEdges(problem_->constraintGraph()
+            ->getEdges(d.s1, d.s1));
+        // check that there is 1 loop edge
+        assert (loopEdges.size() == 1);
+        const graph::EdgePtr_t& edge(loopEdges[0]);
+        core::ConstraintSetPtr_t constraints(HPP_DYNAMIC_PTR_CAST(
+          core::ConstraintSet, edge->pathConstraint()->copy()));
+        // Initialize right hand side
+        constraints->configProjector()->rightHandSideFromConfig(*q1_);
+        // check that initial and final config are in the same leaf
+        if (!constraints->isSatisfied(*q2_)) {
+          hppDout(info, "Initial config and goal config are in the same "
+            "state \"" << d.s1->name() << "\". "
+            "But q2 does NOT satisfy edge constraints RHS initialized from q1. "
+            "They are likely not on the same leaf. Will not try to connect.");
+          return;
+        }
+        hppDout(info, "Initial config and goal config are in the same "
+            "state \"" << d.s1->name() << "\". "
+            "q2 satisfies edge constraints with RHS initialized from q1. "
+            "Calling InStatePlanner_.solve to connect them directly");
+        try {
+          planInState(q1_, q2_, edge);
+          hppDout(warning, "Connect init and goal directly: Success"
+              << "\n-----------------------------------------------");
+
+        } catch(const core::path_planning_failed& error) {
+          std::ostringstream oss;
+          oss << "Error " << error.what() << "\n";
+          oss << "Failed to connect init and goal config directly";
+          hppDout(warning, oss.str());
+        }
+      }
 
       std::vector<std::string> StatesPathFinder::constraintNamesFromSolverAtWaypoint
         (std::size_t wp)

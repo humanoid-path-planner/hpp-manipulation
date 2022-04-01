@@ -92,7 +92,7 @@ namespace hpp {
     inline std::vector<bool> boolOr(std::vector<bool> mask1,
                                     std::vector<bool> mask2)
     {
-      assert(mask1.size() == mask2.size() == 6);
+      assert(mask1.size() == 6 && mask2.size() == 6);
       std::vector<bool> res(mask1.size());
       for (std::size_t i = 0; i < 6; ++i) {
         res[i] = mask1[i] || mask2[i];
@@ -141,7 +141,7 @@ namespace hpp {
 
     void Handle::maskComp (const std::vector<bool>& mask)
     {
-      assert(maskComp.size() == 6);
+      assert(maskComp_.size() == 6);
       maskComp_ = mask;
     }
 

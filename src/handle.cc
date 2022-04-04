@@ -3,19 +3,30 @@
 /// Authors: Florent Lamiraux
 ///
 ///
-// This file is part of hpp-manipulation.
-// hpp-manipulation is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
+
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
 //
-// hpp-manipulation is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// hpp-manipulation. If not, see
-// <http://www.gnu.org/licenses/>.
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+// DAMAGE.
 
 #include <hpp/manipulation/handle.hh>
 
@@ -78,6 +89,17 @@ namespace hpp {
       return (int)res;
     }
 
+    inline std::vector<bool> boolOr(std::vector<bool> mask1,
+                                    std::vector<bool> mask2)
+    {
+      assert(mask1.size() == 6 && mask2.size() == 6);
+      std::vector<bool> res(mask1.size());
+      for (std::size_t i = 0; i < 6; ++i) {
+        res[i] = mask1[i] || mask2[i];
+      }
+      return res;
+    }
+
     inline bool is6Dmask (const std::vector<bool>& mask)
     {
       for (std::size_t i = 0; i < 6; ++i) if (!mask[i]) return false;
@@ -114,6 +136,13 @@ namespace hpp {
           break;
       } 
       mask_ = mask;
+      maskComp_ = complementMask(mask);
+    }
+
+    void Handle::maskComp (const std::vector<bool>& mask)
+    {
+      assert(maskComp_.size() == 6);
+      maskComp_ = mask;
     }
 
     ImplicitPtr_t Handle::createGrasp
@@ -139,21 +168,19 @@ namespace hpp {
     (const GripperPtr_t& gripper, std::string n) const
     {
       if (n.empty()) {
-        std::vector<bool> Cmask = complementMask(mask_);
         n = gripper->name() + "_grasps_" + name() + "/complement_" +
-          maskToStr (Cmask);
+          maskToStr (maskComp_);
       }
       core::DevicePtr_t r = robot();
-      if (is6Dmask(mask_)) {
+      if (maskSize(maskComp_) == 0) {
         return Implicit::create (
             shared_ptr <ZeroDiffFunc> (new ZeroDiffFunc (
               r->configSize(), r->numberDof (), n)), ComparisonTypes_t());
       } else {
-        std::vector<bool> Cmask = complementMask(mask_);
         return  Implicit::create (RelativeTransformationR3xSO3::create
            (n, r, gripper->joint (), joint (),
             gripper->objectPositionInJoint (), localPosition()),
-           6 * constraints::Equality, Cmask);
+           6 * constraints::Equality, maskComp_);
       }
     }
 
@@ -174,7 +201,8 @@ namespace hpp {
         }
       }
       // If handle is on a freeflying object, create an explicit constraint
-      if (isHandleOnFreeflyer (*this)) {
+      if (isHandleOnFreeflyer (*this) &&
+          maskSize(boolOr(mask_, maskComp_)) == 6) {
 	return constraints::explicit_::RelativePose::create
 	  (n, robot (), gripper->joint (), joint (),
 	   gripper->objectPositionInJoint (), localPosition(), comp);
@@ -182,7 +210,7 @@ namespace hpp {
       return Implicit::create (RelativeTransformationR3xSO3::create
          (n, robot (), gripper->joint (), joint (),
           gripper->objectPositionInJoint (), localPosition()),
-         comp, std::vector <bool> (6, true));
+                               comp, boolOr(mask_, maskComp_));
     }
 
     ImplicitPtr_t Handle::createPreGrasp
@@ -205,6 +233,7 @@ namespace hpp {
     {
       HandlePtr_t other = Handle::create (name (), localPosition (), robot(), joint ());
       other->mask(mask_);
+      other->mask(maskComp_);
       other->clearance(clearance_);
       return other;
     }
@@ -215,6 +244,7 @@ namespace hpp {
       os << "local position :" << localPosition () << std::endl;
       os << "joint :" << joint ()->name () << std::endl;
       os << "mask :" << maskToStr (mask()) << std::endl;
+      os << "mask complement:" << maskToStr (maskComp_) << std::endl;
       return os;
     }
 

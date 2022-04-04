@@ -3,19 +3,30 @@
 /// Authors: Florent Lamiraux
 ///
 ///
-// This file is part of hpp-manipulation.
-// hpp-manipulation is free software: you can redistribute it
-// and/or modify it under the terms of the GNU Lesser General Public
-// License as published by the Free Software Foundation, either version
-// 3 of the License, or (at your option) any later version.
+
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
 //
-// hpp-manipulation is distributed in the hope that it will be
-// useful, but WITHOUT ANY WARRANTY; without even the implied warranty
-// of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-// General Lesser Public License for more details. You should have
-// received a copy of the GNU Lesser General Public License along with
-// hpp-manipulation. If not, see
-// <http://www.gnu.org/licenses/>.
+// 1. Redistributions of source code must retain the above copyright
+//    notice, this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright
+// notice, this list of conditions and the following disclaimer in the
+// documentation and/or other materials provided with the distribution.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+// DAMAGE.
 
 #ifndef HPP_MANIPULATION_HANDLE_HH
 # define HPP_MANIPULATION_HANDLE_HH
@@ -28,7 +39,23 @@
 namespace hpp {
   namespace manipulation {
     typedef constraints::ImplicitPtr_t ImplicitPtr_t;
-    /// Part of an object that is aimed at being grasped
+    /// Frame attached to an object that is aimed at being grasped
+    ///
+    /// Together with a hpp::pinocchio::Gripper, a handle defines a grasp.
+    /// A vector of 6 Boolean values called a mask can be passed to the
+    /// constructor to define the symmetries of the handle. For example,
+    /// {True,True,True,False,True,True} means that the handle can be
+    /// grasped with free orientation around x-axis.
+    /// See https://hal.laas.fr/hal-02995125v2 for details.
+    /// The setter method \c mask allows users to define the mask.
+    ///
+    /// Along motions where the handle is grasped by a gripper, an additional
+    /// constraint is enforced, called the complement constraint. This latter
+    /// constraint ensures that the object is rigidly fixed to the gripper.
+    ///
+    /// However, for some applications, the complement constraint can be
+    /// customized using setter \c maskComp. Note that calling setter method
+    /// \c mask reinitializes the mask complement.
     class HPP_MANIPULATION_DLLAPI Handle
     {
     public:
@@ -101,6 +128,13 @@ namespace hpp {
       /// See mask(const std::vector<bool>&)
       const std::vector<bool>& mask () const
       { return mask_; }
+
+      /// Set mask of complement constraint
+      void maskComp (const std::vector<bool>& mask);
+
+      /// Get mask of complement constraint
+      const std::vector<bool>& maskComp () const
+      { return maskComp_; }
 
       /// Create constraint corresponding to a gripper grasping this handle
       /// \param gripper object containing the gripper information
@@ -188,6 +222,8 @@ namespace hpp {
       value_type clearance_;
       /// Mask
       std::vector<bool> mask_;
+      /// Mask of complement constraint
+      std::vector<bool> maskComp_;
       /// Weak pointer to itself
       HandleWkPtr_t weakPtr_;
 

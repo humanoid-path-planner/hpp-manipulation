@@ -526,7 +526,7 @@ namespace hpp {
 
         std::string s = oss.str ();
         std::string s2 = "";
-        for (int i=0; i < s.size(); i++) {
+        for (size_type i=0; i < s.size(); i++) {
           if (s[i] == '_') s2 += "\\_";
           else s2.push_back(s[i]);
         }
@@ -748,7 +748,7 @@ namespace hpp {
 
         d.maxDepth = problem_->getParameter
 	        ("CrossStateOptimization/maxDepth").intValue();
-        int cnt = 0;
+        size_type cnt = 0;
         std::size_t nTriesForEachPath = problem_->getParameter
 	        ("CrossStateOptimization/nTriesForEachPath").intValue();
 

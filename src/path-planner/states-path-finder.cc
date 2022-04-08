@@ -952,13 +952,6 @@ namespace hpp {
         return true;
       }
 
-      // use this function to make a pair of ascending indexes
-      static std::pair<size_type, size_type> orderPair(size_type a, size_type b)
-      {
-        if ( a < b ) return std::pair<size_type,size_type>(a,b);
-        else return std::pair<size_type,size_type>(b,a);
-      }
-
       bool StatesPathFinder::analyseOptimizationProblem2
         (const graph::Edges_t& transitions, core::ProblemConstPtr_t _problem)
       {        
@@ -967,7 +960,7 @@ namespace hpp {
 
         OptimizationData& d = *optData_;
         // map from pair of joint indices to vectors of constraints
-        typedef std::map<std::pair<int, int>, NumericalConstraints_t> JointConstraintMap;
+        typedef std::map<std::pair<size_type, size_type>, NumericalConstraints_t> JointConstraintMap;
         JointConstraintMap jcmap;
 
         // iterate over all the transitions, propagate only constrained pairs
@@ -1001,7 +994,7 @@ namespace hpp {
           // loop through all constraints in the target node of the transition
           for (auto constraint: currentConstraints) {
             std::pair<JointConstPtr_t, JointConstPtr_t> jointPair =
-              constraint->functionPtr()->jointsInvolved(_problem->robot());
+              constraint->functionPtr()->dependsOnRelPoseBetween(_problem->robot());
             JointConstPtr_t joint1 = jointPair.first;
             size_type index1 = RelativeMotion::idx(joint1);
             JointConstPtr_t joint2 = jointPair.second;
@@ -1018,7 +1011,7 @@ namespace hpp {
             // insert if necessary
             JointConstraintMap::iterator next = jcmap.insert(
               JointConstraintMap::value_type(
-                orderPair(index1, index2), NumericalConstraints_t ()
+                std::make_pair(index1, index2), NumericalConstraints_t ()
               )
             ).first;
             // if constraint is not in map, insert it

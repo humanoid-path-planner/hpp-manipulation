@@ -161,8 +161,6 @@ namespace hpp {
       pathProjectors.add ("RecursiveHermite",
           createPathProjector <core::pathProjector::RecursiveHermite>);
 
-      steeringMethods.add ("Graph-SteeringMethodStraight",
-          steeringMethod::Graph::create <core::steeringMethod::Straight>);
       steeringMethods.add ("Graph-Straight",
           steeringMethod::Graph::create <core::steeringMethod::Straight>);
       steeringMethods.add ("Graph-Hermite",
@@ -184,7 +182,7 @@ namespace hpp {
       steeringMethods.add ("EndEffectorTrajectory", steeringMethod::EndEffectorTrajectory::create);
 
       pathPlannerType ("M-RRT");
-      steeringMethodType ("Graph-SteeringMethodStraight");
+      steeringMethodType ("Graph-Straight");
     }
 
     ProblemSolverPtr_t ProblemSolver::create ()

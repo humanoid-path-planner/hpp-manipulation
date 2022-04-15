@@ -102,13 +102,28 @@ namespace hpp {
           /// \deprecated call invalidate instead
           void setDirty() HPP_MANIPULATION_DEPRECATED;
 
-        protected:
+          /// Set whether hierachical constraints are solved level by level
+          /// \sa hpp::constraints::solver::HierarchicalIterative
+          void solveLevelByLevel(bool solveLevelByLevel)
+          {
+            solveLevelByLevel_ = solveLevelByLevel;
+          }
+
+          /// Get whether hierachical constraints are solved level by level
+          /// \sa hpp::constraints::solver::HierarchicalIterative
+          bool solveLevelByLevel() const
+          {
+            return solveLevelByLevel_;
+          }
+
+      protected:
           /// Initialize the component
           void init (const GraphComponentWkPtr_t& weak);
 
           GraphComponent(const std::string& name) : isInit_(false)
                                                     , name_ (name)
                                                     , id_(-1)
+                                                    , solveLevelByLevel_(false)
           {}
 
           /// Stores the numerical constraints.
@@ -138,7 +153,8 @@ namespace hpp {
           GraphComponentWkPtr_t wkPtr_;
           /// ID of the component (index in components vector).
 	  std::size_t id_;
-
+          /// Whether the constraints are solved level by level
+          bool solveLevelByLevel_;
           friend class Graph;
       };
 

@@ -163,8 +163,6 @@ namespace hpp {
       pathProjectors.add ("RecursiveHermite",
           createPathProjector <core::pathProjector::RecursiveHermite>);
 
-      steeringMethods.add ("Graph-SteeringMethodStraight",
-          steeringMethod::Graph::create <core::steeringMethod::Straight>);
       steeringMethods.add ("Graph-Straight",
           steeringMethod::Graph::create <core::steeringMethod::Straight>);
       steeringMethods.add ("Graph-Hermite",
@@ -187,7 +185,7 @@ namespace hpp {
       steeringMethods.add ("EndEffectorTrajectory", steeringMethod::EndEffectorTrajectory::create);
 
       pathPlannerType ("M-RRT");
-      steeringMethodType ("Graph-SteeringMethodStraight");
+      steeringMethodType ("Graph-Straight");
     }
 
     ProblemSolverPtr_t ProblemSolver::create ()
@@ -247,6 +245,7 @@ namespace hpp {
     (const std::string& name, const StringList_t& surface1,
      const StringList_t& surface2, const value_type& margin)
     {
+      bool explicit_(true);
       if (!robot_) throw std::runtime_error ("No robot loaded");
       JointAndShapes_t floorSurfaces, objectSurfaces, l;
       for (StringList_t::const_iterator it1 = surface1.begin ();
@@ -254,7 +253,19 @@ namespace hpp {
         if (!robot_->jointAndShapes.has (*it1))
           throw std::runtime_error ("First list of triangles not found.");
         l = robot_->jointAndShapes.get (*it1);
-        objectSurfaces.insert(objectSurfaces.end(), l.begin(), l.end());
+        for(auto js : l){
+          JointPtr_t j(js.first);
+          // If one robot contact surface is not on a freeflying object,
+          // The contact constraint cannot be expressed by an explicit
+          // constraint.
+          if ((j->parentJoint()) ||
+              ((*j->configurationSpace()!=*pinocchio::LiegroupSpace::SE3()) &&
+               (*j->configurationSpace()!=*pinocchio::LiegroupSpace::R3xSO3())))
+            {
+              explicit_ = false;
+            }
+          objectSurfaces.insert(objectSurfaces.end(), l.begin(), l.end());
+        }
       }
 
       for (StringList_t::const_iterator it2 = surface2.begin ();
@@ -269,28 +280,45 @@ namespace hpp {
         floorSurfaces.insert(floorSurfaces.end(), l.begin(), l.end());
       }
 
-      typedef hpp::constraints::explicit_::ConvexShapeContact Constraint_t;
-      Constraint_t::Constraints_t constraints
-        (Constraint_t::createConstraintAndComplement
-         (name, robot_, floorSurfaces, objectSurfaces, margin));
+      if (explicit_){
+        typedef hpp::constraints::explicit_::ConvexShapeContact Constraint_t;
+        Constraint_t::Constraints_t constraints
+          (Constraint_t::createConstraintAndComplement
+           (name, robot_, floorSurfaces, objectSurfaces, margin));
 
-      addNumericalConstraint(std::get<0>(constraints)->function().name(),
-                             std::get<0>(constraints));
-      addNumericalConstraint(std::get<1>(constraints)->function().name(),
-                             std::get<1>(constraints));
-      addNumericalConstraint(std::get<2>(constraints)->function().name(),
-                             std::get<2>(constraints));
-      // Set security margin to contact constraint
-      assert(HPP_DYNAMIC_PTR_CAST(constraints::ConvexShapeContact,
-                                  std::get<0>(constraints)->functionPtr()));
-      constraints::ConvexShapeContactPtr_t contactFunction
-        (HPP_STATIC_PTR_CAST(constraints::ConvexShapeContact,
-                             std::get<0>(constraints)->functionPtr()));
-      contactFunction->setNormalMargin(margin);
-      constraintsAndComplements.push_back (
-          ConstraintAndComplement_t (std::get<0>(constraints),
-                                     std::get<1>(constraints),
-                                     std::get<2>(constraints)));
+        addNumericalConstraint(std::get<0>(constraints)->function().name(),
+                               std::get<0>(constraints));
+        addNumericalConstraint(std::get<1>(constraints)->function().name(),
+                               std::get<1>(constraints));
+        addNumericalConstraint(std::get<2>(constraints)->function().name(),
+                               std::get<2>(constraints));
+        // Set security margin to contact constraint
+        assert(HPP_DYNAMIC_PTR_CAST(constraints::ConvexShapeContact,
+                                    std::get<0>(constraints)->functionPtr()));
+        constraints::ConvexShapeContactPtr_t contactFunction
+          (HPP_STATIC_PTR_CAST(constraints::ConvexShapeContact,
+                               std::get<0>(constraints)->functionPtr()));
+        contactFunction->setNormalMargin(margin);
+        constraintsAndComplements.push_back (
+            ConstraintAndComplement_t (std::get<0>(constraints),
+                                       std::get<1>(constraints),
+                                       std::get<2>(constraints)));
+      } else{
+        using constraints::ComparisonTypes_t;
+        using constraints::Implicit;
+        using constraints::Equality;
+        using constraints::EqualToZero;
+        std::pair<hpp::constraints::ConvexShapeContactPtr_t,
+                  hpp::constraints::ConvexShapeContactComplementPtr_t>
+          functions(constraints::ConvexShapeContactComplement::createPair
+                    (name, robot_, floorSurfaces, objectSurfaces));
+        functions.first->setNormalMargin(margin);
+        addNumericalConstraint(functions.first->name(),
+            Implicit::create(functions.first, 5*EqualToZero));
+        addNumericalConstraint(functions.second->name(),
+            Implicit::create(functions.second, ComparisonTypes_t
+                             (functions.second->outputSize(), Equality)));
+      }
     }
 
     void ProblemSolver::createPrePlacementConstraint

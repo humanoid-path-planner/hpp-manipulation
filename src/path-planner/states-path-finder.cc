@@ -198,7 +198,7 @@ namespace hpp {
         struct state_with_depth_ptr_t {
           StateMap_t::iterator state;
           std::size_t parentIdx;
-          state_with_depth_ptr_t (const StateMap_t::iterator& it, std::size_t idx) 
+          state_with_depth_ptr_t (const StateMap_t::iterator& it, std::size_t idx)
             : state (it), parentIdx (idx) {}
         };
         typedef std::deque<state_with_depth_ptr_t> Deque_t;
@@ -209,7 +209,7 @@ namespace hpp {
         // map each state X to a list of preceding states in paths that visit X
         // state_with_depth struct gives info to trace the entire paths
         StateMap_t parent1;
-        // store a vector fo pointers to the end state of each potential path
+        // store a vector of pointers to the end state of each potential path
         state_with_depths_t solutions;
         // the frontier of the graph search
         // consists states that have not been expanded on
@@ -284,10 +284,10 @@ namespace hpp {
           (cg->constraintsAndComplements ());
         for (std::size_t i = 0; i < cg->nbComponents (); ++i) {
           EdgePtr_t edge (HPP_DYNAMIC_PTR_CAST (Edge, cg->get (i).lock ()));
-          
+
           // only gather the edge constraints
           if (!edge) continue;
-          
+
           // Don't even consider level set edges
           if (containsLevelSet(edge)) continue;
 
@@ -303,7 +303,7 @@ namespace hpp {
             const std::string& name ((*it)->function ().name  ());
             // if constraint is in map, no need to add it
             if (index_.find (name) != index_.end ()) continue;
-            
+
             index_ [name] = constraints_.size ();
             // Check whether constraint is equivalent to a previous one
             for (NumericalConstraints_t::const_iterator it1
@@ -760,7 +760,7 @@ namespace hpp {
           }
           // when goal configuration is given, and if something
           // (eg relative pose of two objects grasping) is fixed until goal,
-          // we need to propagate the constraint to an earlier solver, 
+          // we need to propagate the constraint to an earlier solver,
           // otherwise the chance it solves for the correct config is very low
           if (j > 0 && j < d.N-1) {
             const Solver_t& otherSolver = transitions [j+1]->
@@ -954,7 +954,7 @@ namespace hpp {
 
       bool StatesPathFinder::analyseOptimizationProblem2
         (const graph::Edges_t& transitions, core::ProblemConstPtr_t _problem)
-      {        
+      {
         typedef constraints::JointConstPtr_t JointConstPtr_t;
         typedef core::RelativeMotion RelativeMotion;
 
@@ -1148,7 +1148,7 @@ namespace hpp {
         for (size_type j = 0; j < d.waypoint.cols(); j++)
           oss << "  " << pinocchio::displayConfig(d.waypoint.col(j)) << ",  # " << j+1 << std::endl;
         if (!goalDefinedByConstraints_) {
-          oss << "  " << pinocchio::displayConfig(d.q2) << "  # " << d.waypoint.cols()+1 << std::endl; 
+          oss << "  " << pinocchio::displayConfig(d.q2) << "  # " << d.waypoint.cols()+1 << std::endl;
         }
         oss << "]" << std::endl;
         std::string ans = oss.str();
@@ -1177,7 +1177,7 @@ namespace hpp {
         std::size_t nBadSolvesMax = nTriesMax*50; // bad solve fails before reseting the whole solution
         std::vector<std::size_t> nTriesDone(d.solvers.size()+1, 0);
         std::size_t nFails = 0;
-        std::size_t nBadSolves = 0; 
+        std::size_t nBadSolves = 0;
         std::size_t wp = 1; // waypoint index starting at 1 (wp 0 = q1)
         std::size_t wp_max = 0; // all waypoints up to this index are valid solved
         matrix_t longestSolved(d.nq, d.N);

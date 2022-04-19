@@ -27,48 +27,41 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_PATH_OPTIMIZATION_RANDOM_SHORTCUT_HH
-# define HPP_MANIPULATION_PATH_OPTIMIZATION_RANDOM_SHORTCUT_HH
+#define HPP_MANIPULATION_PATH_OPTIMIZATION_RANDOM_SHORTCUT_HH
 
 #include <hpp/core/path-optimization/random-shortcut.hh>
-
-#include <hpp/manipulation/fwd.hh>
 #include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/fwd.hh>
 
 namespace hpp {
-  namespace manipulation {
-    /// \addtogroup path_optimization
-    /// \{
-    namespace pathOptimization {
-      HPP_PREDEF_CLASS (RandomShortcut);
-      typedef shared_ptr<RandomShortcut> RandomShortcutPtr_t;
+namespace manipulation {
+/// \addtogroup path_optimization
+/// \{
+namespace pathOptimization {
+HPP_PREDEF_CLASS(RandomShortcut);
+typedef shared_ptr<RandomShortcut> RandomShortcutPtr_t;
 
-      class HPP_MANIPULATION_DLLAPI RandomShortcut :
-        public core::pathOptimization::RandomShortcut
-      {
-        public:
-          /// Return shared pointer to new object.
-          static RandomShortcutPtr_t create
-	    (const core::ProblemConstPtr_t problem)
-          {
-            return RandomShortcutPtr_t (new RandomShortcut (problem));
-          }
+class HPP_MANIPULATION_DLLAPI RandomShortcut
+    : public core::pathOptimization::RandomShortcut {
+ public:
+  /// Return shared pointer to new object.
+  static RandomShortcutPtr_t create(const core::ProblemConstPtr_t problem) {
+    return RandomShortcutPtr_t(new RandomShortcut(problem));
+  }
 
-        protected:
-          RandomShortcut (const core::ProblemConstPtr_t& problem)
-            : core::pathOptimization::RandomShortcut (problem)
-          {}
+ protected:
+  RandomShortcut(const core::ProblemConstPtr_t& problem)
+      : core::pathOptimization::RandomShortcut(problem) {}
 
-          /// Sample times along currentOpt.
-          /// t1 and t2 will not be on a path whose transition was short.
-          virtual bool shootTimes (const core::PathVectorPtr_t& currentOpt,
-              const value_type& t0,
-              value_type& t1,
-              value_type& t2,
-              const value_type& t3);
-      }; // class RandomShortcut
-    /// \}
-    } // namespace pathOptimization
-  }  // namespace manipulation
-} // namespace hpp
+  /// Sample times along currentOpt.
+  /// t1 and t2 will not be on a path whose transition was short.
+  virtual bool shootTimes(const core::PathVectorPtr_t& currentOpt,
+                          const value_type& t0, value_type& t1, value_type& t2,
+                          const value_type& t3);
+};  // class RandomShortcut
+/// \}
+}  // namespace pathOptimization
+}  // namespace manipulation
+}  // namespace hpp
 
-#endif // HPP_MANIPULATION_PATH_OPTIMIZATION_RANDOM_SHORTCUT_HH
+#endif  // HPP_MANIPULATION_PATH_OPTIMIZATION_RANDOM_SHORTCUT_HH

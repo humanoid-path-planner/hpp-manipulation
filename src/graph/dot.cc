@@ -29,30 +29,28 @@
 #include "hpp/manipulation/graph/dot.hh"
 
 namespace hpp {
-  namespace manipulation {
-    namespace graph {
-      namespace dot {
-        const std::string Tooltip::tooltipendl = "&#10;";
+namespace manipulation {
+namespace graph {
+namespace dot {
+const std::string Tooltip::tooltipendl = "&#10;";
 
-        std::ostream& operator<< (std::ostream& os, const DrawingAttributes& da)
-        {
-          if (da.attr.empty ()) return os;
-          os << da.openSection;
-          size_t i = da.attr.size ();
-          for (DrawingAttributes::Map::const_iterator it = da.attr.begin ();
-              it != da.attr.end (); ++it) {
-            os << it->first << "=" << it->second; 
-            i--;
-            if (i > 0) os << da.separator;
-          }
-          return os << da.closeSection;
-        }
+std::ostream& operator<<(std::ostream& os, const DrawingAttributes& da) {
+  if (da.attr.empty()) return os;
+  os << da.openSection;
+  size_t i = da.attr.size();
+  for (DrawingAttributes::Map::const_iterator it = da.attr.begin();
+       it != da.attr.end(); ++it) {
+    os << it->first << "=" << it->second;
+    i--;
+    if (i > 0) os << da.separator;
+  }
+  return os << da.closeSection;
+}
 
-        std::ostream& insertComments (std::ostream& os, const std::string& c)
-        {
-          return os << "/*" << std::endl << c << std::endl << "*/";
-        }
-      } // namespace dot
-    } // namespace graph
-  } // namespace manipulation
-} // namespace hpp
+std::ostream& insertComments(std::ostream& os, const std::string& c) {
+  return os << "/*" << std::endl << c << std::endl << "*/";
+}
+}  // namespace dot
+}  // namespace graph
+}  // namespace manipulation
+}  // namespace hpp

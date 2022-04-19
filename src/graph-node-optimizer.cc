@@ -26,43 +26,41 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <hpp/core/steering-method/straight.hh>
 #include <hpp/manipulation/graph-node-optimizer.hh>
 
-#include <hpp/core/steering-method/straight.hh>
-
 namespace hpp {
-  namespace manipulation {
-    GraphNodeOptimizerPtr_t GraphNodeOptimizer::create
-      (const core::ProblemConstPtr_t& problem)
-    {
-      GraphNodeOptimizer* ptr = new GraphNodeOptimizer (problem);
-      return GraphNodeOptimizerPtr_t (ptr);
-    }
+namespace manipulation {
+GraphNodeOptimizerPtr_t GraphNodeOptimizer::create(
+    const core::ProblemConstPtr_t& problem) {
+  GraphNodeOptimizer* ptr = new GraphNodeOptimizer(problem);
+  return GraphNodeOptimizerPtr_t(ptr);
+}
 
-    PathVectorPtr_t GraphNodeOptimizer::optimize (const PathVectorPtr_t& path)
-    {
-      core::ProblemPtr_t p = const_cast <core::ProblemPtr_t> (this->problem ());
-      core::SteeringMethodPtr_t sm = p.steeringMethod ();
+PathVectorPtr_t GraphNodeOptimizer::optimize(const PathVectorPtr_t& path) {
+  core::ProblemPtr_t p = const_cast<core::ProblemPtr_t>(this->problem());
+  core::SteeringMethodPtr_t sm = p.steeringMethod();
 
-      /// Start by flattening the path
-      PathVectorPtr_t flat = PathVector::create
-        (path->outputSize(), path->outputDerivativeSize()),
-      path->flatten (flat);
+  /// Start by flattening the path
+  PathVectorPtr_t flat = PathVector::create(path->outputSize(),
+                                            path->outputDerivativeSize()),
+                  path->flatten(flat);
 
-      PathVectorPtr_t opted = PathVector::create
-        (path->outputSize(), path->outputDerivativeSize()),
-        toConcat;
+  PathVectorPtr_t opted = PathVector::create(path->outputSize(),
+                                             path->outputDerivativeSize()),
+                  toConcat;
 
-      ConstraintSetPtr_t c;
-      for (std::size_t i_s = 0; i_s < flat->numberPaths ();) {
-        PathPtr_t p = flat->pathAtRank (i_s);
-        PathPtr_t newp = (*sm) (p->initial (), p->end ());
-        if (!newp)
-          throw std::runtime_error ("It should not be a problem to recompute "
-              "a path...");
-        opted->appendPath (newp);
-      }
-      return opted;
-    }
-  } // namespace manipulation
-} // namespace hpp
+  ConstraintSetPtr_t c;
+  for (std::size_t i_s = 0; i_s < flat->numberPaths();) {
+    PathPtr_t p = flat->pathAtRank(i_s);
+    PathPtr_t newp = (*sm)(p->initial(), p->end());
+    if (!newp)
+      throw std::runtime_error(
+          "It should not be a problem to recompute "
+          "a path...");
+    opted->appendPath(newp);
+  }
+  return opted;
+}
+}  // namespace manipulation
+}  // namespace hpp

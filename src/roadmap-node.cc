@@ -31,11 +31,9 @@
 #include <hpp/manipulation/connected-component.hh>
 
 namespace hpp {
-  namespace manipulation {
-    RoadmapNode::RoadmapNode (const ConfigurationPtr_t& configuration,
-        ConnectedComponentPtr_t cc) :
-      core::Node (configuration, cc),
-      state_ ()
-    {}
-  } // namespace manipulation
-} // namespace hpp
+namespace manipulation {
+RoadmapNode::RoadmapNode(const ConfigurationPtr_t& configuration,
+                         ConnectedComponentPtr_t cc)
+    : core::Node(configuration, cc), state_() {}
+}  // namespace manipulation
+}  // namespace hpp

@@ -26,75 +26,65 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-
 #ifndef HPP_MANIPULATION_GRAPHOPTIMIZER_HH
-# define HPP_MANIPULATION_GRAPHOPTIMIZER_HH
+#define HPP_MANIPULATION_GRAPHOPTIMIZER_HH
 
-# include <hpp/core/path-optimizer.hh>
-# include <hpp/core/problem-solver.hh> // PathOptimizerBuilder_t
-
-# include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/config.hh>
-# include <hpp/manipulation/graph/fwd.hh>
+#include <hpp/core/path-optimizer.hh>
+#include <hpp/core/problem-solver.hh>  // PathOptimizerBuilder_t
+#include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/fwd.hh>
+#include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
-  namespace manipulation {
-    using hpp::core::Path;
-    using hpp::core::PathPtr_t;
-    using hpp::core::PathVector;
-    using hpp::core::PathVectorPtr_t;
+namespace manipulation {
+using hpp::core::Path;
+using hpp::core::PathPtr_t;
+using hpp::core::PathVector;
+using hpp::core::PathVectorPtr_t;
 
-    /// \addtogroup path_optimization
-    /// \{
+/// \addtogroup path_optimization
+/// \{
 
-    /// Path optimizer for paths created with the constraint graph
-    ///
-    /// This class encapsulates another path optimizer class. This optimizer
-    /// calls the inner optimizer on every subpaths with the same set of
-    /// constraints.
-    class HPP_MANIPULATION_DLLAPI GraphOptimizer : public PathOptimizer
-    {
-      public:
-        typedef core::PathOptimizerBuilder_t PathOptimizerBuilder_t;
+/// Path optimizer for paths created with the constraint graph
+///
+/// This class encapsulates another path optimizer class. This optimizer
+/// calls the inner optimizer on every subpaths with the same set of
+/// constraints.
+class HPP_MANIPULATION_DLLAPI GraphOptimizer : public PathOptimizer {
+ public:
+  typedef core::PathOptimizerBuilder_t PathOptimizerBuilder_t;
 
-        template <typename TraitsOrInnerType>
-          static GraphOptimizerPtr_t create
-	  (const core::ProblemConstPtr_t& problem);
+  template <typename TraitsOrInnerType>
+  static GraphOptimizerPtr_t create(const core::ProblemConstPtr_t& problem);
 
-        virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
+  virtual PathVectorPtr_t optimize(const PathVectorPtr_t& path);
 
-        /// Get the encapsulated optimizer
-        const PathOptimizerPtr_t& innerOptimizer ()
-        {
-          return pathOptimizer_;
-        }
+  /// Get the encapsulated optimizer
+  const PathOptimizerPtr_t& innerOptimizer() { return pathOptimizer_; }
 
-      protected:
-        /// Constructor
-        GraphOptimizer (const core::ProblemConstPtr_t& problem,
-			PathOptimizerBuilder_t factory) :
-          PathOptimizer (problem), factory_ (factory), pathOptimizer_ ()
-        {}
+ protected:
+  /// Constructor
+  GraphOptimizer(const core::ProblemConstPtr_t& problem,
+                 PathOptimizerBuilder_t factory)
+      : PathOptimizer(problem), factory_(factory), pathOptimizer_() {}
 
-      private:
-        PathOptimizerBuilder_t factory_;
+ private:
+  PathOptimizerBuilder_t factory_;
 
-        /// The encapsulated PathOptimizer
-        PathOptimizerPtr_t pathOptimizer_;
-    };
-    /// \}
+  /// The encapsulated PathOptimizer
+  PathOptimizerPtr_t pathOptimizer_;
+};
+/// \}
 
-    /// Member function definition
-    template <typename TraitsOrInnerType>
-      GraphOptimizerPtr_t GraphOptimizer::create
-      (const core::ProblemConstPtr_t& problem)
-    {
-      return GraphOptimizerPtr_t (
-          new GraphOptimizer (problem, TraitsOrInnerType::create)
-          );
-    }
+/// Member function definition
+template <typename TraitsOrInnerType>
+GraphOptimizerPtr_t GraphOptimizer::create(
+    const core::ProblemConstPtr_t& problem) {
+  return GraphOptimizerPtr_t(
+      new GraphOptimizer(problem, TraitsOrInnerType::create));
+}
 
-  } // namespace manipulation
-} // namespace hpp
+}  // namespace manipulation
+}  // namespace hpp
 
-#endif // HPP_MANIPULATION_GRAPHOPTIMIZER_HH
+#endif  // HPP_MANIPULATION_GRAPHOPTIMIZER_HH

@@ -27,56 +27,54 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_GRAPH_GUIDED_STATE_SELECTOR_HH
-# define HPP_MANIPULATION_GRAPH_GUIDED_STATE_SELECTOR_HH
+#define HPP_MANIPULATION_GRAPH_GUIDED_STATE_SELECTOR_HH
 
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/fwd.hh"
 #include "hpp/manipulation/graph/state-selector.hh"
 
 namespace hpp {
-  namespace manipulation {
-    namespace graph {
-      class HPP_MANIPULATION_DLLAPI GuidedStateSelector : public StateSelector
-      {
-        public:
-          /// Create a new GuidedStateSelector.
-          static GuidedStateSelectorPtr_t create(const std::string& name,
-              const core::RoadmapPtr_t& roadmap);
+namespace manipulation {
+namespace graph {
+class HPP_MANIPULATION_DLLAPI GuidedStateSelector : public StateSelector {
+ public:
+  /// Create a new GuidedStateSelector.
+  static GuidedStateSelectorPtr_t create(const std::string& name,
+                                         const core::RoadmapPtr_t& roadmap);
 
-          /// Set the target
-          void setStateList (const States_t& stateList);
+  /// Set the target
+  void setStateList(const States_t& stateList);
 
-          /// Select randomly an outgoing edge of the given node.
-          virtual EdgePtr_t chooseEdge(RoadmapNodePtr_t from) const;
+  /// Select randomly an outgoing edge of the given node.
+  virtual EdgePtr_t chooseEdge(RoadmapNodePtr_t from) const;
 
-          /// Print the object in a stream.
-          std::ostream& dotPrint (std::ostream& os, dot::DrawingAttributes da = dot::DrawingAttributes ()) const;
+  /// Print the object in a stream.
+  std::ostream& dotPrint(std::ostream& os, dot::DrawingAttributes da =
+                                               dot::DrawingAttributes()) const;
 
-        protected:
-          /// Initialization of the object.
-          void init (const GuidedStateSelectorPtr_t& weak);
+ protected:
+  /// Initialization of the object.
+  void init(const GuidedStateSelectorPtr_t& weak);
 
-          /// Constructor
-          GuidedStateSelector (const std::string& name,
-              const core::RoadmapPtr_t roadmap) :
-            StateSelector (name), roadmap_ (roadmap)
-          {}
+  /// Constructor
+  GuidedStateSelector(const std::string& name, const core::RoadmapPtr_t roadmap)
+      : StateSelector(name), roadmap_(roadmap) {}
 
-          /// Print the object in a stream.
-          std::ostream& print (std::ostream& os) const;
+  /// Print the object in a stream.
+  std::ostream& print(std::ostream& os) const;
 
-        private:
-          /// The target
-          States_t stateList_;
+ private:
+  /// The target
+  States_t stateList_;
 
-          /// The roadmap
-          core::RoadmapPtr_t roadmap_;
+  /// The roadmap
+  core::RoadmapPtr_t roadmap_;
 
-          /// Weak pointer to itself.
-          GuidedStateSelectorWkPtr_t wkPtr_;
-      }; // Class StateSelector
-    } // namespace graph
-  } // namespace manipulation
-} // namespace hpp
+  /// Weak pointer to itself.
+  GuidedStateSelectorWkPtr_t wkPtr_;
+};  // Class StateSelector
+}  // namespace graph
+}  // namespace manipulation
+}  // namespace hpp
 
-#endif // HPP_MANIPULATION_GRAPH_GUIDED_STATE_SELECTOR_HH
+#endif  // HPP_MANIPULATION_GRAPH_GUIDED_STATE_SELECTOR_HH

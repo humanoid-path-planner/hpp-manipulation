@@ -35,74 +35,56 @@
 #include "hpp/manipulation/serialization.hh"
 
 namespace hpp {
-  namespace manipulation {
-    ConstraintSetPtr_t ConstraintSet::create
-      (const DevicePtr_t& robot, const std::string& name)
-      {
-        ConstraintSet* ptr = new ConstraintSet (robot, name);
-        ConstraintSetPtr_t shPtr (ptr);
-        ptr->init (shPtr);
-        return shPtr;
-      }
+namespace manipulation {
+ConstraintSetPtr_t ConstraintSet::create(const DevicePtr_t& robot,
+                                         const std::string& name) {
+  ConstraintSet* ptr = new ConstraintSet(robot, name);
+  ConstraintSetPtr_t shPtr(ptr);
+  ptr->init(shPtr);
+  return shPtr;
+}
 
-    ConstraintSetPtr_t ConstraintSet::createCopy (const ConstraintSetPtr_t& cs)
-    {
-      ConstraintSet* ptr = new ConstraintSet (*cs);
-      ConstraintSetPtr_t shPtr (ptr);
-      ptr->init (shPtr);
-      return shPtr;
-    }
+ConstraintSetPtr_t ConstraintSet::createCopy(const ConstraintSetPtr_t& cs) {
+  ConstraintSet* ptr = new ConstraintSet(*cs);
+  ConstraintSetPtr_t shPtr(ptr);
+  ptr->init(shPtr);
+  return shPtr;
+}
 
-    ConstraintPtr_t ConstraintSet::copy () const
-    {
-      return createCopy (weak_.lock ());
-    }
+ConstraintPtr_t ConstraintSet::copy() const { return createCopy(weak_.lock()); }
 
-    void ConstraintSet::edge (graph::EdgePtr_t edge)
-    {
-      edge_ = edge;
-    }
+void ConstraintSet::edge(graph::EdgePtr_t edge) { edge_ = edge; }
 
-    graph::EdgePtr_t ConstraintSet::edge () const
-    {
-      return edge_;
-    }
+graph::EdgePtr_t ConstraintSet::edge() const { return edge_; }
 
-    ConstraintSet::ConstraintSet (const DevicePtr_t& robot, const std::string& name) :
-      Parent_t (robot, name),
-      edge_ ()
-    {}
+ConstraintSet::ConstraintSet(const DevicePtr_t& robot, const std::string& name)
+    : Parent_t(robot, name), edge_() {}
 
-    ConstraintSet::ConstraintSet (const ConstraintSet& other) :
-      Parent_t (other),
-      edge_ (other.edge ())
-    {}
+ConstraintSet::ConstraintSet(const ConstraintSet& other)
+    : Parent_t(other), edge_(other.edge()) {}
 
-    void ConstraintSet::init (const ConstraintSetPtr_t& self)
-    {
-      Parent_t::init (self);
-      weak_ = self;
-    }
+void ConstraintSet::init(const ConstraintSetPtr_t& self) {
+  Parent_t::init(self);
+  weak_ = self;
+}
 
-    std::ostream& ConstraintSet::print (std::ostream& os) const
-    {
-      Parent_t::print (os);
-      if (edge_) os << iendl << "Built by edge " << edge_->name();
-      return os;
-    }
+std::ostream& ConstraintSet::print(std::ostream& os) const {
+  Parent_t::print(os);
+  if (edge_) os << iendl << "Built by edge " << edge_->name();
+  return os;
+}
 
-    template<class Archive>
-    void ConstraintSet::serialize(Archive & ar, const unsigned int version)
-    {
-      using namespace boost::serialization;
-      (void) version;
-      ar & make_nvp("base", base_object<core::ConstraintSet>(*this));
-      ar & BOOST_SERIALIZATION_NVP(edge_);
-      ar & BOOST_SERIALIZATION_NVP(weak_);
-    }
+template <class Archive>
+void ConstraintSet::serialize(Archive& ar, const unsigned int version) {
+  using namespace boost::serialization;
+  (void)version;
+  ar& make_nvp("base", base_object<core::ConstraintSet>(*this));
+  ar& BOOST_SERIALIZATION_NVP(edge_);
+  ar& BOOST_SERIALIZATION_NVP(weak_);
+}
 
-    HPP_SERIALIZATION_IMPLEMENT(ConstraintSet);
-  } // namespace manipulation
-} // namespace hpp
+HPP_SERIALIZATION_IMPLEMENT(ConstraintSet);
+}  // namespace manipulation
+}  // namespace hpp
 
 BOOST_CLASS_EXPORT_IMPLEMENT(hpp::manipulation::ConstraintSet)

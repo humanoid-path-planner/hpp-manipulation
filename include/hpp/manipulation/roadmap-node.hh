@@ -28,69 +28,52 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_ROADMAP_NODE_HH
-# define HPP_MANIPULATION_ROADMAP_NODE_HH
+#define HPP_MANIPULATION_ROADMAP_NODE_HH
 
-# include <hpp/core/node.hh>
-
-# include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/deprecated.hh>
-# include <hpp/manipulation/config.hh>
-# include <hpp/manipulation/graph/fwd.hh>
-# include <hpp/manipulation/connected-component.hh>
+#include <hpp/core/node.hh>
+#include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/connected-component.hh>
+#include <hpp/manipulation/deprecated.hh>
+#include <hpp/manipulation/fwd.hh>
+#include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
-  namespace manipulation {
-    class HPP_MANIPULATION_DLLAPI RoadmapNode : public core::Node
-    {
-      public:
-        RoadmapNode (const ConfigurationPtr_t& configuration) :
-          core::Node (configuration),
-          state_ ()
-        {}
+namespace manipulation {
+class HPP_MANIPULATION_DLLAPI RoadmapNode : public core::Node {
+ public:
+  RoadmapNode(const ConfigurationPtr_t& configuration)
+      : core::Node(configuration), state_() {}
 
-        RoadmapNode (const ConfigurationPtr_t& configuration,
-            ConnectedComponentPtr_t cc);
+  RoadmapNode(const ConfigurationPtr_t& configuration,
+              ConnectedComponentPtr_t cc);
 
-        /// \name Cache
-        /// \{
+  /// \name Cache
+  /// \{
 
-        /// Get the caching system being used.
-        bool cacheUpToDate () const
-        {
-          return static_cast<bool>(graphState());
-        }
+  /// Get the caching system being used.
+  bool cacheUpToDate() const { return static_cast<bool>(graphState()); }
 
-        /// Getter for the graph::State.
-        graph::StatePtr_t graphState () const
-        {
-          return state_.lock();
-        }
+  /// Getter for the graph::State.
+  graph::StatePtr_t graphState() const { return state_.lock(); }
 
-        /// Setter for the graph::State.
-        void graphState (const graph::StatePtr_t& state)
-        {
-          state_ = state;
-        }
-        /// \}
+  /// Setter for the graph::State.
+  void graphState(const graph::StatePtr_t& state) { state_ = state; }
+  /// \}
 
-        void leafConnectedComponent (const LeafConnectedCompPtr_t& sc)
-        {
-          leafCC_ = sc;
-        }
+  void leafConnectedComponent(const LeafConnectedCompPtr_t& sc) {
+    leafCC_ = sc;
+  }
 
-        LeafConnectedCompPtr_t leafConnectedComponent () const
-        {
-          return leafCC_;
-        }
+  LeafConnectedCompPtr_t leafConnectedComponent() const { return leafCC_; }
 
-      private:
-        graph::StateWkPtr_t state_;
-        LeafConnectedCompPtr_t leafCC_;
+ private:
+  graph::StateWkPtr_t state_;
+  LeafConnectedCompPtr_t leafCC_;
 
-        RoadmapNode() {}
-        HPP_SERIALIZABLE();
-    };
-  } // namespace manipulation
-} // namespace hpp
+  RoadmapNode() {}
+  HPP_SERIALIZABLE();
+};
+}  // namespace manipulation
+}  // namespace hpp
 
-#endif // HPP_MANIPULATION_ROADMAP_NODE_HH
+#endif  // HPP_MANIPULATION_ROADMAP_NODE_HH

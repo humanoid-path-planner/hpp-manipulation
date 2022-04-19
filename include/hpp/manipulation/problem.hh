@@ -27,77 +27,71 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_PROBLEM_HH
-# define HPP_MANIPULATION_PROBLEM_HH
+#define HPP_MANIPULATION_PROBLEM_HH
 
-# include <hpp/core/problem.hh>
-# include <hpp/core/problem-solver.hh> // PathValidationBuilder_t
-
-# include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/device.hh>
-# include <hpp/manipulation/graph/fwd.hh>
+#include <hpp/core/problem-solver.hh>  // PathValidationBuilder_t
+#include <hpp/core/problem.hh>
+#include <hpp/manipulation/device.hh>
+#include <hpp/manipulation/fwd.hh>
+#include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
-  namespace manipulation {
-    /// \addtogroup path_planning
-    /// \{
+namespace manipulation {
+/// \addtogroup path_planning
+/// \{
 
-    class HPP_MANIPULATION_DLLAPI Problem : public core::Problem
-    {
-      public:
-        typedef core::Problem Parent;
+class HPP_MANIPULATION_DLLAPI Problem : public core::Problem {
+ public:
+  typedef core::Problem Parent;
 
-        /// Constructor
-        static ProblemPtr_t create (DevicePtr_t robot);
+  /// Constructor
+  static ProblemPtr_t create(DevicePtr_t robot);
 
-        /// Set the graph of constraints
-        void constraintGraph (const graph::GraphPtr_t& graph);
+  /// Set the graph of constraints
+  void constraintGraph(const graph::GraphPtr_t& graph);
 
-        /// Get the graph of constraints
-        graph::GraphPtr_t constraintGraph () const
-        {
-          return graph_;
-        }
+  /// Get the graph of constraints
+  graph::GraphPtr_t constraintGraph() const { return graph_; }
 
-        /// Check whether the problem is well formulated.
-        virtual void checkProblem () const;
+  /// Check whether the problem is well formulated.
+  virtual void checkProblem() const;
 
-        /// Expose parent method.
-        PathValidationPtr_t pathValidation () const;
+  /// Expose parent method.
+  PathValidationPtr_t pathValidation() const;
 
-        /// \param pathValidation if of type GraphPathValidation, sets 
-        ///        its constraint graph to Problem::constraintGraph()
-        void pathValidation (const PathValidationPtr_t& pathValidation);
+  /// \param pathValidation if of type GraphPathValidation, sets
+  ///        its constraint graph to Problem::constraintGraph()
+  void pathValidation(const PathValidationPtr_t& pathValidation);
 
-        /// Get the steering method as a SteeringMethod
-        SteeringMethodPtr_t manipulationSteeringMethod () const;
+  /// Get the steering method as a SteeringMethod
+  SteeringMethodPtr_t manipulationSteeringMethod() const;
 
-        /// Build a new path validation
-        /// \note Current obstacles are added to the created object.
-        /// \todo Keep a pointer to this value to update it when a new obstacle
-        /// is added.
-        PathValidationPtr_t pathValidationFactory () const;
+  /// Build a new path validation
+  /// \note Current obstacles are added to the created object.
+  /// \todo Keep a pointer to this value to update it when a new obstacle
+  /// is added.
+  PathValidationPtr_t pathValidationFactory() const;
 
-        void setPathValidationFactory (
-            const core::PathValidationBuilder_t& factory,
-            const value_type& tol);
+  void setPathValidationFactory(const core::PathValidationBuilder_t& factory,
+                                const value_type& tol);
 
-      protected:
-        /// Constructor
-        Problem (DevicePtr_t robot);
+ protected:
+  /// Constructor
+  Problem(DevicePtr_t robot);
 
-        void init (ProblemWkPtr_t wkPtr);
+  void init(ProblemWkPtr_t wkPtr);
 
-      private:
-        ProblemWkPtr_t wkPtr_;
+ private:
+  ProblemWkPtr_t wkPtr_;
 
-        /// The graph of constraints
-        graph::GraphPtr_t graph_;
+  /// The graph of constraints
+  graph::GraphPtr_t graph_;
 
-        core::PathValidationBuilder_t pvFactory_;
-        value_type pvTol_;
-    }; // class Problem
-    /// \}
-  } // namespace manipulation
-} // namespace hpp
+  core::PathValidationBuilder_t pvFactory_;
+  value_type pvTol_;
+};  // class Problem
+/// \}
+}  // namespace manipulation
+}  // namespace hpp
 
-#endif // HPP_MANIPULATION_PROBLEM_HH
+#endif  // HPP_MANIPULATION_PROBLEM_HH

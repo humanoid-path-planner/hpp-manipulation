@@ -27,52 +27,48 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_GRAPH_NODE_OPTIMIZER_HH
-# define HPP_MANIPULATION_GRAPH_NODE_OPTIMIZER_HH
+#define HPP_MANIPULATION_GRAPH_NODE_OPTIMIZER_HH
 
-# include <hpp/core/path.hh>
-# include <hpp/core/path-vector.hh>
-# include <hpp/core/path-optimizer.hh>
-# include <hpp/core/problem.hh>
-# include <hpp/core/problem-solver.hh>
-
-# include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/graph/fwd.hh>
-# include <hpp/manipulation/config.hh>
-# include <hpp/manipulation/constraint-set.hh>
+#include <hpp/core/path-optimizer.hh>
+#include <hpp/core/path-vector.hh>
+#include <hpp/core/path.hh>
+#include <hpp/core/problem-solver.hh>
+#include <hpp/core/problem.hh>
+#include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/constraint-set.hh>
+#include <hpp/manipulation/fwd.hh>
+#include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
-  namespace manipulation {
-    using hpp::core::Path;
-    using hpp::core::PathPtr_t;
-    using hpp::core::PathVector;
-    using hpp::core::PathVectorPtr_t;
+namespace manipulation {
+using hpp::core::Path;
+using hpp::core::PathPtr_t;
+using hpp::core::PathVector;
+using hpp::core::PathVectorPtr_t;
 
-    /// \addtogroup path_optimization
-    /// \{
+/// \addtogroup path_optimization
+/// \{
 
-    /// Path optimizer that recompute the edge parameter of the constraints
-    ///
-    /// This class encapsulates another path optimizer class. This optimizer
-    /// calls the inner optimizer on every subpaths with the same set of
-    /// constraints.
-    class HPP_MANIPULATION_DLLAPI GraphNodeOptimizer : public PathOptimizer
-    {
-      public:
-        static GraphNodeOptimizerPtr_t create
-	  (const core::ProblemConstPtr_t& problem);
+/// Path optimizer that recompute the edge parameter of the constraints
+///
+/// This class encapsulates another path optimizer class. This optimizer
+/// calls the inner optimizer on every subpaths with the same set of
+/// constraints.
+class HPP_MANIPULATION_DLLAPI GraphNodeOptimizer : public PathOptimizer {
+ public:
+  static GraphNodeOptimizerPtr_t create(const core::ProblemConstPtr_t& problem);
 
-        virtual PathVectorPtr_t optimize (const PathVectorPtr_t& path);
+  virtual PathVectorPtr_t optimize(const PathVectorPtr_t& path);
 
-      protected:
-        /// Constructor
-        GraphNodeOptimizer (const core::ProblemConstPtr_t& problem) :
-          PathOptimizer (problem)
-        {}
+ protected:
+  /// Constructor
+  GraphNodeOptimizer(const core::ProblemConstPtr_t& problem)
+      : PathOptimizer(problem) {}
 
-      private:
-    };
-    /// \}
-  } // namespace manipulation
-} // namespace hpp
+ private:
+};
+/// \}
+}  // namespace manipulation
+}  // namespace hpp
 
-#endif // HPP_MANIPULATION_GRAPH_NODE_OPTIMIZER_HH
+#endif  // HPP_MANIPULATION_GRAPH_NODE_OPTIMIZER_HH

@@ -27,111 +27,101 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_GRAPH_VALIDATION_REPORT_HH
-# define HPP_MANIPULATION_GRAPH_VALIDATION_REPORT_HH
+#define HPP_MANIPULATION_GRAPH_VALIDATION_REPORT_HH
 
-# include <string>
-# include <vector>
-# include <hpp/core/validation-report.hh>
-
-# include <hpp/manipulation/config.hh>
-# include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/graph/fwd.hh>
-# include <hpp/manipulation/graph/graph.hh>
+#include <hpp/core/validation-report.hh>
+#include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/fwd.hh>
+#include <hpp/manipulation/graph/fwd.hh>
+#include <hpp/manipulation/graph/graph.hh>
+#include <string>
+#include <vector>
 
 namespace hpp {
-  namespace manipulation {
-    namespace graph {
-      /// \addtogroup constraint_graph
-      /// \{
+namespace manipulation {
+namespace graph {
+/// \addtogroup constraint_graph
+/// \{
 
-      /// Check that graph components are valid.
-      ///
-      /// A stringified validation report can be obtained via
-      /// Validation::print or operator<< (std::ostream&, const Validation&).
-      class HPP_MANIPULATION_DLLAPI Validation
-      {
-        public:
-          typedef std::vector<std::string> Collision;
-          typedef std::vector<Collision> CollisionList;
-          typedef std::map<std::string, CollisionList> CollisionMap;
-          Validation(const core::ProblemPtr_t& problem)
-            : problem_ (problem) {}
+/// Check that graph components are valid.
+///
+/// A stringified validation report can be obtained via
+/// Validation::print or operator<< (std::ostream&, const Validation&).
+class HPP_MANIPULATION_DLLAPI Validation {
+ public:
+  typedef std::vector<std::string> Collision;
+  typedef std::vector<Collision> CollisionList;
+  typedef std::map<std::string, CollisionList> CollisionMap;
+  Validation(const core::ProblemPtr_t& problem) : problem_(problem) {}
 
-          void clear ()
-          {
-            warnings_.clear();
-            errors_.clear();
-          }
+  void clear() {
+    warnings_.clear();
+    errors_.clear();
+  }
 
-          bool hasWarnings () const { return !warnings_.empty(); }
+  bool hasWarnings() const { return !warnings_.empty(); }
 
-          bool hasErrors () const { return !errors_.empty(); }
+  bool hasErrors() const { return !errors_.empty(); }
 
-          virtual std::ostream& print (std::ostream& os) const;
+  virtual std::ostream& print(std::ostream& os) const;
 
-          /// Validate a graph component.
-          /// It dynamically casts in order to call the right function among
-          /// the validation method below.
-          ///
-          /// \return true if the component could not be proven infeasible.
-          /// \note Even if true is returned, the report can contain warnings.
-          bool validate (const GraphComponentPtr_t& comp);
+  /// Validate a graph component.
+  /// It dynamically casts in order to call the right function among
+  /// the validation method below.
+  ///
+  /// \return true if the component could not be proven infeasible.
+  /// \note Even if true is returned, the report can contain warnings.
+  bool validate(const GraphComponentPtr_t& comp);
 
-          /// Validate a state
-          /// \return true if the state could not be proven infeasible.
-          /// \note Even if true is returned, the report can contain warnings.
-          bool validateState (const StatePtr_t& state);
+  /// Validate a state
+  /// \return true if the state could not be proven infeasible.
+  /// \note Even if true is returned, the report can contain warnings.
+  bool validateState(const StatePtr_t& state);
 
-          /// Validate an edge
-          /// \return true if the edge could not be proven infeasible.
-          /// \note Even if true is returned, the report can contain warnings.
-          bool validateEdge  (const EdgePtr_t & edge);
+  /// Validate an edge
+  /// \return true if the edge could not be proven infeasible.
+  /// \note Even if true is returned, the report can contain warnings.
+  bool validateEdge(const EdgePtr_t& edge);
 
-          /// Validate an graph
-          /// \return true if no component of the graph could not be proven infeasible.
-          /// \note Even if true is returned, the report can contain warnings.
-          bool validateGraph (const GraphPtr_t& graph);
+  /// Validate an graph
+  /// \return true if no component of the graph could not be proven infeasible.
+  /// \note Even if true is returned, the report can contain warnings.
+  bool validateGraph(const GraphPtr_t& graph);
 
-          CollisionList getCollisionsForNode (const std::string& nodeName)
-          {
-            return collisions_[nodeName];
-          }
+  CollisionList getCollisionsForNode(const std::string& nodeName) {
+    return collisions_[nodeName];
+  }
 
+ private:
+  void addWarning(const GraphComponentPtr_t& c, const std::string& w) {
+    warnings_.push_back(Message(c, w));
+  }
 
-        private:
-          void addWarning (const GraphComponentPtr_t& c, const std::string& w)
-          {
-            warnings_.push_back (Message (c, w));
-          }
+  void addError(const GraphComponentPtr_t& c, const std::string& w) {
+    errors_.push_back(Message(c, w));
+  }
 
-          void addError (const GraphComponentPtr_t& c, const std::string& w)
-          {
-            errors_.push_back (Message (c, w));
-          }
+  void addCollision(const GraphComponentPtr_t& c, const std::string& obj1,
+                    const std::string& obj2) {
+    Collision coll = Collision{obj1, obj2};
+    collisions_[c->name()].push_back(coll);
+  }
 
-          void addCollision (const GraphComponentPtr_t& c, const std::string& obj1,
-                  const std::string& obj2)
-          {
-              Collision coll = Collision{obj1, obj2};
-              collisions_[c->name()].push_back(coll);
-          }
+  typedef std::pair<GraphComponentPtr_t, std::string> Message;
+  std::vector<Message> warnings_, errors_;
+  CollisionMap collisions_;
 
-          typedef std::pair<GraphComponentPtr_t, std::string> Message;
-          std::vector<Message> warnings_, errors_;
-          CollisionMap collisions_;
+  core::ProblemPtr_t problem_;
+};
 
-          core::ProblemPtr_t problem_;
-      };
+inline std::ostream& operator<<(std::ostream& os, const Validation& v) {
+  return v.print(os);
+}
 
-      inline std::ostream& operator<< (std::ostream& os, const Validation& v)
-      {
-        return v.print(os);
-      }
+/// \}
+}  // namespace graph
+}  // namespace manipulation
 
-      /// \}
-    } // namespace graph
-  } // namespace manipulation
+}  // namespace hpp
 
-} // namespace hpp
-
-#endif // HPP_MANIPULATION_GRAPH_VALIDATION_REPORT_HH
+#endif  // HPP_MANIPULATION_GRAPH_VALIDATION_REPORT_HH

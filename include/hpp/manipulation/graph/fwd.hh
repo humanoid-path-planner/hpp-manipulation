@@ -27,56 +27,55 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_GRAPH_FWD_HH
-# define HPP_MANIPULATION_GRAPH_FWD_HH
+#define HPP_MANIPULATION_GRAPH_FWD_HH
 
-#include <hpp/util/pointer.hh>
 #include <hpp/statistics/distribution.hh>
+#include <hpp/util/pointer.hh>
 #include <vector>
 
 namespace hpp {
-  namespace manipulation {
-    namespace graph {
-      HPP_PREDEF_CLASS (Graph);
-      HPP_PREDEF_CLASS (Edge);
-      HPP_PREDEF_CLASS (State);
-      HPP_PREDEF_CLASS (WaypointEdge);
-      HPP_PREDEF_CLASS (LevelSetEdge);
-      HPP_PREDEF_CLASS (StateSelector);
-      HPP_PREDEF_CLASS (GraphComponent);
-      HPP_PREDEF_CLASS (GuidedStateSelector);
-      typedef shared_ptr < Graph > GraphPtr_t;
-      typedef shared_ptr < State > StatePtr_t;
-      typedef shared_ptr < Edge > EdgePtr_t;
-      typedef shared_ptr < WaypointEdge > WaypointEdgePtr_t;
-      typedef shared_ptr < LevelSetEdge > LevelSetEdgePtr_t;
-      typedef shared_ptr < StateSelector > StateSelectorPtr_t;
-      typedef shared_ptr < GuidedStateSelector >
-      GuidedStateSelectorPtr_t;
-      typedef shared_ptr < GraphComponent > GraphComponentPtr_t;
-      typedef std::vector < GraphComponentWkPtr_t > GraphComponents_t;
-      typedef std::vector < StatePtr_t > States_t;
-      typedef std::vector < EdgePtr_t > Edges_t;
-      typedef ::hpp::statistics::DiscreteDistribution< EdgePtr_t >::Weight_t Weight_t;
-      typedef ::hpp::statistics::DiscreteDistribution< EdgePtr_t > Neighbors_t;
-      typedef std::vector < StateSelectorPtr_t > StateSelectors_t;
+namespace manipulation {
+namespace graph {
+HPP_PREDEF_CLASS(Graph);
+HPP_PREDEF_CLASS(Edge);
+HPP_PREDEF_CLASS(State);
+HPP_PREDEF_CLASS(WaypointEdge);
+HPP_PREDEF_CLASS(LevelSetEdge);
+HPP_PREDEF_CLASS(StateSelector);
+HPP_PREDEF_CLASS(GraphComponent);
+HPP_PREDEF_CLASS(GuidedStateSelector);
+typedef shared_ptr<Graph> GraphPtr_t;
+typedef shared_ptr<State> StatePtr_t;
+typedef shared_ptr<Edge> EdgePtr_t;
+typedef shared_ptr<WaypointEdge> WaypointEdgePtr_t;
+typedef shared_ptr<LevelSetEdge> LevelSetEdgePtr_t;
+typedef shared_ptr<StateSelector> StateSelectorPtr_t;
+typedef shared_ptr<GuidedStateSelector> GuidedStateSelectorPtr_t;
+typedef shared_ptr<GraphComponent> GraphComponentPtr_t;
+typedef std::vector<GraphComponentWkPtr_t> GraphComponents_t;
+typedef std::vector<StatePtr_t> States_t;
+typedef std::vector<EdgePtr_t> Edges_t;
+typedef ::hpp::statistics::DiscreteDistribution<EdgePtr_t>::Weight_t Weight_t;
+typedef ::hpp::statistics::DiscreteDistribution<EdgePtr_t> Neighbors_t;
+typedef std::vector<StateSelectorPtr_t> StateSelectors_t;
 
-      typedef hpp::core::segments_t segments_t;
-      typedef std::vector <segments_t> IntervalsContainer_t;
-      typedef hpp::core::NumericalConstraints_t NumericalConstraints_t;
-      typedef hpp::core::LockedJoints_t LockedJoints_t;
+typedef hpp::core::segments_t segments_t;
+typedef std::vector<segments_t> IntervalsContainer_t;
+typedef hpp::core::NumericalConstraints_t NumericalConstraints_t;
+typedef hpp::core::LockedJoints_t LockedJoints_t;
 
-      class Histogram;
-      class StateHistogram;
-      class LeafHistogram;
-      typedef shared_ptr <Histogram> HistogramPtr_t;
-      typedef shared_ptr <StateHistogram> StateHistogramPtr_t;
-      typedef shared_ptr <LeafHistogram> LeafHistogramPtr_t;
-      typedef std::list < HistogramPtr_t > Histograms_t;
+class Histogram;
+class StateHistogram;
+class LeafHistogram;
+typedef shared_ptr<Histogram> HistogramPtr_t;
+typedef shared_ptr<StateHistogram> StateHistogramPtr_t;
+typedef shared_ptr<LeafHistogram> LeafHistogramPtr_t;
+typedef std::list<HistogramPtr_t> Histograms_t;
 
-      class Validation;
-      typedef shared_ptr < Validation > ValidationPtr_t;
-    } // namespace graph
-  } // namespace manipulation
-} // namespace hpp
+class Validation;
+typedef shared_ptr<Validation> ValidationPtr_t;
+}  // namespace graph
+}  // namespace manipulation
+}  // namespace hpp
 
-#endif // HPP_MANIPULATION_GRAPH_FWD_HH
+#endif  // HPP_MANIPULATION_GRAPH_FWD_HH

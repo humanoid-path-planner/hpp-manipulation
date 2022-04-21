@@ -144,6 +144,7 @@ namespace hpp {
     typedef core::JointAndShapes_t JointAndShapes_t;
 
     typedef std::list <std::string> StringList_t;
+    typedef std::vector <std::string> Strings_t;
 
     namespace pathOptimization {
       HPP_PREDEF_CLASS (SmallSteps);

@@ -191,15 +191,15 @@ namespace hpp {
 
         struct ObjectDef_t {
           std::string name;
-          StringList_t handles, shapes;
+          Strings_t handles, shapes;
         };
 
         GraphPtr_t graphBuilder (
             const ProblemSolverPtr_t& ps,
             const std::string& graphName,
-            const StringList_t& griNames,
-            const std::list <ObjectDef_t>& objs,
-            const StringList_t& envNames,
+            const Strings_t& griNames,
+            const std::vector <ObjectDef_t>& objs,
+            const Strings_t& envNames,
 	    const Rules_t& rules,
             const value_type& prePlaceWidth = 0.05);
         /// \}

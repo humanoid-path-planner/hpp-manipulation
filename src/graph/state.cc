@@ -29,6 +29,7 @@
 #include "hpp/manipulation/graph/state.hh"
 
 #include <hpp/constraints/differentiable-function.hh>
+#include <hpp/constraints/solver/by-substitution.hh>
 
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/graph/edge.hh"
@@ -126,6 +127,7 @@ namespace hpp {
         configConstraints_ = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj " + n, g->errorThreshold(), g->maxIterations());
+        proj->solver().solveLevelByLevel(this->solveLevelByLevel());
         g->insertNumericalConstraints (proj);
         insertNumericalConstraints (proj);
         configConstraints_->addConstraint (proj);

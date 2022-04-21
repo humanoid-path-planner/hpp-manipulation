@@ -40,6 +40,7 @@
 
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/locked-joint.hh>
+#include <hpp/constraints/solver/by-substitution.hh>
 
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/problem.hh"
@@ -258,6 +259,14 @@ namespace hpp {
 
         for (const auto& _nc : nc)
           proj->add (_nc);
+        // Insert numerical costs
+        nc.clear();
+        for (const auto& gc : components)
+          nc.insert(nc.end(), gc->numericalCosts().begin(),
+                    gc->numericalCosts().end ());
+        for (const auto& _nc : nc)
+          proj->add (_nc, 1);
+
       }
 
       ConstraintSetPtr_t Edge::buildConfigConstraint()
@@ -273,6 +282,7 @@ namespace hpp {
         ConstraintSetPtr_t constraint = ConstraintSet::create (g->robot (), "Set " + n);
 
         ConfigProjectorPtr_t proj = ConfigProjector::create(g->robot(), "proj_" + n, g->errorThreshold(), g->maxIterations());
+        proj->solver().solveLevelByLevel(this->solveLevelByLevel());
         std::vector <GraphComponentPtr_t> components;
         components.push_back (g);
         components.push_back (wkPtr_.lock ());
@@ -307,6 +317,7 @@ namespace hpp {
 
         ConfigProjectorPtr_t proj = ConfigProjector::create
 	  (g->robot(), "proj_" + n, .5*g->errorThreshold(), g->maxIterations());
+        proj->solver().solveLevelByLevel(this->solveLevelByLevel());
         std::vector <GraphComponentPtr_t> components;
         components.push_back (g);
         components.push_back (wkPtr_.lock ());

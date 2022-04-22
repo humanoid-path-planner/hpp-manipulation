@@ -242,17 +242,18 @@ namespace hpp {
     }
 
     void ProblemSolver::createPlacementConstraint
-    (const std::string& name, const StringList_t& surface1,
-     const StringList_t& surface2, const value_type& margin)
+    (const std::string& name, const Strings_t& surface1,
+     const Strings_t& surface2, const value_type& margin)
     {
       bool explicit_(true);
       if (!robot_) throw std::runtime_error ("No robot loaded");
       JointAndShapes_t floorSurfaces, objectSurfaces, l;
-      for (StringList_t::const_iterator it1 = surface1.begin ();
+      for (Strings_t::const_iterator it1 = surface1.begin ();
           it1 != surface1.end(); ++it1) {
         if (!robot_->jointAndShapes.has (*it1))
           throw std::runtime_error ("First list of triangles not found.");
         l = robot_->jointAndShapes.get (*it1);
+        objectSurfaces.insert(objectSurfaces.end(), l.begin(), l.end());
         for(auto js : l){
           JointPtr_t j(js.first);
           // If one robot contact surface is not on a freeflying object,
@@ -264,11 +265,10 @@ namespace hpp {
             {
               explicit_ = false;
             }
-          objectSurfaces.insert(objectSurfaces.end(), l.begin(), l.end());
         }
       }
 
-      for (StringList_t::const_iterator it2 = surface2.begin ();
+      for (Strings_t::const_iterator it2 = surface2.begin ();
           it2 != surface2.end(); ++it2) {
         // Search first robot triangles
         if (robot_->jointAndShapes.has (*it2))
@@ -322,13 +322,13 @@ namespace hpp {
     }
 
     void ProblemSolver::createPrePlacementConstraint
-    (const std::string& name, const StringList_t& surface1,
-     const StringList_t& surface2, const value_type& width,
+    (const std::string& name, const Strings_t& surface1,
+     const Strings_t& surface2, const value_type& width,
      const value_type& margin)
     {
       if (!robot_) throw std::runtime_error ("No robot loaded");
       JointAndShapes_t floorSurfaces, objectSurfaces, l;
-      for (StringList_t::const_iterator it1 = surface1.begin ();
+      for (Strings_t::const_iterator it1 = surface1.begin ();
           it1 != surface1.end(); ++it1) {
         if (!robot_->jointAndShapes.has (*it1))
           throw std::runtime_error ("First list of triangles not found.");
@@ -336,7 +336,7 @@ namespace hpp {
         objectSurfaces.insert(objectSurfaces.end(), l.begin(), l.end());
       }
 
-      for (StringList_t::const_iterator it2 = surface2.begin ();
+      for (Strings_t::const_iterator it2 = surface2.begin ();
           it2 != surface2.end(); ++it2) {
         // Search first robot triangles
         if (robot_->jointAndShapes.has (*it2))

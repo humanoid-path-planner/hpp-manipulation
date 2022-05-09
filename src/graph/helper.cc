@@ -1007,9 +1007,9 @@ namespace hpp {
         GraphPtr_t graphBuilder (
             const ProblemSolverPtr_t& ps,
             const std::string& graphName,
-            const StringList_t& griNames,
-            const std::list <ObjectDef_t>& objs,
-            const StringList_t& envNames,
+            const Strings_t& griNames,
+            const std::vector <ObjectDef_t>& objs,
+            const Strings_t& envNames,
 	    const std::vector <Rule>& rules,
             const value_type& prePlaceWidth)
         {

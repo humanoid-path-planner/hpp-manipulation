@@ -103,7 +103,7 @@ namespace hpp {
         problem_ (HPP_STATIC_PTR_CAST(const manipulation::Problem, problem)),
         constraints_(), index_(), sameRightHandSide_(),
         stricterConstraints_(), optData_(0x0), graphData_(0x0),
-        idxSol_(0), lastBuiltTransitions_(),
+        lastBuiltTransitions_(),
         goalConstraints_(), goalDefinedByConstraints_(false),
         q1_(0x0), q2_(0x0), configList_(), idxConfigList_(0),
         nTryConfigList_(0), solved_(false), interrupt_(false),
@@ -176,7 +176,7 @@ namespace hpp {
         // can be multiple if goal is defined as a set of constraints
         graph::States_t s2;
 
-        // index of the path
+        // index of the transition list
         size_t idxSol;
 
         // Datas for findNextTransitions
@@ -203,12 +203,12 @@ namespace hpp {
         typedef std::deque<state_with_depth_ptr_t> Deque_t;
         // vector of pointers to state with depth
         typedef std::vector<state_with_depth_ptr_t> state_with_depths_t;
-        // paths exceeding this depth in the constraint graph will not be considered
+        // transition lists exceeding this depth in the constraint graph will not be considered
         std::size_t maxDepth;
-        // map each state X to a list of preceding states in paths that visit X
-        // state_with_depth struct gives info to trace the entire paths
+        // map each state X to a list of preceding states in transition lists that visit X
+        // state_with_depth struct gives info to trace the entire transition lists
         StateMap_t parent1;
-        // store a vector of pointers to the end state of each potential path
+        // store a vector of pointers to the end state of each transition list
         state_with_depths_t solutions;
         // the frontier of the graph search
         // consists states that have not been expanded on
@@ -1211,7 +1211,7 @@ namespace hpp {
               nTriesDone[k] = 0;
             wp = 1;
             if (nBadSolves >= nBadSolvesMax) {
-              hppDout (warning, " Solution " << idxSol_ << ": too many bad solve statuses. Resetting back to WP1");
+              hppDout (warning, " Solution " << graphData_->idxSol << ": too many bad solve statuses. Resetting back to WP1");
             }
             if (nTriesDone[1] >= nTriesMax1) {
               // if cannot solve all the way, return longest VALID sequence
@@ -1289,47 +1289,43 @@ namespace hpp {
         GraphSearchData& d = *graphData_;
 
         size_t& idxSol = d.idxSol;
-        if (idxSol_ < idxSol) idxSol_ = idxSol;
 
         bool maxDepthReached;
         while (!(maxDepthReached = findTransitions (d))) { // mut
           // if there is a working sequence, try it first before getting another transition list
           Edges_t transitions = (nTryConfigList_ > 0)? lastBuiltTransitions_ : getTransitionList (d, idxSol); // const, const
           while (! transitions.empty()) {
-            if (idxSol >= idxSol_) {
 #ifdef HPP_DEBUG
-              std::ostringstream ss;
-              ss << " Trying solution " << idxSol << ": \n\t";
-              for (std::size_t j = 0; j < transitions.size(); ++j)
-                ss << transitions[j]->name() << ", \n\t";
-              hppDout (info, ss.str());
+            std::ostringstream ss;
+            ss << " Trying solution " << idxSol << ": \n\t";
+            for (std::size_t j = 0; j < transitions.size(); ++j)
+              ss << transitions[j]->name() << ", \n\t";
+            hppDout (info, ss.str());
 #endif // HPP_DEBUG
-              if (optData_) {
-                delete optData_;
-                optData_ = nullptr;
-              }
-              optData_ = new OptimizationData (problem(), q1, q2, transitions,
-                  goalDefinedByConstraints_);
+            if (optData_) {
+              delete optData_;
+              optData_ = nullptr;
+            }
+            optData_ = new OptimizationData (problem(), q1, q2, transitions,
+                goalDefinedByConstraints_);
 
-              if (buildOptimizationProblem (transitions)) {
-                lastBuiltTransitions_ = transitions;
-                if (nTryConfigList_ > 0 || analyseOptimizationProblem2 (transitions, problem())) {
-                  if (solveOptimizationProblem ()) {
-                    core::Configurations_t path = getConfigList ();
-                    hppDout (warning, " Solution " << idxSol << ": solved configurations list");
-                    return path;
-                  } else {
-                    hppDout (info, " Failed solution " << idxSol << " at step 5 (solve opt pb)");
-                  }
+            if (buildOptimizationProblem (transitions)) {
+              lastBuiltTransitions_ = transitions;
+              if (nTryConfigList_ > 0 || analyseOptimizationProblem2 (transitions, problem())) {
+                if (solveOptimizationProblem ()) {
+                  core::Configurations_t path = getConfigList ();
+                  hppDout (warning, " Solution " << idxSol << ": solved configurations list");
+                  return path;
                 } else {
-                  hppDout (info, " Failed solution " << idxSol << " at step 4 (analyse opt pb)");
+                  hppDout (info, " Failed solution " << idxSol << " at step 5 (solve opt pb)");
                 }
               } else {
-                hppDout (info, " Failed solution " << idxSol << " at step 3 (build opt pb)");
+                hppDout (info, " Failed solution " << idxSol << " at step 4 (analyse opt pb)");
               }
-            } // if (idxSol >= idxSol_)
+            } else {
+              hppDout (info, " Failed solution " << idxSol << " at step 3 (build opt pb)");
+            }
             transitions = getTransitionList(d, ++idxSol);
-            if (idxSol_ < idxSol) idxSol_ = idxSol;
             // reset of the number of tries for a sequence
             nTryConfigList_ = 0;
           }
@@ -1341,7 +1337,9 @@ namespace hpp {
       }
 
       void StatesPathFinder::reset() {
-        idxSol_ = 0;
+        // when debugging, if we want to start from a certain transition list,
+        // we can set it here
+        graphData_->idxSol = 0;
         if (optData_) {
           delete optData_;
           optData_ = nullptr;
@@ -1478,7 +1476,7 @@ namespace hpp {
             throw core::path_planning_failed("Maximal depth reached.");
           }
         }
-
+        size_t & idxSol = graphData_->idxSol;
         ConfigurationPtr_t q1, q2;
         try {
           const Edges_t& transitions = lastBuiltTransitions_;
@@ -1492,14 +1490,14 @@ namespace hpp {
           planInState(q1, q2, edge);
           idxConfigList_++;
           if (idxConfigList_ == configList_.size()-1) {
-            hppDout(warning, "Solution " << idxSol_ << ": Success"
+            hppDout(warning, "Solution " << idxSol << ": Success"
                     << "\n-----------------------------------------------");
           }
 
         } catch(const core::path_planning_failed& error) {
           std::ostringstream oss;
           oss << "Error " << error.what() << "\n";
-          oss << "Solution " << idxSol_ << ": Failed to build path at edge " << idxConfigList_ << ": ";
+          oss << "Solution " << idxSol << ": Failed to build path at edge " << idxConfigList_ << ": ";
           oss << lastBuiltTransitions_[idxConfigList_]->name();
           hppDout(warning, oss.str());
 
@@ -1509,8 +1507,7 @@ namespace hpp {
               ("StatesPathFinder/maxTriesBuildPath").intValue();
           if (++nTryConfigList_ >= nTryMax) {
             nTryConfigList_ = 0;
-            idxSol_++;
-            graphData_->idxSol++;
+            idxSol++;
           }
         }
       }

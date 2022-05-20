@@ -252,8 +252,6 @@ namespace hpp {
 
           mutable OptimizationData* optData_;
           mutable std::shared_ptr <GraphSearchData> graphData_;
-          /// Index of the sequence of states
-          std::size_t idxSol_ = 0;
           graph::Edges_t lastBuiltTransitions_;
 
           // Constraints defining the goal

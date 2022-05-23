@@ -1515,41 +1515,20 @@ namespace hpp {
       void StatesPathFinder::tryConnectInitAndGoals()
       {
         GraphSearchData& d = *graphData_;
-        if (goalDefinedByConstraints_ || d.s1 != d.s2[0]) return;
+        // if start state is not one of the potential goal states, return
+        if (std::find(d.s2.begin(), d.s2.end(), d.s1) == d.s2.end()) {
+            return;
+        }
 
         // get the loop edge connecting the initial state to itself
         const graph::Edges_t& loopEdges(problem_->constraintGraph()
             ->getEdges(d.s1, d.s1));
         // check that there is 1 loop edge
         assert (loopEdges.size() == 1);
-        const graph::EdgePtr_t& edge(loopEdges[0]);
-        core::ConstraintSetPtr_t constraints(HPP_DYNAMIC_PTR_CAST(
-          core::ConstraintSet, edge->pathConstraint()->copy()));
-        // Initialize right hand side
-        constraints->configProjector()->rightHandSideFromConfig(*q1_);
-        // check that initial and final config are in the same leaf
-        if (!constraints->isSatisfied(*q2_)) {
-          hppDout(info, "Initial config and goal config are in the same "
-            "state \"" << d.s1->name() << "\". "
-            "But q2 does NOT satisfy edge constraints RHS initialized from q1. "
-            "They are likely not on the same leaf. Will not try to connect.");
-          return;
-        }
-        hppDout(info, "Initial config and goal config are in the same "
-            "state \"" << d.s1->name() << "\". "
-            "q2 satisfies edge constraints with RHS initialized from q1. "
-            "Calling InStatePlanner_.solve to connect them directly");
-        try {
-          planInState(q1_, q2_, edge);
-          hppDout(warning, "Connect init and goal directly: Success"
-              << "\n-----------------------------------------------");
-
-        } catch(const core::path_planning_failed& error) {
-          std::ostringstream oss;
-          oss << "Error " << error.what() << "\n";
-          oss << "Failed to connect init and goal config directly";
-          hppDout(warning, oss.str());
-        }
+        // add the loop transition as transition list
+        GraphSearchData::state_with_depth_ptr_t _state = d.queue1.front();
+        GraphSearchData::state_with_depth_ptr_t _endState = d.addParent (_state, loopEdges[0]);
+        d.solutions.push_back(_endState);
       }
 
       std::vector<std::string> StatesPathFinder::constraintNamesFromSolverAtWaypoint

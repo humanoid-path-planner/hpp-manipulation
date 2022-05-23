@@ -167,8 +167,8 @@ namespace hpp {
 
           virtual void startSolve();
           virtual void oneStep();
-          /// when both initial and goal configurations are given,
-          /// and they are in the same state, try connecting them directly
+          /// when both initial state is one of potential goal states,
+          /// try connecting them directly
           virtual void tryConnectInitAndGoals ();
 
         protected:

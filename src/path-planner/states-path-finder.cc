@@ -1182,16 +1182,46 @@ namespace hpp {
         matrix_t longestSolved(d.nq, d.N);
         longestSolved.setZero();
         while (wp <= d.solvers.size()) {
-          // enough tries for a waypoint: backtrack or stop
-          while (nTriesDone[wp] >= nTriesMax) {
-            if (wp == 1) {
-              if (nTriesDone[wp] < nTriesMax1)
-                break;
+          if (wp == 1) {
+            // stop if number of tries for the first waypoint exceeds
+            if (nTriesDone[1] >= nTriesMax1) {
               // if cannot solve all the way, return longest VALID sequence
               d.waypoint = longestSolved;
               displayConfigsSolved();
-              return false; // too many tries that need to reset the entire solution
+              return false;
             }
+            // Reset the fail counter while the solution is empty
+            nFails = 0;
+            nBadSolves = 0;
+
+          }  else if (nFails >= nFailsMax || nBadSolves >= nBadSolvesMax) {
+            // Completely reset a solution when too many tries have failed
+
+            // update the longest valid sequence of waypoints solved
+            if (wp - 1 > wp_max) {
+              // update the maximum index of valid waypoint
+              wp_max = wp - 1;
+              // save the sequence
+              longestSolved.leftCols(wp_max) = d.waypoint.leftCols(wp_max);
+            }
+
+            std::fill(nTriesDone.begin()+2, nTriesDone.end(), 0);
+            wp = 1;
+
+#ifdef HPP_DEBUG
+            if (nFails >= nFailsMax) {
+              hppDout (warning, " Solution " << graphData_->idxSol << ": too many collisions. Resetting back to WP1");
+            }
+            if (nBadSolves >= nBadSolvesMax) {
+              hppDout (warning, " Solution " << graphData_->idxSol << ": too many bad solve statuses. Resetting back to WP1");
+            }            
+#endif
+
+            continue;
+
+          } else if (nTriesDone[wp] >= nTriesMax) {
+            // enough tries for a waypoint: backtrack
+            
             // update the longest valid sequence of waypoints solved
             if (wp -1 > wp_max) {
               // update the maximum index of valid waypoint
@@ -1199,32 +1229,15 @@ namespace hpp {
               // save the sequence
               longestSolved.leftCols(wp_max) = d.waypoint.leftCols(wp_max);
             }
+
             do {
               nTriesDone[wp] = 0;
               wp--; // backtrack: try a new solution for the latest waypoint
-            } while (wp>1 && d.isTargetWaypoint[wp-1]);
+            } while (wp>1 && (d.isTargetWaypoint[wp-1] || nTriesDone[wp] >= nTriesMax));
+
+            continue;
           }
 
-          // Completely reset a solution when too many tries have failed
-          if (wp > 1 && (nFails >= nFailsMax || nBadSolves >= nBadSolvesMax)) {
-            for (std::size_t k = 2; k <= d.solvers.size(); k++)
-              nTriesDone[k] = 0;
-            wp = 1;
-            if (nBadSolves >= nBadSolvesMax) {
-              hppDout (warning, " Solution " << graphData_->idxSol << ": too many bad solve statuses. Resetting back to WP1");
-            }
-            if (nTriesDone[1] >= nTriesMax1) {
-              // if cannot solve all the way, return longest VALID sequence
-              d.waypoint = longestSolved;
-              displayConfigsSolved();
-              return false;
-            }
-          }
-          // Reset the fail counter while the solution is empty
-          if (wp == 1) {
-            nFails = 0;
-            nBadSolves = 0;
-          }
           // Initialize right hand sides, and
           // Choose a starting configuration for the solver.solve method:
           // - from previous waypoint if it's the first time we see this solver
@@ -1564,7 +1577,8 @@ namespace hpp {
             Parameter((size_type)60)));
       core::Problem::declareParameter(ParameterDescription(Parameter::FLOAT,
             "StatesPathFinder/errorThreshold",
-            "Error threshold of the Newton Raphson algorithm.",
+            "Error threshold of the Newton Raphson algorithm."
+            "Should be at most the same as error threshold in constraint graph",
             Parameter(1e-4)));
       core::Problem::declareParameter(ParameterDescription(Parameter::INT,
             "StatesPathFinder/nTriesUntilBacktrack",

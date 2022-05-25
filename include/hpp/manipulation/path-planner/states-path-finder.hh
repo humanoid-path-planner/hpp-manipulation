@@ -254,7 +254,13 @@ namespace hpp {
           mutable std::shared_ptr <GraphSearchData> graphData_;
           graph::Edges_t lastBuiltTransitions_;
 
-          // Constraints defining the goal
+          /// Constraints defining the goal
+          /// For now:
+          /// - comparison type Equality is initialized to zero
+          /// - if goal constraint is not already present in any graph state,
+          ///   it should not require propagating a complement.
+          ///   invalid eg: specify the full pose of an object placement or
+          ///   object grasp
           NumericalConstraints_t goalConstraints_;
           bool goalDefinedByConstraints_;
           // Variables used across several calls to oneStep

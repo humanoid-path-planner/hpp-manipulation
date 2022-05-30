@@ -1446,38 +1446,6 @@ namespace hpp {
         reset();
       }
 
-      void StatesPathFinder::planInState(const ConfigurationPtr_t& q1,
-          const ConfigurationPtr_t& q2, const graph::EdgePtr_t& edge) {
-        // Copy edge constraints
-        core::ConstraintSetPtr_t constraints(HPP_DYNAMIC_PTR_CAST(
-            core::ConstraintSet, edge->pathConstraint()->copy()));
-        // Initialize right hand side
-        constraints->configProjector()->rightHandSideFromConfig(*q1);
-        assert(constraints->isSatisfied(*q2));
-        inStateProblem_->constraints(constraints);
-        inStateProblem_->pathValidation(edge->pathValidation());
-        inStateProblem_->initConfig(q1);
-        inStateProblem_->resetGoalConfigs();
-        inStateProblem_->addGoalConfig(q2);
-
-        core::PathPlannerPtr_t inStatePlanner
-          (core::DiffusingPlanner::create(inStateProblem_));
-        core::PathOptimizerPtr_t inStateOptimizer
-          (core::pathOptimization::RandomShortcut::create(inStateProblem_));
-        inStatePlanner->maxIterations(problem_->getParameter
-            ("StatesPathFinder/innerPlannerMaxIterations").intValue());
-        inStatePlanner->timeOut(problem_->getParameter
-            ("StatesPathFinder/innerPlannerTimeOut").floatValue());
-
-        core::PathVectorPtr_t path = inStatePlanner->solve();
-        for (std::size_t r = 0; r < path->numberPaths()-1; r++)
-          assert(path->pathAtRank(r)->end() ==
-                  path->pathAtRank(r+1)->initial());
-        roadmap()->merge(inStatePlanner->roadmap());
-        // core::PathVectorPtr_t opt = inStateOptimizer->optimize(path);
-        // roadmap()->insertPathVector(opt, true);
-      }
-
       void StatesPathFinder::oneStep ()
       {
         if (idxConfigList_ == 0) {
@@ -1491,22 +1459,48 @@ namespace hpp {
         }
         size_t & idxSol = graphData_->idxSol;
         ConfigurationPtr_t q1, q2;
+        const Edges_t& transitions = lastBuiltTransitions_;
+        q1 = ConfigurationPtr_t(new Configuration_t(configSolved
+                                                    (idxConfigList_)));
+        q2 = ConfigurationPtr_t(new Configuration_t(configSolved
+                                                    (idxConfigList_+1)));
+        const graph::EdgePtr_t& edge(transitions[idxConfigList_]);
+        // Copy edge constraints
+        core::ConstraintSetPtr_t constraints(HPP_DYNAMIC_PTR_CAST(
+            core::ConstraintSet, edge->pathConstraint()->copy()));
+        // Initialize right hand side
+        constraints->configProjector()->rightHandSideFromConfig(*q1);
+        assert(constraints->isSatisfied(*q2));
+        inStateProblem_->constraints(constraints);
+        inStateProblem_->pathValidation(edge->pathValidation());
+        inStateProblem_->initConfig(q1);
+        inStateProblem_->resetGoalConfigs();
+        inStateProblem_->addGoalConfig(q2);
+
+        /// use inner state planner to plan path between two configurations.
+        /// these configs lie on same leaf (same RHS wrt edge constraints)
+        /// eg consecutive configs in the solved config list
+        core::PathPlannerPtr_t inStatePlanner
+          (core::DiffusingPlanner::create(inStateProblem_));
+        core::PathOptimizerPtr_t inStateOptimizer
+          (core::pathOptimization::RandomShortcut::create(inStateProblem_));
+        inStatePlanner->maxIterations(problem_->getParameter
+            ("StatesPathFinder/innerPlannerMaxIterations").intValue());
+        inStatePlanner->timeOut(problem_->getParameter
+            ("StatesPathFinder/innerPlannerTimeOut").floatValue());
+        hppDout(info, "calling InStatePlanner_.solve for transition "
+                << idxConfigList_);
+        core::PathVectorPtr_t path;
         try {
-          const Edges_t& transitions = lastBuiltTransitions_;
-          q1 = ConfigurationPtr_t(new Configuration_t(configSolved
-                                                      (idxConfigList_)));
-          q2 = ConfigurationPtr_t(new Configuration_t(configSolved
-                                                      (idxConfigList_+1)));
-          const graph::EdgePtr_t& edge(transitions[idxConfigList_]);
-          hppDout(info, "calling InStatePlanner_.solve for transition "
-                  << idxConfigList_);
-          planInState(q1, q2, edge);
+          path = inStatePlanner->solve();
+          for (std::size_t r = 0; r < path->numberPaths()-1; r++)
+            assert(path->pathAtRank(r)->end() ==
+                   path->pathAtRank(r+1)->initial());
           idxConfigList_++;
           if (idxConfigList_ == configList_.size()-1) {
             hppDout(warning, "Solution " << idxSol << ": Success"
                     << "\n-----------------------------------------------");
           }
-
         } catch(const core::path_planning_failed& error) {
           std::ostringstream oss;
           oss << "Error " << error.what() << "\n";
@@ -1523,6 +1517,11 @@ namespace hpp {
             idxSol++;
           }
         }
+        roadmap()->merge(inStatePlanner->roadmap());
+        // if (path) {
+        //   core::PathVectorPtr_t opt = inStateOptimizer->optimize(path);
+        //   roadmap()->insertPathVector(opt, true);
+        // }
       }
 
       void StatesPathFinder::tryConnectInitAndGoals()

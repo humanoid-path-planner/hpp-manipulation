@@ -29,20 +29,20 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_STEERING_METHOD_FWD_HH
-# define HPP_MANIPULATION_STEERING_METHOD_FWD_HH
+#define HPP_MANIPULATION_STEERING_METHOD_FWD_HH
 
-# include <map>
-# include <hpp/core/fwd.hh>
+#include <hpp/core/fwd.hh>
+#include <map>
 
 namespace hpp {
-  namespace manipulation {
-    namespace steeringMethod {
-      HPP_PREDEF_CLASS (Graph);
-      typedef shared_ptr < Graph > GraphPtr_t;
-      HPP_PREDEF_CLASS (CrossStateOptimization);
-      typedef shared_ptr < CrossStateOptimization > CrossStateOptimizationPtr_t;
-    } // namespace steeringMethod
-  } // namespace manipulation
-} // namespace hpp
+namespace manipulation {
+namespace steeringMethod {
+HPP_PREDEF_CLASS(Graph);
+typedef shared_ptr<Graph> GraphPtr_t;
+HPP_PREDEF_CLASS(CrossStateOptimization);
+typedef shared_ptr<CrossStateOptimization> CrossStateOptimizationPtr_t;
+}  // namespace steeringMethod
+}  // namespace manipulation
+}  // namespace hpp
 
-#endif // HPP_MANIPULATION_STEERING_METHOD_FWD_HH
+#endif  // HPP_MANIPULATION_STEERING_METHOD_FWD_HH

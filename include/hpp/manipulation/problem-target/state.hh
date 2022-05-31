@@ -28,52 +28,46 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_PROBLEM_TARGET_STATE_HH
-# define HPP_MANIPULATION_PROBLEM_TARGET_STATE_HH
+#define HPP_MANIPULATION_PROBLEM_TARGET_STATE_HH
 
-# include <hpp/core/problem-target.hh>
-
-# include <hpp/core/fwd.hh>
-# include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/graph/fwd.hh>
-# include <hpp/manipulation/config.hh>
+#include <hpp/core/fwd.hh>
+#include <hpp/core/problem-target.hh>
+#include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/fwd.hh>
+#include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
-  namespace manipulation {
-    namespace problemTarget {
-      /// \addtogroup path_planning
-      /// \{
+namespace manipulation {
+namespace problemTarget {
+/// \addtogroup path_planning
+/// \{
 
-      /// State
-      ///
-      /// This class defines a goal using state of the constraint graph.
-      class HPP_MANIPULATION_DLLAPI State : public core::ProblemTarget {
-        public:
-          static StatePtr_t create (const core::ProblemPtr_t& problem);
+/// State
+///
+/// This class defines a goal using state of the constraint graph.
+class HPP_MANIPULATION_DLLAPI State : public core::ProblemTarget {
+ public:
+  static StatePtr_t create(const core::ProblemPtr_t& problem);
 
-          /// Check if the problem target is well specified.
-          void check (const core::RoadmapPtr_t& roadmap) const;
+  /// Check if the problem target is well specified.
+  void check(const core::RoadmapPtr_t& roadmap) const;
 
-          /// Check whether the problem is solved.
-          bool reached (const core::RoadmapPtr_t& roadmap) const;
+  /// Check whether the problem is solved.
+  bool reached(const core::RoadmapPtr_t& roadmap) const;
 
-          core::PathVectorPtr_t computePath(const core::RoadmapPtr_t& roadmap) const;
+  core::PathVectorPtr_t computePath(const core::RoadmapPtr_t& roadmap) const;
 
-          void target (const graph::StatePtr_t& state)
-          {
-            state_ = state;
-          }
+  void target(const graph::StatePtr_t& state) { state_ = state; }
 
-        protected:
-          /// Constructor
-          State (const core::ProblemPtr_t& problem)
-            : ProblemTarget (problem)
-          {}
+ protected:
+  /// Constructor
+  State(const core::ProblemPtr_t& problem) : ProblemTarget(problem) {}
 
-        private:
-          graph::StatePtr_t state_;
-      }; // class State
-      /// \}
-    } // namespace problemTarget
-  } //   namespace manipulation
-} // namespace hpp
-#endif // HPP_MANIPULATION_PROBLEM_TARGET_STATE_HH
+ private:
+  graph::StatePtr_t state_;
+};  // class State
+/// \}
+}  // namespace problemTarget
+}  //   namespace manipulation
+}  // namespace hpp
+#endif  // HPP_MANIPULATION_PROBLEM_TARGET_STATE_HH

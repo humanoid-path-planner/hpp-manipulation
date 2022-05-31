@@ -28,118 +28,94 @@
 
 #include "hpp/manipulation/graph/graph-component.hh"
 
+#include <hpp/constraints/differentiable-function.hh>
+#include <hpp/constraints/implicit.hh>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
-#include <hpp/constraints/implicit.hh>
-
-#include <hpp/constraints/differentiable-function.hh>
 
 #include "hpp/manipulation/graph/graph.hh"
 
 namespace hpp {
-  namespace manipulation {
-    namespace graph {
-      typedef constraints::Implicit Implicit;
-      const std::string& GraphComponent::name() const
-      {
-        return name_;
-      }
+namespace manipulation {
+namespace graph {
+typedef constraints::Implicit Implicit;
+const std::string& GraphComponent::name() const { return name_; }
 
-      std::ostream& GraphComponent::print (std::ostream& os) const
-      {
-        os << id () << " : " << name ();
-        return os;
-      }
+std::ostream& GraphComponent::print(std::ostream& os) const {
+  os << id() << " : " << name();
+  return os;
+}
 
-      std::ostream& GraphComponent::dotPrint (std::ostream& os, dot::DrawingAttributes) const
-      {
-        os << id ();
-        return os;
-      }
+std::ostream& GraphComponent::dotPrint(std::ostream& os,
+                                       dot::DrawingAttributes) const {
+  os << id();
+  return os;
+}
 
-      void GraphComponent::setDirty()
-      {
-        invalidate();
-      }
+void GraphComponent::setDirty() { invalidate(); }
 
-      void GraphComponent::addNumericalConstraint (const ImplicitPtr_t& nm)
-      {
-        invalidate();
-        numericalConstraints_.push_back(nm);
-      }
+void GraphComponent::addNumericalConstraint(const ImplicitPtr_t& nm) {
+  invalidate();
+  numericalConstraints_.push_back(nm);
+}
 
-      void GraphComponent::addNumericalCost (const ImplicitPtr_t& cost)
-      {
-        invalidate();
-        numericalCosts_.push_back(cost);
-      }
+void GraphComponent::addNumericalCost(const ImplicitPtr_t& cost) {
+  invalidate();
+  numericalCosts_.push_back(cost);
+}
 
-      void GraphComponent::resetNumericalConstraints ()
-      {
-        invalidate();
-	numericalConstraints_.clear();
-        numericalCosts_.clear();
-      }
+void GraphComponent::resetNumericalConstraints() {
+  invalidate();
+  numericalConstraints_.clear();
+  numericalCosts_.clear();
+}
 
-      bool GraphComponent::insertNumericalConstraints (ConfigProjectorPtr_t& proj) const
-      {
-        for (const auto& nc : numericalConstraints_)
-          proj->add (nc);
-        for (const auto& nc : numericalCosts_)
-          proj->add (nc, 1);
-        return !numericalConstraints_.empty ();
-      }
+bool GraphComponent::insertNumericalConstraints(
+    ConfigProjectorPtr_t& proj) const {
+  for (const auto& nc : numericalConstraints_) proj->add(nc);
+  for (const auto& nc : numericalCosts_) proj->add(nc, 1);
+  return !numericalConstraints_.empty();
+}
 
-      const NumericalConstraints_t& GraphComponent::numericalConstraints() const
-      {
-        return numericalConstraints_;
-      }
+const NumericalConstraints_t& GraphComponent::numericalConstraints() const {
+  return numericalConstraints_;
+}
 
-      const NumericalConstraints_t& GraphComponent::numericalCosts() const
-      {
-        return numericalCosts_;
-      }
+const NumericalConstraints_t& GraphComponent::numericalCosts() const {
+  return numericalCosts_;
+}
 
-      GraphPtr_t GraphComponent::parentGraph() const
-      {
-        return graph_.lock ();
-      }
+GraphPtr_t GraphComponent::parentGraph() const { return graph_.lock(); }
 
-      void GraphComponent::parentGraph(const GraphWkPtr_t& parent)
-      {
-        graph_ = parent;
-        GraphPtr_t g = graph_.lock();
-        assert(g);
-        id_ = g->components().size();
-        g->components().push_back (wkPtr_);
-      }
+void GraphComponent::parentGraph(const GraphWkPtr_t& parent) {
+  graph_ = parent;
+  GraphPtr_t g = graph_.lock();
+  assert(g);
+  id_ = g->components().size();
+  g->components().push_back(wkPtr_);
+}
 
-      void GraphComponent::init (const GraphComponentWkPtr_t& weak)
-      {
-        wkPtr_ = weak;
-      }
+void GraphComponent::init(const GraphComponentWkPtr_t& weak) { wkPtr_ = weak; }
 
-      void GraphComponent::throwIfNotInitialized () const
-      {
-        if (!isInit_){
-          throw std::logic_error
-            ("The graph should have been initialized first.");
-        }
-      }
+void GraphComponent::throwIfNotInitialized() const {
+  if (!isInit_) {
+    throw std::logic_error("The graph should have been initialized first.");
+  }
+}
 
-      std::ostream& operator<< (std::ostream& os,
-          const hpp::manipulation::graph::GraphComponent& graphComp)
-      {
-        return graphComp.print (os);
-      }
+std::ostream& operator<<(
+    std::ostream& os,
+    const hpp::manipulation::graph::GraphComponent& graphComp) {
+  return graphComp.print(os);
+}
 
-      void GraphComponent::populateTooltip (dot::Tooltip& tp) const
-      {
-        for (NumericalConstraints_t::const_iterator it = numericalConstraints_.begin ();
-            it != numericalConstraints_.end (); ++it) {
-          tp.addLine ("- " + (*it)->function ().name ());
-        }
-      }
-    } // namespace graph
-  } // namespace manipulation
-} // namespace hpp
+void GraphComponent::populateTooltip(dot::Tooltip& tp) const {
+  for (NumericalConstraints_t::const_iterator it =
+           numericalConstraints_.begin();
+       it != numericalConstraints_.end(); ++it) {
+    tp.addLine("- " + (*it)->function().name());
+  }
+}
+}  // namespace graph
+}  // namespace manipulation
+}  // namespace hpp

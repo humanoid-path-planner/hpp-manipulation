@@ -33,128 +33,108 @@
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>
 #include <hpp/manipulation/graph/fwd.hh>
-
 #include <hpp/manipulation/roadmap-node.hh>
 
 namespace hpp {
-  namespace manipulation {
-    /// Set of configurations accessible to each others by a single transition,
-    /// with the same right hand side.
-    ///
-    /// This assumes the roadmap is not directed.
-    class HPP_MANIPULATION_DLLAPI LeafConnectedComp
-    {
-      public:
-        typedef LeafConnectedComp* RawPtr_t;
-        typedef std::set <RawPtr_t> LeafConnectedComps_t;
-        /// return a shared pointer to new instance
-        static LeafConnectedCompPtr_t create (const RoadmapPtr_t& roadmap);
+namespace manipulation {
+/// Set of configurations accessible to each others by a single transition,
+/// with the same right hand side.
+///
+/// This assumes the roadmap is not directed.
+class HPP_MANIPULATION_DLLAPI LeafConnectedComp {
+ public:
+  typedef LeafConnectedComp* RawPtr_t;
+  typedef std::set<RawPtr_t> LeafConnectedComps_t;
+  /// return a shared pointer to new instance
+  static LeafConnectedCompPtr_t create(const RoadmapPtr_t& roadmap);
 
-        /// Merge two connected components
-        /// \param other manipulation symbolic component to merge into this one.
-        /// \note other will be empty after calling this method.
-        virtual void merge (const LeafConnectedCompPtr_t& otherCC);
+  /// Merge two connected components
+  /// \param other manipulation symbolic component to merge into this one.
+  /// \note other will be empty after calling this method.
+  virtual void merge(const LeafConnectedCompPtr_t& otherCC);
 
-        /// Whether this connected component can reach cc
-        /// \param cc a connected component
-        bool canReach (const LeafConnectedCompPtr_t& cc);
+  /// Whether this connected component can reach cc
+  /// \param cc a connected component
+  bool canReach(const LeafConnectedCompPtr_t& cc);
 
-        /// Whether this connected component can reach cc
-        /// \param cc a connected component
-        /// \retval cc2Tocc1 list of connected components between cc2 and cc1
-        ///         that should be merged.
-        bool canReach (const LeafConnectedCompPtr_t& cc,
-                       LeafConnectedComp::LeafConnectedComps_t& cc2Tocc1);
+  /// Whether this connected component can reach cc
+  /// \param cc a connected component
+  /// \retval cc2Tocc1 list of connected components between cc2 and cc1
+  ///         that should be merged.
+  bool canReach(const LeafConnectedCompPtr_t& cc,
+                LeafConnectedComp::LeafConnectedComps_t& cc2Tocc1);
 
-        /// Add roadmap node to connected component
-        /// \param roadmap node to be added
-        void addNode (const RoadmapNodePtr_t& node);
+  /// Add roadmap node to connected component
+  /// \param roadmap node to be added
+  void addNode(const RoadmapNodePtr_t& node);
 
-        virtual void setFirstNode (const RoadmapNodePtr_t& node);
+  virtual void setFirstNode(const RoadmapNodePtr_t& node);
 
-        core::ConnectedComponentPtr_t connectedComponent () const
-        {
-          assert (!nodes_.empty());
-          return nodes_.front()->connectedComponent();
-        };
+  core::ConnectedComponentPtr_t connectedComponent() const {
+    assert(!nodes_.empty());
+    return nodes_.front()->connectedComponent();
+  };
 
-        const RoadmapNodes_t& nodes() const
-        {
-          return nodes_;
-        }
+  const RoadmapNodes_t& nodes() const { return nodes_; }
 
-        LeafConnectedCompPtr_t self ()
-        {
-          return weak_.lock ();
-        }
+  LeafConnectedCompPtr_t self() { return weak_.lock(); }
 
-        const LeafConnectedComp::LeafConnectedComps_t& from () const
-        {
-          return from_;
-        }
+  const LeafConnectedComp::LeafConnectedComps_t& from() const { return from_; }
 
-        const LeafConnectedComp::LeafConnectedComps_t& to () const
-        {
-          return to_;
-        }
-    protected:
-        LeafConnectedComp(const RoadmapPtr_t& r)
-          : roadmap_(r) {}
+  const LeafConnectedComp::LeafConnectedComps_t& to() const { return to_; }
 
-        void init (const LeafConnectedCompWkPtr_t& shPtr)
-        {
-          weak_ = shPtr;
-        }
+ protected:
+  LeafConnectedComp(const RoadmapPtr_t& r) : roadmap_(r) {}
 
-        graph::StatePtr_t state_;
-        RoadmapNodes_t nodes_;
+  void init(const LeafConnectedCompWkPtr_t& shPtr) { weak_ = shPtr; }
 
-        /// For serialization only.
-        LeafConnectedComp() {}
+  graph::StatePtr_t state_;
+  RoadmapNodes_t nodes_;
 
-      private:
-        static void clean (LeafConnectedComps_t& set);
-        // status variable to indicate whether or not CC has been visited
-        mutable bool explored_;
-        RoadmapWkPtr_t roadmap_;
-        LeafConnectedComps_t to_, from_;
-        LeafConnectedCompWkPtr_t weak_;
-        friend class Roadmap;
+  /// For serialization only.
+  LeafConnectedComp() {}
 
-        HPP_SERIALIZABLE();
-    }; // class LeafConnectedComp
+ private:
+  static void clean(LeafConnectedComps_t& set);
+  // status variable to indicate whether or not CC has been visited
+  mutable bool explored_;
+  RoadmapWkPtr_t roadmap_;
+  LeafConnectedComps_t to_, from_;
+  LeafConnectedCompWkPtr_t weak_;
+  friend class Roadmap;
 
-    class HPP_MANIPULATION_DLLAPI WeighedLeafConnectedComp :
-      public LeafConnectedComp
-    {
-      public:
-        void merge (const LeafConnectedCompPtr_t& otherCC);
+  HPP_SERIALIZABLE();
+};  // class LeafConnectedComp
 
-        void setFirstNode (const RoadmapNodePtr_t& node);
+class HPP_MANIPULATION_DLLAPI WeighedLeafConnectedComp
+    : public LeafConnectedComp {
+ public:
+  void merge(const LeafConnectedCompPtr_t& otherCC);
 
-        static WeighedLeafConnectedCompPtr_t create (const RoadmapPtr_t& roadmap);
+  void setFirstNode(const RoadmapNodePtr_t& node);
 
-        std::size_t indexOf (const graph::EdgePtr_t e) const;
+  static WeighedLeafConnectedCompPtr_t create(const RoadmapPtr_t& roadmap);
 
-        void normalizeProba ()
-        {
-          const value_type s = p_.sum();
-          p_ /= s;
-        }
+  std::size_t indexOf(const graph::EdgePtr_t e) const;
 
-        value_type weight_;
-        /// Transition probabilities
-        vector_t p_;
-        std::vector<graph::EdgePtr_t> edges_;
+  void normalizeProba() {
+    const value_type s = p_.sum();
+    p_ /= s;
+  }
 
-      protected:
-        WeighedLeafConnectedComp(const RoadmapPtr_t& r)
-          : LeafConnectedComp(r), weight_(1) {}
+  value_type weight_;
+  /// Transition probabilities
+  vector_t p_;
+  std::vector<graph::EdgePtr_t> edges_;
 
-      private:
-        WeighedLeafConnectedComp() {}
-        HPP_SERIALIZABLE();
-    }; // class LeafConnectedComp
-  } //   namespace manipulation
-} // namespace hpp
-#endif // HPP_MANIPULATION_LEAF_CONNECTED_COMP_HH
+ protected:
+  WeighedLeafConnectedComp(const RoadmapPtr_t& r)
+      : LeafConnectedComp(r), weight_(1) {}
+
+ private:
+  WeighedLeafConnectedComp() {}
+  HPP_SERIALIZABLE();
+};  // class LeafConnectedComp
+}  //   namespace manipulation
+}  // namespace hpp
+#endif  // HPP_MANIPULATION_LEAF_CONNECTED_COMP_HH

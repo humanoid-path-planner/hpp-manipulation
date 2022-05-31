@@ -26,52 +26,48 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <hpp/manipulation/problem-target/state.hh>
-
-#include <stdexcept>
-
-#include <hpp/util/debug.hh>
-
-#include <hpp/core/node.hh>
 #include <hpp/core/connected-component.hh>
+#include <hpp/core/node.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
+#include <hpp/manipulation/problem-target/state.hh>
+#include <hpp/util/debug.hh>
+#include <stdexcept>
 
 #include "astar.hh"
 
 namespace hpp {
-  namespace manipulation {
-    namespace problemTarget {
-      StatePtr_t State::create (const core::ProblemPtr_t& problem)
-      {
-        State* tt = new State (problem);
-        StatePtr_t shPtr (tt);
-        tt->init (shPtr);
-        return shPtr;
-      }
+namespace manipulation {
+namespace problemTarget {
+StatePtr_t State::create(const core::ProblemPtr_t& problem) {
+  State* tt = new State(problem);
+  StatePtr_t shPtr(tt);
+  tt->init(shPtr);
+  return shPtr;
+}
 
-      void State::check (const core::RoadmapPtr_t&) const
-      {
-        if (!state_) {
-          HPP_THROW(std::runtime_error, "No state: task not specified.");
-        }
-      }
+void State::check(const core::RoadmapPtr_t&) const {
+  if (!state_) {
+    HPP_THROW(std::runtime_error, "No state: task not specified.");
+  }
+}
 
-      bool State::reached (const core::RoadmapPtr_t& roadmap) const
-      {
-        const core::ConnectedComponentPtr_t& _cc = roadmap->initNode()->connectedComponent();
-        const ConnectedComponentPtr_t cc = HPP_DYNAMIC_PTR_CAST(ConnectedComponent, _cc);
-        assert (cc);
-        return !cc->getRoadmapNodes(state_).empty();
-      }
+bool State::reached(const core::RoadmapPtr_t& roadmap) const {
+  const core::ConnectedComponentPtr_t& _cc =
+      roadmap->initNode()->connectedComponent();
+  const ConnectedComponentPtr_t cc =
+      HPP_DYNAMIC_PTR_CAST(ConnectedComponent, _cc);
+  assert(cc);
+  return !cc->getRoadmapNodes(state_).empty();
+}
 
-      core::PathVectorPtr_t State::computePath(const core::RoadmapPtr_t& roadmap) const
-      {
-        core::ProblemPtr_t p = problem_.lock();
-        assert (p);
-        Astar astar (roadmap, p->distance (), state_);
-        return astar.solution ();
-      }
-    } // namespace problemTarget
-  } // namespace manipulation
-} // namespace hpp
+core::PathVectorPtr_t State::computePath(
+    const core::RoadmapPtr_t& roadmap) const {
+  core::ProblemPtr_t p = problem_.lock();
+  assert(p);
+  Astar astar(roadmap, p->distance(), state_);
+  return astar.solution();
+}
+}  // namespace problemTarget
+}  // namespace manipulation
+}  // namespace hpp

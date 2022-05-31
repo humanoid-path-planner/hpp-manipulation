@@ -27,67 +27,62 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_GRAPH_DOT_HH
-# define HPP_MANIPULATION_GRAPH_DOT_HH
+#define HPP_MANIPULATION_GRAPH_DOT_HH
 
-# include <ostream>
-# include <sstream>
-# include <map>
-# include <list>
+#include <list>
+#include <map>
+#include <ostream>
+#include <sstream>
 
 namespace hpp {
-  namespace manipulation {
-    namespace graph {
-      namespace dot {
+namespace manipulation {
+namespace graph {
+namespace dot {
 
-        struct DrawingAttributes {
-          typedef std::pair <std::string, std::string> Pair;
-          typedef std::map <std::string, std::string> Map;
+struct DrawingAttributes {
+  typedef std::pair<std::string, std::string> Pair;
+  typedef std::map<std::string, std::string> Map;
 
-          std::string separator, openSection, closeSection;
-          Map attr;
+  std::string separator, openSection, closeSection;
+  Map attr;
 
-          inline void insertWithQuote (const std::string& K, const std::string& V) {
-            attr.insert (Pair (K, "\"" + V + "\""));
-          }
-          inline void insert (const std::string& K, const std::string& V) {
-            attr.insert (Pair (K, V));
-          }
-          std::string& operator [] (const std::string& K) {
-            return attr [K];
-          }
-          DrawingAttributes () :
-            separator (", "), openSection ("["), closeSection ("]"),
-            attr () {};
-        };
+  inline void insertWithQuote(const std::string& K, const std::string& V) {
+    attr.insert(Pair(K, "\"" + V + "\""));
+  }
+  inline void insert(const std::string& K, const std::string& V) {
+    attr.insert(Pair(K, V));
+  }
+  std::string& operator[](const std::string& K) { return attr[K]; }
+  DrawingAttributes()
+      : separator(", "), openSection("["), closeSection("]"), attr(){};
+};
 
-        struct Tooltip {
-          static const std::string tooltipendl;
-          typedef std::list <std::string> TooltipLineVector;
-          TooltipLineVector v;
+struct Tooltip {
+  static const std::string tooltipendl;
+  typedef std::list<std::string> TooltipLineVector;
+  TooltipLineVector v;
 
-          Tooltip () : v() {};
-          inline std::string toStr () const {
-            std::stringstream ss;
-            size_t i = v.size ();
-            for (TooltipLineVector::const_iterator
-                it = v.begin (); it != v.end (); ++it ) {
-              ss << *it;
-              i--;
-              if (i > 0) ss << tooltipendl;
-            }
-            return ss.str ();
-          }
-          inline void addLine (const std::string& l) {
-            v.push_back (l);
-          }
-        };
+  Tooltip() : v(){};
+  inline std::string toStr() const {
+    std::stringstream ss;
+    size_t i = v.size();
+    for (TooltipLineVector::const_iterator it = v.begin(); it != v.end();
+         ++it) {
+      ss << *it;
+      i--;
+      if (i > 0) ss << tooltipendl;
+    }
+    return ss.str();
+  }
+  inline void addLine(const std::string& l) { v.push_back(l); }
+};
 
-        std::ostream& insertComments (std::ostream& os, const std::string& c);
+std::ostream& insertComments(std::ostream& os, const std::string& c);
 
-        std::ostream& operator<< (std::ostream& os, const DrawingAttributes& da);
-      } // namespace dot
-    } // namespace graph
-  } // namespace manipulation
-} // namespace hpp
+std::ostream& operator<<(std::ostream& os, const DrawingAttributes& da);
+}  // namespace dot
+}  // namespace graph
+}  // namespace manipulation
+}  // namespace hpp
 
-#endif // HPP_MANIPULATION_GRAPH_DOT_HH
+#endif  // HPP_MANIPULATION_GRAPH_DOT_HH

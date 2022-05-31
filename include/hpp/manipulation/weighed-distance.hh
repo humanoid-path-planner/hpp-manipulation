@@ -27,64 +27,55 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_DISTANCE_HH
-# define HPP_MANIPULATION_DISTANCE_HH
+#define HPP_MANIPULATION_DISTANCE_HH
 
-# include <hpp/core/weighed-distance.hh>
-
-# include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/config.hh>
-# include <hpp/manipulation/graph/fwd.hh>
+#include <hpp/core/weighed-distance.hh>
+#include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/fwd.hh>
+#include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
-  namespace manipulation {
-    /// \addtogroup steering_method
-    /// \{
+namespace manipulation {
+/// \addtogroup steering_method
+/// \{
 
-    /// Class for distance between configurations
-    class HPP_MANIPULATION_DLLAPI WeighedDistance : public core::WeighedDistance
-    {
-    public:
-      static WeighedDistancePtr_t create (const DevicePtr_t& robot,
-          const graph::GraphPtr_t& graph);
+/// Class for distance between configurations
+class HPP_MANIPULATION_DLLAPI WeighedDistance : public core::WeighedDistance {
+ public:
+  static WeighedDistancePtr_t create(const DevicePtr_t& robot,
+                                     const graph::GraphPtr_t& graph);
 
-      static WeighedDistancePtr_t createCopy
-	(const WeighedDistancePtr_t& distance);
+  static WeighedDistancePtr_t createCopy(const WeighedDistancePtr_t& distance);
 
-      virtual core::DistancePtr_t clone () const;
+  virtual core::DistancePtr_t clone() const;
 
-      /// Set the graph of constraints
-      void constraintGraph (const graph::GraphPtr_t& graph)
-      {
-        graph_ = graph;
-      }
+  /// Set the graph of constraints
+  void constraintGraph(const graph::GraphPtr_t& graph) { graph_ = graph; }
 
-      /// Get the graph of constraints
-      graph::GraphPtr_t constraintGraph () const
-      {
-        return graph_;
-      }
+  /// Get the graph of constraints
+  graph::GraphPtr_t constraintGraph() const { return graph_; }
 
-    protected:
-      WeighedDistance (const DevicePtr_t& robot, const graph::GraphPtr_t graph);
+ protected:
+  WeighedDistance(const DevicePtr_t& robot, const graph::GraphPtr_t graph);
 
-      WeighedDistance (const WeighedDistance& distance);
+  WeighedDistance(const WeighedDistance& distance);
 
-      /// Derived class should implement this function
-      virtual value_type impl_distance (
-          ConfigurationIn_t q1, ConfigurationIn_t q2) const;
-      virtual value_type impl_distance (
-          core::NodePtr_t n1, core::NodePtr_t n2) const;
+  /// Derived class should implement this function
+  virtual value_type impl_distance(ConfigurationIn_t q1,
+                                   ConfigurationIn_t q2) const;
+  virtual value_type impl_distance(core::NodePtr_t n1,
+                                   core::NodePtr_t n2) const;
 
-      void init (WeighedDistanceWkPtr_t self);
+  void init(WeighedDistanceWkPtr_t self);
 
-    private:
-      graph::GraphPtr_t graph_;
-      WeighedDistanceWkPtr_t weak_;
+ private:
+  graph::GraphPtr_t graph_;
+  WeighedDistanceWkPtr_t weak_;
 
-      WeighedDistance() {}
-      HPP_SERIALIZABLE();
-    }; // class Distance
-    /// \}
-  } //   namespace manipulation
-} // namespace hpp
-#endif // HPP_MANIPULATION_DISTANCE_HH
+  WeighedDistance() {}
+  HPP_SERIALIZABLE();
+};  // class Distance
+/// \}
+}  //   namespace manipulation
+}  // namespace hpp
+#endif  // HPP_MANIPULATION_DISTANCE_HH

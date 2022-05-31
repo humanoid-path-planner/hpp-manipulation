@@ -28,30 +28,26 @@
 
 #include <hpp/core/plugin.hh>
 #include <hpp/core/problem-solver.hh>
-
-#include <hpp/manipulation/steering-method/end-effector-trajectory.hh>
 #include <hpp/manipulation/path-planner/end-effector-trajectory.hh>
+#include <hpp/manipulation/steering-method/end-effector-trajectory.hh>
 
 namespace hpp {
-  namespace manipulation {
-    class EndEffectorTrajectoryPlugin : public core::ProblemSolverPlugin
-    {
-      public:
-        EndEffectorTrajectoryPlugin ()
-          : ProblemSolverPlugin ("EndEffectorTrajectoryPlugin", "0.0")
-        {}
+namespace manipulation {
+class EndEffectorTrajectoryPlugin : public core::ProblemSolverPlugin {
+ public:
+  EndEffectorTrajectoryPlugin()
+      : ProblemSolverPlugin("EndEffectorTrajectoryPlugin", "0.0") {}
 
-      protected:
-        virtual bool impl_initialize (core::ProblemSolverPtr_t ps)
-        {
-          ps->pathPlanners.add ("EndEffectorTrajectory",
-              pathPlanner::EndEffectorTrajectory::createWithRoadmap);
-          ps->steeringMethods.add ("EndEffectorTrajectory",
-              steeringMethod::EndEffectorTrajectory::create);
-          return true;
-        }
-    };
-  } // namespace manipulation
-} // namespace hpp
+ protected:
+  virtual bool impl_initialize(core::ProblemSolverPtr_t ps) {
+    ps->pathPlanners.add("EndEffectorTrajectory",
+                         pathPlanner::EndEffectorTrajectory::createWithRoadmap);
+    ps->steeringMethods.add("EndEffectorTrajectory",
+                            steeringMethod::EndEffectorTrajectory::create);
+    return true;
+  }
+};
+}  // namespace manipulation
+}  // namespace hpp
 
 HPP_CORE_DEFINE_PLUGIN(hpp::manipulation::EndEffectorTrajectoryPlugin)

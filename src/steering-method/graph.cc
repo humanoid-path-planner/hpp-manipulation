@@ -28,93 +28,80 @@
 
 #include "hpp/manipulation/steering-method/graph.hh"
 
+#include <hpp/core/steering-method/straight.hh>
+#include <hpp/core/straight-path.hh>
+#include <hpp/manipulation/graph/edge.hh>
+#include <hpp/manipulation/graph/graph.hh>
+#include <hpp/manipulation/problem.hh>
 #include <hpp/util/pointer.hh>
 
-#include <hpp/core/straight-path.hh>
-#include <hpp/core/steering-method/straight.hh>
-
-#include <hpp/manipulation/problem.hh>
-#include <hpp/manipulation/graph/graph.hh>
-#include <hpp/manipulation/graph/edge.hh>
-
 namespace hpp {
-  namespace manipulation {
-    SteeringMethod::SteeringMethod (const ProblemConstPtr_t& problem) :
-      core::SteeringMethod (problem), problem_ (problem),
-      steeringMethod_ (core::steeringMethod::Straight::create (problem))
-    {
+namespace manipulation {
+SteeringMethod::SteeringMethod(const ProblemConstPtr_t& problem)
+    : core::SteeringMethod(problem),
+      problem_(problem),
+      steeringMethod_(core::steeringMethod::Straight::create(problem)) {}
+
+SteeringMethod::SteeringMethod(const SteeringMethod& other)
+    : core::SteeringMethod(other),
+      problem_(other.problem_),
+      steeringMethod_(other.steeringMethod_) {}
+
+namespace steeringMethod {
+
+GraphPtr_t Graph::create(const core::ProblemConstPtr_t& problem) {
+  assert(HPP_DYNAMIC_PTR_CAST(const Problem, problem));
+  ProblemConstPtr_t p = HPP_STATIC_PTR_CAST(const Problem, problem);
+  Graph* ptr = new Graph(p);
+  GraphPtr_t shPtr(ptr);
+  ptr->init(shPtr);
+  return shPtr;
+}
+
+GraphPtr_t Graph::createCopy(const GraphPtr_t& other) {
+  Graph* ptr = new Graph(*other);
+  GraphPtr_t shPtr(ptr);
+  ptr->init(shPtr);
+  return shPtr;
+}
+
+Graph::Graph(const ProblemConstPtr_t& problem)
+    : SteeringMethod(problem), weak_() {}
+
+Graph::Graph(const Graph& other) : SteeringMethod(other) {}
+
+PathPtr_t Graph::impl_compute(ConfigurationIn_t q1,
+                              ConfigurationIn_t q2) const {
+  graph::Edges_t possibleEdges;
+  // If q1 and q2 are the same, call the problem steering method between
+  // them
+  if (q1 == q2) {
+    core::SteeringMethodPtr_t sm(
+        problem_->manipulationSteeringMethod()->innerSteeringMethod());
+    return (*sm)(q1, q2);
+  }
+  if (!problem_->constraintGraph())
+    throw std::invalid_argument(
+        "The constraint graph should be set to use the steeringMethod::Graph");
+  const graph::Graph& graph = *(problem_->constraintGraph());
+  try {
+    possibleEdges = graph.getEdges(graph.getState(q1), graph.getState(q2));
+  } catch (const std::logic_error& e) {
+    hppDout(error, e.what());
+    return PathPtr_t();
+  }
+  PathPtr_t path;
+  if (possibleEdges.empty()) {
+    hppDout(info, "No edge found.");
+  }
+  while (!possibleEdges.empty()) {
+    if (possibleEdges.back()->build(path, q1, q2)) {
+      return path;
     }
-
-    SteeringMethod::SteeringMethod (const SteeringMethod& other):
-      core::SteeringMethod (other), problem_ (other.problem_), steeringMethod_
-      (other.steeringMethod_)
-    {
-    }
-
-    namespace steeringMethod {
-
-      GraphPtr_t Graph::create
-        (const core::ProblemConstPtr_t& problem)
-        {
-          assert(HPP_DYNAMIC_PTR_CAST (const Problem, problem));
-          ProblemConstPtr_t p = HPP_STATIC_PTR_CAST(const Problem, problem);
-          Graph* ptr = new Graph (p);
-          GraphPtr_t shPtr (ptr);
-          ptr->init (shPtr);
-          return shPtr;
-        }
-
-      GraphPtr_t Graph::createCopy
-        (const GraphPtr_t& other)
-        {
-          Graph* ptr = new Graph (*other);
-          GraphPtr_t shPtr (ptr);
-          ptr->init (shPtr);
-          return shPtr;
-        }
-
-      Graph::Graph (const ProblemConstPtr_t& problem) :
-        SteeringMethod (problem), weak_ ()
-      {
-      }
-
-      Graph::Graph (const Graph& other):
-        SteeringMethod (other)
-      {
-      }
-
-      PathPtr_t Graph::impl_compute (ConfigurationIn_t q1, ConfigurationIn_t q2) const
-      {
-        graph::Edges_t possibleEdges;
-        // If q1 and q2 are the same, call the problem steering method between
-        // them
-        if (q1 == q2) {
-          core::SteeringMethodPtr_t sm
-            (problem_->manipulationSteeringMethod()->innerSteeringMethod());
-          return (*sm) (q1, q2);
-        }
-        if (!problem_->constraintGraph())
-          throw std::invalid_argument ("The constraint graph should be set to use the steeringMethod::Graph");
-        const graph::Graph& graph = *(problem_->constraintGraph ());
-        try {
-          possibleEdges = graph.getEdges
-            (graph.getState (q1), graph.getState (q2));
-        } catch (const std::logic_error& e) {
-          hppDout (error, e.what ());
-          return PathPtr_t ();
-        }
-        PathPtr_t path;
-        if (possibleEdges.empty()) {
-          hppDout (info, "No edge found.");
-        }
-        while (!possibleEdges.empty()) {
-          if (possibleEdges.back ()->build (path, q1, q2)) {
-            return path;
-          }
-          possibleEdges.pop_back ();
-        }
-        return PathPtr_t ();
-      }
-    } // namespace steeringMethod
-  } // namespace manipulation
-} // namespace hpp
+    possibleEdges.pop_back();
+  }
+  return PathPtr_t();
+}
+}  // namespace steeringMethod
+}  // namespace manipulation
+}  // namespace hpp

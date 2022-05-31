@@ -27,74 +27,68 @@
 // DAMAGE.
 
 #ifndef HPP_MANIPULATION_CONSTRAINT_SET_HH
-# define HPP_MANIPULATION_CONSTRAINT_SET_HH
+#define HPP_MANIPULATION_CONSTRAINT_SET_HH
 
-# include <hpp/core/constraint-set.hh>
-
-# include <hpp/manipulation/fwd.hh>
-# include <hpp/manipulation/graph/fwd.hh>
-# include <hpp/manipulation/config.hh>
+#include <hpp/core/constraint-set.hh>
+#include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/fwd.hh>
+#include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
-  namespace manipulation {
-    /// \addtogroup constraints
-    /// \{
+namespace manipulation {
+/// \addtogroup constraints
+/// \{
 
-    /// a core::ConstraintSet remembering which edge created it
-    class HPP_MANIPULATION_DLLAPI ConstraintSet : public core::ConstraintSet
-    {
-    public:
-      typedef core::ConstraintSet Parent_t;
+/// a core::ConstraintSet remembering which edge created it
+class HPP_MANIPULATION_DLLAPI ConstraintSet : public core::ConstraintSet {
+ public:
+  typedef core::ConstraintSet Parent_t;
 
-      /// Return shared pointer to new object
-      static ConstraintSetPtr_t create (const DevicePtr_t& robot,
-					const std::string& name);
+  /// Return shared pointer to new object
+  static ConstraintSetPtr_t create(const DevicePtr_t& robot,
+                                   const std::string& name);
 
-      /// Return shared pointer to new object
-      static ConstraintSetPtr_t createCopy (const ConstraintSetPtr_t& cs);
+  /// Return shared pointer to new object
+  static ConstraintSetPtr_t createCopy(const ConstraintSetPtr_t& cs);
 
-      /// return shared pointer to copy
-      virtual ConstraintPtr_t copy () const;
+  /// return shared pointer to copy
+  virtual ConstraintPtr_t copy() const;
 
-      void edge (graph::EdgePtr_t edge);
+  void edge(graph::EdgePtr_t edge);
 
-      graph::EdgePtr_t edge () const;
+  graph::EdgePtr_t edge() const;
 
-    protected:
-      /// Constructor
-      ConstraintSet (const DevicePtr_t& robot, const std::string& name);
-      /// Copy constructor
-      ConstraintSet (const ConstraintSet& other);
-      /// Store weak pointer to itself.
-      void init (const ConstraintSetPtr_t& self);
+ protected:
+  /// Constructor
+  ConstraintSet(const DevicePtr_t& robot, const std::string& name);
+  /// Copy constructor
+  ConstraintSet(const ConstraintSet& other);
+  /// Store weak pointer to itself.
+  void init(const ConstraintSetPtr_t& self);
 
-      virtual std::ostream& print (std::ostream& os) const;
+  virtual std::ostream& print(std::ostream& os) const;
 
-    private:
-      graph::EdgePtr_t edge_;
-      ConstraintSetWkPtr_t weak_;
+ private:
+  graph::EdgePtr_t edge_;
+  ConstraintSetWkPtr_t weak_;
 
-      ConstraintSet() {}
-      HPP_SERIALIZABLE();
-    }; // class ConstraintSet
+  ConstraintSet() {}
+  HPP_SERIALIZABLE();
+};  // class ConstraintSet
 
-    struct ConstraintAndComplement_t {
-      ImplicitPtr_t constraint;
-      ImplicitPtr_t complement;
-      ImplicitPtr_t both;
-      ConstraintAndComplement_t (const ImplicitPtr_t& constr,
-          const ImplicitPtr_t& comp,
-          const ImplicitPtr_t& b) :
-        constraint (constr), complement (comp), both (b)
-      {
-      }
-    };
-    typedef std::vector <ConstraintAndComplement_t>
-      ConstraintsAndComplements_t;
-    /// \}
-  } // namespace manipulation
-} // namespace hpp
+struct ConstraintAndComplement_t {
+  ImplicitPtr_t constraint;
+  ImplicitPtr_t complement;
+  ImplicitPtr_t both;
+  ConstraintAndComplement_t(const ImplicitPtr_t& constr,
+                            const ImplicitPtr_t& comp, const ImplicitPtr_t& b)
+      : constraint(constr), complement(comp), both(b) {}
+};
+typedef std::vector<ConstraintAndComplement_t> ConstraintsAndComplements_t;
+/// \}
+}  // namespace manipulation
+}  // namespace hpp
 
 BOOST_CLASS_EXPORT_KEY(hpp::manipulation::ConstraintSet)
 
-#endif // HPP_MANIPULATION_CONSTRAINT_SET_HH
+#endif  // HPP_MANIPULATION_CONSTRAINT_SET_HH

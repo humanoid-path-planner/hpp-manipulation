@@ -521,7 +521,7 @@ namespace hpp {
           return true;
         }
         hpp::pinocchio::vector_t diff = rhsOther - rhsNow;
-        hpp::pinocchio::vector_t diffmask(diff.size());
+        hpp::pinocchio::vector_t diffmask= hpp::pinocchio::vector_t::Zero(diff.size());
         for (auto k: c->activeRows()) // filter with constraint mask
           for (size_type kk = k.first; kk < k.first + k.second; kk++)
             diffmask[kk] = diff[kk];
@@ -749,7 +749,9 @@ namespace hpp {
             }
           }
         } // for (NumericalConstraints_t::const_iterator it
+#ifdef HPP_DEBUG
         displayStatusMatrix (transitions);
+#endif
         // Fill solvers with target constraints of transition
         for (std::size_t j = 0; j < d.N; ++j) {
           d.solvers [j] = transitions [j]->
@@ -765,6 +767,9 @@ namespace hpp {
             const Solver_t& otherSolver = transitions [j+1]->
             pathConstraint ()->configProjector ()->solver ();
             for (std::size_t i = 0; i < constraints_.size (); i++) {
+              // transition from j-1 to j does not contain this constraint
+              // transition from j to j+1 (all the way to goal) has constraint
+              // constraint must be added to solve for waypoint at j (WP_j+1)
               if (d.M_status(i, j-1) == OptimizationData::ABSENT &&
                   d.M_status(i, j) == OptimizationData::EQUAL_TO_GOAL &&
                   !contains(d.solvers[j], constraints_[i]) &&
@@ -821,7 +826,7 @@ namespace hpp {
           return true;
         }
         hpp::pinocchio::vector_t diff = rhsOther - rhsNow;
-        hpp::pinocchio::vector_t diffmask(diff.size());
+        hpp::pinocchio::vector_t diffmask= hpp::pinocchio::vector_t::Zero(diff.size());
         for (auto k: c->activeRows()) // filter with constraint mask
           for (size_type kk = k.first; kk < k.first + k.second; kk++)
             diffmask[kk] = diff[kk];

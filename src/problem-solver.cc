@@ -105,9 +105,8 @@ core::PathProjectorPtr_t createPathProjector(
   steeringMethod::GraphPtr_t gsm =
       HPP_DYNAMIC_PTR_CAST(steeringMethod::Graph, problem->steeringMethod());
   if (!gsm)
-    throw std::logic_error(
-        "The steering method should be of type"
-        " steeringMethod::Graph");
+    return PathProjectorType::create (problem->distance(),
+        problem->steeringMethod(), step);
   return PathProjectorType::create(problem->distance(),
                                    gsm->innerSteeringMethod(), step);
 }

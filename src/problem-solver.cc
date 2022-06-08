@@ -105,8 +105,8 @@ core::PathProjectorPtr_t createPathProjector(
   steeringMethod::GraphPtr_t gsm =
       HPP_DYNAMIC_PTR_CAST(steeringMethod::Graph, problem->steeringMethod());
   if (!gsm)
-    return PathProjectorType::create (problem->distance(),
-        problem->steeringMethod(), step);
+    return PathProjectorType::create(problem->distance(),
+                                     problem->steeringMethod(), step);
   return PathProjectorType::create(problem->distance(),
                                    gsm->innerSteeringMethod(), step);
 }

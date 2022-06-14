@@ -111,10 +111,6 @@ namespace hpp {
       {
         gatherGraphConstraints ();
         inStateProblem_ = core::Problem::create(problem_->robot());
-        core::PathProjectorPtr_t pathProjector
-          (core::pathProjector::Progressive::create
-           (inStateProblem_, 1e-2));
-        inStateProblem_->pathProjector(pathProjector);
       }
 
       StatesPathFinder::StatesPathFinder (const StatesPathFinder& other) :
@@ -1374,6 +1370,7 @@ namespace hpp {
         q1_ = problem_->initConfig();
         assert(q1_);
 
+        inStateProblem_->pathProjector(problem_->pathProjector());
         const graph::GraphPtr_t& graph(problem_->constraintGraph ());
         graphData_.reset(new GraphSearchData());
         GraphSearchData& d = *graphData_;
@@ -1478,6 +1475,7 @@ namespace hpp {
         assert(constraints->isSatisfied(*q2));
         inStateProblem_->constraints(constraints);
         inStateProblem_->pathValidation(edge->pathValidation());
+        inStateProblem_->steeringMethod(edge->steeringMethod());
         inStateProblem_->initConfig(q1);
         inStateProblem_->resetGoalConfigs();
         inStateProblem_->addGoalConfig(q2);
@@ -1487,8 +1485,6 @@ namespace hpp {
         /// eg consecutive configs in the solved config list
         core::PathPlannerPtr_t inStatePlanner
           (core::DiffusingPlanner::create(inStateProblem_));
-        core::PathOptimizerPtr_t inStateOptimizer
-          (core::pathOptimization::RandomShortcut::create(inStateProblem_));
         inStatePlanner->maxIterations(problem_->getParameter
             ("StatesPathFinder/innerPlannerMaxIterations").intValue());
         inStatePlanner->timeOut(problem_->getParameter
@@ -1524,6 +1520,8 @@ namespace hpp {
         }
         roadmap()->merge(inStatePlanner->roadmap());
         // if (path) {
+        //   core::PathOptimizerPtr_t inStateOptimizer
+        //     (core::pathOptimization::RandomShortcut::create(inStateProblem_));
         //   core::PathVectorPtr_t opt = inStateOptimizer->optimize(path);
         //   roadmap()->insertPathVector(opt, true);
         // }

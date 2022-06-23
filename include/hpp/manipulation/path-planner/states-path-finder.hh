@@ -148,7 +148,6 @@ namespace hpp {
           };
 
           SolveStepStatus solveStep(std::size_t wp);
-          Configuration_t configSolved (std::size_t wp) const;
 
           /// deletes from memory the latest working states list, which is used to
           /// resume finding solutions from that list in case of failure at a

@@ -1156,16 +1156,6 @@ namespace hpp {
         return ans;
       }
 
-      Configuration_t StatesPathFinder::configSolved (std::size_t wp) const {
-        const OptimizationData& d = *optData_;
-        std::size_t nbs = d.solvers.size();
-        if (wp == 0)
-          return d.q1;
-        if ((wp >= nbs+1) &&(!goalDefinedByConstraints_))
-          return d.q2;
-        return d.waypoint.col(wp-1);
-      }
-
       bool StatesPathFinder::solveOptimizationProblem ()
       {
         OptimizationData& d = *optData_;
@@ -1370,6 +1360,9 @@ namespace hpp {
         q1_ = problem_->initConfig();
         assert(q1_);
 
+        // core::PathProjectorPtr_t pathProjector
+        //   (core::pathProjector::Progressive::create(inStateProblem_, 0.01));
+        // inStateProblem_->pathProjector(pathProjector);
         inStateProblem_->pathProjector(problem_->pathProjector());
         const graph::GraphPtr_t& graph(problem_->constraintGraph ());
         graphData_.reset(new GraphSearchData());
@@ -1461,12 +1454,14 @@ namespace hpp {
         }
         size_t & idxSol = graphData_->idxSol;
         ConfigurationPtr_t q1, q2;
-        const Edges_t& transitions = lastBuiltTransitions_;
-        q1 = ConfigurationPtr_t(new Configuration_t(configSolved
-                                                    (idxConfigList_)));
-        q2 = ConfigurationPtr_t(new Configuration_t(configSolved
-                                                    (idxConfigList_+1)));
-        const graph::EdgePtr_t& edge(transitions[idxConfigList_]);
+        if (idxConfigList_ >= configList_.size() - 1) {
+          reset();
+          throw core::path_planning_failed(
+            "Final config reached but goal is not reached.");
+        }
+        q1 = configList_[idxConfigList_];
+        q2 = configList_[idxConfigList_+1];
+        const graph::EdgePtr_t& edge(lastBuiltTransitions_[idxConfigList_]);
         // Copy edge constraints
         core::ConstraintSetPtr_t constraints(HPP_DYNAMIC_PTR_CAST(
             core::ConstraintSet, edge->pathConstraint()->copy()));

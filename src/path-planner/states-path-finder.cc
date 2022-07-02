@@ -1497,8 +1497,12 @@ namespace hpp {
           (core::DiffusingPlanner::create(inStateProblem_));
         inStatePlanner->maxIterations(problem_->getParameter
             ("StatesPathFinder/innerPlannerMaxIterations").intValue());
-        inStatePlanner->timeOut(problem_->getParameter
-            ("StatesPathFinder/innerPlannerTimeOut").floatValue());
+        value_type innerPlannerTimeout = problem_->getParameter
+            ("StatesPathFinder/innerPlannerTimeOut").floatValue();
+        // only set timeout if it is more than 0. default is infinity
+        if (innerPlannerTimeout > 0.) {
+          inStatePlanner->timeOut(innerPlannerTimeout);
+        }
         hppDout(info, "calling InStatePlanner_.solve for transition "
                 << idxConfigList_);
         core::PathVectorPtr_t path;
@@ -1615,7 +1619,9 @@ namespace hpp {
             "StatesPathFinder/innerPlannerTimeOut",
             "This will set ::timeOut accordingly in the inner"
             "planner used for building a path after intermediate"
-            "configurations have been found",
+            "configurations have been found."
+            "If set to 0, no timeout: only maxIterations will be used to stop"
+            "the innerPlanner if it does not find a path.",
             Parameter(2.0)));
       core::Problem::declareParameter(ParameterDescription(Parameter::INT,
             "StatesPathFinder/innerPlannerMaxIterations",

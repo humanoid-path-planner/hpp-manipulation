@@ -100,6 +100,11 @@ class HPP_MANIPULATION_DLLAPI Handle {
   /// Get local position in joint frame
   const Transform3f& localPosition() const { return localPosition_; }
 
+  /// Set local position in joint frame
+  void localPosition(const Transform3f&  localPosition) {
+    localPosition_ = localPosition;
+  }
+
   /// Set constraint mask
   void mask(const std::vector<bool>& mask);
 

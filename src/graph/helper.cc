@@ -41,8 +41,8 @@
 #include <hpp/util/debug.hh>
 #include <iterator>
 #include <pinocchio/multibody/model.hpp>
-#include <tr1/unordered_map>
-#include <tr1/unordered_set>
+#include <unordered_map>
+#include <unordered_set>
 
 #define CASE_TO_STRING(var, value) \
   ((var & value) ? std::string(#value) : std::string())
@@ -511,16 +511,16 @@ struct Result {
   ProblemSolverPtr_t ps;
   GraphPtr_t graph;
   typedef unsigned long stateid_type;
-  std::tr1::unordered_map<stateid_type, StateAndManifold_t> states;
+  std::unordered_map<stateid_type, StateAndManifold_t> states;
   typedef std::pair<stateid_type, stateid_type> edgeid_type;
   struct edgeid_hash {
-    std::tr1::hash<edgeid_type::first_type> first;
-    std::tr1::hash<edgeid_type::second_type> second;
+    std::hash<edgeid_type::first_type> first;
+    std::hash<edgeid_type::second_type> second;
     std::size_t operator()(const edgeid_type& eid) const {
       return first(eid.first) + second(eid.second);
     }
   };
-  std::tr1::unordered_set<edgeid_type, edgeid_hash> edges;
+  std::unordered_set<edgeid_type, edgeid_hash> edges;
   std::vector<std::array<ImplicitPtr_t, 3> > graspCs;
   index_t nG, nOH;
   GraspV_t dims;

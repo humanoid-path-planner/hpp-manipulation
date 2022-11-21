@@ -37,7 +37,7 @@
 #include <hpp/manipulation/graph/state-selector.hh>
 #include <hpp/manipulation/roadmap-node.hh>
 #include <limits>
-//# include <hpp/core/path-vector.hh>
+// # include <hpp/core/path-vector.hh>
 
 namespace hpp {
 namespace manipulation {

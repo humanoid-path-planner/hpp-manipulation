@@ -97,7 +97,7 @@ class HPP_MANIPULATION_DLLAPI SplineGradientBased
                                                   LinearConstraint& lc) const;
 };  // SplineGradientBased
 }  // namespace pathOptimization
-/// \}
+///  \}
 }  // namespace manipulation
 }  // namespace hpp
 

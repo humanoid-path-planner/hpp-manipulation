@@ -90,8 +90,8 @@ class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent {
   ///                in the target state and reachable along the edge
   ///                from nnear
   /// \deprecated Use generateTargetConfig instead.
-  HPP_MANIPULATION_DEPRECATED virtual bool applyConstraints(core::NodePtr_t nStart, ConfigurationOut_t q)
-      const;
+  HPP_MANIPULATION_DEPRECATED virtual bool applyConstraints(
+      core::NodePtr_t nStart, ConfigurationOut_t q) const;
 
   /// Generate a reachable configuration in the target state
   ///
@@ -102,8 +102,8 @@ class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent {
   ///                in the target state and reachable along the edge
   ///                from nnear.
   /// \deprecated Use generateTargetConfig instead.
-  HPP_MANIPULATION_DEPRECATED virtual bool applyConstraints(ConfigurationIn_t qStart, ConfigurationOut_t q)
-      const;
+  HPP_MANIPULATION_DEPRECATED virtual bool applyConstraints(
+      ConfigurationIn_t qStart, ConfigurationOut_t q) const;
 
   /// Generate a reachable configuration in the target state
   ///
@@ -211,7 +211,7 @@ class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent {
   Edge(const std::string& name);
 
   HPP_MANIPULATION_DEPRECATED virtual ConstraintSetPtr_t
-      buildConfigConstraint();
+  buildConfigConstraint();
 
   /// Build path and target state constraint set.
   virtual ConstraintSetPtr_t buildTargetConstraint();
@@ -312,8 +312,8 @@ class HPP_MANIPULATION_DLLAPI WaypointEdge : public Edge {
   ///                in the target state and reachable along the edge
   ///                from nnear.
   /// deprecated Used generateTargetConfig instead.
-  HPP_MANIPULATION_DEPRECATED virtual bool
-      applyConstraints(ConfigurationIn_t qStart, ConfigurationOut_t q) const;
+  HPP_MANIPULATION_DEPRECATED virtual bool applyConstraints(
+      ConfigurationIn_t qStart, ConfigurationOut_t q) const;
 
   /// Generate a reachable configuration in the target state
   ///
@@ -457,8 +457,8 @@ class HPP_MANIPULATION_DLLAPI LevelSetEdge : public Edge {
   ///                in the target state and reachable along the edge
   ///                from nnear
   /// \deprecated Use generateTargetConfig instead.
-  HPP_MANIPULATION_DEPRECATED virtual bool
-      applyConstraints(core::NodePtr_t nStart, ConfigurationOut_t q) const;
+  HPP_MANIPULATION_DEPRECATED virtual bool applyConstraints(
+      core::NodePtr_t nStart, ConfigurationOut_t q) const;
 
   /// Generate a reachable configuration in the target state
   ///
@@ -469,8 +469,8 @@ class HPP_MANIPULATION_DLLAPI LevelSetEdge : public Edge {
   ///                in the target state and reachable along the edge
   ///                from nnear.
   /// \deprecated Use generateTargetConfig instead.
-  HPP_MANIPULATION_DEPRECATED virtual bool
-      applyConstraints(ConfigurationIn_t qStart, ConfigurationOut_t q) const;
+  HPP_MANIPULATION_DEPRECATED virtual bool applyConstraints(
+      ConfigurationIn_t qStart, ConfigurationOut_t q) const;
 
   /// Generate a reachable configuration in the target state
   ///
@@ -506,7 +506,8 @@ class HPP_MANIPULATION_DLLAPI LevelSetEdge : public Edge {
                                   ConfigurationOut_t q) const;
 
   /// \deprecated Use buildTargetConstraint instead
-  HPP_MANIPULATION_DEPRECATED virtual ConstraintSetPtr_t buildConfigConstraint();
+  HPP_MANIPULATION_DEPRECATED virtual ConstraintSetPtr_t
+  buildConfigConstraint();
 
   /// Build path and target state constraints
   virtual ConstraintSetPtr_t buildTargetConstraint();

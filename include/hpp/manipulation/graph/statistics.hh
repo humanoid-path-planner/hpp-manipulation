@@ -203,7 +203,7 @@ class HPP_MANIPULATION_DLLLOCAL StateHistogram
   /// The constraint graph
   graph::GraphPtr_t graph_;
 };
-typedef StateHistogram NodeHistogram HPP_MANIPULATION_DEPRECATED;
+HPP_MANIPULATION_DEPRECATED typedef StateHistogram NodeHistogram;
 typedef shared_ptr<StateHistogram> NodeHistogramPtr_t;
 }  // namespace graph
 }  // namespace manipulation

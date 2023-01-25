@@ -139,8 +139,8 @@ class HPP_MANIPULATION_DLLAPI Graph : public GraphComponent {
 
   /// Constraints of path and target state of an edge
   /// \deprecated Use tagetConstraint instead.
-  ConstraintSetPtr_t configConstraint(const EdgePtr_t& edge) const
-      HPP_MANIPULATION_DEPRECATED;
+  HPP_MANIPULATION_DEPRECATED ConstraintSetPtr_t
+      configConstraint(const EdgePtr_t& edge) const;
 
   /// Constraints a configuration in target state should satisfy
   /// \param edge a transition

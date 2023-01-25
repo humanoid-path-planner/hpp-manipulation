@@ -74,7 +74,7 @@ class HPP_MANIPULATION_DLLAPI Roadmap : public core::Roadmap {
 
   /// Get graph state corresponding to given roadmap node
   /// \deprecated use getState instead
-  graph::StatePtr_t getNode(RoadmapNodePtr_t node) HPP_MANIPULATION_DEPRECATED;
+  HPP_MANIPULATION_DEPRECATED graph::StatePtr_t getNode(RoadmapNodePtr_t node);
 
   /// Update the graph of connected components after new connection
   /// \param cc1, cc2 the two connected components that have just been

@@ -101,7 +101,7 @@ class HPP_MANIPULATION_DLLAPI Handle {
   const Transform3f& localPosition() const { return localPosition_; }
 
   /// Set local position in joint frame
-  void localPosition(const Transform3f&  localPosition) {
+  void localPosition(const Transform3f& localPosition) {
     localPosition_ = localPosition;
   }
 

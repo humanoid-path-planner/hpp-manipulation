@@ -52,8 +52,6 @@ std::ostream& GraphComponent::dotPrint(std::ostream& os,
   return os;
 }
 
-void GraphComponent::setDirty() { invalidate(); }
-
 void GraphComponent::addNumericalConstraint(const ImplicitPtr_t& nm) {
   invalidate();
   numericalConstraints_.push_back(nm);

@@ -84,30 +84,6 @@ class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent {
   /// Generate a reachable configuration in the target state
   ///
   /// \param nStart node containing the configuration defining the right
-  ///        hand side of the edge constraint,
-  /// \param[in,out] q input configuration used to initialize the
-  ///                numerical solver and output configuration lying
-  ///                in the target state and reachable along the edge
-  ///                from nnear
-  /// \deprecated Use generateTargetConfig instead.
-  virtual bool applyConstraints(core::NodePtr_t nStart, ConfigurationOut_t q)
-      const HPP_MANIPULATION_DEPRECATED;
-
-  /// Generate a reachable configuration in the target state
-  ///
-  /// \param qStart node containing the configuration defining the right
-  ///        hand side of the edge path constraint,
-  /// \param[in,out] q input configuration used to initialize the
-  ///                numerical solver and output configuration lying
-  ///                in the target state and reachable along the edge
-  ///                from nnear.
-  /// \deprecated Use generateTargetConfig instead.
-  virtual bool applyConstraints(ConfigurationIn_t qStart, ConfigurationOut_t q)
-      const HPP_MANIPULATION_DEPRECATED;
-
-  /// Generate a reachable configuration in the target state
-  ///
-  /// \param nStart node containing the configuration defining the right
   ///        hand side of the edge path constraint,
   /// \param[in,out] q input configuration used to initialize the
   ///                numerical solver and output configuration lying
@@ -189,10 +165,6 @@ class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent {
       dot::DrawingAttributes da = dot::DrawingAttributes()) const;
 
   /// Constraint of the destination state and of the path
-  /// \deprecated Use targetConstraint instead
-  ConstraintSetPtr_t configConstraint() const HPP_MANIPULATION_DEPRECATED;
-
-  /// Constraint of the destination state and of the path
   ConstraintSetPtr_t targetConstraint() const;
 
   void setShort(bool isShort) { isShort_ = isShort; }
@@ -209,9 +181,6 @@ class HPP_MANIPULATION_DLLAPI Edge : public GraphComponent {
 
   /// Constructor
   Edge(const std::string& name);
-
-  virtual ConstraintSetPtr_t buildConfigConstraint()
-      HPP_MANIPULATION_DEPRECATED;
 
   /// Build path and target state constraint set.
   virtual ConstraintSetPtr_t buildTargetConstraint();
@@ -302,18 +271,6 @@ class HPP_MANIPULATION_DLLAPI WaypointEdge : public Edge {
 
   virtual bool build(core::PathPtr_t& path, ConfigurationIn_t q1,
                      ConfigurationIn_t q2) const;
-
-  /// Generate a reachable configuration in the target state
-  ///
-  /// \param qStart node containing the configuration defining the right
-  ///        hand side of the edge path constraint,
-  /// \param[in,out] q input configuration used to initialize the
-  ///                numerical solver and output configuration lying
-  ///                in the target state and reachable along the edge
-  ///                from nnear.
-  /// deprecated Used generateTargetConfig instead.
-  virtual bool applyConstraints(ConfigurationIn_t qStart, ConfigurationOut_t q)
-      const HPP_MANIPULATION_DEPRECATED;
 
   /// Generate a reachable configuration in the target state
   ///
@@ -451,30 +408,6 @@ class HPP_MANIPULATION_DLLAPI LevelSetEdge : public Edge {
   /// Generate a reachable configuration in the target state
   ///
   /// \param nStart node containing the configuration defining the right
-  ///        hand side of the edge constraint,
-  /// \param[in,out] q input configuration used to initialize the
-  ///                numerical solver and output configuration lying
-  ///                in the target state and reachable along the edge
-  ///                from nnear
-  /// \deprecated Use generateTargetConfig instead.
-  virtual bool applyConstraints(core::NodePtr_t nStart, ConfigurationOut_t q)
-      const HPP_MANIPULATION_DEPRECATED;
-
-  /// Generate a reachable configuration in the target state
-  ///
-  /// \param qStart node containing the configuration defining the right
-  ///        hand side of the edge path constraint,
-  /// \param[in,out] q input configuration used to initialize the
-  ///                numerical solver and output configuration lying
-  ///                in the target state and reachable along the edge
-  ///                from nnear.
-  /// \deprecated Use generateTargetConfig instead.
-  virtual bool applyConstraints(ConfigurationIn_t qStart, ConfigurationOut_t q)
-      const HPP_MANIPULATION_DEPRECATED;
-
-  /// Generate a reachable configuration in the target state
-  ///
-  /// \param nStart node containing the configuration defining the right
   ///        hand side of the edge path constraint,
   /// \param[in,out] q input configuration used to initialize the
   ///                numerical solver and output configuration lying
@@ -504,10 +437,6 @@ class HPP_MANIPULATION_DLLAPI LevelSetEdge : public Edge {
   bool generateTargetConfigOnLeaf(ConfigurationIn_t qStart,
                                   ConfigurationIn_t qLeaf,
                                   ConfigurationOut_t q) const;
-
-  /// \deprecated Use buildTargetConstraint instead
-  virtual ConstraintSetPtr_t buildConfigConstraint()
-      HPP_MANIPULATION_DEPRECATED;
 
   /// Build path and target state constraints
   virtual ConstraintSetPtr_t buildTargetConstraint();

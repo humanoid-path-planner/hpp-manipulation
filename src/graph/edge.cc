@@ -192,11 +192,6 @@ ConstraintSetPtr_t Edge::targetConstraint() const {
   return targetConstraints_;
 }
 
-ConstraintSetPtr_t Edge::configConstraint() const {
-  throwIfNotInitialized();
-  return targetConstraints_;
-}
-
 // Merge constraints of several graph components into a config projector
 // Replace constraints and complement by combination of both when
 // necessary.
@@ -242,10 +237,6 @@ static void mergeConstraintsIntoConfigProjector(
     nc.insert(nc.end(), gc->numericalCosts().begin(),
               gc->numericalCosts().end());
   for (const auto& _nc : nc) proj->add(_nc, 1);
-}
-
-ConstraintSetPtr_t Edge::buildConfigConstraint() {
-  return buildTargetConstraint();
 }
 
 ConstraintSetPtr_t Edge::buildTargetConstraint() {
@@ -366,16 +357,6 @@ bool Edge::build(core::PathPtr_t& path, ConfigurationIn_t q1,
   }
 }
 
-bool Edge::applyConstraints(core::NodePtr_t nStart,
-                            ConfigurationOut_t q) const {
-  return generateTargetConfig(*(nStart->configuration()), q);
-}
-
-bool Edge::applyConstraints(ConfigurationIn_t qoffset,
-                            ConfigurationOut_t q) const {
-  return generateTargetConfig(qoffset, q);
-}
-
 bool Edge::generateTargetConfig(core::NodePtr_t nStart,
                                 ConfigurationOut_t q) const {
   return generateTargetConfig(*(nStart->configuration()), q);
@@ -489,11 +470,6 @@ bool WaypointEdge::build(core::PathPtr_t& path, ConfigurationIn_t q1,
   return true;
 }
 
-bool WaypointEdge::applyConstraints(ConfigurationIn_t qStart,
-                                    ConfigurationOut_t q) const {
-  return generateTargetConfig(qStart, q);
-}
-
 bool WaypointEdge::generateTargetConfig(ConfigurationIn_t qStart,
                                         ConfigurationOut_t q) const {
   assert(configs_.cols() == size_type(edges_.size() + 1));
@@ -592,11 +568,6 @@ void LevelSetEdge::populateTooltip(dot::Tooltip& tp) const {
   }
 }
 
-bool LevelSetEdge::applyConstraints(ConfigurationIn_t qStart,
-                                    ConfigurationOut_t q) const {
-  return generateTargetConfig(qStart, q);
-}
-
 bool LevelSetEdge::generateTargetConfig(ConfigurationIn_t qStart,
                                         ConfigurationOut_t q) const {
   // First, get an offset from the histogram
@@ -609,11 +580,6 @@ bool LevelSetEdge::generateTargetConfig(ConfigurationIn_t qStart,
   const Configuration_t& qLeaf = *(distrib()->configuration());
 
   return generateTargetConfigOnLeaf(qStart, qLeaf, q);
-}
-
-bool LevelSetEdge::applyConstraints(core::NodePtr_t nStart,
-                                    ConfigurationOut_t q) const {
-  return generateTargetConfig(nStart, q);
 }
 
 bool LevelSetEdge::generateTargetConfig(core::NodePtr_t nStart,
@@ -736,10 +702,6 @@ void LevelSetEdge::initialize() {
     Edge::initialize();
     buildHistogram();
   }
-}
-
-ConstraintSetPtr_t LevelSetEdge::buildConfigConstraint() {
-  return buildTargetConstraint();
 }
 
 ConstraintSetPtr_t LevelSetEdge::buildTargetConstraint() {

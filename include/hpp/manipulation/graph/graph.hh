@@ -46,8 +46,7 @@ namespace graph {
 
 /// Description of the constraint graph.
 ///
-/// This class contains a graph representing a robot with several
-/// end-effectors.
+/// This class contains a graph representing a a manipulation problem
 ///
 /// One must make sure not to create loop with shared pointers.
 /// To ensure that, the classes are defined as follow:
@@ -55,6 +54,10 @@ namespace graph {
 /// - A StateSelector owns the Node s related to one gripper.
 /// - A State owns its outgoing Edge s.
 /// - An Edge does not own anything.
+///
+/// \note The graph and all its components have a unique index starting
+///       at 0 for the graph itself. The index of a component can be retrieved
+///       using method GraphComponent::id.
 class HPP_MANIPULATION_DLLAPI Graph : public GraphComponent {
  public:
   /// Create a new Graph.
@@ -136,11 +139,6 @@ class HPP_MANIPULATION_DLLAPI Graph : public GraphComponent {
   /// \param state the state on which to project.
   /// \return The initialized projector.
   ConstraintSetPtr_t configConstraint(const StatePtr_t& state) const;
-
-  /// Constraints of path and target state of an edge
-  /// \deprecated Use tagetConstraint instead.
-  ConstraintSetPtr_t configConstraint(const EdgePtr_t& edge) const
-      HPP_MANIPULATION_DEPRECATED;
 
   /// Constraints a configuration in target state should satisfy
   /// \param edge a transition
@@ -260,7 +258,7 @@ class HPP_MANIPULATION_DLLAPI Graph : public GraphComponent {
   void init(const GraphWkPtr_t& weak, DevicePtr_t robot);
 
   /// Constructor
-  /// \param sm a steering method to create paths from edges
+  /// \param problem a pointer to the problem
   Graph(const std::string& name, const ProblemPtr_t& problem);
 
   /// Print the object in a stream.

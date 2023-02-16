@@ -92,7 +92,7 @@ void ConnectedComponent::merge(const core::ConnectedComponentPtr_t& otherCC) {
 void ConnectedComponent::addNode(const core::NodePtr_t& node) {
   core::ConnectedComponent::addNode(node);
   // Find right graph state in map and add roadmap node to corresponding vector
-  const RoadmapNodePtr_t& n = static_cast<const RoadmapNodePtr_t>(node);
+  const RoadmapNodePtr_t& n = static_cast<RoadmapNodePtr_t>(node);
   RoadmapPtr_t roadmap = roadmap_.lock();
   if (!roadmap)
     throw std::logic_error(

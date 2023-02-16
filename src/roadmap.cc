@@ -62,7 +62,7 @@ void Roadmap::clear() {
 
 void Roadmap::push_node(const core::NodePtr_t& n) {
   Parent::push_node(n);
-  const RoadmapNodePtr_t& node = static_cast<const RoadmapNodePtr_t>(n);
+  const RoadmapNodePtr_t& node = static_cast<RoadmapNodePtr_t>(n);
   statInsert(node);
   leafCCs_.insert(node->leafConnectedComponent());
 }
@@ -80,7 +80,7 @@ void Roadmap::insertHistogram(const graph::HistogramPtr_t hist) {
   histograms_.push_back(hist);
   core::Nodes_t::const_iterator _node;
   for (_node = nodes().begin(); _node != nodes().end(); ++_node)
-    hist->add(static_cast<const RoadmapNodePtr_t>(*_node));
+    hist->add(static_cast<RoadmapNodePtr_t>(*_node));
 }
 
 void Roadmap::constraintGraph(const graph::GraphPtr_t& graph) {
@@ -154,8 +154,8 @@ void Roadmap::merge(const LeafConnectedCompPtr_t& cc1,
 
 void Roadmap::impl_addEdge(const core::EdgePtr_t& edge) {
   Parent::impl_addEdge(edge);
-  const RoadmapNodePtr_t& f = static_cast<const RoadmapNodePtr_t>(edge->from());
-  const RoadmapNodePtr_t& t = static_cast<const RoadmapNodePtr_t>(edge->to());
+  const RoadmapNodePtr_t& f = static_cast<RoadmapNodePtr_t>(edge->from());
+  const RoadmapNodePtr_t& t = static_cast<RoadmapNodePtr_t>(edge->to());
   if (f->graphState() == t->graphState()) {
     LeafConnectedCompPtr_t cc1(f->leafConnectedComponent());
     LeafConnectedCompPtr_t cc2(t->leafConnectedComponent());

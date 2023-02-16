@@ -73,7 +73,7 @@ inline void ConnectedComponent::serialize(Archive& ar,
   if (!Archive::is_saving::value) {
     RoadmapPtr_t roadmap = roadmap_.lock();
     for (const core::NodePtr_t& node : nodes()) {
-      const RoadmapNodePtr_t& n = static_cast<const RoadmapNodePtr_t>(node);
+      const RoadmapNodePtr_t& n = static_cast<RoadmapNodePtr_t>(node);
       graphStateMap_[roadmap->getState(n)].push_back(n);
     }
   }

@@ -210,10 +210,6 @@ bool Graph::getConfigErrorForEdgeLeaf(ConfigurationIn_t leafConfig,
   return cs->isSatisfied(config, error);
 }
 
-ConstraintSetPtr_t Graph::configConstraint(const EdgePtr_t& edge) const {
-  return edge->targetConstraint();
-}
-
 ConstraintSetPtr_t Graph::targetConstraint(const EdgePtr_t& edge) const {
   return edge->targetConstraint();
 }

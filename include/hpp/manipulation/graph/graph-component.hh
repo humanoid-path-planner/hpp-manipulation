@@ -92,10 +92,6 @@ class HPP_MANIPULATION_DLLAPI GraphComponent {
   /// The component needs to be initialized again.
   virtual void invalidate() { isInit_ = false; }
 
-  /// Declare a component as dirty
-  /// \deprecated call invalidate instead
-  void setDirty() HPP_MANIPULATION_DEPRECATED;
-
   /// Set whether hierachical constraints are solved level by level
   /// \sa hpp::constraints::solver::HierarchicalIterative
   void solveLevelByLevel(bool solveLevelByLevel) {

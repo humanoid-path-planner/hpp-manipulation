@@ -30,6 +30,7 @@
 #define HPP_MANIPULATION_PATH_PLANNER_END_EFFECTOR_TRAJECTORY_HH
 
 #include <hpp/core/path-planner.hh>
+#include <hpp/core/path-vector.hh>
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>
 #include <hpp/pinocchio/frame.hh>
@@ -49,19 +50,20 @@ class HPP_MANIPULATION_DLLAPI IkSolverInitialization {
 };
 typedef shared_ptr<IkSolverInitialization> IkSolverInitializationPtr_t;
 
-HPP_PREDEF_CLASS(EndEffectorTrajectory);
-typedef shared_ptr<EndEffectorTrajectory> EndEffectorTrajectoryPtr_t;
+HPP_PREDEF_CLASS(EET_PIECEWISE);
+typedef shared_ptr<EET_PIECEWISE> EET_PIECEWISEPtr_t;
+typedef hpp::core::PathVectorPtr_t PathVectorPtr_t;
 
-class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory : public core::PathPlanner {
+class HPP_MANIPULATION_DLLAPI EET_PIECEWISE : public core::PathPlanner {
  public:
   /// Return shared pointer to new instance
   /// \param problem the path planning problem
-  static EndEffectorTrajectoryPtr_t create(
+  static EET_PIECEWISEPtr_t create(
       const core::ProblemConstPtr_t& problem);
   /// Return shared pointer to new instance
   /// \param problem the path planning problem
   /// \param roadmap previously built roadmap
-  static EndEffectorTrajectoryPtr_t createWithRoadmap(
+  static EET_PIECEWISEPtr_t createWithRoadmap(
       const core::ProblemConstPtr_t& problem,
       const core::RoadmapPtr_t& roadmap);
 
@@ -105,21 +107,21 @@ class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory : public core::PathPlanner {
  protected:
   /// Protected constructor
   /// \param problem the path planning problem
-  EndEffectorTrajectory(const core::ProblemConstPtr_t& problem);
+  EET_PIECEWISE(const core::ProblemConstPtr_t& problem);
   /// Protected constructor
   /// \param problem the path planning problem
   /// \param roadmap previously built roadmap
-  EndEffectorTrajectory(const core::ProblemConstPtr_t& problem,
+  EET_PIECEWISE(const core::ProblemConstPtr_t& problem,
                         const core::RoadmapPtr_t& roadmap);
   /// Store weak pointer to itself
-  void init(const EndEffectorTrajectoryWkPtr_t& weak);
+  void init(const EET_PIECEWISEWkPtr_t& weak);
 
  private:
   std::vector<core::Configuration_t> configurations(
       const core::Configuration_t& q_init);
 
   /// Weak pointer to itself
-  EndEffectorTrajectoryWkPtr_t weak_;
+  EET_PIECEWISEWkPtr_t weak_;
   /// Number of random config.
   int nRandomConfig_;
   /// Number of steps to generate goal config.
@@ -128,7 +130,86 @@ class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory : public core::PathPlanner {
   IkSolverInitializationPtr_t ikSolverInit_;
   /// Feasibility
   bool feasibilityOnly_;
-};  // class EndEffectorTrajectory
+};  // class EET_PIECEWISE
+
+
+HPP_PREDEF_CLASS(EET_HERMITE);
+typedef shared_ptr<EET_HERMITE> EET_HERMITEPtr_t;
+
+class HPP_MANIPULATION_DLLAPI EET_HERMITE : public core::PathPlanner {
+ public:
+  /// Return shared pointer to new instance
+  /// \param problem the path planning problem
+  static EET_HERMITEPtr_t create(
+      const core::ProblemConstPtr_t& problem, const core::RoadmapPtr_t& roadmap);
+
+  /// Initialize the problem resolution
+  ///  \li call parent implementation
+  ///  \li get number nodes in problem parameter map
+  virtual void startSolve();
+
+  /// One step of the algorithm
+  virtual void oneStep();
+
+  PathVectorPtr_t solve();
+
+  /// Get the number of random configurations shoot (after using init
+  /// config) in order to generate the initial config of the final path.
+  int nRandomConfig() const { return nRandomConfig_; }
+
+  void nRandomConfig(int n) {
+    assert(n >= 0);
+    nRandomConfig_ = n;
+  }
+
+  /// Number of steps to generate goal config (successive projections).
+  int nDiscreteSteps() const { return nDiscreteSteps_; }
+
+  void nDiscreteSteps(int n) {
+    assert(n > 0);
+    nDiscreteSteps_ = n;
+  }
+
+  /// If enabled, only add one solution to the roadmap.
+  /// Otherwise add all solution.
+  void checkFeasibilityOnly(bool enable);
+
+  bool checkFeasibilityOnly() const { return feasibilityOnly_; }
+
+  void ikSolverInitialization(IkSolverInitializationPtr_t solver) {
+    ikSolverInit_ = solver;
+  }
+
+  void tryConnectInitAndGoals();
+
+ protected:
+  /// Protected constructor
+  /// \param problem the path planning problem
+  EET_HERMITE(const core::ProblemConstPtr_t& problem, value_type& i);
+  /// Store weak pointer to itself
+  void init(const EET_HERMITEWkPtr_t& weak);
+
+ private:
+  std::vector<core::Configuration_t> configurations(
+      const core::Configuration_t& q_init);
+
+  /// Weak pointer to itself
+  EET_HERMITEWkPtr_t weak_;
+  /// Number of random config.
+  int nRandomConfig_;
+  /// Number of steps to generate goal config.
+  int nDiscreteSteps_;
+  /// Ik solver initialization. An external Ik solver can be plugged here.
+  IkSolverInitializationPtr_t ikSolverInit_;
+  /// Feasibility
+  bool feasibilityOnly_;
+
+  bool problem_solved;
+
+  PathVectorPtr_t final_answer;
+
+  value_type& M;
+};  // class EET_HERMITE
 }  // namespace pathPlanner
 }  // namespace manipulation
 }  // namespace hpp

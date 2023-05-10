@@ -26,6 +26,10 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <iostream>
+#include <typeinfo>
+using namespace std;
+
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/core/config-projector.hh>
@@ -81,7 +85,7 @@ class FunctionFromPath : public constraints::DifferentiableFunction {
 };
 }  // namespace
 
-PathPtr_t EndEffectorTrajectory::makePiecewiseLinearTrajectory(
+PathPtr_t EET_PIECEWISE::makePiecewiseLinearTrajectory(
     matrixIn_t points, vectorIn_t weights) {
   if (points.cols() != 7)
     throw std::invalid_argument("The input matrix should have 7 columns");
@@ -104,13 +108,13 @@ PathPtr_t EndEffectorTrajectory::makePiecewiseLinearTrajectory(
   return path;
 }
 
-void EndEffectorTrajectory::trajectoryConstraint(
+void EET_PIECEWISE::trajectoryConstraint(
     const constraints::ImplicitPtr_t& ic) {
   constraint_ = ic;
   if (eeTraj_) trajectory(eeTraj_, timeRange_);
 }
 
-void EndEffectorTrajectory::trajectory(const PathPtr_t& eeTraj,
+void EET_PIECEWISE::trajectory(const PathPtr_t& eeTraj,
                                        bool se3Output) {
   if (se3Output)
     trajectory(DifferentiableFunctionPtr_t(new FunctionFromPath<true>(eeTraj)),
@@ -120,7 +124,7 @@ void EndEffectorTrajectory::trajectory(const PathPtr_t& eeTraj,
                eeTraj->timeRange());
 }
 
-void EndEffectorTrajectory::trajectory(
+void EET_PIECEWISE::trajectory(
     const DifferentiableFunctionPtr_t& eeTraj, const interval_t& tr) {
   assert(eeTraj->inputSize() == 1);
   assert(eeTraj->inputDerivativeSize() == 1);
@@ -132,7 +136,7 @@ void EndEffectorTrajectory::trajectory(
   constraint_->rightHandSideFunction(eeTraj_);
 }
 
-PathPtr_t EndEffectorTrajectory::impl_compute(ConfigurationIn_t q1,
+PathPtr_t EET_PIECEWISE::impl_compute(ConfigurationIn_t q1,
                                               ConfigurationIn_t q2) const {
   try {
     core::ConstraintSetPtr_t c(getUpdatedConstraints());
@@ -151,7 +155,7 @@ PathPtr_t EndEffectorTrajectory::impl_compute(ConfigurationIn_t q1,
   }
 }
 
-PathPtr_t EndEffectorTrajectory::projectedPath(vectorIn_t times,
+PathPtr_t EET_PIECEWISE::projectedPath(vectorIn_t times,
                                                matrixIn_t configs) const {
   core::ConstraintSetPtr_t c(getUpdatedConstraints());
 
@@ -176,15 +180,15 @@ PathPtr_t EndEffectorTrajectory::projectedPath(vectorIn_t times,
   return path;
 }
 
-core::ConstraintSetPtr_t EndEffectorTrajectory::getUpdatedConstraints() const {
+core::ConstraintSetPtr_t EET_PIECEWISE::getUpdatedConstraints() const {
   if (!eeTraj_)
-    throw std::logic_error("EndEffectorTrajectory not initialized.");
+    throw std::logic_error("EET_PIECEWISE not initialized.");
 
   // Update (or check) the constraints
   core::ConstraintSetPtr_t c(constraints());
   if (!c || !c->configProjector()) {
     throw std::logic_error(
-        "EndEffectorTrajectory steering method must "
+        "EET_PIECEWISE steering method must "
         "have a ConfigProjector");
   }
   ConfigProjectorPtr_t cp(c->configProjector());
@@ -210,12 +214,155 @@ core::ConstraintSetPtr_t EndEffectorTrajectory::getUpdatedConstraints() const {
   }
   if (!ok) {
     HPP_THROW(std::logic_error,
-              "EndEffectorTrajectory could not find "
+              "EET_PIECEWISE could not find "
               "constraint "
                   << constraint_->function());
   }
   return c;
 }
+
+
+
+
+
+
+PathPtr_t EET_HERMITE::makePiecewiseLinearTrajectory(
+    matrixIn_t points, vectorIn_t weights) {
+  if (points.cols() != 7)
+    throw std::invalid_argument("The input matrix should have 7 columns");
+  if (weights.size() != 6)
+    throw std::invalid_argument("The weights vector should have 6 elements");
+  LiegroupSpacePtr_t se3 = LiegroupSpace::SE3();
+  core::PathVectorPtr_t path = core::PathVector::create(7, 6);
+  if (points.rows() == 1)
+    path->appendPath(core::StraightPath::create(
+        se3, points.row(0), points.row(0), interval_t(0, 0)));
+  else
+    for (size_type i = 1; i < points.rows(); ++i) {
+      value_type d = (se3->elementConstRef(points.row(i)) -
+                      se3->elementConstRef(points.row(i - 1)))
+                         .cwiseProduct(weights)
+                         .norm();
+      path->appendPath(core::StraightPath::create(
+          se3, points.row(i - 1), points.row(i), interval_t(0, d)));
+    }
+  return path;
+}
+
+void EET_HERMITE::trajectoryConstraint(
+    const constraints::ImplicitPtr_t& ic) {
+  constraint_ = ic;
+  if (eeTraj_) trajectory(eeTraj_, timeRange_);
+}
+
+void EET_HERMITE::trajectory(const PathPtr_t& eeTraj,
+                                       bool se3Output) {
+  if (se3Output)
+    trajectory(DifferentiableFunctionPtr_t(new FunctionFromPath<true>(eeTraj)),
+               eeTraj->timeRange());
+  else
+    trajectory(DifferentiableFunctionPtr_t(new FunctionFromPath<false>(eeTraj)),
+               eeTraj->timeRange());
+}
+
+void EET_HERMITE::trajectory(
+    const DifferentiableFunctionPtr_t& eeTraj, const interval_t& tr) {
+  assert(eeTraj->inputSize() == 1);
+  assert(eeTraj->inputDerivativeSize() == 1);
+  eeTraj_ = eeTraj;
+  timeRange_ = tr;
+
+  if (!constraint_) return;
+
+  constraint_->rightHandSideFunction(eeTraj_);
+}
+
+PathPtr_t EET_HERMITE::impl_compute(ConfigurationIn_t q1,
+                                              ConfigurationIn_t q2) const {
+  try {
+    core::ConstraintSetPtr_t c(getUpdatedConstraints());
+    cout << "passed by impl_compute in EET_HERMITE steering\n "<< endl;
+
+    return core::StraightPath::create(problem()->robot(), q1, q2, timeRange_,
+                                      c);
+  } catch (const std::exception& e) {
+    std::cout << timeRange_.first << ", " << timeRange_.second << '\n';
+    if (eeTraj_)
+      std::cout << (*eeTraj_)(vector_t::Constant(1, timeRange_.first)) << '\n'
+                << (*eeTraj_)(vector_t::Constant(1, timeRange_.second))
+                << std::endl;
+    std::cout << *constraints() << std::endl;
+    std::cout << e.what() << std::endl;
+    throw;
+  }
+}
+
+PathPtr_t EET_HERMITE::projectedPath(vectorIn_t times,
+                                               matrixIn_t configs) const {
+  core::ConstraintSetPtr_t c(getUpdatedConstraints());
+
+  size_type N = configs.cols();
+  if (timeRange_.first != times[0] || timeRange_.second != times[N - 1]) {
+    HPP_THROW(std::logic_error,
+              "Time range (" << timeRange_.first << ", " << timeRange_.second
+                             << ") does not match configuration "
+                                "times ("
+                             << times[0] << ", " << times[N - 1]);
+  }
+
+  using core::InterpolatedPath;
+  using core::InterpolatedPathPtr_t;
+
+  InterpolatedPathPtr_t path = InterpolatedPath::create(
+      problem()->robot(), configs.col(0), configs.col(N - 1), timeRange_, c);
+
+  for (size_type i = 1; i < configs.cols() - 1; ++i)
+    path->insert(times[i], configs.col(i));
+
+  return path;
+}
+
+core::ConstraintSetPtr_t EET_HERMITE::getUpdatedConstraints() const {
+  if (!eeTraj_)
+    throw std::logic_error("EET_HERMITE not initialized.");
+
+  // Update (or check) the constraints
+  core::ConstraintSetPtr_t c(constraints());
+  if (!c || !c->configProjector()) {
+    throw std::logic_error(
+        "EET_HERMITE steering method must "
+        "have a ConfigProjector");
+  }
+  ConfigProjectorPtr_t cp(c->configProjector());
+
+  const core::NumericalConstraints_t& ncs = cp->numericalConstraints();
+  bool ok = false;
+  for (std::size_t i = 0; i < ncs.size(); ++i) {
+    if (ncs[i] == constraint_) {
+      ok = true;
+      break;  // Same pointer
+    }
+    // Here, we do not check the right hand side on purpose.
+    // if (*ncs[i] == *constraint_) {
+    if (ncs[i]->functionPtr() == constraint_->functionPtr() &&
+        ncs[i]->comparisonType() == constraint_->comparisonType()) {
+      ok = true;
+      // TODO We should only modify the path constraint.
+      // However, only the pointers to implicit constraints are copied
+      // while we would like the implicit constraints to be copied as well.
+      ncs[i]->rightHandSideFunction(eeTraj_);
+      break;  // logically identical
+    }
+  }
+  if (!ok) {
+    HPP_THROW(std::logic_error,
+              "EET_HERMITE could not find "
+              "constraint "
+                  << constraint_->function());
+  }
+  return c;
+}
+
 }  // namespace steeringMethod
 }  // namespace manipulation
 }  // namespace hpp

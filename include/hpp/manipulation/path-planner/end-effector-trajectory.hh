@@ -58,8 +58,7 @@ class HPP_MANIPULATION_DLLAPI EET_PIECEWISE : public core::PathPlanner {
  public:
   /// Return shared pointer to new instance
   /// \param problem the path planning problem
-  static EET_PIECEWISEPtr_t create(
-      const core::ProblemConstPtr_t& problem);
+  static EET_PIECEWISEPtr_t create(const core::ProblemConstPtr_t& problem);
   /// Return shared pointer to new instance
   /// \param problem the path planning problem
   /// \param roadmap previously built roadmap
@@ -112,7 +111,7 @@ class HPP_MANIPULATION_DLLAPI EET_PIECEWISE : public core::PathPlanner {
   /// \param problem the path planning problem
   /// \param roadmap previously built roadmap
   EET_PIECEWISE(const core::ProblemConstPtr_t& problem,
-                        const core::RoadmapPtr_t& roadmap);
+                const core::RoadmapPtr_t& roadmap);
   /// Store weak pointer to itself
   void init(const EET_PIECEWISEWkPtr_t& weak);
 
@@ -132,7 +131,6 @@ class HPP_MANIPULATION_DLLAPI EET_PIECEWISE : public core::PathPlanner {
   bool feasibilityOnly_;
 };  // class EET_PIECEWISE
 
-
 HPP_PREDEF_CLASS(EET_HERMITE);
 typedef shared_ptr<EET_HERMITE> EET_HERMITEPtr_t;
 
@@ -140,8 +138,8 @@ class HPP_MANIPULATION_DLLAPI EET_HERMITE : public core::PathPlanner {
  public:
   /// Return shared pointer to new instance
   /// \param problem the path planning problem
-  static EET_HERMITEPtr_t create(
-      const core::ProblemConstPtr_t& problem, const core::RoadmapPtr_t& roadmap);
+  static EET_HERMITEPtr_t create(const core::ProblemConstPtr_t& problem,
+                                 const core::RoadmapPtr_t& roadmap);
 
   /// Initialize the problem resolution
   ///  \li call parent implementation

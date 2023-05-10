@@ -42,12 +42,9 @@ class EndEffectorTrajectoryPlugin : public core::ProblemSolverPlugin {
   virtual bool impl_initialize(core::ProblemSolverPtr_t ps) {
     ps->pathPlanners.add("Piecewise",
                          pathPlanner::EET_PIECEWISE::createWithRoadmap);
-    ps->pathPlanners.add("Hermite",
-                         pathPlanner::EET_HERMITE::create);
-    ps->steeringMethods.add("Piecewise",
-                            steeringMethod::EET_PIECEWISE::create);
-    ps->steeringMethods.add("Hermite",
-                            steeringMethod::EET_HERMITE::create);
+    ps->pathPlanners.add("Hermite", pathPlanner::EET_HERMITE::create);
+    ps->steeringMethods.add("Piecewise", steeringMethod::EET_PIECEWISE::create);
+    ps->steeringMethods.add("Hermite", steeringMethod::EET_HERMITE::create);
     return true;
   }
 };

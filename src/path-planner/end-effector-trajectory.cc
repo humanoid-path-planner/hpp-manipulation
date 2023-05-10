@@ -34,36 +34,31 @@ using namespace std;
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/configuration-shooter.hh>
-#include <hpp/core/path-validation.hh>
-#include <hpp/core/problem.hh>
-#include <hpp/core/roadmap.hh>
-#include <hpp/core/path-projector.hh>
-#include <hpp/core/path.hh>
-#include <hpp/manipulation/path-planner/end-effector-trajectory.hh>
-#include <hpp/manipulation/steering-method/end-effector-trajectory.hh>
-#include <hpp/pinocchio/device-sync.hh>
-#include <hpp/pinocchio/liegroup-element.hh>
-#include <hpp/pinocchio/util.hh>
-#include <hpp/util/exception-factory.hh>
-#include <pinocchio/multibody/data.hpp>
 #include <hpp/core/edge.hh>
 #include <hpp/core/nearest-neighbor.hh>
 #include <hpp/core/node.hh>
 #include <hpp/core/path-planner.hh>
 #include <hpp/core/path-planning-failed.hh>
 #include <hpp/core/path-projector.hh>
+#include <hpp/core/path-projector/recursive-hermite.hh>
 #include <hpp/core/path-validation.hh>
+#include <hpp/core/path-vector.hh>
 #include <hpp/core/path.hh>
+#include <hpp/core/path/hermite.hh>
 #include <hpp/core/problem-target/goal-configurations.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
 #include <hpp/core/steering-method.hh>
+#include <hpp/manipulation/path-planner/end-effector-trajectory.hh>
+#include <hpp/manipulation/steering-method/end-effector-trajectory.hh>
+#include <hpp/pinocchio/device-sync.hh>
+#include <hpp/pinocchio/liegroup-element.hh>
+#include <hpp/pinocchio/util.hh>
 #include <hpp/util/debug.hh>
+#include <hpp/util/exception-factory.hh>
 #include <hpp/util/timer.hh>
+#include <pinocchio/multibody/data.hpp>
 #include <tuple>
-#include <hpp/core/path/hermite.hh>
-#include <hpp/core/path-vector.hh>
-#include <hpp/core/path-projector/recursive-hermite.hh>
 
 namespace hpp {
 namespace manipulation {
@@ -122,8 +117,7 @@ void EET_PIECEWISE::startSolve() {
 
   const constraints::ImplicitPtr_t& trajConstraint = sm->trajectoryConstraint();
   if (!trajConstraint)
-    throw std::invalid_argument(
-        "EET_PIECEWISE has no trajectory constraint.");
+    throw std::invalid_argument("EET_PIECEWISE has no trajectory constraint.");
   if (!sm->trajectory())
     throw std::invalid_argument("EET_PIECEWISE has no trajectory.");
 
@@ -161,8 +155,7 @@ void EET_PIECEWISE::oneStep() {
         "Steering method must be of type "
         "hpp::manipulation::steeringMethod::EET_PIECEWISE");
   if (!sm->trajectoryConstraint())
-    throw std::invalid_argument(
-        "EET_PIECEWISE has no trajectory constraint.");
+    throw std::invalid_argument("EET_PIECEWISE has no trajectory constraint.");
   if (!sm->trajectory())
     throw std::invalid_argument("EET_PIECEWISE has no trajectory.");
 
@@ -274,12 +267,11 @@ std::vector<core::Configuration_t> EET_PIECEWISE::configurations(
       "Using an IkSolverInitialization is not implemented yet");
 }
 
-EET_PIECEWISE::EET_PIECEWISE(
-    const core::ProblemConstPtr_t& problem)
+EET_PIECEWISE::EET_PIECEWISE(const core::ProblemConstPtr_t& problem)
     : core::PathPlanner(problem) {}
 
-EET_PIECEWISE::EET_PIECEWISE(
-    const core::ProblemConstPtr_t& problem, const core::RoadmapPtr_t& roadmap)
+EET_PIECEWISE::EET_PIECEWISE(const core::ProblemConstPtr_t& problem,
+                             const core::RoadmapPtr_t& roadmap)
     : core::PathPlanner(problem, roadmap) {}
 
 void EET_PIECEWISE::checkFeasibilityOnly(bool enable) {
@@ -297,13 +289,12 @@ void EET_PIECEWISE::init(const EET_PIECEWISEWkPtr_t& weak) {
 typedef manipulation::steeringMethod::EET_HERMITE HSM_t;
 typedef manipulation::steeringMethod::EET_HERMITEPtr_t HSMPtr_t;
 
-
-EET_HERMITEPtr_t EET_HERMITE::create(
-const core::ProblemConstPtr_t& problem, const core::RoadmapPtr_t& roadmap) {
-value_type M(2);
-EET_HERMITEPtr_t ptr(new EET_HERMITE(problem, M));
-ptr->init(ptr);
-return ptr;
+EET_HERMITEPtr_t EET_HERMITE::create(const core::ProblemConstPtr_t& problem,
+                                     const core::RoadmapPtr_t& roadmap) {
+  value_type M(2);
+  EET_HERMITEPtr_t ptr(new EET_HERMITE(problem, M));
+  ptr->init(ptr);
+  return ptr;
 }
 
 PathVectorPtr_t EET_HERMITE::solve() {
@@ -319,14 +310,13 @@ PathVectorPtr_t EET_HERMITE::solve() {
   // If the intent is to build a roadmap, then we should not stop.
   // If the intent is to solve a optimal planning problem, then we should stop.
   problem_solved = false;
-  
+
   if (interrupt_) throw hpp::core::path_planning_failed("Interruption");
   while (!problem_solved) {
     // Check limits
     std::ostringstream oss;
     if (maxIterations_ != uint_infty && nIter >= maxIterations_) {
-      if (!stopWhenProblemIsSolved_ && problem_solved)
-        break;
+      if (!stopWhenProblemIsSolved_ && problem_solved) break;
       oss << "Maximal number of iterations reached: " << maxIterations_;
       throw hpp::core::path_planning_failed(oss.str().c_str());
     }
@@ -334,8 +324,7 @@ PathVectorPtr_t EET_HERMITE::solve() {
     value_type elapsed_ms =
         static_cast<value_type>((timeStop - timeStart).total_milliseconds());
     if (elapsed_ms > timeOut_ * 1000) {
-      if (!stopWhenProblemIsSolved_ && problem_solved)
-        break;
+      if (!stopWhenProblemIsSolved_ && problem_solved) break;
       oss << "time out (" << timeOut_ << "s) reached after "
           << elapsed_ms * 1e-3 << "s";
       throw hpp::core::path_planning_failed(oss.str().c_str());
@@ -349,7 +338,7 @@ PathVectorPtr_t EET_HERMITE::solve() {
 
     // Check if problem is solved.
     ++nIter;
-    if (interrupt_) throw ("Interruption");
+    if (interrupt_) throw("Interruption");
   }
   PathVectorPtr_t planned = final_answer;
   return planned;
@@ -358,74 +347,72 @@ PathVectorPtr_t EET_HERMITE::solve() {
 void EET_HERMITE::tryConnectInitAndGoals() {}
 
 void EET_HERMITE::startSolve() {
-if (!problem()->robot()) {
-std::string msg("No device in problem.");
-hppDout(error, msg);
-throw std::runtime_error(msg);
+  if (!problem()->robot()) {
+    std::string msg("No device in problem.");
+    hppDout(error, msg);
+    throw std::runtime_error(msg);
+  }
+
+  if (!problem()->initConfig()) {
+    std::string msg("No init config in problem.");
+    hppDout(error, msg);
+    throw std::runtime_error(msg);
+  }
+
+  cout << typeid(problem()->steeringMethod()).name() << endl;
+
+  HSMPtr_t sm(HPP_DYNAMIC_PTR_CAST(HSM_t, problem()->steeringMethod()));
+  if (!sm)
+    throw std::invalid_argument(
+        "Steering method must be of type "
+        "hpp::core::steeringMethod::Hermite");
+
+  if (!sm->constraints() || !sm->constraints()->configProjector())
+    throw std::invalid_argument(
+        "Steering method constraint has no ConfigProjector.");
+  core::ConfigProjectorPtr_t constraints(sm->constraints()->configProjector());
+
+  const constraints::ImplicitPtr_t& trajConstraint = sm->trajectoryConstraint();
+  if (!trajConstraint)
+    throw std::invalid_argument("EET_HERMITE has no trajectory constraint.");
+  if (!sm->trajectory())
+    throw std::invalid_argument("EET_HERMITE has no trajectory.");
+
+  const core::NumericalConstraints_t& ncs = constraints->numericalConstraints();
+  bool ok = false;
+  for (std::size_t i = 0; i < ncs.size(); ++i) {
+    if (ncs[i] == trajConstraint) {
+      ok = true;
+      break;  // Same pointer
+    }
+    // Here, we do not check the right hand side on purpose.
+    // if (*ncs[i] == *trajConstraint) {
+    if (ncs[i]->functionPtr() == trajConstraint->functionPtr() &&
+        ncs[i]->comparisonType() == trajConstraint->comparisonType()) {
+      ok = true;
+      // TODO We should only modify the path constraint.
+      // However, only the pointers to implicit constraints are copied
+      // while we would like the implicit constraints to be copied as well.
+      ncs[i]->rightHandSideFunction(sm->trajectory());
+      break;  // logically identical
+    }
+  }
+  if (!ok) {
+    HPP_THROW(std::logic_error,
+              "EET_HERMITE could not find "
+              "constraint "
+                  << trajConstraint->function());
+  }
 }
 
-if (!problem()->initConfig()) {
-std::string msg("No init config in problem.");
-hppDout(error, msg);
-throw std::runtime_error(msg);
-}
-
-cout << typeid(problem()->steeringMethod()).name() << endl;
-
-HSMPtr_t sm(HPP_DYNAMIC_PTR_CAST(HSM_t, problem()->steeringMethod()));
-if (!sm)
-throw std::invalid_argument(
-"Steering method must be of type "
-"hpp::core::steeringMethod::Hermite");
-
-if (!sm->constraints() || !sm->constraints()->configProjector())
-throw std::invalid_argument(
-"Steering method constraint has no ConfigProjector.");
-core::ConfigProjectorPtr_t constraints(sm->constraints()->configProjector());
-
-const constraints::ImplicitPtr_t& trajConstraint = sm->trajectoryConstraint();
-if (!trajConstraint)
-throw std::invalid_argument(
-"EET_HERMITE has no trajectory constraint.");
-if (!sm->trajectory())
-throw std::invalid_argument("EET_HERMITE has no trajectory.");
-
-const core::NumericalConstraints_t& ncs = constraints->numericalConstraints();
-bool ok = false;
-for (std::size_t i = 0; i < ncs.size(); ++i) {
-if (ncs[i] == trajConstraint) {
-ok = true;
-break; // Same pointer
-}
-// Here, we do not check the right hand side on purpose.
-// if (*ncs[i] == *trajConstraint) {
-if (ncs[i]->functionPtr() == trajConstraint->functionPtr() &&
-ncs[i]->comparisonType() == trajConstraint->comparisonType()) {
-ok = true;
-// TODO We should only modify the path constraint.
-// However, only the pointers to implicit constraints are copied
-// while we would like the implicit constraints to be copied as well.
-ncs[i]->rightHandSideFunction(sm->trajectory());
-break; // logically identical
-}
-}
-if (!ok) {
-HPP_THROW(std::logic_error,
-"EET_HERMITE could not find "
-"constraint "
-<< trajConstraint->function());
-}
-}
-
-void EET_HERMITE::oneStep(){
+void EET_HERMITE::oneStep() {
   HSMPtr_t sm(HPP_DYNAMIC_PTR_CAST(HSM_t, problem()->steeringMethod()));
   if (!sm)
     throw std::invalid_argument(
         "Steering method must be of type "
         "hpp::manipulation::steeringMethod::EET_HERMITE");
   if (!sm->trajectoryConstraint())
-    throw std::invalid_argument(
-        "EET_HERMITE has no trajectory constraint.");
+    throw std::invalid_argument("EET_HERMITE has no trajectory constraint.");
   if (!sm->trajectory())
     throw std::invalid_argument("EET_HERMITE has no trajectory.");
 
@@ -490,13 +477,10 @@ void EET_HERMITE::oneStep(){
     if (!success) continue;
     success = false;
 
-    
-
     if (!cfgValidation->validate(steps.col(nDiscreteSteps_), cfgReport)) {
       hppDout(info, "Destination config is in collision.");
       continue;
     }
-
 
     core::PathPtr_t path = sm->projectedPath(times, steps);
     if (!path) {
@@ -508,9 +492,11 @@ void EET_HERMITE::oneStep(){
     }
 
     success = false;
-    core::pathProjector::RecursiveHermitePtr_t recursor (core::pathProjector::RecursiveHermite::create(problem(), M));
+    core::pathProjector::RecursiveHermitePtr_t recursor(
+        core::pathProjector::RecursiveHermite::create(problem(), M));
 
-    core::PathPtr_t answer (hpp::core::PathVector::create(problem()->robot()->configSize(), path->outputDerivativeSize()));
+    core::PathPtr_t answer(hpp::core::PathVector::create(
+        problem()->robot()->configSize(), path->outputDerivativeSize()));
 
     if (!recursor->impl_apply(path, answer)) break;
     cout << "passed 2 \n\n\n" << endl;
@@ -523,36 +509,35 @@ void EET_HERMITE::oneStep(){
 }
 
 std::vector<core::Configuration_t> EET_HERMITE::configurations(
-const core::Configuration_t& q_init) {
-if (!ikSolverInit_) {
-std::vector<core::Configuration_t> configs(nRandomConfig_ + 1);
-configs[0] = q_init;
-for (int i = 1; i < nRandomConfig_ + 1; ++i)
-problem()->configurationShooter()->shoot(configs[i]);
-return configs;
+    const core::Configuration_t& q_init) {
+  if (!ikSolverInit_) {
+    std::vector<core::Configuration_t> configs(nRandomConfig_ + 1);
+    configs[0] = q_init;
+    for (int i = 1; i < nRandomConfig_ + 1; ++i)
+      problem()->configurationShooter()->shoot(configs[i]);
+    return configs;
+  }
+
+  // TODO Compute the target and call ikSolverInit_
+  // See https://gepgitlab.laas.fr/airbus-xtct/hpp_airbus_xtct for an
+  // example using IKFast.
+  throw std::runtime_error(
+      "Using an IkSolverInitialization is not implemented yet");
 }
 
-// TODO Compute the target and call ikSolverInit_
-// See https://gepgitlab.laas.fr/airbus-xtct/hpp_airbus_xtct for an
-// example using IKFast.
-throw std::runtime_error(
-"Using an IkSolverInitialization is not implemented yet");
-}
-
-EET_HERMITE::EET_HERMITE(
-const core::ProblemConstPtr_t& problem, value_type& i)
-: core::PathPlanner(problem), M(i) {}
+EET_HERMITE::EET_HERMITE(const core::ProblemConstPtr_t& problem, value_type& i)
+    : core::PathPlanner(problem), M(i) {}
 
 void EET_HERMITE::checkFeasibilityOnly(bool enable) {
-feasibilityOnly_ = enable;
+  feasibilityOnly_ = enable;
 }
 
 void EET_HERMITE::init(const EET_HERMITEWkPtr_t& weak) {
-core::PathPlanner::init(weak);
-weak_ = weak;
-nRandomConfig_ = 10;
-nDiscreteSteps_ = 1;
-feasibilityOnly_ = true;
+  core::PathPlanner::init(weak);
+  weak_ = weak;
+  nRandomConfig_ = 10;
+  nDiscreteSteps_ = 1;
+  feasibilityOnly_ = true;
 }
 
 }  // namespace pathPlanner

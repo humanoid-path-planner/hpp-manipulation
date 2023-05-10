@@ -30,9 +30,9 @@
 #define HPP_MANIPULATION_STEERING_METHOD_END_EFFECTOR_TRAJECTORY_HH
 
 #include <hpp/core/steering-method.hh>
+#include <hpp/core/steering-method/hermite.hh>
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>
-#include <hpp/core/steering-method/hermite.hh>
 
 namespace hpp {
 namespace manipulation {
@@ -45,13 +45,11 @@ typedef shared_ptr<EET_PIECEWISE> EET_PIECEWISEPtr_t;
 using core::PathPtr_t;
 
 /// Build StraightPath constrained by a varying right hand side constraint.
-class HPP_MANIPULATION_DLLAPI EET_PIECEWISE
-    : public core::SteeringMethod {
+class HPP_MANIPULATION_DLLAPI EET_PIECEWISE : public core::SteeringMethod {
  public:
   typedef core::interval_t interval_t;
 
-  static EET_PIECEWISEPtr_t create(
-      const core::ProblemConstPtr_t& problem) {
+  static EET_PIECEWISEPtr_t create(const core::ProblemConstPtr_t& problem) {
     EET_PIECEWISEPtr_t ptr(new EET_PIECEWISE(problem));
     ptr->init(ptr);
     return ptr;
@@ -118,7 +116,6 @@ class HPP_MANIPULATION_DLLAPI EET_PIECEWISE
   constraints::ImplicitPtr_t constraint_;
 };
 
-
 HPP_PREDEF_CLASS(EET_HERMITE);
 typedef shared_ptr<EET_HERMITE> EET_HERMITEPtr_t;
 
@@ -127,8 +124,7 @@ class HPP_MANIPULATION_DLLAPI EET_HERMITE
  public:
   typedef core::interval_t interval_t;
 
-  static EET_HERMITEPtr_t create(
-      const core::ProblemConstPtr_t& problem) {
+  static EET_HERMITEPtr_t create(const core::ProblemConstPtr_t& problem) {
     EET_HERMITEPtr_t ptr(new EET_HERMITE(problem));
     ptr->init(ptr);
     return ptr;

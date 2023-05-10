@@ -85,8 +85,8 @@ class FunctionFromPath : public constraints::DifferentiableFunction {
 };
 }  // namespace
 
-PathPtr_t EET_PIECEWISE::makePiecewiseLinearTrajectory(
-    matrixIn_t points, vectorIn_t weights) {
+PathPtr_t EET_PIECEWISE::makePiecewiseLinearTrajectory(matrixIn_t points,
+                                                       vectorIn_t weights) {
   if (points.cols() != 7)
     throw std::invalid_argument("The input matrix should have 7 columns");
   if (weights.size() != 6)
@@ -108,14 +108,12 @@ PathPtr_t EET_PIECEWISE::makePiecewiseLinearTrajectory(
   return path;
 }
 
-void EET_PIECEWISE::trajectoryConstraint(
-    const constraints::ImplicitPtr_t& ic) {
+void EET_PIECEWISE::trajectoryConstraint(const constraints::ImplicitPtr_t& ic) {
   constraint_ = ic;
   if (eeTraj_) trajectory(eeTraj_, timeRange_);
 }
 
-void EET_PIECEWISE::trajectory(const PathPtr_t& eeTraj,
-                                       bool se3Output) {
+void EET_PIECEWISE::trajectory(const PathPtr_t& eeTraj, bool se3Output) {
   if (se3Output)
     trajectory(DifferentiableFunctionPtr_t(new FunctionFromPath<true>(eeTraj)),
                eeTraj->timeRange());
@@ -124,8 +122,8 @@ void EET_PIECEWISE::trajectory(const PathPtr_t& eeTraj,
                eeTraj->timeRange());
 }
 
-void EET_PIECEWISE::trajectory(
-    const DifferentiableFunctionPtr_t& eeTraj, const interval_t& tr) {
+void EET_PIECEWISE::trajectory(const DifferentiableFunctionPtr_t& eeTraj,
+                               const interval_t& tr) {
   assert(eeTraj->inputSize() == 1);
   assert(eeTraj->inputDerivativeSize() == 1);
   eeTraj_ = eeTraj;
@@ -137,7 +135,7 @@ void EET_PIECEWISE::trajectory(
 }
 
 PathPtr_t EET_PIECEWISE::impl_compute(ConfigurationIn_t q1,
-                                              ConfigurationIn_t q2) const {
+                                      ConfigurationIn_t q2) const {
   try {
     core::ConstraintSetPtr_t c(getUpdatedConstraints());
 
@@ -156,7 +154,7 @@ PathPtr_t EET_PIECEWISE::impl_compute(ConfigurationIn_t q1,
 }
 
 PathPtr_t EET_PIECEWISE::projectedPath(vectorIn_t times,
-                                               matrixIn_t configs) const {
+                                       matrixIn_t configs) const {
   core::ConstraintSetPtr_t c(getUpdatedConstraints());
 
   size_type N = configs.cols();
@@ -181,8 +179,7 @@ PathPtr_t EET_PIECEWISE::projectedPath(vectorIn_t times,
 }
 
 core::ConstraintSetPtr_t EET_PIECEWISE::getUpdatedConstraints() const {
-  if (!eeTraj_)
-    throw std::logic_error("EET_PIECEWISE not initialized.");
+  if (!eeTraj_) throw std::logic_error("EET_PIECEWISE not initialized.");
 
   // Update (or check) the constraints
   core::ConstraintSetPtr_t c(constraints());
@@ -221,13 +218,8 @@ core::ConstraintSetPtr_t EET_PIECEWISE::getUpdatedConstraints() const {
   return c;
 }
 
-
-
-
-
-
-PathPtr_t EET_HERMITE::makePiecewiseLinearTrajectory(
-    matrixIn_t points, vectorIn_t weights) {
+PathPtr_t EET_HERMITE::makePiecewiseLinearTrajectory(matrixIn_t points,
+                                                     vectorIn_t weights) {
   if (points.cols() != 7)
     throw std::invalid_argument("The input matrix should have 7 columns");
   if (weights.size() != 6)
@@ -249,14 +241,12 @@ PathPtr_t EET_HERMITE::makePiecewiseLinearTrajectory(
   return path;
 }
 
-void EET_HERMITE::trajectoryConstraint(
-    const constraints::ImplicitPtr_t& ic) {
+void EET_HERMITE::trajectoryConstraint(const constraints::ImplicitPtr_t& ic) {
   constraint_ = ic;
   if (eeTraj_) trajectory(eeTraj_, timeRange_);
 }
 
-void EET_HERMITE::trajectory(const PathPtr_t& eeTraj,
-                                       bool se3Output) {
+void EET_HERMITE::trajectory(const PathPtr_t& eeTraj, bool se3Output) {
   if (se3Output)
     trajectory(DifferentiableFunctionPtr_t(new FunctionFromPath<true>(eeTraj)),
                eeTraj->timeRange());
@@ -265,8 +255,8 @@ void EET_HERMITE::trajectory(const PathPtr_t& eeTraj,
                eeTraj->timeRange());
 }
 
-void EET_HERMITE::trajectory(
-    const DifferentiableFunctionPtr_t& eeTraj, const interval_t& tr) {
+void EET_HERMITE::trajectory(const DifferentiableFunctionPtr_t& eeTraj,
+                             const interval_t& tr) {
   assert(eeTraj->inputSize() == 1);
   assert(eeTraj->inputDerivativeSize() == 1);
   eeTraj_ = eeTraj;
@@ -278,10 +268,10 @@ void EET_HERMITE::trajectory(
 }
 
 PathPtr_t EET_HERMITE::impl_compute(ConfigurationIn_t q1,
-                                              ConfigurationIn_t q2) const {
+                                    ConfigurationIn_t q2) const {
   try {
     core::ConstraintSetPtr_t c(getUpdatedConstraints());
-    cout << "passed by impl_compute in EET_HERMITE steering\n "<< endl;
+    cout << "passed by impl_compute in EET_HERMITE steering\n " << endl;
 
     return core::StraightPath::create(problem()->robot(), q1, q2, timeRange_,
                                       c);
@@ -298,7 +288,7 @@ PathPtr_t EET_HERMITE::impl_compute(ConfigurationIn_t q1,
 }
 
 PathPtr_t EET_HERMITE::projectedPath(vectorIn_t times,
-                                               matrixIn_t configs) const {
+                                     matrixIn_t configs) const {
   core::ConstraintSetPtr_t c(getUpdatedConstraints());
 
   size_type N = configs.cols();
@@ -323,8 +313,7 @@ PathPtr_t EET_HERMITE::projectedPath(vectorIn_t times,
 }
 
 core::ConstraintSetPtr_t EET_HERMITE::getUpdatedConstraints() const {
-  if (!eeTraj_)
-    throw std::logic_error("EET_HERMITE not initialized.");
+  if (!eeTraj_) throw std::logic_error("EET_HERMITE not initialized.");
 
   // Update (or check) the constraints
   core::ConstraintSetPtr_t c(constraints());

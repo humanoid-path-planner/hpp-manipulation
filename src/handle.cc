@@ -74,6 +74,7 @@ bool isHandleOnFreeflyer(const Handle& handle) {
 }
 
 inline int maskSize(const std::vector<bool>& mask) {
+  assert(mask.size() == 6);
   std::size_t res(0);
   for (std::size_t i = 0; i < 6; ++i) {
     if (mask[i]) ++res;
@@ -98,6 +99,7 @@ inline bool is6Dmask(const std::vector<bool>& mask) {
 }
 
 inline std::vector<bool> complementMask(const std::vector<bool>& mask) {
+  assert(mask.size() == 6);
   std::vector<bool> m(6);
   for (std::size_t i = 0; i < 6; ++i) m[i] = !mask[i];
   return m;

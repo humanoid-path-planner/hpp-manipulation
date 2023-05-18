@@ -183,6 +183,7 @@ class HPP_MANIPULATION_DLLAPI Handle {
         robot_(robot),
         clearance_(0),
         mask_(6, true),
+        maskComp_(6, false),
         weakPtr_() {}
   void init(HandleWkPtr_t weakPtr) { weakPtr_ = weakPtr; }
 

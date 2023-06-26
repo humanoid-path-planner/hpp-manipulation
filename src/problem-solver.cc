@@ -123,8 +123,6 @@ ProblemSolver::ProblemSolver() : core::ProblemSolver(), robot_(), problem_() {
   pathPlanners.add("M-RRT", ManipulationPlanner::create);
   pathPlanners.add("Piecewise",
                    pathPlanner::EET_PIECEWISE::createWithRoadmap);
-  pathPlanners.add("Hermite",
-                   pathPlanner::EET_HERMITE::create);
 
   pathValidations.add("Graph-Discretized",
                       createDiscretizedCollisionGraphPathValidation);
@@ -197,8 +195,6 @@ ProblemSolver::ProblemSolver() : core::ProblemSolver(), robot_(), problem_() {
                                         core::steeringMethod::Snibud>);
   steeringMethods.add("Piecewise",
                       steeringMethod::EET_PIECEWISE::create);
-  steeringMethods.add("Hermite",
-                      steeringMethod::EET_HERMITE::create);
 
   pathPlannerType("M-RRT");
   steeringMethodType("Graph-Straight");

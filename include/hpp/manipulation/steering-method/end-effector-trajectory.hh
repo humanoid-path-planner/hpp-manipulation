@@ -29,10 +29,22 @@
 #ifndef HPP_MANIPULATION_STEERING_METHOD_END_EFFECTOR_TRAJECTORY_HH
 #define HPP_MANIPULATION_STEERING_METHOD_END_EFFECTOR_TRAJECTORY_HH
 
+
+
+#include <iostream>
+#include <typeinfo>
+using namespace std;
+
+
+#include <iostream>
+#include <typeinfo>
+using namespace std;
 #include <hpp/core/steering-method.hh>
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>
 #include <hpp/core/steering-method/hermite.hh>
+#include <hpp/core/path/hermite.hh>
+#include <hpp/core/path/hermite.hh>
 
 namespace hpp {
 namespace manipulation {
@@ -112,7 +124,6 @@ class HPP_MANIPULATION_DLLAPI EET_PIECEWISE
 
  private:
   core::ConstraintSetPtr_t getUpdatedConstraints() const;
-
   DifferentiableFunctionPtr_t eeTraj_;
   interval_t timeRange_;
   constraints::ImplicitPtr_t constraint_;

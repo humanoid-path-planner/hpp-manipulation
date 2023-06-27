@@ -26,10 +26,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <iostream>
-#include <typeinfo>
-using namespace std;
-
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/core/config-projector.hh>
@@ -176,9 +172,6 @@ PathPtr_t EET_PIECEWISE::projectedPath(vectorIn_t times,
 
   for (size_type i = 1; i < configs.cols() - 1; ++i)
     path->insert(times[i], configs.col(i));
-
-  typedef InterpolatedPath::InterpolationPoints_t IPs_t;
-  const IPs_t& ips2 = path->interpolationPoints();
 
   return path;
 }

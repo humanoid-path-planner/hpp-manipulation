@@ -30,7 +30,6 @@
 #define HPP_MANIPULATION_PATH_PLANNER_END_EFFECTOR_TRAJECTORY_HH
 
 #include <hpp/core/path-planner.hh>
-#include <hpp/core/path-vector.hh>
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>
 #include <hpp/pinocchio/frame.hh>
@@ -52,7 +51,6 @@ typedef shared_ptr<IkSolverInitialization> IkSolverInitializationPtr_t;
 
 HPP_PREDEF_CLASS(EET_PIECEWISE);
 typedef shared_ptr<EET_PIECEWISE> EET_PIECEWISEPtr_t;
-typedef hpp::core::PathVectorPtr_t PathVectorPtr_t;
 
 class HPP_MANIPULATION_DLLAPI EET_PIECEWISE : public core::PathPlanner {
  public:
@@ -131,7 +129,6 @@ class HPP_MANIPULATION_DLLAPI EET_PIECEWISE : public core::PathPlanner {
   /// Feasibility
   bool feasibilityOnly_;
 };  // class EET_PIECEWISE
-
 }  // namespace pathPlanner
 }  // namespace manipulation
 }  // namespace hpp

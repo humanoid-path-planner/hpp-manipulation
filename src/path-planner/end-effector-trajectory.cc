@@ -26,9 +26,6 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <iostream>
-#include <typeinfo>
-using namespace std;
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/implicit.hh>
 #include <hpp/core/config-projector.hh>
@@ -37,8 +34,6 @@ using namespace std;
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/roadmap.hh>
-#include <hpp/core/path-projector.hh>
-#include <hpp/core/path.hh>
 #include <hpp/manipulation/path-planner/end-effector-trajectory.hh>
 #include <hpp/manipulation/steering-method/end-effector-trajectory.hh>
 #include <hpp/pinocchio/device-sync.hh>
@@ -46,32 +41,12 @@ using namespace std;
 #include <hpp/pinocchio/util.hh>
 #include <hpp/util/exception-factory.hh>
 #include <pinocchio/multibody/data.hpp>
-#include <hpp/core/edge.hh>
-#include <hpp/core/nearest-neighbor.hh>
-#include <hpp/core/node.hh>
-#include <hpp/core/path-planner.hh>
-#include <hpp/core/path-planning-failed.hh>
-#include <hpp/core/path-projector.hh>
-#include <hpp/core/path-validation.hh>
-#include <hpp/core/path.hh>
-#include <hpp/core/problem-target/goal-configurations.hh>
-#include <hpp/core/problem.hh>
-#include <hpp/core/roadmap.hh>
-#include <hpp/core/steering-method.hh>
-#include <hpp/util/debug.hh>
-#include <hpp/util/timer.hh>
-#include <tuple>
-#include <hpp/core/path/hermite.hh>
-#include <hpp/core/path-vector.hh>
-#include <hpp/core/path-projector/recursive-hermite.hh>
 
 namespace hpp {
 namespace manipulation {
 namespace pathPlanner {
 typedef manipulation::steeringMethod::EET_PIECEWISE SM_t;
 typedef manipulation::steeringMethod::EET_PIECEWISEPtr_t SMPtr_t;
-unsigned long int uint_infty =
-    std::numeric_limits<unsigned long int>::infinity();
 
 EET_PIECEWISEPtr_t EET_PIECEWISE::create(
     const core::ProblemConstPtr_t& problem) {
@@ -222,7 +197,6 @@ void EET_PIECEWISE::oneStep() {
         break;
       }
     }
-    cout << "steps : " << steps << endl;
     if (!success) continue;
     success = false;
 
@@ -292,9 +266,6 @@ void EET_PIECEWISE::init(const EET_PIECEWISEWkPtr_t& weak) {
   nDiscreteSteps_ = 1;
   feasibilityOnly_ = true;
 }
-
-
-
 }  // namespace pathPlanner
 }  // namespace manipulation
 }  // namespace hpp

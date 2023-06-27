@@ -29,22 +29,9 @@
 #ifndef HPP_MANIPULATION_STEERING_METHOD_END_EFFECTOR_TRAJECTORY_HH
 #define HPP_MANIPULATION_STEERING_METHOD_END_EFFECTOR_TRAJECTORY_HH
 
-
-
-#include <iostream>
-#include <typeinfo>
-using namespace std;
-
-
-#include <iostream>
-#include <typeinfo>
-using namespace std;
 #include <hpp/core/steering-method.hh>
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>
-#include <hpp/core/steering-method/hermite.hh>
-#include <hpp/core/path/hermite.hh>
-#include <hpp/core/path/hermite.hh>
 
 namespace hpp {
 namespace manipulation {
@@ -124,83 +111,6 @@ class HPP_MANIPULATION_DLLAPI EET_PIECEWISE
 
  private:
   core::ConstraintSetPtr_t getUpdatedConstraints() const;
-  DifferentiableFunctionPtr_t eeTraj_;
-  interval_t timeRange_;
-  constraints::ImplicitPtr_t constraint_;
-};
-
-
-HPP_PREDEF_CLASS(EET_HERMITE);
-typedef shared_ptr<EET_HERMITE> EET_HERMITEPtr_t;
-
-class HPP_MANIPULATION_DLLAPI EET_HERMITE
-    : public core::steeringMethod::Hermite {
- public:
-  typedef core::interval_t interval_t;
-
-  static EET_HERMITEPtr_t create(
-      const core::ProblemConstPtr_t& problem) {
-    EET_HERMITEPtr_t ptr(new EET_HERMITE(problem));
-    ptr->init(ptr);
-    return ptr;
-  }
-
-  /// Build a trajectory in SE(3).
-  /// \param points a Nx7 matrix whose rows corresponds to a pose.
-  /// \param weights a 6D vector, weights to be applied when computing
-  ///        the distance between two SE3 points.
-  static PathPtr_t makePiecewiseLinearTrajectory(matrixIn_t points,
-                                                 vectorIn_t weights);
-
-  /// Set the constraint whose right hand side will vary.
-  void trajectoryConstraint(const constraints::ImplicitPtr_t& ic);
-
-  const constraints::ImplicitPtr_t& trajectoryConstraint() {
-    return constraint_;
-  }
-
-  /// Set the right hand side of the function from a path
-  /// \param se3Output set to True if the output of path must be
-  ///                  understood as SE3.
-  void trajectory(const PathPtr_t& eeTraj, bool se3Output);
-
-  /// Set the right hand side of the function from another function.
-  /// \param eeTraj a function whose input space is of dimension 1.
-  /// \param timeRange the input range of eeTraj.
-  void trajectory(const DifferentiableFunctionPtr_t& eeTraj,
-                  const interval_t& timeRange);
-
-  const DifferentiableFunctionPtr_t& trajectory() const { return eeTraj_; }
-
-  const interval_t& timeRange() const { return timeRange_; }
-
-  core::SteeringMethodPtr_t copy() const {
-    EET_HERMITEPtr_t ptr(new EET_HERMITE(*this));
-    ptr->init(ptr);
-    return ptr;
-  }
-
-  /// Computes an core::InterpolatedPath from the provided interpolation
-  /// points.
-  /// \param times the time of each configuration
-  /// \param configs each column correspond to a configuration
-  PathPtr_t projectedPath(vectorIn_t times, matrixIn_t configs) const;
-
- protected:
-  EET_HERMITE(const core::ProblemConstPtr_t& problem)
-      : core::steeringMethod::Hermite(problem) {}
-
-  EET_HERMITE(const EET_HERMITE& other)
-      : core::steeringMethod::Hermite(other),
-        eeTraj_(other.eeTraj_),
-        timeRange_(other.timeRange_),
-        constraint_(other.constraint_) {}
-
-  PathPtr_t impl_compute(ConfigurationIn_t q1, ConfigurationIn_t q2) const;
-
- private:
-  core::ConstraintSetPtr_t getUpdatedConstraints() const;
-
   DifferentiableFunctionPtr_t eeTraj_;
   interval_t timeRange_;
   constraints::ImplicitPtr_t constraint_;

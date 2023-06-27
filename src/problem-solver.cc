@@ -121,8 +121,7 @@ ProblemSolver::ProblemSolver() : core::ProblemSolver(), robot_(), problem_() {
   robotType("hpp::manipulation::Device");
 
   pathPlanners.add("M-RRT", ManipulationPlanner::create);
-  pathPlanners.add("Piecewise",
-                   pathPlanner::EET_PIECEWISE::createWithRoadmap);
+  pathPlanners.add("Piecewise", pathPlanner::EET_PIECEWISE::createWithRoadmap);
 
   pathValidations.add("Graph-Discretized",
                       createDiscretizedCollisionGraphPathValidation);
@@ -193,8 +192,7 @@ ProblemSolver::ProblemSolver() : core::ProblemSolver(), robot_(), problem_() {
   steeringMethods.add("CrossStateOptimization-Snibud",
                       createSMWithGuess<steeringMethod::CrossStateOptimization,
                                         core::steeringMethod::Snibud>);
-  steeringMethods.add("Piecewise",
-                      steeringMethod::EET_PIECEWISE::create);
+  steeringMethods.add("Piecewise", steeringMethod::EET_PIECEWISE::create);
 
   pathPlannerType("M-RRT");
   steeringMethodType("Graph-Straight");

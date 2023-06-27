@@ -44,13 +44,11 @@ typedef shared_ptr<EET_PIECEWISE> EET_PIECEWISEPtr_t;
 using core::PathPtr_t;
 
 /// Build StraightPath constrained by a varying right hand side constraint.
-class HPP_MANIPULATION_DLLAPI EET_PIECEWISE
-    : public core::SteeringMethod {
+class HPP_MANIPULATION_DLLAPI EET_PIECEWISE : public core::SteeringMethod {
  public:
   typedef core::interval_t interval_t;
 
-  static EET_PIECEWISEPtr_t create(
-      const core::ProblemConstPtr_t& problem) {
+  static EET_PIECEWISEPtr_t create(const core::ProblemConstPtr_t& problem) {
     EET_PIECEWISEPtr_t ptr(new EET_PIECEWISE(problem));
     ptr->init(ptr);
     return ptr;

@@ -95,8 +95,7 @@ void EET_PIECEWISE::startSolve() {
 
   const constraints::ImplicitPtr_t& trajConstraint = sm->trajectoryConstraint();
   if (!trajConstraint)
-    throw std::invalid_argument(
-        "EET_PIECEWISE has no trajectory constraint.");
+    throw std::invalid_argument("EET_PIECEWISE has no trajectory constraint.");
   if (!sm->trajectory())
     throw std::invalid_argument("EET_PIECEWISE has no trajectory.");
 
@@ -134,8 +133,7 @@ void EET_PIECEWISE::oneStep() {
         "Steering method must be of type "
         "hpp::manipulation::steeringMethod::EET_PIECEWISE");
   if (!sm->trajectoryConstraint())
-    throw std::invalid_argument(
-        "EET_PIECEWISE has no trajectory constraint.");
+    throw std::invalid_argument("EET_PIECEWISE has no trajectory constraint.");
   if (!sm->trajectory())
     throw std::invalid_argument("EET_PIECEWISE has no trajectory.");
 
@@ -213,7 +211,7 @@ void EET_PIECEWISE::oneStep() {
                         << condensed(steps.transpose()) << '\n');
       continue;
     }
-    
+
     core::PathPtr_t validPart;
     if (!pathValidation->validate(path, false, validPart, pathReport)) {
       hppDout(info, "Path is in collision.");
@@ -247,12 +245,11 @@ std::vector<core::Configuration_t> EET_PIECEWISE::configurations(
       "Using an IkSolverInitialization is not implemented yet");
 }
 
-EET_PIECEWISE::EET_PIECEWISE(
-    const core::ProblemConstPtr_t& problem)
+EET_PIECEWISE::EET_PIECEWISE(const core::ProblemConstPtr_t& problem)
     : core::PathPlanner(problem) {}
 
-EET_PIECEWISE::EET_PIECEWISE(
-    const core::ProblemConstPtr_t& problem, const core::RoadmapPtr_t& roadmap)
+EET_PIECEWISE::EET_PIECEWISE(const core::ProblemConstPtr_t& problem,
+                             const core::RoadmapPtr_t& roadmap)
     : core::PathPlanner(problem, roadmap) {}
 
 void EET_PIECEWISE::checkFeasibilityOnly(bool enable) {

@@ -95,6 +95,14 @@ typedef core::vectorIn_t vectorIn_t;
 typedef core::vectorOut_t vectorOut_t;
 HPP_PREDEF_CLASS(ManipulationPlanner);
 typedef shared_ptr<ManipulationPlanner> ManipulationPlannerPtr_t;
+namespace pathPlanner {
+  HPP_PREDEF_CLASS (StatesPathFinder);
+  typedef shared_ptr < StatesPathFinder > StatesPathFinderPtr_t;
+  HPP_PREDEF_CLASS (InStatePath);
+  typedef shared_ptr < InStatePath > InStatePathPtr_t;
+  HPP_PREDEF_CLASS (StateShooter);
+  typedef shared_ptr < StateShooter > StateShooterPtr_t;
+} // namespace pathPlanner
 HPP_PREDEF_CLASS(GraphPathValidation);
 typedef shared_ptr<GraphPathValidation> GraphPathValidationPtr_t;
 HPP_PREDEF_CLASS(SteeringMethod);

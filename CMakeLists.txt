@@ -86,6 +86,8 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/manipulation/path-optimization/random-shortcut.hh
     include/hpp/manipulation/path-optimization/spline-gradient-based.hh
     include/hpp/manipulation/path-planner/end-effector-trajectory.hh
+    include/hpp/manipulation/path-planner/in-state-path.hh
+    include/hpp/manipulation/path-planner/states-path-finder.hh
     include/hpp/manipulation/problem-target/state.hh
     include/hpp/manipulation/serialization.hh
     include/hpp/manipulation/steering-method/cross-state-optimization.hh

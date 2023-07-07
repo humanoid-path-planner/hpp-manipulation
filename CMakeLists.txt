@@ -122,6 +122,7 @@ set(${PROJECT_NAME}_SOURCES
     src/path-optimization/random-shortcut.cc
     src/path-optimization/enforce-transition-semantic.cc
     src/path-planner/end-effector-trajectory.cc
+    src/path-planner/states-path-finder.cc
     src/problem-target/state.cc
     src/serialization.cc
     src/steering-method/end-effector-trajectory.cc

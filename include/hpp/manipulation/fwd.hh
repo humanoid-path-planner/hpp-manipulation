@@ -96,6 +96,8 @@ typedef core::vectorOut_t vectorOut_t;
 HPP_PREDEF_CLASS(ManipulationPlanner);
 typedef shared_ptr<ManipulationPlanner> ManipulationPlannerPtr_t;
 namespace pathPlanner {
+  HPP_PREDEF_CLASS(EndEffectorTrajectory);
+  typedef shared_ptr<EndEffectorTrajectory> EndEffectorTrajectoryPtr_t;
   HPP_PREDEF_CLASS (StatesPathFinder);
   typedef shared_ptr < StatesPathFinder > StatesPathFinderPtr_t;
   HPP_PREDEF_CLASS (InStatePath);
@@ -107,6 +109,10 @@ HPP_PREDEF_CLASS(GraphPathValidation);
 typedef shared_ptr<GraphPathValidation> GraphPathValidationPtr_t;
 HPP_PREDEF_CLASS(SteeringMethod);
 typedef shared_ptr<SteeringMethod> SteeringMethodPtr_t;
+namespace steeringMethod{
+  HPP_PREDEF_CLASS(EndEffectorTrajectory);
+  typedef shared_ptr<EndEffectorTrajectory> EndEffectorTrajectoryPtr_t;
+}
 typedef core::PathOptimizer PathOptimizer;
 typedef core::PathOptimizerPtr_t PathOptimizerPtr_t;
 HPP_PREDEF_CLASS(GraphOptimizer);

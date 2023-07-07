@@ -17,7 +17,7 @@
     hard-coded optimizer (Graph-RandomShortcut) and then globally with the
     command ps.addPathOptimizer("Graph-RandomShortcut"). Due to how this works,
     this is like doing two times the same thing so the first should be removed.
-    However bugs have been observed when the global optimization is used (Core 
+    However bugs have been observed when the global optimization is used (Core
     dumped). For unknown reasons, in GraphOptimizer::optimize, the dynamic
     cast of current->constraints() may fail on *some* 0-length paths. Ignoring
     empty paths (the "if" I have added) seems to make the problem disappear

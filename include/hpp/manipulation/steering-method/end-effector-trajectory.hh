@@ -56,10 +56,36 @@ class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory
     return ptr;
   }
 
-  /// Build a trajectory in SE(3).
-  /// \param points a Nx7 matrix whose rows corresponds to a pose.
-  /// \param weights a 6D vector, weights to be applied when computing
-  ///        the distance between two SE3 points.
+  /** Build a trajectory in SE(3).
+      \param points a Nx7 matrix whose rows corresponds to poses.
+      \param weights a 6D vector, weights to be applied when computing
+             the distance between two SE3 points.
+
+      The trajectory \f$T\f$ is defined as follows. Let \f$N\f$ be the number of
+      lines of matrix \c points, \f$p_i\f$ be the i-th line of \c points and
+      let \f$W\f$ be the
+      diagonal matrix with the coefficients of \c weights:
+      \f[
+      W = \left(\begin{array}{cccccc}
+      w_1 & 0 & 0 & 0 & 0 & 0\\
+      0 & w_2 & 0 & 0 & 0 & 0\\
+      0 & 0 & w_3 & 0 & 0 & 0\\
+      0 & 0 & 0 & w_4 & 0 & 0\\
+      0 & 0 & 0 & 0 & w_5 & 0\\
+      0 & 0 & 0 & 0 & 0 & w_6\\
+      \end{array}\right)
+      \f]
+
+      \f{eqnarray*}{
+        f(t) = \mathbf{p}_i \oplus \frac{t-t_i}{t_{i+1}-t_i} (\mathbf{p}_{i+1}-\mathbf{p}_i) &&
+        \mbox{ for } t \in [t_i,t_{i+1}]
+      \f}
+
+      where \f$t_0 = 0\f$ and
+      \f{eqnarray*}{
+       t_{i+1}-t_i = \|W(\mathbf{p}_{i+1}-\mathbf{p}_i)\| && \mbox{for } i
+       \mbox{ such that } 1 \leq i \leq N-1
+       \f} */
   static PathPtr_t makePiecewiseLinearTrajectory(matrixIn_t points,
                                                  vectorIn_t weights);
 

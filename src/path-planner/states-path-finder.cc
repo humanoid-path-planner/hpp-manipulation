@@ -76,13 +76,11 @@ namespace hpp {
       using core::problemTarget::TaskTarget;
       using core::problemTarget::TaskTargetPtr_t;
 
-      static void displayRoadmap(const core::RoadmapPtr_t&
 #ifdef HPP_DEBUG
+      static void displayRoadmap(const core::RoadmapPtr_t&
                                  roadmap
-#endif
                                  )
       {
-#ifdef HPP_DEBUG
         unsigned i=0;
         for (auto cc : roadmap->connectedComponents()){
           hppDout(info, " CC " << i); ++i;
@@ -90,8 +88,8 @@ namespace hpp {
             hppDout(info, pinocchio::displayConfig(*(n->configuration())));
           }
         }
-#endif
       }
+#endif
 
       StatesPathFinder::StatesPathFinder(const core::ProblemConstPtr_t& problem,
                                          const core::RoadmapPtr_t& roadmap) :
@@ -1211,7 +1209,7 @@ namespace hpp {
                     << "\n-----------------------------------------------");
           }
 
-        } catch(const core::path_planning_failed&(e)) {
+        } catch(const core::path_planning_failed& e) {
           std::ostringstream oss;
           oss << "Error " << e.what() << "\n";
           oss << "Solution " << idxSol_ << ": Failed to build path at edge " << idxConfigList_ << ": ";

@@ -2,6 +2,7 @@
 // Authors: Joseph Mirabel (joseph.mirabel@laas.fr),
 //          Florent Lamiraux (florent.lamiraux@laas.fr)
 //          Alexandre Thiault (athiault@laas.fr)
+//          Le Quang Anh (quang-anh.le@laas.fr)
 //
 // This file is part of hpp-manipulation.
 // hpp-manipulation is free software: you can redistribute it
@@ -45,10 +46,10 @@ namespace hpp {
       ///
       /// #### Sketch of the method
       ///
-      /// Given two configuration \f$ (q_1,q_2) \f$, this class formulates and
+      /// Given two configurations \f$ (q_1,q_2) \f$, this class formulates and
       /// solves the problem as follows.
       /// - Compute the corresponding states \f$ (s_1, s_2) \f$.
-      /// - For a each path \f$ (e_0, ... e_n) \f$ of length not more than
+      /// - For each path \f$ (e_0, ... e_n) \f$ of length not more than
       ///   parameter "StatesPathFinder/maxDepth" between
       ///   \f$ (s_1, s_2)\f$ in the constraint graph, do:
       ///   - define \f$ n-1 \f$ intermediate configuration \f$ p_i \f$,
@@ -78,7 +79,7 @@ namespace hpp {
       /// - method analyseOptimizationProblem loops over the waypoint solvers,
       ///   tests what happens when solving each waypoint after initializing
       ///   only the right hand sides that are equal to the initial or goal
-      ///   configuraion, and detects if a collision is certain to block any attemps
+      ///   configuration, and detects if a collision is certain to block any attempts
       ///   to solve the problem in the solveOptimizationProblem step.
       /// - method solveOptimizationProblem tries to solve for each waypoint after
       ///   initializing the right hand sides with the proper values, backtracking
@@ -103,7 +104,7 @@ namespace hpp {
         public:
           struct OptimizationData;
 
-        virtual ~StatesPathFinder () {};
+          virtual ~StatesPathFinder () {};
 
           static StatesPathFinderPtr_t create (
             const core::ProblemConstPtr_t& problem);
@@ -115,10 +116,13 @@ namespace hpp {
           StatesPathFinderPtr_t copy () const;
           
           /// create a vector of configurations between two configurations
+          /// \param q1 initial configuration
+          /// \param q2 pointer to final configuration, NULL if goal is
+          /// defined as a set of constraints
           /// \return a Configurations_t from q1 to q2 if found. An empty
           /// vector if a path could not be built.
           core::Configurations_t computeConfigList (ConfigurationIn_t q1,
-                                          ConfigurationIn_t q2);
+                                          ConfigurationPtr_t q2);
 
           // access functions for Python interface
           std::vector<std::string> constraintNamesFromSolverAtWaypoint
@@ -131,8 +135,19 @@ namespace hpp {
           void initWPRandom(std::size_t wp);
           void initWPNear(std::size_t wp);
           void initWP(std::size_t wp, ConfigurationIn_t q);
-          int solveStep(std::size_t wp);
-          Configuration_t configSolved (std::size_t wp) const;
+          /// Status of the step to solve for a particular waypoint
+          enum SolveStepStatus {
+            /// Valid solution (no collision)
+            VALID_SOLUTION,
+            /// Bad solve status, no solution from the solver
+            NO_SOLUTION,
+            /// Solution has collision in edge leading to the waypoint
+            COLLISION_BEFORE,
+            /// Solution has collision in edge going from the waypoint
+            COLLISION_AFTER,
+          };
+
+          SolveStepStatus solveStep(std::size_t wp);
 
           /// deletes from memory the latest working states list, which is used to
           /// resume finding solutions from that list in case of failure at a
@@ -141,7 +156,8 @@ namespace hpp {
 
           virtual void startSolve();
           virtual void oneStep();
-          /// Do nothing
+          /// when both initial state is one of potential goal states,
+          /// try connecting them directly
           virtual void tryConnectInitAndGoals ();
 
         protected:
@@ -169,13 +185,24 @@ namespace hpp {
           graph::Edges_t getTransitionList (const GraphSearchData& data, const std::size_t& i) const;
 
           /// Step 3 of the algorithm
+
+          // check that the solver either contains exactly same constraint
+          // or a constraint with similar parametrizable form
+          // constraint/both and constraint/complement
           bool contains (const Solver_t& solver, const ImplicitPtr_t& c) const;
+
+          // check that the solver either contains exactly same constraint
+          // or a stricter version of the constraint
+          // constraint/both stricter than constraint and stricter than constraint/complement
+          bool containsStricter (const Solver_t& solver, const ImplicitPtr_t& c) const;
           bool checkConstantRightHandSide (size_type index);
           bool buildOptimizationProblem (const graph::Edges_t& transitions);
 
           /// Step 4 of the algorithm
           void preInitializeRHS(std::size_t j, Configuration_t& q);
           bool analyseOptimizationProblem (const graph::Edges_t& transitions);
+          bool analyseOptimizationProblem2 (const graph::Edges_t& transitions,
+                                            core::ProblemConstPtr_t _problem);
 
           /// Step 5 of the algorithm
           void initializeRHS (std::size_t j);
@@ -204,18 +231,27 @@ namespace hpp {
           std::map < std::string, std::size_t > index_;
 
           /// associative map that stores pairs of constraints of the form
-          /// (constraint, constraint/hold)
+          /// (constraint/complement, constraint/hold)
           std::map <ImplicitPtr_t, ImplicitPtr_t> sameRightHandSide_;
 
+          /// associative map that stores pairs of constraints of either form
+          /// (constraint, constraint/hold)
+          /// or (constraint/complement, constraint/hold)
+          std::map <ImplicitPtr_t, ImplicitPtr_t> stricterConstraints_;
+
           mutable OptimizationData* optData_;
-          /// Index of the sequence of states
-          std::size_t idxSol_ = 0;
+          mutable std::shared_ptr <GraphSearchData> graphData_;
           graph::Edges_t lastBuiltTransitions_;
 
-          bool skipColAnalysis_;
-
-          // Constraints defining the goal
+          /// Constraints defining the goal
+          /// For now:
+          /// - comparison type Equality is initialized to zero
+          /// - if goal constraint is not already present in any graph state,
+          ///   it should not require propagating a complement.
+          ///   invalid eg: specify the full pose of an object placement or
+          ///   object grasp
           NumericalConstraints_t goalConstraints_;
+          bool goalDefinedByConstraints_;
           // Variables used across several calls to oneStep
           ConfigurationPtr_t q1_, q2_;
           core::Configurations_t configList_;

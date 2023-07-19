@@ -77,9 +77,8 @@ class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory
       \f]
 
       \f{eqnarray*}{
-        f(t) = \mathbf{p}_i \oplus \frac{t-t_i}{t_{i+1}-t_i} (\mathbf{p}_{i+1}-\mathbf{p}_i) &&
-        \mbox{ for } t \in [t_i,t_{i+1}]
-      \f}
+        f(t) = \mathbf{p}_i \oplus \frac{t-t_i}{t_{i+1}-t_i}
+     (\mathbf{p}_{i+1}-\mathbf{p}_i) && \mbox{ for } t \in [t_i,t_{i+1}] \f}
 
       where \f$t_0 = 0\f$ and
       \f{eqnarray*}{

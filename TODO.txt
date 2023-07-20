@@ -1,0 +1,25 @@
+- InStatePath::solve
+    BiRRT* does not work properly at all:
+        - discontinuities due to an algorithmic mistake involving qProj_
+        - not using path projectors, while it should
+    DiffusingPlanner does not work properly sometimes
+        - Some collisions were detected on paths solves for romeo-placard
+          both with discrete and continuous (Progressive, 0.2) path validations
+
+
+- InStatePath::mergeLeafRoadmapWith
+    this is inefficient because the roadmap recomputes the connected
+    component at every step. A better merge function should be added to roadmap.cc
+
+
+- path optimizations after solving once :
+    They are done "locally" (for each of the leafs separately) in C++ with a
+    hard-coded optimizer (Graph-RandomShortcut) and then globally with the
+    command ps.addPathOptimizer("Graph-RandomShortcut"). Due to how this works,
+    this is like doing two times the same thing so the first should be removed.
+    However bugs have been observed when the global optimization is used (Core
+    dumped). For unknown reasons, in GraphOptimizer::optimize, the dynamic
+    cast of current->constraints() may fail on *some* 0-length paths. Ignoring
+    empty paths (the "if" I have added) seems to make the problem disappear
+    but the reason why some 0-length paths don't have the right Constraint type
+    is still to be found.

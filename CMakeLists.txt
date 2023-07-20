@@ -86,6 +86,8 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/manipulation/path-optimization/random-shortcut.hh
     include/hpp/manipulation/path-optimization/spline-gradient-based.hh
     include/hpp/manipulation/path-planner/end-effector-trajectory.hh
+    include/hpp/manipulation/path-planner/in-state-path.hh
+    include/hpp/manipulation/path-planner/states-path-finder.hh
     include/hpp/manipulation/problem-target/state.hh
     include/hpp/manipulation/serialization.hh
     include/hpp/manipulation/steering-method/cross-state-optimization.hh
@@ -120,6 +122,7 @@ set(${PROJECT_NAME}_SOURCES
     src/path-optimization/random-shortcut.cc
     src/path-optimization/enforce-transition-semantic.cc
     src/path-planner/end-effector-trajectory.cc
+    src/path-planner/states-path-finder.cc
     src/problem-target/state.cc
     src/serialization.cc
     src/steering-method/end-effector-trajectory.cc

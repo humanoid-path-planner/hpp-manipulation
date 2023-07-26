@@ -140,14 +140,18 @@ PathPtr_t EndEffectorTrajectory::impl_compute(ConfigurationIn_t q1,
     return core::StraightPath::create(problem()->robot(), q1, q2, timeRange_,
                                       c);
   } catch (const std::exception& e) {
-    std::cout << timeRange_.first << ", " << timeRange_.second << '\n';
+    std::ostringstream os;
+    os << "steeringMethod::EndEffectorTrajectory failed: " << e.what()
+              << std::endl;
+    os << "time range: [" << timeRange_.first << ", "
+              << timeRange_.second << "]\n";
     if (eeTraj_)
-      std::cout << (*eeTraj_)(vector_t::Constant(1, timeRange_.first)) << '\n'
+      os << (*eeTraj_)(vector_t::Constant(1, timeRange_.first)) << '\n'
                 << (*eeTraj_)(vector_t::Constant(1, timeRange_.second))
                 << std::endl;
-    std::cout << *constraints() << std::endl;
-    std::cout << e.what() << std::endl;
-    throw;
+    if (constraints())
+      os << *constraints() << std::endl;
+    throw std::runtime_error(os.str().c_str());
   }
 }
 

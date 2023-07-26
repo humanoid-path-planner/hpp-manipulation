@@ -142,15 +142,13 @@ PathPtr_t EndEffectorTrajectory::impl_compute(ConfigurationIn_t q1,
   } catch (const std::exception& e) {
     std::ostringstream os;
     os << "steeringMethod::EndEffectorTrajectory failed: " << e.what()
-              << std::endl;
-    os << "time range: [" << timeRange_.first << ", "
-              << timeRange_.second << "]\n";
+       << std::endl;
+    os << "time range: [" << timeRange_.first << ", " << timeRange_.second
+       << "]\n";
     if (eeTraj_)
       os << (*eeTraj_)(vector_t::Constant(1, timeRange_.first)) << '\n'
-                << (*eeTraj_)(vector_t::Constant(1, timeRange_.second))
-                << std::endl;
-    if (constraints())
-      os << *constraints() << std::endl;
+         << (*eeTraj_)(vector_t::Constant(1, timeRange_.second)) << std::endl;
+    if (constraints()) os << *constraints() << std::endl;
     throw std::runtime_error(os.str().c_str());
   }
 }

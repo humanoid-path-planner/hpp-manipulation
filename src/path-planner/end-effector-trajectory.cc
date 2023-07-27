@@ -151,6 +151,8 @@ void EndEffectorTrajectory::oneStep() {
 
   core::interval_t timeRange(sm->timeRange());
 
+  // Generate a vector if configuration where the first one is the initial
+  // configuration and the following ones are random configurations
   std::vector<core::Configuration_t> qs(
       configurations(*problem()->initConfig()));
   if (qs.empty()) {
@@ -166,12 +168,23 @@ void EndEffectorTrajectory::oneStep() {
   vector_t times(nDiscreteSteps_ + 1);
   matrix_t steps(problem()->robot()->configSize(), nDiscreteSteps_ + 1);
 
+  // Discretize definition interval of the steering method into times
   times[0] = timeRange.first;
   for (int j = 1; j < nDiscreteSteps_; ++j)
     times[j] = timeRange.first +
                j * (timeRange.second - timeRange.first) / nDiscreteSteps_;
   times[nDiscreteSteps_] = timeRange.second;
 
+  // For each random configuration,
+  //   - compute initial configuration of path by projecting the random
+  //     configuration (initial configuration for the first time),
+  //   - compute following samples by projecting current sample after
+  //     updating right hand side.
+  // If failure, try next random configuration.
+  // Failure can be due to
+  //   - projection,
+  //   - collision of final configuration,
+  //   - validation of path (for collision mainly).
   for (i = 0; i < qs.size(); ++i) {
     if (resetRightHandSide) {
       constraints->rightHandSideAt(times[0]);
@@ -200,6 +213,7 @@ void EndEffectorTrajectory::oneStep() {
     if (!success) continue;
     success = false;
 
+    // Test collision of final configuration.
     if (!cfgValidation->validate(steps.col(nDiscreteSteps_), cfgReport)) {
       hppDout(info, "Destination config is in collision.");
       continue;
@@ -220,6 +234,10 @@ void EndEffectorTrajectory::oneStep() {
       continue;
     }
 
+    // In case of success,
+    //   - insert q_init as initial configuration of the roadmap,
+    //   - insert final configuration as goal node in the roadmap,
+    //   - add a roadmap edge between them and stop.
     roadmap()->initNode(make_shared<Configuration_t>(steps.col(0)));
     core::NodePtr_t init = roadmap()->initNode();
     core::NodePtr_t goal = roadmap()->addGoalNode(

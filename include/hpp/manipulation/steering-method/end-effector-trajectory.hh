@@ -35,15 +35,40 @@
 
 namespace hpp {
 namespace manipulation {
-/// \addtogroup steering_method
-/// \{
 namespace steeringMethod {
 HPP_PREDEF_CLASS(EndEffectorTrajectory);
 typedef shared_ptr<EndEffectorTrajectory> EndEffectorTrajectoryPtr_t;
 
 using core::PathPtr_t;
 
-/// Build StraightPath constrained by a varying right hand side constraint.
+/// \addtogroup steering_method
+/// \{
+
+/// Build piecewise straight paths for a robot end-effector
+///
+/// To use this steering method, the user needs to provide
+///  \li a constraint with value in \f$SE(3)\f$. An easy way to create such a
+///  constraint is to use method hpp::manipulation::Handle::createGrasp. The
+///  constraint is passed to the steering method using method \link
+/// EndEffectorTrajectory::trajectoryConstraint trajectoryConstraint \endlink.
+///  \li the time-varying right hand side of this constraint along the path
+///  the user wants to create in the form of a hpp::core::Path instance
+///  with values in \f$SE(3)\f$. For that, \link
+/// EndEffectorTrajectory::makePiecewiseLinearTrajectory
+/// makePiecewiseLinearTrajectory \endlink method may be useful.
+///
+/// \warning the constraint should also be inserted in the \link
+/// hpp::core::SteeringMethod::constraints set of constraints \endlink
+/// of the steering method.
+///
+/// Once the steering method has been initialized, it can be called between
+/// two configurations \c q1 and \c q2. The interval of definition \f$[0,T]\f$
+/// of the output path is the same as the one of the path provided as the right
+/// hand side of the constraint.
+/// Note that \c q1 and \c q2 should satisfy the constraint at times 0 and
+/// \f$T\f$ respectively. The output path is a \link hpp::core::StraightPath
+/// linear interpolation \endlink between \c q1 and \c q2 projected on the
+/// steering method constraints.
 class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory
     : public core::SteeringMethod {
  public:
@@ -141,8 +166,8 @@ class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory
   interval_t timeRange_;
   constraints::ImplicitPtr_t constraint_;
 };
-}  // namespace steeringMethod
 /// \}
+}  // namespace steeringMethod
 }  // namespace manipulation
 }  // namespace hpp
 

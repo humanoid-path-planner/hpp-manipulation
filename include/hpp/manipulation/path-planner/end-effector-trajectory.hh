@@ -52,6 +52,46 @@ typedef shared_ptr<IkSolverInitialization> IkSolverInitializationPtr_t;
 HPP_PREDEF_CLASS(EndEffectorTrajectory);
 typedef shared_ptr<EndEffectorTrajectory> EndEffectorTrajectoryPtr_t;
 
+/// \addtogroup path_planning
+/// \{
+
+/// Plan a path for a robot with constrained trajectory of an end effector
+///
+/// This path planner only works with a steering method of type
+/// steeringMethod::EndEffectorTrajectory. The steering
+/// method defines the desired end-effector trajectory using a time-varying
+/// constraint.
+///
+/// To plan a path between two configurations \c q_init and \c q_goal, the
+/// configurations must satisfy the constraint at the beginning and at the
+/// end of the definition interval respectively.
+///
+/// The interval of definition \f$[0,T]\f$ of the output path is defined by the
+/// time-varying constraint of the steering method. This interval is uniformly
+/// discretized in a number of samples that can be accessed using method \link
+/// EndEffectorTrajectory::nDiscreteSteps nDiscreteSteps \endlink.
+///
+/// The path is planned by successively calling method \link
+/// EndEffectorTrajectory::oneStep oneStep \endlink that performs the following
+/// actions.
+///   - A vector of configurations is produced by appending random
+///     configurations to \c q_init. The number of random configurations can
+///     be accessed by methods \link EndEffectorTrajectory::nRandomConfig
+///     nRandomConfig \endlink.
+///   - for each configuration in the vector,
+///     - the initial configuration of the path is computed by projecting the
+///       configuration on the constraint,
+///     - the configuration at following samples is computed by projecting the
+///       configuration at the previous sample using the time-varying
+///       constraint.
+///     - In case of failure
+///        - in projecting a configuration or
+///        - in validating the path for collision,
+///       the loop restart with the next random configuration.
+///
+/// Note that continuity is not tested but enforced by projecting the
+/// configuration of the previous sample to compute the configuration at
+/// a given sample.
 class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory : public core::PathPlanner {
  public:
   /// Return shared pointer to new instance
@@ -129,6 +169,7 @@ class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory : public core::PathPlanner {
   /// Feasibility
   bool feasibilityOnly_;
 };  // class EndEffectorTrajectory
+// \}
 }  // namespace pathPlanner
 }  // namespace manipulation
 }  // namespace hpp

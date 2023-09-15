@@ -104,6 +104,8 @@ HPP_PREDEF_CLASS(InStatePath);
 typedef shared_ptr<InStatePath> InStatePathPtr_t;
 HPP_PREDEF_CLASS(StateShooter);
 typedef shared_ptr<StateShooter> StateShooterPtr_t;
+HPP_PREDEF_CLASS(TransitionPlanner);
+typedef shared_ptr<TransitionPlanner> TransitionPlannerPtr_t;
 }  // namespace pathPlanner
 HPP_PREDEF_CLASS(GraphPathValidation);
 typedef shared_ptr<GraphPathValidation> GraphPathValidationPtr_t;

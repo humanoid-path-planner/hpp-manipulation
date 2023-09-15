@@ -62,8 +62,8 @@
 #include "hpp/manipulation/path-optimization/enforce-transition-semantic.hh"
 #include "hpp/manipulation/path-optimization/random-shortcut.hh"
 #include "hpp/manipulation/path-planner/end-effector-trajectory.hh"
-#include "hpp/manipulation/path-planner/in-state-path.hh"
 #include "hpp/manipulation/path-planner/states-path-finder.hh"
+#include "hpp/manipulation/path-planner/transition-planner.hh"
 #include "hpp/manipulation/problem-target/state.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap.hh"
@@ -127,6 +127,8 @@ ProblemSolver::ProblemSolver() : core::ProblemSolver(), robot_(), problem_() {
                    pathPlanner::EndEffectorTrajectory::createWithRoadmap);
   pathPlanners.add("StatesPathFinder",
                    pathPlanner::StatesPathFinder::createWithRoadmap);
+  pathPlanners.add("TransitionPlanner",
+                   pathPlanner::TransitionPlanner::createWithRoadmap);
   pathValidations.add("Graph-Discretized",
                       createDiscretizedCollisionGraphPathValidation);
   pathValidations.add("Graph-DiscretizedCollision",

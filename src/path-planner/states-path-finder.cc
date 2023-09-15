@@ -36,7 +36,6 @@
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/state-selector.hh>
 #include <hpp/manipulation/graph/state.hh>
-#include <hpp/manipulation/path-planner/in-state-path.hh>
 #include <hpp/manipulation/path-planner/states-path-finder.hh>
 #include <hpp/manipulation/roadmap.hh>
 #include <hpp/pinocchio/configuration.hh>

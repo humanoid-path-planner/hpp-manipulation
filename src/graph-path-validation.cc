@@ -133,11 +133,11 @@ bool GraphPathValidation::impl_validate(const PathPtr_t& path, bool reverse,
   const core::interval_t &newTR = newPath.timeRange(),
                          oldTR = oldPath.timeRange();
   Configuration_t q(newPath.outputSize());
-  if (!newPath(q, newTR.first))
+  if (!newPath.eval(q, newTR.first))
     throw std::logic_error(
         "Initial configuration of the valid part cannot be projected.");
   const graph::StatePtr_t& origState = constraintGraph_->getState(q);
-  if (!newPath(q, newTR.second))
+  if (!newPath.eval(q, newTR.second))
     throw std::logic_error(
         "End configuration of the valid part cannot be projected.");
   // This may throw in the following case:
@@ -171,7 +171,7 @@ bool GraphPathValidation::impl_validate(const PathPtr_t& path, bool reverse,
     validPart = path->extract(std::make_pair(oldTR.first, oldTR.first));
     return false;
   }
-  if (!oldPath(q, oldTR.first)) {
+  if (!oldPath.eval(q, oldTR.first)) {
     std::stringstream oss;
     oss << "Initial configuration of the path to be validated failed to"
            " be projected. After maximal number of iterations, q="
@@ -182,7 +182,7 @@ bool GraphPathValidation::impl_validate(const PathPtr_t& path, bool reverse,
     throw std::logic_error(oss.str().c_str());
   }
   const graph::StatePtr_t& oldOstate = constraintGraph_->getState(q);
-  if (!oldPath(q, oldTR.second)) {
+  if (!oldPath.eval(q, oldTR.second)) {
     std::stringstream oss;
     oss << "End configuration of the path to be validated failed to"
            " be projected. After maximal number of iterations, q="

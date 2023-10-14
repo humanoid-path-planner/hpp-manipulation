@@ -83,7 +83,7 @@ PathVectorPtr_t GraphOptimizer::optimize(const PathVectorPtr_t& path) {
       // p.pathValidation(gpv->innerValidation());
       p->pathProjector(problem()->pathProjector());
       p->steeringMethod(edge->steeringMethod()->copy());
-      p->constraints(p->steeringMethod()->constraints());
+      p->constraints(edge->pathConstraint());
       if (p->constraints() && p->constraints()->configProjector()) {
         p->constraints()->configProjector()->rightHandSideFromConfig(
             toOpt->initial());

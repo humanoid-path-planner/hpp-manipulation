@@ -64,7 +64,7 @@ class FunctionFromPath : public constraints::DifferentiableFunction {
 
  protected:
   void impl_compute(core::LiegroupElementRef result, vectorIn_t arg) const {
-    bool success = (*path_)(result.vector(), arg[0]);
+    bool success = path_->eval(result.vector(), arg[0]);
     if (!success) {
       hppDout(warning, "Failed to evaluate path at param "
                            << arg[0] << incindent << iendl << *path_

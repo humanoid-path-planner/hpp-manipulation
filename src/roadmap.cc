@@ -91,7 +91,7 @@ void Roadmap::constraintGraph(const graph::GraphPtr_t& graph) {
 }
 
 RoadmapNodePtr_t Roadmap::nearestNodeInState(
-    const ConfigurationPtr_t& configuration,
+    ConfigurationIn_t configuration,
     const ConnectedComponentPtr_t& connectedComponent,
     const graph::StatePtr_t& state, value_type& minDistance) const {
   core::NodePtr_t result = NULL;
@@ -103,7 +103,7 @@ RoadmapNodePtr_t Roadmap::nearestNodeInState(
   // 		<< std::endl;
   for (RoadmapNodes_t::const_iterator itNode = roadmapNodes.begin();
        itNode != roadmapNodes.end(); ++itNode) {
-    value_type d = (*distance())(*(*itNode)->configuration(), *configuration);
+    value_type d = (*distance())((*itNode)->configuration(), configuration);
     if (d < minDistance) {
       minDistance = d;
       result = *itNode;
@@ -112,7 +112,7 @@ RoadmapNodePtr_t Roadmap::nearestNodeInState(
   return static_cast<RoadmapNode*>(result);
 }
 
-core::NodePtr_t Roadmap::createNode(const ConfigurationPtr_t& q) const {
+core::NodePtr_t Roadmap::createNode(ConfigurationIn_t q) const {
   // call RoadmapNode constructor with new manipulation connected component
   RoadmapNodePtr_t node = new RoadmapNode(q, ConnectedComponent::create(weak_));
   LeafConnectedCompPtr_t sc = WeighedLeafConnectedComp::create(weak_.lock());

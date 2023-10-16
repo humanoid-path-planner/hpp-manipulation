@@ -359,7 +359,7 @@ bool Edge::build(core::PathPtr_t& path, ConfigurationIn_t q1,
 
 bool Edge::generateTargetConfig(core::NodePtr_t nStart,
                                 ConfigurationOut_t q) const {
-  return generateTargetConfig(*(nStart->configuration()), q);
+  return generateTargetConfig(nStart->configuration(), q);
 }
 
 bool Edge::generateTargetConfig(ConfigurationIn_t qStart,
@@ -577,7 +577,7 @@ bool LevelSetEdge::generateTargetConfig(ConfigurationIn_t qStart,
     hppDout(warning, "Edge " << name() << ": Distrib is empty");
     return false;
   }
-  const Configuration_t& qLeaf = *(distrib()->configuration());
+  const Configuration_t& qLeaf = distrib()->configuration();
 
   return generateTargetConfigOnLeaf(qStart, qLeaf, q);
 }
@@ -592,8 +592,8 @@ bool LevelSetEdge::generateTargetConfig(core::NodePtr_t nStart,
     hppDout(warning, "Edge " << name() << ": Distrib is empty");
     return false;
   }
-  const Configuration_t &qLeaf = *(distrib()->configuration()),
-                        qStart = *(nStart->configuration());
+  const Configuration_t &qLeaf = distrib()->configuration(),
+                        qStart = nStart->configuration();
 
   return generateTargetConfigOnLeaf(qStart, qLeaf, q);
 }

@@ -68,7 +68,7 @@ class HPP_MANIPULATION_DLLAPI Roadmap : public core::Roadmap {
   /// Get the nearest neighbor in a given graph::Node and in a given
   /// ConnectedComponent.
   RoadmapNodePtr_t nearestNodeInState(
-      const ConfigurationPtr_t& configuration,
+      ConfigurationIn_t configuration,
       const ConnectedComponentPtr_t& connectedComponent,
       const graph::StatePtr_t& state, value_type& minDistance) const;
 
@@ -104,7 +104,7 @@ class HPP_MANIPULATION_DLLAPI Roadmap : public core::Roadmap {
   Roadmap(const core::DistancePtr_t& distance, const core::DevicePtr_t& robot);
 
   /// Node factory
-  core::NodePtr_t createNode(const ConfigurationPtr_t& config) const;
+  core::NodePtr_t createNode(ConfigurationIn_t config) const;
 
   void init(const RoadmapPtr_t& shPtr) {
     Parent::init(shPtr);

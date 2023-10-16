@@ -48,7 +48,6 @@ typedef std::vector<pinocchio::FrameIndex> FrameIndices_t;
 typedef pinocchio::Configuration_t Configuration_t;
 typedef pinocchio::ConfigurationIn_t ConfigurationIn_t;
 typedef pinocchio::ConfigurationOut_t ConfigurationOut_t;
-typedef core::ConfigurationPtr_t ConfigurationPtr_t;
 typedef pinocchio::GripperPtr_t GripperPtr_t;
 typedef pinocchio::LiegroupElement LiegroupElement;
 typedef pinocchio::LiegroupSpace LiegroupSpace;

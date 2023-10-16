@@ -32,7 +32,7 @@
 
 namespace hpp {
 namespace manipulation {
-RoadmapNode::RoadmapNode(const ConfigurationPtr_t& configuration,
+RoadmapNode::RoadmapNode(ConfigurationIn_t configuration,
                          ConnectedComponentPtr_t cc)
     : core::Node(configuration, cc), state_() {}
 }  // namespace manipulation

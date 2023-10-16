@@ -73,7 +73,7 @@ void EndEffectorTrajectory::startSolve() {
     throw std::runtime_error(msg);
   }
 
-  if (!problem()->initConfig()) {
+  if (problem()->initConfig().size() == 0) {
     std::string msg("No init config in problem.");
     hppDout(error, msg);
     throw std::runtime_error(msg);
@@ -154,7 +154,7 @@ void EndEffectorTrajectory::oneStep() {
   // Generate a vector if configuration where the first one is the initial
   // configuration and the following ones are random configurations
   std::vector<core::Configuration_t> qs(
-      configurations(*problem()->initConfig()));
+      configurations(problem()->initConfig()));
   if (qs.empty()) {
     hppDout(info, "Failed to generate initial configs.");
     return;
@@ -238,10 +238,9 @@ void EndEffectorTrajectory::oneStep() {
     //   - insert q_init as initial configuration of the roadmap,
     //   - insert final configuration as goal node in the roadmap,
     //   - add a roadmap edge between them and stop.
-    roadmap()->initNode(make_shared<Configuration_t>(steps.col(0)));
+    roadmap()->initNode(steps.col(0));
     core::NodePtr_t init = roadmap()->initNode();
-    core::NodePtr_t goal = roadmap()->addGoalNode(
-        make_shared<Configuration_t>(steps.col(nDiscreteSteps_)));
+    core::NodePtr_t goal = roadmap()->addGoalNode(steps.col(nDiscreteSteps_));
     roadmap()->addEdge(init, goal, path);
     success = true;
     if (feasibilityOnly_) break;

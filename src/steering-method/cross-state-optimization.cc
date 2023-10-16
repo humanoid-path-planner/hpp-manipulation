@@ -534,7 +534,7 @@ bool CrossStateOptimization::solveOptimizationProblem(
             .intValue());
 
     while (status != Solver_t::SUCCESS && nbTry < nRandomConfigs) {
-      d.waypoint.col(j) = *(problem()->configurationShooter()->shoot());
+      d.waypoint.col(j) = problem()->configurationShooter()->shoot();
       status = solver.solve(d.waypoint.col(j),
                             constraints::solver::lineSearch::Backtracking());
       ++nbTry;

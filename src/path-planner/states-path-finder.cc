@@ -77,7 +77,7 @@ static void displayRoadmap(const core::RoadmapPtr_t& roadmap) {
   for (auto cc : roadmap->connectedComponents()) {
     hppDout(info, " CC " << i++);
     for (auto n : cc->nodes()) {
-      hppDout(info, pinocchio::displayConfig(*(n->configuration())));
+      hppDout(info, pinocchio::displayConfig(n->configuration()));
     }
   }
 }
@@ -96,8 +96,8 @@ StatesPathFinder::StatesPathFinder(const core::ProblemConstPtr_t& problem,
       lastBuiltTransitions_(),
       goalConstraints_(),
       goalDefinedByConstraints_(false),
-      q1_(0x0),
-      q2_(0x0),
+      q1_(),
+      q2_(),
       configList_(),
       idxConfigList_(0),
       nTryConfigList_(0),
@@ -409,7 +409,7 @@ struct StatesPathFinder::OptimizationData {
   // Number of trials to generate each waypoint configuration
   // _solveGoalConfig: whether we need to solve for goal configuration
   OptimizationData(const core::ProblemConstPtr_t _problem,
-                   const Configuration_t& _q1, const ConfigurationPtr_t& _q2,
+                   ConfigurationIn_t _q1, ConfigurationIn_t _q2,
                    const Edges_t& transitions, const bool _solveGoalConfig)
       : N(_solveGoalConfig ? transitions.size() : transitions.size() - 1),
         nq(_problem->robot()->configSize()),
@@ -421,8 +421,8 @@ struct StatesPathFinder::OptimizationData {
         M_rhs(),
         M_status() {
     if (!_solveGoalConfig) {
-      assert(_q2);
-      q2 = *_q2;
+      assert(_q2.size() > 0);
+      q2 = _q2;
     }
     waypoint.setZero();
     for (auto solver : solvers) {
@@ -893,7 +893,7 @@ bool StatesPathFinder::analyseOptimizationProblem(
     size_type tries = 0;
     Configuration_t q;
     do {
-      q = *(problem()->configurationShooter()->shoot());
+      q = problem()->configurationShooter()->shoot();
       preInitializeRHS(j, q);
       status = solver.solve(q, constraints::solver::lineSearch::Backtracking());
     } while ((status != Solver_t::SUCCESS) && (++tries <= nTriesMax));
@@ -1044,8 +1044,8 @@ bool StatesPathFinder::analyseOptimizationProblem2(
     }
   }
   // initialize the right hand side with the initial config
-  analyseSolver.rightHandSideFromConfig(*q1_);
-  if (analyseSolver.isSatisfied(*q1_)) {
+  analyseSolver.rightHandSideFromConfig(q1_);
+  if (analyseSolver.isSatisfied(q1_)) {
     return true;
   }
   hppDout(info,
@@ -1091,8 +1091,7 @@ void StatesPathFinder::initializeRHS(std::size_t j) {
 void StatesPathFinder::initWPRandom(std::size_t wp) {
   assert(wp >= 1 && wp <= (std::size_t)optData_->waypoint.cols());
   initializeRHS(wp - 1);
-  optData_->waypoint.col(wp - 1) =
-      *(problem()->configurationShooter()->shoot());
+  optData_->waypoint.col(wp - 1) = problem()->configurationShooter()->shoot();
 }
 void StatesPathFinder::initWPNear(std::size_t wp) {
   assert(wp >= 1 && wp <= (std::size_t)optData_->waypoint.cols());
@@ -1278,15 +1277,12 @@ bool StatesPathFinder::solveOptimizationProblem() {
 core::Configurations_t StatesPathFinder::getConfigList() const {
   OptimizationData& d = *optData_;
   core::Configurations_t pv;
-  ConfigurationPtr_t q1(new Configuration_t(d.q1));
-  pv.push_back(q1);
+  pv.push_back(d.q1);
   for (std::size_t i = 0; i < d.N; ++i) {
-    ConfigurationPtr_t q(new Configuration_t(d.waypoint.col(i)));
-    pv.push_back(q);
+    pv.push_back(d.waypoint.col(i));
   }
   if (!goalDefinedByConstraints_) {
-    ConfigurationPtr_t q2(new Configuration_t(d.q2));
-    pv.push_back(q2);
+    pv.push_back(d.q2);
   }
   return pv;
 }
@@ -1297,7 +1293,7 @@ core::Configurations_t StatesPathFinder::getConfigList() const {
 // [one of potential goal states if goal defined as set of constraints]
 // and compute waypoint configurations in each state.
 core::Configurations_t StatesPathFinder::computeConfigList(
-    ConfigurationIn_t q1, ConfigurationPtr_t q2) {
+    ConfigurationIn_t q1, ConfigurationIn_t q2) {
   const graph::GraphPtr_t& graph(problem_->constraintGraph());
   GraphSearchData& d = *graphData_;
 
@@ -1352,8 +1348,7 @@ core::Configurations_t StatesPathFinder::computeConfigList(
     }
   }
   core::Configurations_t empty_path;
-  ConfigurationPtr_t q(new Configuration_t(q1));
-  empty_path.push_back(q);
+  empty_path.push_back(q1);
   return empty_path;
 }
 
@@ -1374,7 +1369,7 @@ void StatesPathFinder::startSolve() {
   PathPlanner::startSolve();
   assert(problem_);
   q1_ = problem_->initConfig();
-  assert(q1_);
+  assert(q1_.size() > 0);
 
   // core::PathProjectorPtr_t pathProjector
   //   (core::pathProjector::Progressive::create(inStateProblem_, 0.01));
@@ -1383,7 +1378,7 @@ void StatesPathFinder::startSolve() {
   const graph::GraphPtr_t& graph(problem_->constraintGraph());
   graphData_.reset(new GraphSearchData());
   GraphSearchData& d = *graphData_;
-  d.s1 = graph->getState(*q1_);
+  d.s1 = graph->getState(q1_);
   d.maxDepth = problem_->getParameter("StatesPathFinder/maxDepth").intValue();
 
   d.queue1.push_back(d.addInitState());
@@ -1416,7 +1411,7 @@ void StatesPathFinder::startSolve() {
       throw std::logic_error(os.str().c_str());
     }
     q2_ = q2s[0];
-    d.s2.push_back(graph->getState(*q2_));
+    d.s2.push_back(graph->getState(q2_));
   } else {
     TaskTargetPtr_t taskTarget(HPP_DYNAMIC_PTR_CAST(TaskTarget, target));
     if (!taskTarget) {
@@ -1425,7 +1420,7 @@ void StatesPathFinder::startSolve() {
             "either a configuration or a set of constraints.";
       throw std::logic_error(os.str().c_str());
     }
-    assert(!q2_);
+    assert(q2_.size() == 0);
     goalDefinedByConstraints_ = true;
     goalConstraints_ = taskTarget->constraints();
     hppDout(info, "goal defined as a set of constraints");
@@ -1460,15 +1455,15 @@ void StatesPathFinder::startSolve() {
 void StatesPathFinder::oneStep() {
   if (idxConfigList_ == 0) {
     // TODO: accommodate when goal is a set of constraints
-    assert(q1_);
-    configList_ = computeConfigList(*q1_, q2_);
+    assert(q1_.size()>0);
+    configList_ = computeConfigList(q1_, q2_);
     if (configList_.size() <= 1) {  // max depth reached
       reset();
       throw core::path_planning_failed("Maximal depth reached.");
     }
   }
   size_t& idxSol = graphData_->idxSol;
-  ConfigurationPtr_t q1, q2;
+  Configuration_t q1, q2;
   if (idxConfigList_ >= configList_.size() - 1) {
     reset();
     throw core::path_planning_failed(
@@ -1481,8 +1476,8 @@ void StatesPathFinder::oneStep() {
   core::ConstraintSetPtr_t constraints(HPP_DYNAMIC_PTR_CAST(
       core::ConstraintSet, edge->pathConstraint()->copy()));
   // Initialize right hand side
-  constraints->configProjector()->rightHandSideFromConfig(*q1);
-  assert(constraints->isSatisfied(*q2));
+  constraints->configProjector()->rightHandSideFromConfig(q1);
+  assert(constraints->isSatisfied(q2));
   inStateProblem_->constraints(constraints);
   inStateProblem_->pathValidation(edge->pathValidation());
   inStateProblem_->steeringMethod(edge->steeringMethod());

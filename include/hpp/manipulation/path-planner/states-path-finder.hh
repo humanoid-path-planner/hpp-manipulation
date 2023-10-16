@@ -117,7 +117,7 @@ class HPP_MANIPULATION_DLLAPI StatesPathFinder : public core::PathPlanner {
   /// \return a Configurations_t from q1 to q2 if found. An empty
   /// vector if a path could not be built.
   core::Configurations_t computeConfigList(ConfigurationIn_t q1,
-                                           ConfigurationPtr_t q2);
+                                           ConfigurationIn_t q2);
 
   // access functions for Python interface
   std::vector<std::string> constraintNamesFromSolverAtWaypoint(std::size_t wp);
@@ -246,7 +246,7 @@ class HPP_MANIPULATION_DLLAPI StatesPathFinder : public core::PathPlanner {
   NumericalConstraints_t goalConstraints_;
   bool goalDefinedByConstraints_;
   // Variables used across several calls to oneStep
-  ConfigurationPtr_t q1_, q2_;
+  Configuration_t q1_, q2_;
   core::Configurations_t configList_;
   std::size_t idxConfigList_;
   size_type nTryConfigList_;

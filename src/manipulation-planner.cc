@@ -75,7 +75,7 @@ graph::StatePtr_t getState(const graph::GraphPtr_t graph,
   if (mnode != NULL)
     return mnode->graphState();
   else
-    return graph->getState(*node->configuration());
+    return graph->getState(node->configuration());
 }
 
 core::PathPtr_t connect(const Configuration_t& q1, const Configuration_t& q2,
@@ -177,13 +177,13 @@ void ManipulationPlanner::oneStep() {
   core::Nodes_t newNodes;
   core::PathPtr_t path;
 
-  typedef std::tuple<core::NodePtr_t, ConfigurationPtr_t, core::PathPtr_t>
+  typedef std::tuple<core::NodePtr_t, Configuration_t, core::PathPtr_t>
       DelayedEdge_t;
   typedef std::vector<DelayedEdge_t> DelayedEdges_t;
   DelayedEdges_t delayedEdges;
 
   // Pick a random node
-  ConfigurationPtr_t q_rand = shooter_->shoot();
+  Configuration_t q_rand = shooter_->shoot();
 
   // Extend each connected component
   for (core::ConnectedComponents_t::const_iterator itcc =
@@ -210,12 +210,11 @@ void ManipulationPlanner::oneStep() {
         value_type t_final = path->timeRange().second;
         if (t_final != path->timeRange().first) {
           bool success;
-          ConfigurationPtr_t q_new(
-              new Configuration_t(path->eval(t_final, success)));
+          Configuration_t q_new(path->eval(t_final, success));
           assert(success);
           assert(!path->constraints() ||
-                 path->constraints()->isSatisfied(*q_new));
-          assert(problem_->constraintGraph()->getState(*q_new));
+                 path->constraints()->isSatisfied(q_new));
+          assert(problem_->constraintGraph()->getState(q_new));
           delayedEdges.push_back(DelayedEdge_t(near, q_new, path));
         }
       }
@@ -226,7 +225,7 @@ void ManipulationPlanner::oneStep() {
   // Insert delayed edges
   for (const auto& edge : delayedEdges) {
     const core::NodePtr_t& near = std::get<0>(edge);
-    const ConfigurationPtr_t& q_new = std::get<1>(edge);
+    Configuration_t q_new = std::get<1>(edge);
     const core::PathPtr_t& validPath = std::get<2>(edge);
     core::NodePtr_t newNode = roadmap()->addNode(q_new);
     roadmap()->addEdge(near, newNode, validPath);
@@ -263,21 +262,21 @@ void ManipulationPlanner::oneStep() {
 }
 
 bool ManipulationPlanner::extend(RoadmapNodePtr_t n_near,
-                                 const ConfigurationPtr_t& q_rand,
+                                 ConfigurationIn_t q_rand,
                                  core::PathPtr_t& validPath) {
   graph::GraphPtr_t graph = problem_->constraintGraph();
   PathProjectorPtr_t pathProjector = problem_->pathProjector();
   pinocchio::DevicePtr_t robot(problem_->robot());
   value_type eps(graph->errorThreshold());
   // Select next node in the constraint graph.
-  const ConfigurationPtr_t q_near = n_near->configuration();
+  const Configuration_t q_near = n_near->configuration();
   HPP_START_TIMECOUNTER(chooseEdge);
   graph::EdgePtr_t edge = graph->chooseEdge(n_near);
   HPP_STOP_TIMECOUNTER(chooseEdge);
   if (!edge) {
     return false;
   }
-  qProj_ = *q_rand;
+  qProj_ = q_rand;
   HPP_START_TIMECOUNTER(generateTargetConfig);
   SuccessStatistics& es = edgeStat(edge);
   if (!edge->generateTargetConfig(n_near, qProj_)) {
@@ -286,7 +285,7 @@ bool ManipulationPlanner::extend(RoadmapNodePtr_t n_near,
     es.addFailure(reasons_[PROJECTION]);
     return false;
   }
-  if (pinocchio::isApprox(robot, qProj_, *q_near, eps)) {
+  if (pinocchio::isApprox(robot, qProj_, q_near, eps)) {
     es.addFailure(reasons_[FAILURE]);
     es.addFailure(reasons_[PATH_PROJECTION_ZERO]);
     return false;
@@ -294,7 +293,7 @@ bool ManipulationPlanner::extend(RoadmapNodePtr_t n_near,
   HPP_STOP_TIMECOUNTER(generateTargetConfig);
   core::PathPtr_t path;
   HPP_START_TIMECOUNTER(buildPath);
-  if (!edge->build(path, *q_near, qProj_)) {
+  if (!edge->build(path, q_near, qProj_)) {
     HPP_STOP_TIMECOUNTER(buildPath);
     es.addFailure(reasons_[FAILURE]);
     es.addFailure(reasons_[STEERING_METHOD]);
@@ -396,7 +395,7 @@ inline std::size_t ManipulationPlanner::tryConnectToRoadmap(
   value_type distance;
   for (core::Nodes_t::const_iterator itn1 = nodes.begin(); itn1 != nodes.end();
        ++itn1) {
-    const Configuration_t& q1(*(*itn1)->configuration());
+    const Configuration_t& q1((*itn1)->configuration());
     graph::StatePtr_t s1 = getState(graph, *itn1);
     connectSucceed = false;
     for (core::ConnectedComponents_t::const_iterator itcc =
@@ -411,7 +410,7 @@ inline std::size_t ManipulationPlanner::tryConnectToRoadmap(
         bool _2to1 = (*itn1)->isInNeighbor(*itn2);
         assert(!_1to2 || !_2to1);
 
-        const Configuration_t& q2(*(*itn2)->configuration());
+        const Configuration_t& q2((*itn2)->configuration());
         graph::StatePtr_t s2 = getState(graph, *itn2);
         assert(q1 != q2);
 
@@ -445,7 +444,7 @@ inline std::size_t ManipulationPlanner::tryConnectNewNodes(
   std::size_t nbConnection = 0;
   for (core::Nodes_t::const_iterator itn1 = nodes.begin(); itn1 != nodes.end();
        ++itn1) {
-    const Configuration_t& q1(*(*itn1)->configuration());
+    const Configuration_t& q1((*itn1)->configuration());
     graph::StatePtr_t s1 = getState(graph, *itn1);
 
     for (core::Nodes_t::const_iterator itn2 = std::next(itn1);
@@ -455,7 +454,7 @@ inline std::size_t ManipulationPlanner::tryConnectNewNodes(
       bool _1to2 = (*itn1)->isOutNeighbor(*itn2);
       bool _2to1 = (*itn1)->isInNeighbor(*itn2);
       assert(!_1to2 || !_2to1);
-      const Configuration_t& q2(*(*itn2)->configuration());
+      const Configuration_t& q2((*itn2)->configuration());
       graph::StatePtr_t s2 = getState(graph, *itn2);
       assert(q1 != q2);
 

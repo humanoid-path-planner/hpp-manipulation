@@ -137,8 +137,8 @@ class Astar {
 
   inline value_type heuristic(RoadmapNodePtr_t node,
                               RoadmapNodePtr_t to) const {
-    const ConfigurationPtr_t& config = node->configuration();
-    return (*distance_)(*config, *to->configuration());
+    const Configuration_t& config = node->configuration();
+    return (*distance_)(config, to->configuration());
   }
 
   inline value_type edgeCost(const core::EdgePtr_t& edge) const {

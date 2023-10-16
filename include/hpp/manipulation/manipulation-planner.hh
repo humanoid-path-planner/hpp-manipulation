@@ -65,7 +65,7 @@ class HPP_MANIPULATION_DLLAPI ManipulationPlanner
   /// \retval validPath the longest valid path (possibly of length 0),
   ///         resulting from the extension.
   /// \return True if the returned path is valid.
-  bool extend(RoadmapNodePtr_t q_near, const ConfigurationPtr_t& q_rand,
+  bool extend(RoadmapNodePtr_t q_near, ConfigurationIn_t q_rand,
               core::PathPtr_t& validPath);
 
   /// Get the number of occurrence of each errors.

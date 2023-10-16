@@ -41,10 +41,10 @@ namespace hpp {
 namespace manipulation {
 class HPP_MANIPULATION_DLLAPI RoadmapNode : public core::Node {
  public:
-  RoadmapNode(const ConfigurationPtr_t& configuration)
+  RoadmapNode(ConfigurationIn_t configuration)
       : core::Node(configuration), state_() {}
 
-  RoadmapNode(const ConfigurationPtr_t& configuration,
+  RoadmapNode(ConfigurationIn_t configuration,
               ConnectedComponentPtr_t cc);
 
   /// \name Cache

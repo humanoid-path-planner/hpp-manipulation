@@ -68,7 +68,7 @@ void TransitionPlanner::startSolve() {
         " no constraints. You probably forgot to select "
         "the transition.");
   innerProblem_->constraints()->configProjector()->rightHandSideFromConfig(
-      *(innerProblem_->initConfig()));
+      innerProblem_->initConfig());
   // Forward maximal number of iterations to inner planner
   innerPlanner_->maxIterations(this->maxIterations());
   // Forward timeout to inner planner
@@ -88,12 +88,12 @@ core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
   if (configProjector) {
     configProjector->rightHandSideFromConfig(qInit);
   }
-  ConfigurationPtr_t q(new Configuration_t(qInit));
+  Configuration_t q(qInit);
   innerProblem_->initConfig(q);
   innerProblem_->resetGoalConfigs();
   for (size_type r = 0; r < qGoals.rows(); ++r) {
-    ConfigurationPtr_t q(new Configuration_t(qGoals.row(r)));
-    if (!configProjector->isSatisfied(*q)) {
+    Configuration_t q(qGoals.row(r));
+    if (!configProjector->isSatisfied(q)) {
       std::ostringstream os;
       os << "hpp::manipulation::TransitionPlanner::computePath: "
          << "goal configuration at rank " << r
@@ -110,8 +110,8 @@ core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
   return path;
 }
 
-core::PathPtr_t TransitionPlanner::directPath(const Configuration_t& q1,
-                                              const Configuration_t& q2,
+core::PathPtr_t TransitionPlanner::directPath(ConfigurationIn_t q1,
+                                              ConfigurationIn_t q2,
                                               bool validate, bool& success,
                                               std::string& status) {
   core::PathPtr_t res(innerProblem_->steeringMethod()->steer(q1, q2));

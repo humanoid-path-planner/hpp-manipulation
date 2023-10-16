@@ -153,8 +153,8 @@ LeafHistogram::LeafHistogram(const Foliation f) : f_(f), threshold_(0) {
 }
 
 void LeafHistogram::add(const RoadmapNodePtr_t& n) {
-  if (!f_.contains(*n->configuration())) return;
-  iterator it = insert(LeafBin(f_.parameter(*n->configuration()), &threshold_));
+  if (!f_.contains(n->configuration())) return;
+  iterator it = insert(LeafBin(f_.parameter(n->configuration()), &threshold_));
   it->push_back(n);
   if (numberOfObservations() % 10 == 0) {
     hppDout(info, *this);

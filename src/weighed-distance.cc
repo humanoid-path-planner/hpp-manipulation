@@ -86,7 +86,7 @@ value_type WeighedDistance::impl_distance(ConfigurationIn_t q1,
 
 value_type WeighedDistance::impl_distance(core::NodePtr_t n1,
                                           core::NodePtr_t n2) const {
-  Configuration_t &q1 = *n1->configuration(), q2 = *n2->configuration();
+  const Configuration_t &q1 = n1->configuration(), q2 = n2->configuration();
   value_type d = core::WeighedDistance::impl_distance(q1, q2);
 
   graph::Edges_t pes =

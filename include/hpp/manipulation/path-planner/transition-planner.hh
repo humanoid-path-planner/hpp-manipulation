@@ -108,7 +108,7 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   /// \retval status a message in case of failure.
   /// If a path projector has been selected, the path is tested for
   /// continuity.
-  PathPtr_t directPath(const Configuration_t& q1, const Configuration_t& q2,
+  PathPtr_t directPath(ConfigurationIn_t q1, ConfigurationIn_t q2,
                        bool validate, bool& success, std::string& status);
   /// Optimize path using the selected path optimizers
   /// \param path input path

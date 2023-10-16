@@ -144,13 +144,13 @@ class HPP_MANIPULATION_LOCAL Astar {
   }
 
   value_type heuristic(const RoadmapNodePtr_t node) const {
-    const ConfigurationPtr_t config = node->configuration();
+    const Configuration_t& config = node->configuration();
     value_type res = std::numeric_limits<value_type>::infinity();
     for (core::NodeVector_t::const_iterator itGoal =
              roadmap_->goalNodes().begin();
          itGoal != roadmap_->goalNodes().end(); ++itGoal) {
-      ConfigurationPtr_t goal = (*itGoal)->configuration();
-      value_type dist = (*distance_)(*config, *goal);
+      const Configuration_t& goal = (*itGoal)->configuration();
+      value_type dist = (*distance_)(config, goal);
       if (dist < res) {
         res = dist;
       }

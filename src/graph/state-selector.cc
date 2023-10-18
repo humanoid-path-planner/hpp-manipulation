@@ -90,8 +90,7 @@ StatePtr_t StateSelector::getState(ConfigurationIn_t config) const {
 }
 
 StatePtr_t StateSelector::getState(RoadmapNodePtr_t node) const {
-  if (!node->cacheUpToDate())
-    node->graphState(getState(node->configuration()));
+  if (!node->cacheUpToDate()) node->graphState(getState(node->configuration()));
   return node->graphState();
 }
 

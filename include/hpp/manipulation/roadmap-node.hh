@@ -44,8 +44,7 @@ class HPP_MANIPULATION_DLLAPI RoadmapNode : public core::Node {
   RoadmapNode(ConfigurationIn_t configuration)
       : core::Node(configuration), state_() {}
 
-  RoadmapNode(ConfigurationIn_t configuration,
-              ConnectedComponentPtr_t cc);
+  RoadmapNode(ConfigurationIn_t configuration, ConnectedComponentPtr_t cc);
 
   /// \name Cache
   /// \{

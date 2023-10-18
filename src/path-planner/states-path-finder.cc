@@ -1455,7 +1455,7 @@ void StatesPathFinder::startSolve() {
 void StatesPathFinder::oneStep() {
   if (idxConfigList_ == 0) {
     // TODO: accommodate when goal is a set of constraints
-    assert(q1_.size()>0);
+    assert(q1_.size() > 0);
     configList_ = computeConfigList(q1_, q2_);
     if (configList_.size() <= 1) {  // max depth reached
       reset();

@@ -86,6 +86,8 @@ void Device::setRobotRootPosition(const std::string& rn, const Transform3f& t) {
     }
   }
   invalidate();
+  // Update the pool of device data.
+  numberDeviceData(numberDeviceData());
 }
 
 std::vector<std::string> Device::robotNames() const {

@@ -80,12 +80,11 @@ void initialize(bool ur5) {
   hpp::manipulation::ProblemPtr_t problem(
       hpp::manipulation::Problem::create(robot));
   if (ur5) {
-    hpp::pinocchio::urdf::loadModel(
-        robot, 0, "ur5/", "anchor",
-        "package://example-robot-data/robots/ur_description/urdf/"
-        "ur5_joint_limited_robot.urdf",
-        "package://example-robot-data/robots/ur_description/srdf/"
-        "ur5_joint_limited_robot.srdf");
+    hpp::pinocchio::urdf::loadModel(robot, 0, "ur5/", "anchor",
+                                    "package://ur_description/urdf/"
+                                    "ur5_joint_limited_robot.urdf",
+                                    "package://ur_description/srdf/"
+                                    "ur5_joint_limited_robot.srdf");
   }
   SteeringMethodPtr_t sm(
       hpp::manipulation::steeringMethod::Graph::create(problem));

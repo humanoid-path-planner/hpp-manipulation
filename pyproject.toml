@@ -1,0 +1,26 @@
+[build-system]
+build-backend = "cmeel.build"
+requires = [
+  "cmeel-boost ~= 1.83.0",
+  "cmeel[build]",
+  "hpp-core[build]"
+]
+
+[project]
+dependencies = [
+  "cmeel-boost ~= 1.83.0",
+  "hpp-core"
+]
+description = "Classes for manipulation planning."
+license = "BSD-2-Clause"
+name = "hpp-manipulation"
+version = "5.0.0"
+
+[tool.ruff]
+extend-exclude = ["cmake"]
+
+[tool.ruff.lint]
+extend-select = ["I", "NPY", "RUF", "UP", "W"]
+
+[tool.tomlsort]
+all = true

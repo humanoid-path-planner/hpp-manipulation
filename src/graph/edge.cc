@@ -445,8 +445,7 @@ bool WaypointEdge::build(core::PathPtr_t& path, ConfigurationIn_t q1,
       hppDout(info, "Waypoint edge "
                         << name()
                         << ": generateTargetConfig failed at waypoint " << i
-                        << "."
-                        << "\nUse cache: " << useCache);
+                        << "." << "\nUse cache: " << useCache);
       lastSucceeded_ = false;
       return false;
     }

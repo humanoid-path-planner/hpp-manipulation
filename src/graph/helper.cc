@@ -953,7 +953,7 @@ GraphPtr_t graphBuilder(const ProblemSolverPtr_t& ps,
     std::get<2>(objects[i]) = i;
     std::get<1>(objects[i]).resize(od.handles.size());
     Handles_t::iterator it = std::get<1>(objects[i]).begin();
-    for (const std::string hn : od.handles) {
+    for (const std::string& hn : od.handles) {
       *it = robot.handles.get(hn);
       ++it;
     }

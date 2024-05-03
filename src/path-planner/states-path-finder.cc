@@ -17,6 +17,7 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
+#define HPP_DEBUG
 #include <hpp/constraints/affine-function.hh>
 #include <hpp/constraints/explicit.hh>
 #include <hpp/constraints/locked-joint.hh>
@@ -44,10 +45,16 @@
 #include <hpp/util/exception-factory.hh>
 #include <hpp/util/timer.hh>
 #include <map>
+#include <unordered_map>
 #include <pinocchio/fwd.hpp>
 #include <pinocchio/multibody/model.hpp>
 #include <queue>
 #include <vector>
+#include <typeinfo>
+#include <ranges>
+#include <iomanip>
+#include <algorithm>
+#include <stack>
 
 namespace hpp {
 namespace manipulation {
@@ -72,6 +79,7 @@ using core::problemTarget::TaskTarget;
 using core::problemTarget::TaskTargetPtr_t;
 
 #ifdef HPP_DEBUG
+/*
 static void displayRoadmap(const core::RoadmapPtr_t& roadmap) {
   unsigned i = 0;
   for (auto cc : roadmap->connectedComponents()) {
@@ -80,7 +88,7 @@ static void displayRoadmap(const core::RoadmapPtr_t& roadmap) {
       hppDout(info, pinocchio::displayConfig(n->configuration()));
     }
   }
-}
+}*/
 #endif
 
 StatesPathFinder::StatesPathFinder(const core::ProblemConstPtr_t& problem,
@@ -879,71 +887,6 @@ void StatesPathFinder::preInitializeRHS(std::size_t j, Configuration_t& q) {
 }
 
 bool StatesPathFinder::analyseOptimizationProblem(
-    const graph::Edges_t& transitions) {
-  OptimizationData& d = *optData_;
-  size_type nTriesMax =
-      problem_->getParameter("StatesPathFinder/maxTriesCollisionAnalysis")
-          .intValue();
-  if (nTriesMax == 0) return true;
-  for (std::size_t wp = 1; wp <= d.solvers.size(); wp++) {
-    std::size_t j = wp - 1;
-    const Solver_t& solver = d.solvers[j];
-    using namespace core;
-    Solver_t::Status status;
-    size_type tries = 0;
-    Configuration_t q;
-    do {
-      q = problem()->configurationShooter()->shoot();
-      preInitializeRHS(j, q);
-      status = solver.solve(q, constraints::solver::lineSearch::Backtracking());
-    } while ((status != Solver_t::SUCCESS) && (++tries <= nTriesMax));
-    if (tries > nTriesMax) {
-      hppDout(info, "Collision analysis stopped at WP "
-                        << wp << " because of too many bad solve statuses");
-      return false;
-    }
-    CollisionValidationPtr_t collisionValidations =
-        CollisionValidation::create(problem_->robot());
-    collisionValidations->checkParameterized(true);
-    collisionValidations->computeAllContacts(true);
-    ValidationReportPtr_t validationReport;
-    bool ok = true;
-    if (!collisionValidations->validate(q, validationReport)) {
-      AllCollisionsValidationReportPtr_t allReports =
-          HPP_DYNAMIC_PTR_CAST(AllCollisionsValidationReport, validationReport);
-      assert(allReports);
-      std::size_t nbReports = allReports->collisionReports.size();
-      hppDout(info, wp << " nbReports: " << nbReports);
-      for (std::size_t i = 0; i < nbReports; i++) {
-        CollisionValidationReportPtr_t& report =
-            allReports->collisionReports[i];
-        JointConstPtr_t j1 = report->object1->joint();
-        JointConstPtr_t j2 = report->object2->joint();
-        if (!j1 || !j2) continue;
-        const EdgePtr_t& edge = transitions[wp];
-        RelativeMotion::matrix_type m = edge->relativeMotion();
-        RelativeMotion::RelativeMotionType rmt =
-            m(RelativeMotion::idx(j1), RelativeMotion::idx(j2));
-        hppDout(info, "report " << i << " joints names \n"
-                                << j1->name() << "\n"
-                                << j2->name() << "\n"
-                                << rmt);
-        if (rmt == RelativeMotion::RelativeMotionType::Unconstrained) continue;
-        ok = false;
-        break;
-      }
-    }
-    if (!ok) {
-      hppDout(info, "Analysis found a collision at WP " << wp);
-      return false;
-    }
-    hppDout(info, "Analysis at WP " << wp << " passed after " << tries
-                                    << " solve tries");
-  }
-  return true;
-}
-
-bool StatesPathFinder::analyseOptimizationProblem2(
     const graph::Edges_t& transitions, core::ProblemConstPtr_t _problem) {
   typedef constraints::JointConstPtr_t JointConstPtr_t;
   typedef core::RelativeMotion RelativeMotion;
@@ -1150,7 +1093,266 @@ std::string StatesPathFinder::displayConfigsSolved() const {
   return ans;
 }
 
+// Get a configuration in accordance with the statuts matrix at a step j for the constraint i
+Configuration_t StatesPathFinder::getConfigStatus(size_type i, size_type j) const {
+    switch (optData_ -> M_status(i, j)) {
+      case OptimizationData::EQUAL_TO_PREVIOUS:
+        return optData_ -> waypoint.col(j - 1);
+      case OptimizationData::EQUAL_TO_INIT:
+        return optData_ -> q1;
+      case OptimizationData::EQUAL_TO_GOAL:
+        return optData_ -> q2;
+      default:
+        return optData_ -> waypoint.col(j);
+    }
+}
+
+// Get the right hand side of a constraint w.r.t a set configuration for this constraint
+vector_t StatesPathFinder::getConstraintRHS(ImplicitPtr_t constraint, Configuration_t q) const {
+  LiegroupElement rhs(constraint -> copy() -> function().outputSpace());
+  constraint -> rightHandSideFromConfig(q, rhs);
+  return rhs.vector();
+}
+
+// Hash a vector of right hand side into a long unsigned integer
+size_t StatesPathFinder::hashRHS(vector_t rhs) const {
+  std::stringstream ss;
+  ss << std::setprecision(3) << (0.01 < rhs.array().abs()).select(rhs, 0.0f);
+  return std::hash<std::string>{}(ss.str());
+}
+
+// Check if a solution (a list of transition) contains impossible to solve steps due to inevitable collisions
+// A step is impossible to solve if it has two constraints set from init or goal which have produce a collision between
+// objects constrained by them. 
+// The list of such known constraint pairs are memorized in pairMap table and individually in constraintMap.
+//
+// Return : true if no impossible to solve steps, false otherwise
+bool StatesPathFinder::checkSolvers(ConstraintMap_t const & pairMap, ConstraintMap_t const & constraintMap) const {
+  // do nothing if there is no known incompatible constraint pairs.
+  if (constraintMap.empty())
+    return true;
+
+  // for each steps of the solution
+  for (long unsigned i{0} ; i < optData_ -> solvers.size() ; i++) {
+    std::vector<std::pair<ImplicitPtr_t, Configuration_t>> constraints {};
+
+    // gather all constraints of this step which are set from init or goal configuration
+    for (long unsigned j{0} ; j < constraints_.size() ; j++) {
+      auto c = constraints_[j];
+      auto status = optData_ -> M_status(j, i);
+      if(
+        status != OptimizationData::EQUAL_TO_INIT && 
+        status != OptimizationData::EQUAL_TO_GOAL
+      ) // if not init or goal
+        continue;
+      auto q = getConfigStatus(j, i);
+      auto name = std::hash<std::string>{}(c -> function().name());
+      if (constraintMap.count(name))
+        constraints.push_back(std::make_pair(c, q));
+    }
+
+    // if there are less than two constraints gathered, go to next step
+    if (constraints.size() < 2)
+      continue;
+
+    // else, check if there is a pair of constraints in the table of known incompatible pairs
+    for (auto & c1 : constraints) {
+      auto rhs_1 = hashRHS(getConstraintRHS(std::get<0>(c1), std::get<1>(c1)));
+      auto name_1 = std::hash<std::string>{}(std::get<0>(c1) -> function().name());
+      if (constraintMap.count(name_1))
+        for (auto & c2 : constraints) {
+          auto rhs_2 = hashRHS(getConstraintRHS(std::get<0>(c2), std::get<1>(c2)));
+          auto name_2 = std::hash<std::string>{}(std::get<0>(c2) -> function().name());
+          auto namesPair = name_1 * name_2;
+          auto rhsPair = rhs_1 * rhs_2;
+          if (name_1 != name_2 && pairMap.count(namesPair) && pairMap.at(namesPair) == rhsPair)
+            return false;
+        }
+    }
+  }
+
+  return true;
+}
+
+core::JointConstPtr_t StatesPathFinder::maximalJoint(size_t const wp, core::JointConstPtr_t a) {
+  const auto & current_edge = lastBuiltTransitions_[wp + 1];
+  core::RelativeMotion::matrix_type m = current_edge -> relativeMotion();
+
+  size_t ida = core::RelativeMotion::idx(a);
+
+  core::JointConstPtr_t last = nullptr;
+  core::JointConstPtr_t current = a;
+
+  while(current != nullptr) {
+    auto parent = current -> parentJoint();
+    size_t idp = core::RelativeMotion::idx(parent);
+    last = current;
+    if (parent && m(ida, idp))
+      current = current -> parentJoint();
+    else break;
+  }
+
+  return last;
+}
+
+// For a certain step wp during solving check for collision impossible to solve.
+// If there is any store the constraints involved and stop the resolution
+//
+// Return : true if there is no collision or impossible to solve ones, false otherwise.
+bool StatesPathFinder::saveIncompatibleRHS(ConstraintMap_t & pairMap, ConstraintMap_t & constraintMap, size_type const wp) {
+  core::ValidationReportPtr_t validationReport;
+  auto q = optData_->waypoint.col(wp -1);
+  bool nocollision {true};
+
+  core::CollisionValidationPtr_t collisionValidations = 
+    core::CollisionValidation::create(problem_->robot());
+  collisionValidations->checkParameterized(true);
+  collisionValidations->computeAllContacts(true);
+
+  // If there was a collision in the last configuration
+  if (!collisionValidations->validate(q, validationReport)) {
+    auto allReports = HPP_DYNAMIC_PTR_CAST (
+      core::AllCollisionsValidationReport, validationReport
+    );
+
+    // check all collision reports between joints
+    for (auto & report : allReports -> collisionReports) {
+
+      // Store the two joints involved
+      core::JointConstPtr_t j1 = report -> object1 -> joint();
+      core::JointConstPtr_t j2 = report -> object2 -> joint();
+
+      // check that there is indeed two joints
+      if (!j1 || !j2) 
+        return nocollision;
+
+      // get the maximal parent joint which are constrained with their child
+      j1 = maximalJoint(wp, j1);
+      j2 = maximalJoint(wp, j2);
+
+      // Function to check if two joints are equals, bye their address is nullptr, by their value otherwise
+      auto equalJoints = [] (core::JointConstPtr_t a, core::JointConstPtr_t b) {
+        return (a && b) ? *a==*b : a==b; 
+      };
+
+      //std::cout << "test are constrained for j1 & j2: " << areConstrained(wp, j1, j2) << std::endl;
+
+      typedef std::pair<core::JointConstPtr_t,size_t> jointOfConstraint;
+      
+      // Get all constraints which involve a joint
+      auto associatedConstraints = [&] (core::JointConstPtr_t j) {
+        std::vector<jointOfConstraint> constraints {};
+        for (size_t i{0} ; i < constraints_.size() ; i++) {
+          auto constraint = constraints_[i];
+          auto joints = constraint -> doesConstrainRelPoseBetween(problem_->robot());
+          if (equalJoints(j, std::get<0>(joints)) || equalJoints(j, std::get<1>(joints))) {
+            auto joint = (j == std::get<0>(joints)) ? std::get<1>(joints) : std::get<0>(joints);
+            constraints.push_back(std::make_pair(joint,i));
+          }
+        }
+        return constraints;
+      };
+
+      // We get all the constraints which contain j1
+      auto constraints_j1 = associatedConstraints(j1);
+      
+      const auto & current_edge = lastBuiltTransitions_[wp + 1];
+      core::RelativeMotion::matrix_type m = current_edge -> relativeMotion();
+
+      std::vector<short> visited (constraints_.size(), 0);
+      std::function<std::vector<int>(core::JointConstPtr_t , jointOfConstraint, int)> exploreJOC;
+
+      // Check if a joint is indirectly co-constrained with an other, return the indices of their respective constraints
+      exploreJOC = [&] (core::JointConstPtr_t j, jointOfConstraint current, int initial) {
+        int constraint_index = std::get<1>(current);
+        visited[constraint_index]++;
+        core::JointConstPtr_t current_joint = std::get<0>(current);
+        auto iconstraint = constraints_[constraint_index];
+        auto JOCs = associatedConstraints(current_joint);
+        auto id_cj = core::RelativeMotion::idx(current_joint);
+
+        for (auto & joc : JOCs) {
+          int ci = std::get<1>(joc);
+          core::JointConstPtr_t ji = std::get<0>(joc);
+          auto id_ji = core::RelativeMotion::idx(ji);
+          if (m(id_cj, id_ji) == core::RelativeMotion::RelativeMotionType::Unconstrained)
+            continue;
+          if (equalJoints(ji, j))
+            return std::vector<int>{initial, ci};
+          else if (visited[ci] < 2) {
+            return exploreJOC(j, joc, initial);
+          }
+        }
+        return std::vector<int>{-1, -1};
+      };
+
+      // get the indices of the constraints associated to the two joints
+      auto getIndices = [&] -> std::vector<int> {
+        for (auto & joc : constraints_j1) {
+          visited[std::get<1>(joc)] = 1;
+          auto indices = exploreJOC(j2, joc, std::get<1>(joc));
+          if (indices[0] >= 0 || indices[1] >= 0)
+            return indices;
+        }
+        return std::vector<int>{-1, -1};
+      };
+
+      auto indices = getIndices();
+
+      // Make sure indices are all defined
+      if (indices[0] < 0 || indices[1] < 0)
+        return nocollision;
+      
+      // for each of the two constraint identified
+      std::vector<std::pair<size_t, size_t>> constraints {};
+      for (auto ic : indices) {
+
+        // check that there are set from goal or init configurations
+        auto status = optData_ -> M_status((size_t)ic, wp - 1);
+        if(
+          status != OptimizationData::EQUAL_TO_INIT && 
+          status != OptimizationData::EQUAL_TO_GOAL
+        )
+          return nocollision;
+
+        // if so prepare to store them in the tables of known incompatible constraints
+        auto c = constraints_[(size_t)ic];
+        auto rhs = hashRHS(getConstraintRHS(c, q));
+        auto name = std::hash<std::string>{}(c -> function().name());
+        
+        constraints.push_back(std::make_pair(name, rhs));
+      }
+
+      // then add them both in the tables of incompatible constraints
+      nocollision = false;
+
+      // first, individually, in constraintMap
+      for (auto & c : constraints)
+        if (!constraintMap.count(std::get<0>(c)))
+          constraintMap[std::get<0>(c)] = std::get<1>(c);
+
+      // then, both merged together in pairMap
+      auto names = std::get<0>(constraints[0]) * std::get<0>(constraints[1]); //key
+      auto rhs = std::get<1>(constraints[0]) * std::get<1>(constraints[1]); //value
+
+      if (!pairMap.count(names))
+        pairMap[names] = rhs;
+    }
+  }
+
+  return nocollision;
+}
+
 bool StatesPathFinder::solveOptimizationProblem() {
+  static ConstraintMap_t pairMap {};
+  static ConstraintMap_t constraintMap {};
+
+  // check if the solution is feasible (no inevitable collision), if not abort the solving
+  if (!checkSolvers(pairMap, constraintMap)) {
+    hppDout(info, "Path is invalid for collision is inevitable");
+    return false;
+  }
+
   OptimizationData& d = *optData_;
   // Try to solve with sets of random configs for each waypoint
   std::size_t nTriesMax =
@@ -1260,6 +1462,12 @@ bool StatesPathFinder::solveOptimizationProblem() {
                                                // much, go back to first
                                                // waypoint
       case SolveStepStatus::COLLISION_AFTER:
+        // if collision check that it is not due to non-solvable constraints, 
+        // if so, store the constraints involved and abort the solving
+        if (!saveIncompatibleRHS(pairMap, constraintMap, wp)) {
+          hppDout(info, "Path is invalid, found inevitable collision");
+          return false;
+        }
         nFails++;
         break;
       default:
@@ -1268,7 +1476,7 @@ bool StatesPathFinder::solveOptimizationProblem() {
   }
 
   displayConfigsSolved();
-  // displayRhsMatrix ();
+  displayRhsMatrix ();
 
   return true;
 }
@@ -1296,7 +1504,6 @@ core::Configurations_t StatesPathFinder::computeConfigList(
     ConfigurationIn_t q1, ConfigurationIn_t q2) {
   const graph::GraphPtr_t& graph(problem_->constraintGraph());
   GraphSearchData& d = *graphData_;
-
   size_t& idxSol = d.idxSol;
 
   bool maxDepthReached;
@@ -1324,7 +1531,7 @@ core::Configurations_t StatesPathFinder::computeConfigList(
       if (buildOptimizationProblem(transitions)) {
         lastBuiltTransitions_ = transitions;
         if (nTryConfigList_ > 0 ||
-            analyseOptimizationProblem2(transitions, problem())) {
+            analyseOptimizationProblem(transitions, problem())) {
           if (solveOptimizationProblem()) {
             core::Configurations_t path = getConfigList();
             hppDout(warning,
@@ -1344,7 +1551,7 @@ core::Configurations_t StatesPathFinder::computeConfigList(
       }
       transitions = getTransitionList(d, ++idxSol);
       // reset of the number of tries for a sequence
-      nTryConfigList_ = 0;
+      // nTryConfigList_ = 0;
     }
   }
   core::Configurations_t empty_path;

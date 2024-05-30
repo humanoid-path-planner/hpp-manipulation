@@ -194,26 +194,31 @@ class HPP_MANIPULATION_DLLAPI StatesPathFinder : public core::PathPlanner {
   /// Step 4 of the algorithm
   void preInitializeRHS(std::size_t j, Configuration_t& q);
   bool analyseOptimizationProblem(const graph::Edges_t& transitions,
-                                   core::ProblemConstPtr_t _problem);
+                                  core::ProblemConstPtr_t _problem);
 
   /// Step 5 of the algorithm
   void initializeRHS(std::size_t j);
   bool solveOptimizationProblem();
 
-  // Data structure used to store a constraint right hand side as value and its name as key, both in form
-  // of hash numbers (so that names and rhs of two constraints can be easily merge).
-  // Exemple : ConstraintMap_t map = {{nameStringHash, rhsVectorHash}};
-  // With rhsVectorHash the hash of a vector_t of rights hand side constraints with hashRHS, and nameStringHash 
+  // Data structure used to store a constraint right hand side as value and its
+  // name as key, both in form of hash numbers (so that names and rhs of two
+  // constraints can be easily merge). Exemple : ConstraintMap_t map =
+  // {{nameStringHash, rhsVectorHash}}; With rhsVectorHash the hash of a
+  // vector_t of rights hand side constraints with hashRHS, and nameStringHash
   // the hash of a std::string - obtained for instance with std::hash.
-  typedef std::unordered_map<size_t, size_t> ConstraintMap_t; //map (name, rhs)
-  
-  /// @brief Get a configuration in accordance with the statuts matrix at a step j for the constraint i
+  typedef std::unordered_map<size_t, size_t> ConstraintMap_t;  // map (name,
+                                                               // rhs)
+
+  /// @brief Get a configuration in accordance with the statuts matrix at a step
+  /// j for the constraint i
   /// @param i number of the constraint in the status matrix
   /// @param j step of the potential solution (index of a waypoint)
-  /// @return a configuration Configuration_t which follows the status matrix indication at the given indices
+  /// @return a configuration Configuration_t which follows the status matrix
+  /// indication at the given indices
   Configuration_t getConfigStatus(size_type i, size_type j) const;
 
-  /// @brief Get the right hand side of a constraint w.r.t a set configuration for this constraint
+  /// @brief Get the right hand side of a constraint w.r.t a set configuration
+  /// for this constraint
   /// @param constraint the constraint to compute the right hand side of
   /// @param q the configuration in which the constraint is set
   /// @return a right hand side vector_t
@@ -224,18 +229,26 @@ class HPP_MANIPULATION_DLLAPI StatesPathFinder : public core::PathPlanner {
   /// @return a size_t integer hash
   size_t hashRHS(vector_t rhs) const;
 
-  /// @brief Check if a solution (a list of transition) contains impossible to solve steps due to inevitable collisions
-  /// @param pairMap The ConstraintMap_tf table of pairs of incompatibles constraints
+  /// @brief Check if a solution (a list of transition) contains impossible to
+  /// solve steps due to inevitable collisions
+  /// @param pairMap The ConstraintMap_tf table of pairs of incompatibles
+  /// constraints
   /// @param constraintMap The hasmap table of constraints which are in pairMap
-  /// @return a bool which is true is there is no impossible to solve steps, true otherwise
-  bool checkSolvers(ConstraintMap_t const & pairMap, ConstraintMap_t const & constraintMap) const;
+  /// @return a bool which is true is there is no impossible to solve steps,
+  /// true otherwise
+  bool checkSolvers(ConstraintMap_t const& pairMap,
+                    ConstraintMap_t const& constraintMap) const;
 
-  /// @brief For a certain step wp during solving check for collision impossible to solve.
-  /// @param pairMap The ConstraintMap_t table of pairs of incompatibles constraints
+  /// @brief For a certain step wp during solving check for collision impossible
+  /// to solve.
+  /// @param pairMap The ConstraintMap_t table of pairs of incompatibles
+  /// constraints
   /// @param constraintMap The hasmap table of constraints which are in pairMap
   /// @param wp The index of the current step
-  /// @return a bool which is true if there is no collision or impossible to solve ones, false otherwise.
-  bool saveIncompatibleRHS(ConstraintMap_t & pairMap, ConstraintMap_t & constraintMap, size_type const wp);
+  /// @return a bool which is true if there is no collision or impossible to
+  /// solve ones, false otherwise.
+  bool saveIncompatibleRHS(ConstraintMap_t& pairMap,
+                           ConstraintMap_t& constraintMap, size_type const wp);
 
   // For a joint get his most, constrained with it, far parent
   core::JointConstPtr_t maximalJoint(size_t const wp, core::JointConstPtr_t a);

@@ -17,8 +17,12 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#define HPP_DEBUG
 #include <algorithm>
+#include <iomanip>
+#include <ranges>
+#include <stack>
+#include <typeinfo>
+#include <unordered_map>
 #include <hpp/constraints/affine-function.hh>
 #include <hpp/constraints/explicit.hh>
 #include <hpp/constraints/locked-joint.hh>
@@ -45,15 +49,10 @@
 #include <hpp/util/debug.hh>
 #include <hpp/util/exception-factory.hh>
 #include <hpp/util/timer.hh>
-#include <iomanip>
 #include <map>
 #include <pinocchio/fwd.hpp>
 #include <pinocchio/multibody/model.hpp>
 #include <queue>
-#include <ranges>
-#include <stack>
-#include <typeinfo>
-#include <unordered_map>
 #include <vector>
 
 namespace hpp {
@@ -79,7 +78,6 @@ using core::problemTarget::TaskTarget;
 using core::problemTarget::TaskTargetPtr_t;
 
 #ifdef HPP_DEBUG
-/*
 static void displayRoadmap(const core::RoadmapPtr_t& roadmap) {
   unsigned i = 0;
   for (auto cc : roadmap->connectedComponents()) {
@@ -88,7 +86,7 @@ static void displayRoadmap(const core::RoadmapPtr_t& roadmap) {
       hppDout(info, pinocchio::displayConfig(n->configuration()));
     }
   }
-}*/
+}
 #endif
 
 StatesPathFinder::StatesPathFinder(const core::ProblemConstPtr_t& problem,
@@ -1125,9 +1123,9 @@ size_t StatesPathFinder::hashRHS(vector_t rhs) const {
   return std::hash<std::string>{}(ss.str());
 }
 
-// Check if a solution (a list of transition) contains impossible to solve steps
-// due to inevitable collisions A step is impossible to solve if it has two
-// constraints set from init or goal which have produce a collision between
+// Check if a solution (a list of transitions) contains impossible to solve steps
+// due to inevitable collisions. A step is impossible to solve if it has two
+// constraints set from init or goal which have produced a collision between
 // objects constrained by them.
 // The list of such known constraint pairs are memorized in pairMap table and
 // individually in constraintMap.
@@ -1318,6 +1316,8 @@ bool StatesPathFinder::saveIncompatibleRHS(ConstraintMap_t& pairMap,
         return std::vector<int>{-1, -1};
       };
 
+      // indices contains the two indices of the constraints that constraint pose of j1
+      // with respect to j2, if any, or { -1, -1}
       auto indices = getIndices();
 
       // Make sure indices are all defined

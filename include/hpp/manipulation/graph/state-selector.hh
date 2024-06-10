@@ -41,7 +41,7 @@ namespace graph {
 /// be ordered because a configuration can be in several states.
 class HPP_MANIPULATION_DLLAPI StateSelector {
  public:
-  virtual ~StateSelector(){};
+  virtual ~StateSelector() {};
 
   /// Create a new StateSelector.
   static StateSelectorPtr_t create(const std::string& name);

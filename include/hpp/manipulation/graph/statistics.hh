@@ -103,7 +103,7 @@ class HPP_MANIPULATION_DLLLOCAL NodeBin : public ::hpp::statistics::Bin {
 
 class HPP_MANIPULATION_DLLLOCAL Histogram {
  public:
-  virtual ~Histogram(){};
+  virtual ~Histogram() {};
 
   virtual void add(const RoadmapNodePtr_t& node) = 0;
 

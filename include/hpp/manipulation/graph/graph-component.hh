@@ -50,7 +50,7 @@ namespace graph {
 /// Define common methods of the graph components.
 class HPP_MANIPULATION_DLLAPI GraphComponent {
  public:
-  virtual ~GraphComponent(){};
+  virtual ~GraphComponent() {};
 
   /// Get the component name.
   const std::string& name() const;

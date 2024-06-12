@@ -58,7 +58,7 @@ typedef constraints::ImplicitPtr_t ImplicitPtr_t;
 class HPP_MANIPULATION_DLLAPI Handle {
  public:
   static std::string className;
-  virtual ~Handle(){};
+  virtual ~Handle() {};
 
   /// Create constraint corresponding to a gripper grasping this object
   /// \param robot the robot that grasps the handle,

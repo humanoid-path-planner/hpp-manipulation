@@ -54,7 +54,7 @@ struct DrawingAttributes {
   }
   std::string& operator[](const std::string& K) { return attr[K]; }
   DrawingAttributes()
-      : separator(", "), openSection("["), closeSection("]"), attr(){};
+      : separator(", "), openSection("["), closeSection("]"), attr() {};
 };
 
 struct Tooltip {
@@ -62,7 +62,7 @@ struct Tooltip {
   typedef std::list<std::string> TooltipLineVector;
   TooltipLineVector v;
 
-  Tooltip() : v(){};
+  Tooltip() : v() {};
   inline std::string toStr() const {
     std::stringstream ss;
     size_t i = v.size();

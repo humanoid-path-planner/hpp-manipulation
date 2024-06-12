@@ -100,7 +100,7 @@ class HPP_MANIPULATION_DLLAPI StatesPathFinder : public core::PathPlanner {
  public:
   struct OptimizationData;
 
-  virtual ~StatesPathFinder(){};
+  virtual ~StatesPathFinder() {};
 
   static StatesPathFinderPtr_t create(const core::ProblemConstPtr_t& problem);
 

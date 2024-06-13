@@ -20,6 +20,7 @@
 #ifndef HPP_MANIPULATION_PATH_PLANNER_STATES_PATH_FINDER_HH
 #define HPP_MANIPULATION_PATH_PLANNER_STATES_PATH_FINDER_HH
 
+#include <unordered_map>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/fwd.hh>

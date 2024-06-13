@@ -31,6 +31,7 @@
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>
 #include <hpp/manipulation/problem.hh>
+#include <unordered_map>
 
 namespace hpp {
 namespace manipulation {

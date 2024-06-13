@@ -17,7 +17,6 @@
 // received a copy of the GNU Lesser General Public License along with
 // hpp-manipulation. If not, see <http://www.gnu.org/licenses/>.
 
-#include <algorithm>
 #include <hpp/constraints/affine-function.hh>
 #include <hpp/constraints/explicit.hh>
 #include <hpp/constraints/locked-joint.hh>
@@ -44,15 +43,12 @@
 #include <hpp/util/debug.hh>
 #include <hpp/util/exception-factory.hh>
 #include <hpp/util/timer.hh>
-#include <iomanip>
-#include <map>
 #include <pinocchio/fwd.hpp>
 #include <pinocchio/multibody/model.hpp>
-#include <queue>
-#include <ranges>
-#include <stack>
+#include <algorithm>
+#include <iomanip>
+#include <map>
 #include <typeinfo>
-#include <unordered_map>
 #include <vector>
 
 namespace hpp {

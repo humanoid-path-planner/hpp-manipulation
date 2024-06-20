@@ -1279,7 +1279,7 @@ bool StatesPathFinder::saveIncompatibleRHS(ConstraintMap_t& pairMap,
       // indices of their respective constraints
       exploreJOC = [&](core::JointConstPtr_t j, jointOfConstraint current,
                        int initial) {
-        int constraint_index = std::get<1>(current);
+        size_t constraint_index = std::get<1>(current);
         visited[constraint_index]++;
         core::JointConstPtr_t current_joint = std::get<0>(current);
         auto iconstraint = constraints_[constraint_index];
@@ -1287,14 +1287,14 @@ bool StatesPathFinder::saveIncompatibleRHS(ConstraintMap_t& pairMap,
         auto id_cj = core::RelativeMotion::idx(current_joint);
 
         for (auto& joc : JOCs) {
-          int ci = std::get<1>(joc);
+          size_t ci = std::get<1>(joc);
           core::JointConstPtr_t ji = std::get<0>(joc);
           auto id_ji = core::RelativeMotion::idx(ji);
           if (m(id_cj, id_ji) ==
               core::RelativeMotion::RelativeMotionType::Unconstrained)
             continue;
           if (equalJoints(ji, j))
-            return std::vector<int>{initial, ci};
+            return std::vector<int>{initial, (int)ci};
           else if (visited[ci] < 2) {
             return exploreJOC(j, joc, initial);
           }
@@ -1303,10 +1303,10 @@ bool StatesPathFinder::saveIncompatibleRHS(ConstraintMap_t& pairMap,
       };
 
       // get the indices of the constraints associated to the two joints
-      auto getIndices = [&] -> std::vector<int> {
+      auto getIndices = [&]() -> std::vector<int> {
         for (auto& joc : constraints_j1) {
           visited[std::get<1>(joc)] = 1;
-          auto indices = exploreJOC(j2, joc, std::get<1>(joc));
+          auto indices = exploreJOC(j2, joc, (int)std::get<1>(joc));
           if (indices[0] >= 0 || indices[1] >= 0) return indices;
         }
         return std::vector<int>{-1, -1};

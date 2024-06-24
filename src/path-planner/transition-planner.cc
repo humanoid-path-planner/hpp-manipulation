@@ -32,6 +32,7 @@
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/distance/reeds-shepp.hh>
 #include <hpp/core/joint-bound-validation.hh>
+#include <hpp/core/path-optimization/rs-time-parameterization.hh>
 #include <hpp/core/path-optimization/simple-time-parameterization.hh>
 #include <hpp/core/path-optimizer.hh>
 #include <hpp/core/path-planner/bi-rrt-star.hh>
@@ -159,10 +160,7 @@ core::PathVectorPtr_t TransitionPlanner::optimizePath(const PathPtr_t& path) {
 
 core::PathVectorPtr_t TransitionPlanner::timeParameterization(
     const PathVectorPtr_t& path) {
-  core::PathOptimizerPtr_t tp(
-      core::pathOptimization::SimpleTimeParameterization::create(
-          innerProblem_));
-  return tp->optimize(path);
+  return timeParameterization_->optimize(path);
 }
 
 void TransitionPlanner::setEdge(std::size_t id) {
@@ -188,6 +186,8 @@ void TransitionPlanner::setReedsAndSheppSteeringMethod(double turningRadius) {
   core::DistancePtr_t dist(core::distance::ReedsShepp::create(innerProblem_));
   innerProblem_->steeringMethod(sm);
   innerProblem_->distance(dist);
+  timeParameterization_ = core::pathOptimization::RSTimeParameterization::create(
+      innerProblem_);
 }
 
 void TransitionPlanner::pathProjector(const PathProjectorPtr_t pathProjector) {
@@ -233,6 +233,9 @@ TransitionPlanner::TransitionPlanner(const core::ProblemConstPtr_t& problem,
   // Create default path planner
   innerPlanner_ = hpp::core::pathPlanner::BiRrtStar::createWithRoadmap(
       innerProblem_, roadmap);
+  // Create default time parameterization
+  timeParameterization_ = core::pathOptimization::SimpleTimeParameterization::create(
+      innerProblem_);
 }
 
 void TransitionPlanner::init(TransitionPlannerWkPtr_t weak) {

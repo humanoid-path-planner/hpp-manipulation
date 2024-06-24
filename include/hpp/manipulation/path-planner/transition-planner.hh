@@ -162,6 +162,8 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   PathPlannerPtr_t innerPlanner_;
   /// Vector of optimizers to call after solve
   std::vector<PathOptimizerPtr_t> pathOptimizers_;
+  /// Time parameterization instance
+  core::PathOptimizerPtr_t timeParameterization_;
   /// weak pointer to itself
   TransitionPlannerWkPtr_t weakPtr_;
 };  // class TransitionPlanner

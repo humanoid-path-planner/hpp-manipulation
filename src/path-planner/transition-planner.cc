@@ -186,8 +186,8 @@ void TransitionPlanner::setReedsAndSheppSteeringMethod(double turningRadius) {
   core::DistancePtr_t dist(core::distance::ReedsShepp::create(innerProblem_));
   innerProblem_->steeringMethod(sm);
   innerProblem_->distance(dist);
-  timeParameterization_ = core::pathOptimization::RSTimeParameterization::create(
-      innerProblem_);
+  timeParameterization_ =
+      core::pathOptimization::RSTimeParameterization::create(innerProblem_);
 }
 
 void TransitionPlanner::pathProjector(const PathProjectorPtr_t pathProjector) {
@@ -234,8 +234,8 @@ TransitionPlanner::TransitionPlanner(const core::ProblemConstPtr_t& problem,
   innerPlanner_ = hpp::core::pathPlanner::BiRrtStar::createWithRoadmap(
       innerProblem_, roadmap);
   // Create default time parameterization
-  timeParameterization_ = core::pathOptimization::SimpleTimeParameterization::create(
-      innerProblem_);
+  timeParameterization_ =
+      core::pathOptimization::SimpleTimeParameterization::create(innerProblem_);
 }
 
 void TransitionPlanner::init(TransitionPlannerWkPtr_t weak) {

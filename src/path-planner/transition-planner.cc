@@ -145,9 +145,9 @@ core::PathPtr_t TransitionPlanner::directPath(ConfigurationIn_t q1,
   return validPart;
 }
 
-bool TransitionPlanner::validateConfiguration(ConfigurationIn_t q, std::size_t id,
-					      core::ValidationReportPtr_t& report) const
-{
+bool TransitionPlanner::validateConfiguration(
+    ConfigurationIn_t q, std::size_t id,
+    core::ValidationReportPtr_t& report) const {
   graph::EdgePtr_t edge(getEdgeOrThrow(id));
   return edge->pathValidation()->validate(q, report);
 }
@@ -241,8 +241,7 @@ void TransitionPlanner::init(TransitionPlannerWkPtr_t weak) {
   weakPtr_ = weak;
 }
 
-graph::EdgePtr_t TransitionPlanner::getEdgeOrThrow(std::size_t id) const
-{
+graph::EdgePtr_t TransitionPlanner::getEdgeOrThrow(std::size_t id) const {
   ProblemConstPtr_t p(HPP_DYNAMIC_PTR_CAST(const Problem, problem()));
   assert(p);
   graph::GraphComponentPtr_t comp(p->constraintGraph()->get(id).lock());

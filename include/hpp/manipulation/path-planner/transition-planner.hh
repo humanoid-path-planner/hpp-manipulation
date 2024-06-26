@@ -115,7 +115,7 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   /// \param q configuration to validate,
   /// \param id index of the edge in the constraint graph.
   bool validateConfiguration(ConfigurationIn_t q, std::size_t id,
-			     core::ValidationReportPtr_t& report) const;
+                             core::ValidationReportPtr_t& report) const;
   /// Optimize path using the selected path optimizers
   /// \param path input path
   /// \return optimized path

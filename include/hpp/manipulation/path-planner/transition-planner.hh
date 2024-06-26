@@ -31,6 +31,7 @@
 
 #include <hpp/core/path-planner.hh>
 #include <hpp/manipulation/fwd.hh>
+#include <hpp/manipulation/graph/fwd.hh>
 
 namespace hpp {
 namespace manipulation {
@@ -110,6 +111,11 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   /// continuity.
   PathPtr_t directPath(ConfigurationIn_t q1, ConfigurationIn_t q2,
                        bool validate, bool& success, std::string& status);
+  /// Validate a configuration with the path validation of an edge.
+  /// \param q configuration to validate,
+  /// \param id index of the edge in the constraint graph.
+  bool validateConfiguration(ConfigurationIn_t q, std::size_t id,
+			     core::ValidationReportPtr_t& report) const;
   /// Optimize path using the selected path optimizers
   /// \param path input path
   /// \return optimized path
@@ -156,6 +162,8 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   void init(TransitionPlannerWkPtr_t weak);
 
  private:
+  /// Get pointer to edge from an id
+  graph::EdgePtr_t getEdgeOrThrow(std::size_t id) const;
   /// Pointer to the problem of the inner planner
   core::ProblemPtr_t innerProblem_;
   /// Pointer to the inner path planner

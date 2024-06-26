@@ -145,6 +145,13 @@ core::PathPtr_t TransitionPlanner::directPath(ConfigurationIn_t q1,
   return validPart;
 }
 
+bool TransitionPlanner::validateConfiguration(ConfigurationIn_t q, std::size_t id,
+					      core::ValidationReportPtr_t& report) const
+{
+  graph::EdgePtr_t edge(getEdgeOrThrow(id));
+  return edge->pathValidation()->validate(q, report);
+}
+
 core::PathVectorPtr_t TransitionPlanner::optimizePath(const PathPtr_t& path) {
   PathVectorPtr_t pv(HPP_DYNAMIC_PTR_CAST(PathVector, path));
   if (!pv) {
@@ -164,16 +171,7 @@ core::PathVectorPtr_t TransitionPlanner::timeParameterization(
 }
 
 void TransitionPlanner::setEdge(std::size_t id) {
-  ProblemConstPtr_t p(HPP_DYNAMIC_PTR_CAST(const Problem, problem()));
-  assert(p);
-  graph::GraphComponentPtr_t comp(p->constraintGraph()->get(id).lock());
-  graph::EdgePtr_t edge(HPP_DYNAMIC_PTR_CAST(graph::Edge, comp));
-  if (!edge) {
-    std::ostringstream os;
-    os << "hpp::manipulation::pathPlanner::TransitionPlanner::setEdge: index "
-       << id << " does not correspond to any edge of the constraint graph.";
-    throw std::logic_error(os.str().c_str());
-  }
+  graph::EdgePtr_t edge(getEdgeOrThrow(id));
   innerProblem_->constraints(edge->pathConstraint());
   innerProblem_->pathValidation(edge->pathValidation());
   innerProblem_->steeringMethod(edge->steeringMethod());
@@ -241,6 +239,21 @@ TransitionPlanner::TransitionPlanner(const core::ProblemConstPtr_t& problem,
 void TransitionPlanner::init(TransitionPlannerWkPtr_t weak) {
   core::PathPlanner::init(weak);
   weakPtr_ = weak;
+}
+
+graph::EdgePtr_t TransitionPlanner::getEdgeOrThrow(std::size_t id) const
+{
+  ProblemConstPtr_t p(HPP_DYNAMIC_PTR_CAST(const Problem, problem()));
+  assert(p);
+  graph::GraphComponentPtr_t comp(p->constraintGraph()->get(id).lock());
+  graph::EdgePtr_t edge(HPP_DYNAMIC_PTR_CAST(graph::Edge, comp));
+  if (!edge) {
+    std::ostringstream os;
+    os << "hpp::manipulation::pathPlanner::TransitionPlanner::setEdge: index "
+       << id << " does not correspond to any edge of the constraint graph.";
+    throw std::logic_error(os.str().c_str());
+  }
+  return edge;
 }
 
 }  // namespace pathPlanner

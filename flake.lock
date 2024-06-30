@@ -2,7 +2,9 @@
   "nodes": {
     "flake-parts": {
       "inputs": {
-        "nixpkgs-lib": "nixpkgs-lib"
+        "nixpkgs-lib": [
+          "nixpkgs"
+        ]
       },
       "locked": {
         "lastModified": 1717285511,
@@ -18,13 +20,216 @@
         "type": "github"
       }
     },
+    "hpp-constraints": {
+      "inputs": {
+        "flake-parts": [
+          "hpp-core",
+          "flake-parts"
+        ],
+        "hpp-pinocchio": "hpp-pinocchio",
+        "hpp-statistics": "hpp-statistics",
+        "hpp-util": "hpp-util",
+        "nixpkgs": [
+          "hpp-core",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1719584695,
+        "narHash": "sha256-8K94IgUt8kpdRDASnstfX14cBQN4ZK6+LmvOuq6Sg0I=",
+        "owner": "humanoid-path-planner",
+        "repo": "hpp-constraints",
+        "rev": "acd1c62fdfcdb329fd0dea19ae2f18e471e3ef08",
+        "type": "github"
+      },
+      "original": {
+        "owner": "humanoid-path-planner",
+        "ref": "release/5.1.0",
+        "repo": "hpp-constraints",
+        "type": "github"
+      }
+    },
+    "hpp-core": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "hpp-constraints": "hpp-constraints",
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1719586831,
+        "narHash": "sha256-oRFZsERQKzaW2NvgcKcxqJZtqtlk7rqDK2inhUTABiQ=",
+        "owner": "humanoid-path-planner",
+        "repo": "hpp-core",
+        "rev": "733f884a03cde41aeae18758a26b28cf6fdf02fa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "humanoid-path-planner",
+        "ref": "release/5.1.0",
+        "repo": "hpp-core",
+        "type": "github"
+      }
+    },
+    "hpp-environments": {
+      "inputs": {
+        "flake-parts": [
+          "hpp-core",
+          "hpp-constraints",
+          "hpp-pinocchio",
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "hpp-core",
+          "hpp-constraints",
+          "hpp-pinocchio",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1719580427,
+        "narHash": "sha256-T76zgTJrGm7maKBPwgX+FgQ7MPN7NoLvdZvzARPo9V0=",
+        "owner": "humanoid-path-planner",
+        "repo": "hpp-environments",
+        "rev": "1c727bcc85145a1f5236357fa73df5a183a31f04",
+        "type": "github"
+      },
+      "original": {
+        "owner": "humanoid-path-planner",
+        "ref": "release/5.1.0",
+        "repo": "hpp-environments",
+        "type": "github"
+      }
+    },
+    "hpp-pinocchio": {
+      "inputs": {
+        "flake-parts": [
+          "hpp-core",
+          "hpp-constraints",
+          "flake-parts"
+        ],
+        "hpp-environments": "hpp-environments",
+        "hpp-util": [
+          "hpp-core",
+          "hpp-constraints",
+          "hpp-util"
+        ],
+        "nixpkgs": [
+          "hpp-core",
+          "hpp-constraints",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1719582071,
+        "narHash": "sha256-sRWf973UZIdyrS0fhd+vXdTucR9d7Eks9yU85kcFxfo=",
+        "owner": "humanoid-path-planner",
+        "repo": "hpp-pinocchio",
+        "rev": "4ec6186223ce18f4c48605421a7ef583fe827352",
+        "type": "github"
+      },
+      "original": {
+        "owner": "humanoid-path-planner",
+        "ref": "release/5.1.0",
+        "repo": "hpp-pinocchio",
+        "type": "github"
+      }
+    },
+    "hpp-statistics": {
+      "inputs": {
+        "flake-parts": [
+          "hpp-core",
+          "hpp-constraints",
+          "flake-parts"
+        ],
+        "hpp-util": [
+          "hpp-core",
+          "hpp-constraints",
+          "hpp-util"
+        ],
+        "nixpkgs": [
+          "hpp-core",
+          "hpp-constraints",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1719582334,
+        "narHash": "sha256-bzGI7z6hTGkuNs71Vcb3vsVpey1SuR7Okx4rJU1LHFs=",
+        "owner": "humanoid-path-planner",
+        "repo": "hpp-statistics",
+        "rev": "613b1f9c2788cb33097c1f1c0e4216420665a1e0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "humanoid-path-planner",
+        "ref": "release/5.1.0",
+        "repo": "hpp-statistics",
+        "type": "github"
+      }
+    },
+    "hpp-universal-robot": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1719670288,
+        "narHash": "sha256-9gi96DhSqvAHlXUlTs6O7TG/3dTthL2LETHb1rqP75A=",
+        "owner": "humanoid-path-planner",
+        "repo": "hpp-universal-robot",
+        "rev": "d9308abb98b864da8ab1041f66f6c78aef2e8d53",
+        "type": "github"
+      },
+      "original": {
+        "owner": "humanoid-path-planner",
+        "ref": "release/5.1.0",
+        "repo": "hpp-universal-robot",
+        "type": "github"
+      }
+    },
+    "hpp-util": {
+      "inputs": {
+        "flake-parts": [
+          "hpp-core",
+          "hpp-constraints",
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "hpp-core",
+          "hpp-constraints",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1719580825,
+        "narHash": "sha256-trfl8A+P7a1gnACnTXNK98TYWWDAOM3PKfkXxpC3X/8=",
+        "owner": "humanoid-path-planner",
+        "repo": "hpp-util",
+        "rev": "0504f15818a92c7a257cd6b60cd8b6092bd6dbfa",
+        "type": "github"
+      },
+      "original": {
+        "owner": "humanoid-path-planner",
+        "ref": "release/5.1.0",
+        "repo": "hpp-util",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1719575122,
-        "narHash": "sha256-1x3SNH6GtWgpHmhxO4pCz6nidxjCAheF0FpSXSjqRrg=",
+        "lastModified": 1719674427,
+        "narHash": "sha256-z2hCpVyfnmYTA5iabf1SW4peFV9itE1JJcXNBKIFkDg=",
         "owner": "nim65s",
         "repo": "nixpkgs",
-        "rev": "5206f72d0fadec6f15e6130a86c0695ceb5ec92d",
+        "rev": "b81610d293fac26c2ec6a81718a979bc25f8c155",
         "type": "github"
       },
       "original": {
@@ -34,21 +239,11 @@
         "type": "github"
       }
     },
-    "nixpkgs-lib": {
-      "locked": {
-        "lastModified": 1717284937,
-        "narHash": "sha256-lIbdfCsf8LMFloheeE6N31+BMIeixqyQWbSr2vk79EQ=",
-        "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/eb9ceca17df2ea50a250b6b27f7bf6ab0186f198.tar.gz"
-      },
-      "original": {
-        "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/eb9ceca17df2ea50a250b6b27f7bf6ab0186f198.tar.gz"
-      }
-    },
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
+        "hpp-core": "hpp-core",
+        "hpp-universal-robot": "hpp-universal-robot",
         "nixpkgs": "nixpkgs"
       }
     }

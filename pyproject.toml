@@ -14,7 +14,7 @@ dependencies = [
 description = "Classes for manipulation planning."
 license = "BSD-2-Clause"
 name = "hpp-manipulation"
-version = "5.0.0"
+version = "5.1.0"
 
 [tool.ruff]
 extend-exclude = ["cmake"]

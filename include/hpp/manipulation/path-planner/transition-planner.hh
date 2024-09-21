@@ -162,6 +162,8 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   void init(TransitionPlannerWkPtr_t weak);
 
  private:
+  /// Check problem and forward maxIterations and timeout to inner problem.
+  void checkProblemAndForwardParameters();
   /// Get pointer to edge from an id
   graph::EdgePtr_t getEdgeOrThrow(std::size_t id) const;
   /// Pointer to the problem of the inner planner

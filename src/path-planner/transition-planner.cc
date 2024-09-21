@@ -59,7 +59,7 @@ TransitionPlannerPtr_t TransitionPlanner::createWithRoadmap(
   return shPtr;
 }
 
-void TransitionPlanner::startSolve() {
+void TransitionPlanner::checkProblemAndForwardParameters() {
   // Check that edge has been selected
   // Initialize the planner
   if (!innerProblem_->constraints() ||
@@ -68,13 +68,24 @@ void TransitionPlanner::startSolve() {
         "TransitionPlanner::startSolve: inner problem has"
         " no constraints. You probably forgot to select "
         "the transition.");
-  innerProblem_->constraints()->configProjector()->rightHandSideFromConfig(
-      innerProblem_->initConfig());
+  // Check that the initial configuration has been initialized
+  if (innerProblem_->initConfig().size() != innerProblem_->robot()->configSize()) {
+    std::ostringstream os;
+    os << "TransitionPlanner::startSolve: initial configuration size ("
+       << innerProblem_->initConfig().size() << ") differs from robot configuration size ( "
+       << innerProblem_->robot()->configSize() << "). Did you initialize it ?";
+    throw std::logic_error(os.str().c_str());
+  }
   // Forward maximal number of iterations to inner planner
   innerPlanner_->maxIterations(this->maxIterations());
   // Forward timeout to inner planner
   innerPlanner_->timeOut(this->timeOut());
+}
 
+void TransitionPlanner::startSolve() {
+  checkProblemAndForwardParameters();
+  innerProblem_->constraints()->configProjector()->rightHandSideFromConfig(
+      innerProblem_->initConfig());
   // Call parent implementation
   core::PathPlanner::startSolve();
 }
@@ -106,6 +117,7 @@ core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
   if (resetRoadmap) {
     roadmap()->clear();
   }
+  checkProblemAndForwardParameters();
   PathVectorPtr_t path = innerPlanner_->solve();
   path = optimizePath(path);
   return path;

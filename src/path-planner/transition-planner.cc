@@ -69,10 +69,12 @@ void TransitionPlanner::checkProblemAndForwardParameters() {
         " no constraints. You probably forgot to select "
         "the transition.");
   // Check that the initial configuration has been initialized
-  if (innerProblem_->initConfig().size() != innerProblem_->robot()->configSize()) {
+  if (innerProblem_->initConfig().size() !=
+      innerProblem_->robot()->configSize()) {
     std::ostringstream os;
     os << "TransitionPlanner::startSolve: initial configuration size ("
-       << innerProblem_->initConfig().size() << ") differs from robot configuration size ( "
+       << innerProblem_->initConfig().size()
+       << ") differs from robot configuration size ( "
        << innerProblem_->robot()->configSize() << "). Did you initialize it ?";
     throw std::logic_error(os.str().c_str());
   }

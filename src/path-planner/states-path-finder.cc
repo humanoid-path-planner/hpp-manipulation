@@ -1392,7 +1392,6 @@ bool StatesPathFinder::solveOptimizationProblem() {
       if (nTriesDone[1] >= nTriesMax1) {
         // if cannot solve all the way, return longest VALID sequence
         d.waypoint = longestSolved;
-        displayConfigsSolved();
         return false;
       }
       // Reset the fail counter while the solution is empty
@@ -1490,9 +1489,6 @@ bool StatesPathFinder::solveOptimizationProblem() {
         throw(std::logic_error("Unintended exit code for solveStep"));
     }
   }
-
-  displayConfigsSolved();
-  displayRhsMatrix();
 
   return true;
 }

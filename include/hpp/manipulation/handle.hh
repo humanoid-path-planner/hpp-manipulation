@@ -66,7 +66,7 @@ class HPP_MANIPULATION_DLLAPI Handle {
   /// \return the constraint of relative position between the handle and
   ///         the gripper.
   static HandlePtr_t create(const std::string& name,
-                            const Transform3f& localPosition,
+                            const Transform3s& localPosition,
                             const DeviceWkPtr_t& robot,
                             const JointPtr_t& joint) {
     Handle* ptr = new Handle(name, localPosition, robot, joint);
@@ -98,10 +98,10 @@ class HPP_MANIPULATION_DLLAPI Handle {
   /// \}
 
   /// Get local position in joint frame
-  const Transform3f& localPosition() const { return localPosition_; }
+  const Transform3s& localPosition() const { return localPosition_; }
 
   /// Set local position in joint frame
-  void localPosition(const Transform3f& localPosition) {
+  void localPosition(const Transform3s& localPosition) {
     localPosition_ = localPosition;
   }
 
@@ -175,7 +175,7 @@ class HPP_MANIPULATION_DLLAPI Handle {
   /// \param grasp object containing the grasp information
   /// \return the constraint of relative position between the handle and
   ///         the gripper.
-  Handle(const std::string& name, const Transform3f& localPosition,
+  Handle(const std::string& name, const Transform3s& localPosition,
          const DeviceWkPtr_t& robot, const JointPtr_t& joint)
       : name_(name),
         localPosition_(localPosition),
@@ -192,7 +192,7 @@ class HPP_MANIPULATION_DLLAPI Handle {
  private:
   std::string name_;
   /// Position of the handle in the joint frame.
-  Transform3f localPosition_;
+  Transform3s localPosition_;
   /// Joint to which the handle is linked.
   JointPtr_t joint_;
   /// Pointer to the robot

@@ -204,8 +204,8 @@ ImplicitPtr_t Handle::createGraspAndComplement(const GripperPtr_t& gripper,
 ImplicitPtr_t Handle::createPreGrasp(const GripperPtr_t& gripper,
                                      const value_type& shift,
                                      std::string n) const {
-  Transform3f M = gripper->objectPositionInJoint() *
-                  Transform3f(I3, vector3_t(shift, 0, 0));
+  Transform3s M = gripper->objectPositionInJoint() *
+                  Transform3s(I3, vector3_t(shift, 0, 0));
   if (n.empty())
     n = "Pregrasp_ " + maskToStr(mask_) + "_" + name() + "_" + gripper->name();
   ImplicitPtr_t result(Implicit::create(

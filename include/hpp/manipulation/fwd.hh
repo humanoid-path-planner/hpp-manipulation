@@ -88,7 +88,7 @@ typedef constraints::RelativeTransformationR3xSO3 RelativeTransformationR3xSO3;
 typedef constraints::RelativeTransformationPtr_t RelativeTransformationPtr_t;
 typedef core::value_type value_type;
 typedef core::size_type size_type;
-typedef core::Transform3f Transform3f;
+typedef core::Transform3s Transform3s;
 typedef core::vector_t vector_t;
 typedef core::vectorIn_t vectorIn_t;
 typedef core::vectorOut_t vectorOut_t;

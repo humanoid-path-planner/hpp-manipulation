@@ -50,7 +50,7 @@ pinocchio::DevicePtr_t Device::clone() const {
   return shPtr;
 }
 
-void Device::setRobotRootPosition(const std::string& rn, const Transform3f& t) {
+void Device::setRobotRootPosition(const std::string& rn, const Transform3s& t) {
   FrameIndices_t idxs = robotFrames(rn);
   if (idxs.size() == 0)
     throw std::invalid_argument("No frame for robot name " + rn);
@@ -65,7 +65,7 @@ void Device::setRobotRootPosition(const std::string& rn, const Transform3f& t) {
     return;
   }
 
-  Transform3f shift(t * rootFrame.placement.inverse());
+  Transform3s shift(t * rootFrame.placement.inverse());
   // Find all the frames that have the same parent joint.
   for (std::size_t i = 1; i < idxs.size(); ++i) {
     Frame& frame = m.frames[idxs[i]];

@@ -64,7 +64,7 @@ class HPP_MANIPULATION_DLLAPI Device : public pinocchio::HumanoidRobot {
   virtual std::ostream& print(std::ostream& os) const;
 
   void setRobotRootPosition(const std::string& robotName,
-                            const Transform3f& positionWRTParentJoint);
+                            const Transform3s& positionWRTParentJoint);
 
   virtual pinocchio::DevicePtr_t clone() const;
 

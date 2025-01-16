@@ -988,7 +988,7 @@ GraphPtr_t graphBuilder(const ProblemSolverPtr_t& ps,
     assert(robot.robotFrames(od.name).size() != 0);
     for (const FrameIndex& f : robot.robotFrames(od.name)) {
       if (model.frames[f].type != ::pinocchio::JOINT) continue;
-      const JointIndex j = model.frames[f].parent;
+      const JointIndex j = model.frames[f].parentJoint;
       JointPtr_t oj(Joint::create(ps->robot(), j));
       LiegroupSpacePtr_t space(oj->configurationSpace());
       LiegroupElement lge(robot.currentConfiguration().segment(

@@ -51,12 +51,7 @@ class HPP_MANIPULATION_DLLAPI Device : public pinocchio::HumanoidRobot {
 
   /// Constructor
   /// \param name of the new instance,
-  static DevicePtr_t create(const std::string& name) {
-    Device* ptr = new Device(name);
-    DevicePtr_t shPtr(ptr);
-    ptr->init(shPtr);
-    return shPtr;
-  }
+  static DevicePtr_t create(const std::string& name);
 
   DevicePtr_t self() const { return self_.lock(); }
 
@@ -84,7 +79,7 @@ class HPP_MANIPULATION_DLLAPI Device : public pinocchio::HumanoidRobot {
   /// \param name of the new instance,
   /// \param robot Robots that manipulate objects,
   /// \param objects Set of objects manipulated by the robot.
-  Device(const std::string& name) : Parent_t(name) {}
+  Device(const std::string& name);
 
   void init(const DeviceWkPtr_t& self) {
     Parent_t::init(self);

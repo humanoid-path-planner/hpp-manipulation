@@ -43,6 +43,17 @@ namespace hpp {
 namespace manipulation {
 using ::pinocchio::Frame;
 
+DevicePtr_t Device::create(const std::string& name) {
+  Device* ptr = new Device(name);
+  DevicePtr_t shPtr(ptr);
+  ptr->init(shPtr);
+  return shPtr;
+}
+
+Device::Device(const std::string& name) : Parent_t(name)
+{
+}
+
 pinocchio::DevicePtr_t Device::clone() const {
   Device* ptr = new Device(*this);
   DevicePtr_t shPtr(ptr);

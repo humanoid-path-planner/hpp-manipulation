@@ -45,9 +45,9 @@ namespace manipulation {
 ///
 /// This class also contains pinocchio::Gripper, Handle and \ref
 /// JointAndShapes_t
-class HPP_MANIPULATION_DLLAPI Device : public pinocchio::HumanoidRobot,
-  public std::enable_shared_from_this <Device>
-  {
+class HPP_MANIPULATION_DLLAPI Device
+    : public pinocchio::HumanoidRobot,
+      public std::enable_shared_from_this<Device> {
  public:
   typedef pinocchio::HumanoidRobot Parent_t;
 

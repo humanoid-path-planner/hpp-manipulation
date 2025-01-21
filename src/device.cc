@@ -50,9 +50,7 @@ DevicePtr_t Device::create(const std::string& name) {
   return shPtr;
 }
 
-Device::Device(const std::string& name) : Parent_t(name)
-{
-}
+Device::Device(const std::string& name) : Parent_t(name) {}
 
 pinocchio::DevicePtr_t Device::clone() const {
   Device* ptr = new Device(*this);

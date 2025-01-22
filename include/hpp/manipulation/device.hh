@@ -83,9 +83,7 @@ class HPP_MANIPULATION_DLLAPI Device
   /// \param objects Set of objects manipulated by the robot.
   Device(const std::string& name);
 
-  void init(const DeviceWkPtr_t& self) {
-    Parent_t::init(self);
-  }
+  void init(const DeviceWkPtr_t& self) { Parent_t::init(self); }
 
   void initCopy(const DeviceWkPtr_t& self, const Device& other) {
     Parent_t::initCopy(self, other);

@@ -139,7 +139,7 @@ void Device::removeJoints(const std::vector<std::string>& jointNames,
   Parent_t::removeJoints(jointNames, referenceConfig);
 
   for (auto& pair : grippers.map)
-    pair.second = pinocchio::Gripper::create(pair.second->name(), self_);
+    pair.second = pinocchio::Gripper::create(pair.second->name(), shared_from_this());
   // TODO update handles and jointAndShapes
 }
 
@@ -169,7 +169,6 @@ void Device::serialize(Archive& ar, const unsigned int version) {
                    name_, false) != this);
   ar& BOOST_SERIALIZATION_NVP(written);
   if (written) {
-    ar& BOOST_SERIALIZATION_NVP(self_);
     // TODO (easy) add serialization of core::Container ?
     // ar & BOOST_SERIALIZATION_NVP(handles);
     // ar & BOOST_SERIALIZATION_NVP(grippers);

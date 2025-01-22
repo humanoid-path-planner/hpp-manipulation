@@ -55,7 +55,7 @@ class HPP_MANIPULATION_DLLAPI Device
   /// \param name of the new instance,
   static DevicePtr_t create(const std::string& name);
 
-  DevicePtr_t self() const { return self_.lock(); }
+  DevicePtr_t self() { return shared_from_this(); }
 
   /// Print object in a stream
   virtual std::ostream& print(std::ostream& os) const;
@@ -85,19 +85,14 @@ class HPP_MANIPULATION_DLLAPI Device
 
   void init(const DeviceWkPtr_t& self) {
     Parent_t::init(self);
-    self_ = self;
   }
 
   void initCopy(const DeviceWkPtr_t& self, const Device& other) {
     Parent_t::initCopy(self, other);
-    self_ = self;
   }
 
   /// For serialization only
   Device() {}
-
- private:
-  DeviceWkPtr_t self_;
 
   HPP_SERIALIZABLE();
 };  // class Device

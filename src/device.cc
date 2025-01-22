@@ -139,7 +139,8 @@ void Device::removeJoints(const std::vector<std::string>& jointNames,
   Parent_t::removeJoints(jointNames, referenceConfig);
 
   for (auto& pair : grippers.map)
-    pair.second = pinocchio::Gripper::create(pair.second->name(), shared_from_this());
+    pair.second =
+        pinocchio::Gripper::create(pair.second->name(), shared_from_this());
   // TODO update handles and jointAndShapes
 }
 

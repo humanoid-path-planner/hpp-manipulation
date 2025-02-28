@@ -55,7 +55,9 @@ class HPP_MANIPULATION_DLLAPI Device
   /// \param name of the new instance,
   static DevicePtr_t create(const std::string& name);
 
-  DevicePtr_t self() { return enable_shared_from_this<Device>::shared_from_this(); }
+  DevicePtr_t self() {
+    return enable_shared_from_this<Device>::shared_from_this();
+  }
 
   /// Print object in a stream
   virtual std::ostream& print(std::ostream& os) const;

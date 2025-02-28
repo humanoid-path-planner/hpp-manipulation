@@ -302,8 +302,8 @@ ConstraintSetPtr_t Edge::buildPathConstraint() {
   shared_ptr<core::ObstacleUserInterface> oui =
       HPP_DYNAMIC_PTR_CAST(core::ObstacleUserInterface, pathValidation_);
   if (oui) {
-    // Compute forward kinematics and geometry placement to avoid assertions  on non
-    // initialized data
+    // Compute forward kinematics and geometry placement to avoid assertions  on
+    // non initialized data
     g->robot()->computeForwardKinematics(pinocchio::COMPUTE_ALL);
     g->robot()->updateGeometryPlacements();
     relMotion_ = RelativeMotion::matrix(g->robot());

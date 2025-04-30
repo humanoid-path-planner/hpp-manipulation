@@ -76,7 +76,7 @@ void Device::setRobotRootPosition(const std::string& rn, const Transform3s& t) {
 
   Transform3s shift(t * rootFrame.placement.inverse());
   // Find all the frames that have the same parent joint.
-  for (std::size_t i = 1; i < idxs.size(); ++i) {
+  for (std::size_t i = 0; i < idxs.size(); ++i) {
     Frame& frame = m.frames[idxs[i]];
     if (frame.parent == rootFrame.parent) {
       // frame is between rootFrame and next moving joints.

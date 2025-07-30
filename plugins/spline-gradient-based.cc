@@ -28,7 +28,7 @@
 
 #include <hpp/core/plugin.hh>
 #include <hpp/core/problem-solver.hh>
-#include <hpp/manipulation/path-optimization/spline-gradient-based.hh>
+#include <hpp/core/path-optimization/spline-gradient-based.hh>
 
 namespace hpp {
 namespace manipulation {
@@ -48,15 +48,15 @@ class SplineGradientBasedPlugin : public core::ProblemSolverPlugin {
     // 3>::createFromCore);
     ps->pathOptimizers.add(
         "SplineGradientBased_bezier1",
-        pathOptimization::SplineGradientBased<core::path::BernsteinBasis,
-                                              1>::createFromCore);
+        hpp::core::pathOptimization::SplineGradientBased<core::path::BernsteinBasis,
+                                              1>::create);
     // ps->pathOptimizers.add
     // ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<core::path::BernsteinBasis,
     // 2>::createFromCore);
     ps->pathOptimizers.add(
         "SplineGradientBased_bezier3",
-        pathOptimization::SplineGradientBased<core::path::BernsteinBasis,
-                                              3>::createFromCore);
+        hpp::core::pathOptimization::SplineGradientBased<core::path::BernsteinBasis,
+                                              3>::create);
 
     return true;
   }

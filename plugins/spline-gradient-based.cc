@@ -26,9 +26,9 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
+#include <hpp/core/path-optimization/spline-gradient-based.hh>
 #include <hpp/core/plugin.hh>
 #include <hpp/core/problem-solver.hh>
-#include <hpp/core/path-optimization/spline-gradient-based.hh>
 
 namespace hpp {
 namespace manipulation {
@@ -46,17 +46,15 @@ class SplineGradientBasedPlugin : public core::ProblemSolverPlugin {
     // 2>::createFromCore); ps->pathOptimizers.add
     // ("SplineGradientBased_cannonical3",pathOptimization::SplineGradientBased<core::path::CanonicalPolynomeBasis,
     // 3>::createFromCore);
-    ps->pathOptimizers.add(
-        "SplineGradientBased_bezier1",
-        hpp::core::pathOptimization::SplineGradientBased<core::path::BernsteinBasis,
-                                              1>::create);
+    ps->pathOptimizers.add("SplineGradientBased_bezier1",
+                           hpp::core::pathOptimization::SplineGradientBased<
+                               core::path::BernsteinBasis, 1>::create);
     // ps->pathOptimizers.add
     // ("SplineGradientBased_bezier2",pathOptimization::SplineGradientBased<core::path::BernsteinBasis,
     // 2>::createFromCore);
-    ps->pathOptimizers.add(
-        "SplineGradientBased_bezier3",
-        hpp::core::pathOptimization::SplineGradientBased<core::path::BernsteinBasis,
-                                              3>::create);
+    ps->pathOptimizers.add("SplineGradientBased_bezier3",
+                           hpp::core::pathOptimization::SplineGradientBased<
+                               core::path::BernsteinBasis, 3>::create);
 
     return true;
   }

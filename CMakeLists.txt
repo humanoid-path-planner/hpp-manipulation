@@ -164,19 +164,6 @@ install(
   EXPORT ${TARGETS_EXPORT_NAME}
   DESTINATION lib)
 
-# GPL licenced part
-
-set(${PROJECT_NAME}_SOURCES_GPL src/path-optimization/spline-gradient-based.cc)
-
-add_library(${PROJECT_NAME}-gpl SHARED ${${PROJECT_NAME}_SOURCES_GPL})
-target_link_libraries(${PROJECT_NAME}-gpl ${PROJECT_NAME}
-                      hpp-core::hpp-core-gpl)
-
-install(
-  TARGETS ${PROJECT_NAME}-gpl
-  EXPORT ${TARGETS_EXPORT_NAME}
-  DESTINATION lib)
-
 add_subdirectory(plugins)
 if(BUILD_TESTING)
   add_subdirectory(tests)

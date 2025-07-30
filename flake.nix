@@ -26,6 +26,7 @@
           packages = {
             default = self'.packages.hpp-manipulation;
             hpp-manipulation = pkgs.hpp-manipulation.overrideAttrs {
+              patches = [ ];
               src = lib.fileset.toSource {
                 root = ./.;
                 fileset = lib.fileset.unions [

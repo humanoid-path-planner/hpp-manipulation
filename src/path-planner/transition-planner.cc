@@ -107,7 +107,7 @@ core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
   innerProblem_->resetGoalConfigs();
   for (size_type r = 0; r < qGoals.rows(); ++r) {
     Configuration_t q(qGoals.row(r));
-    if (!configProjector->isSatisfied(q)) {
+    if ((configProjector) && (!configProjector->isSatisfied(q))) {
       std::ostringstream os;
       os << "hpp::manipulation::TransitionPlanner::computePath: "
          << "goal configuration at rank " << r

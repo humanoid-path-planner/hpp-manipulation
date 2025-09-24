@@ -186,6 +186,10 @@ core::PathVectorPtr_t TransitionPlanner::timeParameterization(
 
 void TransitionPlanner::setEdge(std::size_t id) {
   graph::EdgePtr_t edge(getEdgeOrThrow(id));
+  setEdge(edge);
+}
+
+void TransitionPlanner::setEdge(const graph::EdgePtr_t& edge) {
   innerProblem_->constraints(edge->pathConstraint());
   innerProblem_->pathValidation(edge->pathValidation());
   innerProblem_->steeringMethod(edge->steeringMethod());

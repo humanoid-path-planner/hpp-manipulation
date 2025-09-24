@@ -131,6 +131,10 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   /// \param id index of the edge in the constraint graph
   void setEdge(std::size_t id);
 
+  /// Set transition along which we wish to plan a path
+  /// \param transition shared pointer to the transition
+  void setEdge(const graph::EdgePtr_t& transition);
+
   /// Create a Reeds and Shepp steering method and path it to the problem.
   void setReedsAndSheppSteeringMethod(double turningRadius);
 

@@ -107,7 +107,7 @@ core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
   innerProblem_->resetGoalConfigs();
   for (size_type r = 0; r < qGoals.rows(); ++r) {
     Configuration_t q(qGoals.row(r));
-    if (!configProjector->isSatisfied(q)) {
+    if ((configProjector) && (!configProjector->isSatisfied(q))) {
       std::ostringstream os;
       os << "hpp::manipulation::TransitionPlanner::computePath: "
          << "goal configuration at rank " << r
@@ -186,6 +186,10 @@ core::PathVectorPtr_t TransitionPlanner::timeParameterization(
 
 void TransitionPlanner::setEdge(std::size_t id) {
   graph::EdgePtr_t edge(getEdgeOrThrow(id));
+  setEdge(edge);
+}
+
+void TransitionPlanner::setEdge(const graph::EdgePtr_t& edge) {
   innerProblem_->constraints(edge->pathConstraint());
   innerProblem_->pathValidation(edge->pathValidation());
   innerProblem_->steeringMethod(edge->steeringMethod());

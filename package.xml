@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>hpp-manipulation</name>
-  <version>6.0.0</version>
+  <version>6.1.0</version>
   <description>Classes for manipulation planning. </description>
 
   <maintainer email="guilhem.saurel@laas.fr">Guilhem Saurel</maintainer>

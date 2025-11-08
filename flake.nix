@@ -12,51 +12,39 @@
 
   outputs =
     inputs:
-    inputs.flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = import inputs.systems;
-      imports = [
-        inputs.gepetto.flakeModule
-        {
-          gepetto-pkgs.overlays = [
-            (final: prev: {
-              hpp-core = prev.hpp-core.overrideAttrs (super: {
-                patches = super.patches ++ [
-                  (final.fetchpatch {
-                    url = "https://github.com/humanoid-path-planner/hpp-core/pull/391.patch";
-                    hash = "sha256-oqbeUr+Y88hhI8BmCWGVT1ZvI05+YW4TEiEeymaFQ/E=";
-                  })
-                ];
-              });
-            })
-          ];
-        }
-      ];
-      perSystem =
-        {
-          lib,
-          pkgs,
-          self',
-          ...
-        }:
-        {
-          packages = {
-            default = self'.packages.hpp-manipulation;
-            hpp-manipulation = pkgs.hpp-manipulation.overrideAttrs {
-              patches = [ ];
-              src = lib.fileset.toSource {
-                root = ./.;
-                fileset = lib.fileset.unions [
-                  ./CMakeLists.txt
-                  ./doc
-                  ./include
-                  ./package.xml
-                  ./plugins
-                  ./src
-                  ./tests
-                ];
-              };
+    inputs.flake-parts.lib.mkFlake { inherit inputs; } (
+      { lib, self, ... }:
+      {
+        systems = import inputs.systems;
+        imports = [
+          inputs.gepetto.flakeModule
+          { gepetto-pkgs.overlays = [ self.overlays.default ]; }
+        ];
+        flake.overlays.default = _final: prev: {
+          hpp-manipulation = prev.hpp-manipulation.overrideAttrs {
+            src = lib.fileset.toSource {
+              root = ./.;
+              fileset = lib.fileset.unions [
+                ./CMakeLists.txt
+                ./doc
+                ./include
+                ./package.xml
+                ./plugins
+                ./src
+                ./tests
+              ];
             };
           };
         };
-    };
+        perSystem =
+          { pkgs, self', ... }:
+          {
+            packages = {
+              default = self'.packages.hpp-manipulation;
+              hpp-manipulation = pkgs.hpp-manipulation;
+
+            };
+          };
+      }
+    );
 }

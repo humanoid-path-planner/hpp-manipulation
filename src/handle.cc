@@ -205,7 +205,7 @@ ImplicitPtr_t Handle::createPreGrasp(const GripperPtr_t& gripper,
                                      const value_type& shift,
                                      std::string n) const {
   Transform3s M = gripper->objectPositionInJoint() *
-                  Transform3s(I3, vector3_t(shift, 0, 0));
+                  Transform3s(I3, shift*approachingDirection_);
   if (n.empty())
     n = "Pregrasp_ " + maskToStr(mask_) + "_" + name() + "_" + gripper->name();
   ImplicitPtr_t result(Implicit::create(
@@ -218,8 +218,9 @@ ImplicitPtr_t Handle::createPreGrasp(const GripperPtr_t& gripper,
 HandlePtr_t Handle::clone() const {
   HandlePtr_t other = Handle::create(name(), localPosition(), robot(), joint());
   other->mask(mask_);
-  other->mask(maskComp_);
+  other->maskComp(maskComp_);
   other->clearance(clearance_);
+  other->approachingDirection(approachingDirection_);
   return other;
 }
 

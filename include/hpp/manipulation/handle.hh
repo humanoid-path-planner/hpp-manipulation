@@ -171,11 +171,15 @@ class HPP_MANIPULATION_DLLAPI Handle {
 
   /// Get approaching direction for pregrasp
   /// Default is x-axis (1, 0, 0)
-  const vector3_t& approachingDirection() const { return approachingDirection_; }
+  const vector3_t& approachingDirection() const {
+    return approachingDirection_;
+  }
 
   /// Set approaching direction for pregrasp
   /// \param dir unit vector defining the approach direction in handle frame
-  void approachingDirection(const vector3_t& dir) { approachingDirection_ = dir; }
+  void approachingDirection(const vector3_t& dir) {
+    approachingDirection_ = dir;
+  }
 
  protected:
   /// Constructor

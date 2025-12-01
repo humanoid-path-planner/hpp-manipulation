@@ -57,6 +57,8 @@ void Graph::init(const GraphWkPtr_t& weak, DevicePtr_t robot) {
   parentGraph(wkPtr_);
   insertHistogram(
       graph::HistogramPtr_t(new graph::StateHistogram(wkPtr_.lock())));
+  errorThreshold_ = 1e-4;
+  maxIterations_ = 20;
 }
 
 void Graph::initialize() {

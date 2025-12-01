@@ -169,6 +169,14 @@ class HPP_MANIPULATION_DLLAPI Handle {
   /// \sa clearance()
   void clearance(const value_type& clearance) { clearance_ = clearance; }
 
+  /// Get approaching direction for pregrasp
+  /// Default is x-axis (1, 0, 0)
+  const vector3_t& approachingDirection() const { return approachingDirection_; }
+
+  /// Set approaching direction for pregrasp
+  /// \param dir unit vector defining the approach direction in handle frame
+  void approachingDirection(const vector3_t& dir) { approachingDirection_ = dir; }
+
  protected:
   /// Constructor
   /// \param robot the robot that grasps the handle,
@@ -184,7 +192,8 @@ class HPP_MANIPULATION_DLLAPI Handle {
         clearance_(0),
         mask_(6, true),
         maskComp_(6, false),
-        weakPtr_() {}
+        weakPtr_(),
+        approachingDirection_(1, 0, 0) {}
   void init(HandleWkPtr_t weakPtr) { weakPtr_ = weakPtr; }
 
   virtual std::ostream& print(std::ostream& os) const;
@@ -205,7 +214,8 @@ class HPP_MANIPULATION_DLLAPI Handle {
   std::vector<bool> maskComp_;
   /// Weak pointer to itself
   HandleWkPtr_t weakPtr_;
-
+  /// Approaching direction of a gripper to define pregrasp constraints
+  vector3_t approachingDirection_;
   friend std::ostream& operator<<(std::ostream&, const Handle&);
 };  // class Handle
 

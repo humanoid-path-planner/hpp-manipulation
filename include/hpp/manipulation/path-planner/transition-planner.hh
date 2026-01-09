@@ -146,8 +146,8 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
 
   /// Add a path optimizer
   ///
-  /// \note The input path optimizer should have been constructed with the inner problem of this
-  /// class.
+  /// \note The input path optimizer should have been constructed with the inner
+  /// problem of this class.
   void addPathOptimizer(const PathOptimizerPtr_t& pathOptimizer);
 
   /// Set parameter to the inner problem

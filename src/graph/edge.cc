@@ -292,8 +292,14 @@ ConstraintSetPtr_t Edge::buildPathConstraint() {
 
   // Build steering method
   const ProblemPtr_t& problem(g->problem());
+  SteeringMethodPtr_t manipSteeringMethod = problem->manipulationSteeringMethod();
+  if (!manipSteeringMethod) {
+    throw std::logic_error("Edge::buildPathConstraint: steering method of manipulation::Problem is"
+			   " not of type manipulation::SteeringMethod.\nYou probably changed the "
+			   "default one.");
+  }
   steeringMethod_ =
-      problem->manipulationSteeringMethod()->innerSteeringMethod()->copy();
+      manipSteeringMethod->innerSteeringMethod()->copy();
   steeringMethod_->constraints(constraint);
   // Build path validation and relative motion matrix
   // TODO this path validation will not contain obstacles added after

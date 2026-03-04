@@ -60,16 +60,17 @@ class HPP_MANIPULATION_DLLAPI Handle {
   static std::string className;
   virtual ~Handle() {};
 
-  /// Create constraint corresponding to a gripper grasping this object
-  /// \param robot the robot that grasps the handle,
-  /// \param grasp object containing the grasp information
-  /// \return the constraint of relative position between the handle and
-  ///         the gripper.
-  static HandlePtr_t create(const std::string& name,
-                            const Transform3s& localPosition,
+  /// Create Handle
+  /// \param name name of the handle,
+  /// \param pose pose of the handle frame in the joint frame,
+  /// \param robot kinematic chain containing the robot or object the handle is
+  ///              attached to,
+  /// \param joint joint to which the handle is attached,
+  /// \return a shared pointer to the new handle.
+  static HandlePtr_t create(const std::string& name, const Transform3s& pose,
                             const DeviceWkPtr_t& robot,
                             const JointPtr_t& joint) {
-    Handle* ptr = new Handle(name, localPosition, robot, joint);
+    Handle* ptr = new Handle(name, pose, robot, joint);
     HandlePtr_t shPtr(ptr);
     ptr->init(shPtr);
     return shPtr;
@@ -183,14 +184,15 @@ class HPP_MANIPULATION_DLLAPI Handle {
 
  protected:
   /// Constructor
-  /// \param robot the robot that grasps the handle,
-  /// \param grasp object containing the grasp information
-  /// \return the constraint of relative position between the handle and
-  ///         the gripper.
-  Handle(const std::string& name, const Transform3s& localPosition,
+  /// \param name name of the handle,
+  /// \param pose pose of the handle frame in the joint frame,
+  /// \param robot kinematic chain containing the robot or object the handle is
+  ///              attached to,
+  /// \param joint Joint to which the handle is attached.
+  Handle(const std::string& name, const Transform3s& pose,
          const DeviceWkPtr_t& robot, const JointPtr_t& joint)
       : name_(name),
-        localPosition_(localPosition),
+        localPosition_(pose),
         joint_(joint),
         robot_(robot),
         clearance_(0),

@@ -34,7 +34,6 @@
 #include <hpp/manipulation/device.hh>
 #include <hpp/manipulation/handle.hh>
 #include <hpp/pinocchio/gripper.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/util/debug.hh>
 #include <pinocchio/multibody/joint/joint-generic.hpp>

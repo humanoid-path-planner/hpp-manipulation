@@ -40,7 +40,6 @@
 #include <hpp/manipulation/path-planner/states-path-finder.hh>
 #include <hpp/manipulation/roadmap.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/util/debug.hh>
 #include <hpp/util/exception-factory.hh>
 #include <hpp/util/timer.hh>

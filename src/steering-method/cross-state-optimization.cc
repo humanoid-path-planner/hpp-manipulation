@@ -37,7 +37,6 @@
 #include <hpp/manipulation/graph/state.hh>
 #include <hpp/manipulation/steering-method/cross-state-optimization.hh>
 #include <hpp/pinocchio/configuration.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/util/exception-factory.hh>
 #include <map>
 #include <pinocchio/multibody/model.hpp>

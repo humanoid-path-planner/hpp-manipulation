@@ -33,7 +33,6 @@
 #include <hpp/manipulation/handle.hh>
 #include <hpp/manipulation/serialization.hh>
 #include <hpp/pinocchio/gripper.hh>
-#include <hpp/pinocchio/joint-collection.hh>
 #include <hpp/pinocchio/joint.hh>
 #include <hpp/util/serialization.hh>
 #include <pinocchio/multibody/geometry.hpp>

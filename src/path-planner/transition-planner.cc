@@ -42,12 +42,12 @@
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/steering-method/reeds-shepp.hh>
-#include <hpp/pinocchio/configuration.hh>
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/graph.hh>
 #include <hpp/manipulation/path-planner/transition-planner.hh>
 #include <hpp/manipulation/problem.hh>
 #include <hpp/manipulation/roadmap.hh>
+#include <hpp/pinocchio/configuration.hh>
 
 namespace hpp {
 namespace manipulation {
@@ -112,7 +112,8 @@ core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
       std::ostringstream os;
       os << "hpp::manipulation::TransitionPlanner::computePath: "
          << "goal configuration at rank " << r << ": "
-         << pinocchio::displayConfig(q) <<" does not satisfy the leaf constraint.";
+         << pinocchio::displayConfig(q)
+         << " does not satisfy the leaf constraint.";
       throw std::logic_error(os.str().c_str());
     }
     innerProblem_->addGoalConfig(q);

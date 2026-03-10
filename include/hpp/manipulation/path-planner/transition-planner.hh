@@ -57,7 +57,8 @@ namespace pathPlanner {
 ///
 /// In order to take into account security margins, when selecting a transition,
 /// the list of configuration validations passed to the inner problem are
-///  \li the PathValidation instance of the transition, cast into core::ConfigValidation type
+///  \li the PathValidation instance of the transition, cast into
+///  core::ConfigValidation type
 ///  \li a core::JointBoundValidation instance.
 ///
 /// The leaf of the transition is defined by the initial configuration passed

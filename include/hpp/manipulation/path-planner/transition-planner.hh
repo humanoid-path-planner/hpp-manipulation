@@ -55,6 +55,11 @@ namespace pathPlanner {
 /// core::PathPlanner instance. They are respectively called the inner problem
 /// and the inner planner.
 ///
+/// In order to take into account security margins, when selecting a transition,
+/// the list of configuration validations passed to the inner problem are
+///  \li the PathValidation instance of the transition, cast into core::ConfigValidation type
+///  \li a core::JointBoundValidation instance.
+///
 /// The leaf of the transition is defined by the initial configuration passed
 /// to method \link TransitionPlanner::planPath planPath \endlink.
 /// The right hand side of the inner problem constraints is initialized with

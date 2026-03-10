@@ -102,11 +102,13 @@ core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
     throw std::runtime_error("hpp::manipulation::TransitionPlanner::planPath: you need to select "
                              "the constraint graph transition first.");
   }
+  // Initialize right hand side of transition constraint with the initial configuration
   ConfigProjectorPtr_t configProjector(
       innerProblem_->constraints()->configProjector());
   if (configProjector) {
     configProjector->rightHandSideFromConfig(qInit);
   }
+  // Set initial and goal configurations in inner problem
   Configuration_t q(qInit);
   innerProblem_->initConfig(q);
   innerProblem_->resetGoalConfigs();
@@ -199,10 +201,37 @@ void TransitionPlanner::setEdge(std::size_t id) {
   setEdge(edge);
 }
 
+// This class transforms a PathValidation instace into a ConfigValidation instance
+class FromPathValidation : public core::ConfigValidation {
+public:
+  typedef shared_ptr<FromPathValidation> Ptr_t;
+  typedef core::ValidationReportPtr_t ValidationReportPtr_t;
+  static Ptr_t create(const PathValidationPtr_t& pathValidation) {
+    return Ptr_t (new FromPathValidation(pathValidation));
+  }
+  bool validate(const Configuration_t& config, ValidationReportPtr_t& validationReport) {
+    return pathValidation_->validate (config, validationReport);
+  }
+protected:
+  FromPathValidation(const PathValidationPtr_t& pathValidation) :
+    pathValidation_ (pathValidation) {
+  }
+private:
+  PathValidationPtr_t pathValidation_;
+}; // class FromPathValidation
+
 void TransitionPlanner::setEdge(const graph::EdgePtr_t& edge) {
   innerProblem_->constraints(edge->pathConstraint());
   innerProblem_->pathValidation(edge->pathValidation());
   innerProblem_->steeringMethod(edge->steeringMethod());
+  // Use path validation of the transition to validate initial and goal configurations.
+  // Security margins handled by PathValidation instances of the edges are not
+  // taken into account in the ConfigValidations. As a consequence, some
+  // configurations valid for the transition are in collision for the ConfigValidation.
+  innerProblem_->clearConfigValidations();
+  innerProblem_->configValidations()->add(
+    hpp::core::JointBoundValidation::create(problem()->robot()));
+  innerProblem_->configValidations()->add(FromPathValidation::create(edge->pathValidation()));
   transitionSelected_ = true;
 }
 
@@ -249,12 +278,6 @@ TransitionPlanner::TransitionPlanner(const core::ProblemConstPtr_t& problem,
   for (auto k : keys) {
     innerProblem_->setParameter(k, p->parameters.get(k));
   }
-  // Initialize config validations
-  innerProblem_->clearConfigValidations();
-  innerProblem_->configValidations()->add(
-      hpp::core::CollisionValidation::create(p->robot()));
-  innerProblem_->configValidations()->add(
-      hpp::core::JointBoundValidation::create(p->robot()));
   // Add obstacles to inner problem
   innerProblem_->collisionObstacles(p->collisionObstacles());
   // Create default path planner

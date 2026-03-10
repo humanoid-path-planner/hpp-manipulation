@@ -181,6 +181,8 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   std::vector<PathOptimizerPtr_t> pathOptimizers_;
   /// Time parameterization instance
   core::PathOptimizerPtr_t timeParameterization_;
+  /// Whether method transition has been selected
+  bool transitionSelected_;
   /// weak pointer to itself
   TransitionPlannerWkPtr_t weakPtr_;
 };  // class TransitionPlanner

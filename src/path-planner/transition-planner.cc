@@ -98,6 +98,10 @@ void TransitionPlanner::oneStep() { innerPlanner_->oneStep(); }
 core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
                                                   matrixIn_t qGoals,
                                                   bool resetRoadmap) {
+  if (!transitionSelected_) {
+    throw std::runtime_error("hpp::manipulation::TransitionPlanner::planPath: you need to select "
+                             "the constraint graph transition first.");
+  }
   ConfigProjectorPtr_t configProjector(
       innerProblem_->constraints()->configProjector());
   if (configProjector) {
@@ -131,6 +135,10 @@ core::PathPtr_t TransitionPlanner::directPath(ConfigurationIn_t q1,
                                               ConfigurationIn_t q2,
                                               bool validate, bool& success,
                                               std::string& status) {
+  if (!transitionSelected_) {
+    throw std::runtime_error("hpp::manipulation::TransitionPlanner::planPath: you need to select "
+                             "the constraint graph transition first.");
+  }
   core::PathPtr_t res(innerProblem_->steeringMethod()->steer(q1, q2));
   if (!res) {
     success = false;
@@ -195,6 +203,7 @@ void TransitionPlanner::setEdge(const graph::EdgePtr_t& edge) {
   innerProblem_->constraints(edge->pathConstraint());
   innerProblem_->pathValidation(edge->pathValidation());
   innerProblem_->steeringMethod(edge->steeringMethod());
+  transitionSelected_ = true;
 }
 
 void TransitionPlanner::setReedsAndSheppSteeringMethod(double turningRadius) {
@@ -226,8 +235,8 @@ void TransitionPlanner::setParameter(const std::string& key,
 }
 
 TransitionPlanner::TransitionPlanner(const core::ProblemConstPtr_t& problem,
-                                     const core::RoadmapPtr_t& roadmap)
-    : PathPlanner(problem, roadmap) {
+                                     const core::RoadmapPtr_t& roadmap) :
+  PathPlanner(problem, roadmap), transitionSelected_ (false) {
   ProblemConstPtr_t p(HPP_DYNAMIC_PTR_CAST(const Problem, problem));
   if (!p)
     throw std::invalid_argument(

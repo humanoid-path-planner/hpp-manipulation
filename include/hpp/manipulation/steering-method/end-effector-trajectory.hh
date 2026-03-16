@@ -31,6 +31,7 @@
 
 #include <hpp/core/steering-method.hh>
 #include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/deprecated.hh>
 #include <hpp/manipulation/fwd.hh>
 
 namespace hpp {
@@ -69,13 +70,15 @@ using core::PathPtr_t;
 /// \f$T\f$ respectively. The output path is a \link hpp::core::StraightPath
 /// linear interpolation \endlink between \c q1 and \c q2 projected on the
 /// steering method constraints.
-class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory
-    : public core::SteeringMethod {
+/// \deprecated This class was used by the planner class with the same name that has been
+/// deprecated.
+class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory :
+    public core::SteeringMethod {
  public:
   typedef core::interval_t interval_t;
 
   static EndEffectorTrajectoryPtr_t create(
-      const core::ProblemConstPtr_t& problem) {
+      const core::ProblemConstPtr_t& problem)  HPP_MANIPULATION_DEPRECATED {
     EndEffectorTrajectoryPtr_t ptr(new EndEffectorTrajectory(problem));
     ptr->init(ptr);
     return ptr;

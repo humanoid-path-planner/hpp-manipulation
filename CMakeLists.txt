@@ -113,6 +113,7 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/manipulation/path-planner/transition-planner.hh
     include/hpp/manipulation/problem-target/state.hh
     include/hpp/manipulation/serialization.hh
+    include/hpp/manipulation/steering-method/cartesian.hh
     include/hpp/manipulation/steering-method/cross-state-optimization.hh
     include/hpp/manipulation/steering-method/fwd.hh
     include/hpp/manipulation/steering-method/graph.hh
@@ -149,6 +150,7 @@ set(${PROJECT_NAME}_SOURCES
     src/path-planner/transition-planner.cc
     src/problem-target/state.cc
     src/serialization.cc
+    src/steering-method/cartesian.cc
     src/steering-method/end-effector-trajectory.cc
     src/steering-method/cross-state-optimization.cc
     src/steering-method/graph.cc)

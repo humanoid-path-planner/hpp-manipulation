@@ -35,7 +35,6 @@
 #include <map>
 
 #include "hpp/manipulation/constraint-set.hh"
-#include "hpp/manipulation/deprecated.hh"
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/fwd.hh"
 #include "hpp/manipulation/graph/fwd.hh"

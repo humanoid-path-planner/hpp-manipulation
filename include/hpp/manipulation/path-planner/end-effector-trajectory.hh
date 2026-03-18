@@ -31,6 +31,7 @@
 
 #include <hpp/core/path-planner.hh>
 #include <hpp/manipulation/config.hh>
+#include <hpp/manipulation/deprecated.hh>
 #include <hpp/manipulation/fwd.hh>
 #include <hpp/pinocchio/frame.hh>
 #include <pinocchio/spatial/se3.hpp>
@@ -92,18 +93,20 @@ typedef shared_ptr<EndEffectorTrajectory> EndEffectorTrajectoryPtr_t;
 /// Note that continuity is not tested but enforced by projecting the
 /// configuration of the previous sample to compute the configuration at
 /// a given sample.
+/// \deprecated This class has been reimplemented and simplified as
+/// steeringMethod::Cartesian.
 class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory : public core::PathPlanner {
  public:
   /// Return shared pointer to new instance
   /// \param problem the path planning problem
   static EndEffectorTrajectoryPtr_t create(
-      const core::ProblemConstPtr_t& problem);
+      const core::ProblemConstPtr_t& problem) HPP_MANIPULATION_DEPRECATED;
   /// Return shared pointer to new instance
   /// \param problem the path planning problem
   /// \param roadmap previously built roadmap
   static EndEffectorTrajectoryPtr_t createWithRoadmap(
       const core::ProblemConstPtr_t& problem,
-      const core::RoadmapPtr_t& roadmap);
+      const core::RoadmapPtr_t& roadmap) HPP_MANIPULATION_DEPRECATED;
 
   /// Initialize the problem resolution
   ///  \li call parent implementation

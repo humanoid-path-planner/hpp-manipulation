@@ -40,9 +40,10 @@ typedef shared_ptr<Cartesian> CartesianPtr_t;
 
 /// Build a robot trajectory from an end-effector trajectory
 ///
-/// This class does not derive from \link hpp::core::SteeringMethod SteeringMethod \endlink since it
-/// does not link two configurations by a path. Instead, it only takes an initial configuration
-/// and a trajectory of an end-effector.
+/// This class does not derive from \link hpp::core::SteeringMethod
+/// SteeringMethod \endlink since it does not link two configurations by a path.
+/// Instead, it only takes an initial configuration and a trajectory of an
+/// end-effector.
 ///
 /// To use this class, the user needs to provide
 ///  \li a constraint with value in \f$SE(3)\f$. An easy way to create such a
@@ -55,19 +56,18 @@ typedef shared_ptr<Cartesian> CartesianPtr_t;
 /// Cartesian::makePiecewiseLinearTrajectory
 /// makePiecewiseLinearTrajectory \endlink method may be useful.
 ///
-/// Once the steering method has been initialized, it can be called with and initial
-/// configuration \c q_init. The interval of definition \f$[0,T]\f$
-/// of the output path is the same as the one of the path provided as the right
+/// Once the steering method has been initialized, it can be called with and
+/// initial configuration \c q_init. The interval of definition \f$[0,T]\f$ of
+/// the output path is the same as the one of the path provided as the right
 /// hand side of the constraint.
 /// Note that \c q_init should satisfy the constraint at times 0.
 class Cartesian {
-
  public:
   typedef constraints::ImplicitPtr_t ImplicitPtr_t;
   typedef core::ConfigurationIn_t ConfigurationIn_t;
   typedef core::interval_t interval_t;
   typedef core::PathPtr_t PathPtr_t;
-  
+
   static CartesianPtr_t create(const core::ProblemConstPtr_t& problem);
 
   /** Build a path in SE(3).
@@ -114,9 +114,7 @@ class Cartesian {
   /// Set the trajectory constraint
   void trajectoryConstraint(const ImplicitPtr_t& ic);
   /// Get the trajectory constraint
-  const ImplicitPtr_t& trajectoryConstraint() {
-    return trajConstraint_;
-  }
+  const ImplicitPtr_t& trajectoryConstraint() { return trajConstraint_; }
   /// Set the right hand side of the trajectory constraint from a path
   /// \param rhs function from an interval to SE(3).
   /// \param se3Output set to True if the output of path must be
@@ -143,26 +141,27 @@ class Cartesian {
     nDiscreteSteps_ = n;
   }
 
-
   /// \brief Plan a path starting from an initial configuration
   ///
   /// \param q_init initial configuration
   ///
-  /// \retval result the resulting path in case of success, a valid portion of path satisfying
-  ///         the trajectory constraint along a sub-interval starting at 0 otherwise.
+  /// \retval result the resulting path in case of success, a valid portion of
+  /// path satisfying
+  ///         the trajectory constraint along a sub-interval starting at 0
+  ///         otherwise.
   /// \return true if the path is successfully computed, false otherwise
   ///
-  /// The interval of definition is discretized into a number of sub-intervals defined by
-  /// method \link Cartesian::nDiscreteSteps
-  /// nDiscreteSteps\endlink. For each discretized value, a configuration is computed by
-  /// projecting
-  /// the previous one (or the initial configuration for the first discretized value)
-  /// onto the time-varying constraint.
+  /// The interval of definition is discretized into a number of sub-intervals
+  /// defined by method \link Cartesian::nDiscreteSteps nDiscreteSteps\endlink.
+  /// For each discretized value, a configuration is computed by projecting the
+  /// previous one (or the initial configuration for the first discretized
+  /// value) onto the time-varying constraint.
   ///
   /// In case of failure, the interpolated path until the last successful
   /// projection is returned.
   ///
-  /// \note No path validation is performed. Collision checking should be performed on the output
+  /// \note No path validation is performed. Collision checking should be
+  /// performed on the output
   ///       of this method.
   bool planPath(ConfigurationIn_t q_init, PathPtr_t& result);
 
@@ -171,6 +170,7 @@ class Cartesian {
   Cartesian(const core::ProblemConstPtr_t& problem);
   PathPtr_t projectedPath(vectorIn_t times, matrixIn_t configs) const;
   void checkProblem(const std::string& method);
+
  private:
   /// Robot
   pinocchio::DevicePtr_t robot_;
@@ -180,14 +180,14 @@ class Cartesian {
   ImplicitPtr_t trajConstraint_;
   DifferentiableFunctionPtr_t rhs_;
   interval_t timeRange_;
-  /// Number of steps along the definition interval to project the configurations
+  /// Number of steps along the definition interval to project the
+  /// configurations
   size_type nDiscreteSteps_;
 
-}; // class Cartesian
+};  // class Cartesian
 
 /// \addtogroup steering_method
 /// \{
-
 
 /// \}
 
@@ -195,4 +195,4 @@ class Cartesian {
 }  // namespace manipulation
 }  // namespace hpp
 
-#endif // HPP_MANIPULATION_STEERING_METHOD_CARTESIAN_HH
+#endif  // HPP_MANIPULATION_STEERING_METHOD_CARTESIAN_HH

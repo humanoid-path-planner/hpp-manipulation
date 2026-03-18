@@ -26,24 +26,19 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
 // DAMAGE.
 
-#include <stdexcept>
-
 #include <hpp/constraints/differentiable-function.hh>
 #include <hpp/constraints/implicit.hh>
-
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/constraint-set.hh>
 #include <hpp/core/interpolated-path.hh>
 #include <hpp/core/path-vector.hh>
 #include <hpp/core/problem.hh>
 #include <hpp/core/straight-path.hh>
-
 #include <hpp/manipulation/steering-method/cartesian.hh>
-
 #include <hpp/pinocchio/configuration.hh>
 #include <hpp/pinocchio/liegroup-space.hh>
-
 #include <hpp/util/debug.hh>
+#include <stdexcept>
 
 namespace hpp {
 namespace manipulation {
@@ -94,8 +89,8 @@ CartesianPtr_t Cartesian::create(const core::ProblemConstPtr_t& problem) {
   return ptr;
 }
 
-PathPtr_t Cartesian::makePiecewiseLinearTrajectory(
-    matrixIn_t points, vectorIn_t weights) {
+PathPtr_t Cartesian::makePiecewiseLinearTrajectory(matrixIn_t points,
+                                                   vectorIn_t weights) {
   if (points.cols() != 7)
     throw std::invalid_argument("The input matrix should have 7 columns");
   if (weights.size() != 6)
@@ -120,22 +115,24 @@ PathPtr_t Cartesian::makePiecewiseLinearTrajectory(
 void Cartesian::maxIterations(size_type iterations) {
   constraints_->configProjector()->maxIterations(iterations);
 }
-size_type Cartesian::maxIterations() const{
+size_type Cartesian::maxIterations() const {
   return constraints_->configProjector()->maxIterations();
 }
 
-void Cartesian::errorThreshold(const value_type& threshold){
-    constraints_->configProjector()->errorThreshold(threshold);
+void Cartesian::errorThreshold(const value_type& threshold) {
+  constraints_->configProjector()->errorThreshold(threshold);
 }
 
-value_type Cartesian::errorThreshold() const{
+value_type Cartesian::errorThreshold() const {
   return constraints_->configProjector()->errorThreshold();
 }
 
 void Cartesian::trajectoryConstraint(const ImplicitPtr_t& ic) {
   if (trajConstraint_) {
-    throw std::logic_error("Cartesian::trajectoryConstraint: trajectory constraint may be called "
-        "only once. Recreate a new instance of this class if you want to change "
+    throw std::logic_error(
+        "Cartesian::trajectoryConstraint: trajectory constraint may be called "
+        "only once. Recreate a new instance of this class if you want to "
+        "change "
         "the constraint.");
   }
   trajConstraint_ = ic->copy();
@@ -143,7 +140,6 @@ void Cartesian::trajectoryConstraint(const ImplicitPtr_t& ic) {
 }
 
 void Cartesian::rightHandSide(const PathPtr_t& rhs, bool se3Output) {
-
   if (se3Output)
     rightHandSide(DifferentiableFunctionPtr_t(new FunctionFromPath<true>(rhs)),
                   rhs->timeRange());
@@ -156,7 +152,8 @@ void Cartesian::rightHandSide(const DifferentiableFunctionPtr_t& rhs,
                               const interval_t& timeRange) {
   if (rhs->inputSize() != 1) {
     std::ostringstream os;
-    os << "Cartesian::rightHandSide: input space of input function should be 1 but is "
+    os << "Cartesian::rightHandSide: input space of input function should be 1 "
+          "but is "
        << rhs->inputSize() << ".";
     throw std::logic_error(os.str().c_str());
   }
@@ -173,20 +170,27 @@ void Cartesian::checkProblem(const std::string& method) {
   }
   if (!rhs_) {
     std::ostringstream os;
-    os << method << ": the right hand side of the trajectory constraint has not been defined.";
+    os << method
+       << ": the right hand side of the trajectory constraint has not been "
+          "defined.";
     throw std::logic_error(os.str().c_str());
   }
   if (constraints_->configProjector()->errorThreshold() <= 0) {
     std::ostringstream os;
-    os << method << ": the error threshold of the numerical solver should be positive, but is "
-       << constraints_->configProjector()->errorThreshold() << ". Did you initialize it?";
+    os << method
+       << ": the error threshold of the numerical solver should be positive, "
+          "but is "
+       << constraints_->configProjector()->errorThreshold()
+       << ". Did you initialize it?";
     throw std::logic_error(os.str().c_str());
   }
   if (constraints_->configProjector()->maxIterations() <= 0) {
     std::ostringstream os;
-    os << method << ": the maximal number of iteration of the numerical solver should be "
-      "positive, but is "
-       << constraints_->configProjector()->errorThreshold() << ". Did you initialize it?";
+    os << method
+       << ": the maximal number of iteration of the numerical solver should be "
+          "positive, but is "
+       << constraints_->configProjector()->errorThreshold()
+       << ". Did you initialize it?";
     throw std::logic_error(os.str().c_str());
   }
 }
@@ -195,14 +199,16 @@ bool Cartesian::planPath(ConfigurationIn_t q_init, PathPtr_t& result) {
   checkProblem("Cartesian::planPath");
   bool success = false;
   vector_t times(nDiscreteSteps_ + 1);
-  matrix_t steps(trajConstraint_->functionPtr()->inputSize(), nDiscreteSteps_ + 1);
+  matrix_t steps(trajConstraint_->functionPtr()->inputSize(),
+                 nDiscreteSteps_ + 1);
 
   // Discretize definition interval of the steering method into times
   times[0] = timeRange_.first;
   size_type i = 1;
   for (; i < nDiscreteSteps_; ++i)
-    times[i] = timeRange_.first +
-      (double) i * (timeRange_.second - timeRange_.first) / (double) nDiscreteSteps_;
+    times[i] = timeRange_.first + (double)i *
+                                      (timeRange_.second - timeRange_.first) /
+                                      (double)nDiscreteSteps_;
   times[nDiscreteSteps_] = timeRange_.second;
 
   // For each random configuration,
@@ -220,7 +226,8 @@ bool Cartesian::planPath(ConfigurationIn_t q_init, PathPtr_t& result) {
   // problem
   if (!constraints_->isSatisfied(q_init)) {
     std::ostringstream os;
-    os << "Cartesian::planPath: initial configuration " << pinocchio::displayConfig(q_init)
+    os << "Cartesian::planPath: initial configuration "
+       << pinocchio::displayConfig(q_init)
        << " does not satisfy the constraints of the problem.";
     throw std::logic_error(os.str().c_str());
   }
@@ -243,19 +250,25 @@ bool Cartesian::planPath(ConfigurationIn_t q_init, PathPtr_t& result) {
   return false;
 }
 
-Cartesian::Cartesian(const core::ProblemConstPtr_t& problem) : robot_(problem->robot()),
-    constraints_(), trajConstraint_(), rhs_(), timeRange_(), nDiscreteSteps_(20) {
-
+Cartesian::Cartesian(const core::ProblemConstPtr_t& problem)
+    : robot_(problem->robot()),
+      constraints_(),
+      trajConstraint_(),
+      rhs_(),
+      timeRange_(),
+      nDiscreteSteps_(20) {
   if (!robot_) {
     std::string msg("Cartesian::Cartesian: no robot in problem.");
     throw std::logic_error(msg);
   }
   if (!problem->constraints() || !problem->constraints()->configProjector()) {
-    constraints_ = core::ConstraintSet::create(problem->robot(), "steeringMethod::Cartesian");
-    constraints_->addConstraint(ConfigProjector::create(problem->robot(),
-                                                        "steeringMethod::Cartesian", 0, 0));
+    constraints_ = core::ConstraintSet::create(problem->robot(),
+                                               "steeringMethod::Cartesian");
+    constraints_->addConstraint(ConfigProjector::create(
+        problem->robot(), "steeringMethod::Cartesian", 0, 0));
   } else {
-    constraints_ = HPP_DYNAMIC_PTR_CAST(core::ConstraintSet, problem->constraints()->copy());
+    constraints_ = HPP_DYNAMIC_PTR_CAST(core::ConstraintSet,
+                                        problem->constraints()->copy());
     assert(constraints_);
   }
 }
@@ -263,11 +276,12 @@ Cartesian::Cartesian(const core::ProblemConstPtr_t& problem) : robot_(problem->r
 PathPtr_t Cartesian::projectedPath(vectorIn_t times, matrixIn_t configs) const {
   size_type N = configs.cols();
   if (timeRange_.first != times[0] || timeRange_.second != times[N - 1]) {
-    HPP_THROW(std::logic_error,
-              "Cartesian::planPath: Time range (" << timeRange_.first << ", " << timeRange_.second
-                             << ") does not match configuration "
-                                "times ("
-                             << times[0] << ", " << times[N - 1]);
+    HPP_THROW(std::logic_error, "Cartesian::planPath: Time range ("
+                                    << timeRange_.first << ", "
+                                    << timeRange_.second
+                                    << ") does not match configuration "
+                                       "times ("
+                                    << times[0] << ", " << times[N - 1]);
   }
 
   using core::InterpolatedPath;

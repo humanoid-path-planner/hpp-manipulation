@@ -77,7 +77,7 @@ void Device::setRobotRootPosition(const std::string& rn, const Transform3s& t) {
   // Find all the frames that have the same parent joint.
   for (std::size_t i = 0; i < idxs.size(); ++i) {
     Frame& frame = m.frames[idxs[i]];
-    if (frame.parent == rootFrame.parent) {
+    if (frame.parentJoint == rootFrame.parentJoint) {
       // frame is between rootFrame and next moving joints.
       frame.placement = shift * frame.placement;
       if (frame.type == ::pinocchio::BODY) {
@@ -88,9 +88,10 @@ void Device::setRobotRootPosition(const std::string& rn, const Transform3s& t) {
         }
       }
     } else if ((frame.type == ::pinocchio::JOINT) &&
-               (rootFrame.parent == m.parents[frame.parent])) {
-      // frame corresponds to a child joint of rootFrame.parent
-      m.jointPlacements[frame.parent] = shift * m.jointPlacements[frame.parent];
+               (rootFrame.parentJoint == m.parents[frame.parentJoint])) {
+      // frame corresponds to a child joint of rootFrame.parentJoint
+      m.jointPlacements[frame.parentJoint] =
+          shift * m.jointPlacements[frame.parentJoint];
     }
   }
   invalidate();

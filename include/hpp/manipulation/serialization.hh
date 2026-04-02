@@ -32,6 +32,7 @@
 
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/split_free.hpp>
+#include <boost/serialization/vector.hpp>
 #include <boost/serialization/weak_ptr.hpp>
 #include <hpp/manipulation/fwd.hh>
 #include <hpp/manipulation/graph/edge.hh>

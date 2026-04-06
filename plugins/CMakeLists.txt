@@ -26,7 +26,9 @@
 include(${HPP_CORE_CMAKE_PLUGIN})
 
 hpp_add_plugin(manipulation-spline-gradient-based SOURCES
-               spline-gradient-based.cc LINK_DEPENDENCIES ${PROJECT_NAME})
+               spline-gradient-based.cc LINK_DEPENDENCIES ${PROJECT_NAME}
+)
 
 hpp_add_plugin(end-effector-trajectory SOURCES end-effector-trajectory.cc
-               LINK_DEPENDENCIES ${PROJECT_NAME})
+               LINK_DEPENDENCIES ${PROJECT_NAME}
+)

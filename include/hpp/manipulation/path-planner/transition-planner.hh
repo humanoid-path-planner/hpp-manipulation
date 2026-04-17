@@ -55,6 +55,12 @@ namespace pathPlanner {
 /// core::PathPlanner instance. They are respectively called the inner problem
 /// and the inner planner.
 ///
+/// In order to take into account security margins, when selecting a transition,
+/// the list of configuration validations passed to the inner problem are
+///  \li the PathValidation instance of the transition, cast into
+///  core::ConfigValidation type
+///  \li a core::JointBoundValidation instance.
+///
 /// The leaf of the transition is defined by the initial configuration passed
 /// to method \link TransitionPlanner::planPath planPath \endlink.
 /// The right hand side of the inner problem constraints is initialized with
@@ -111,9 +117,9 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   /// continuity.
   PathPtr_t directPath(ConfigurationIn_t q1, ConfigurationIn_t q2,
                        bool validate, bool& success, std::string& status);
-  /// Validate a configuration with the path validation of an edge.
+  /// Validate a configuration with the path validation of a transition.
   /// \param q configuration to validate,
-  /// \param id index of the edge in the constraint graph.
+  /// \param id index of the transition in the constraint graph.
   bool validateConfiguration(ConfigurationIn_t q, std::size_t id,
                              core::ValidationReportPtr_t& report) const;
   /// Optimize path using the selected path optimizers
@@ -128,7 +134,7 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   PathVectorPtr_t timeParameterization(const PathVectorPtr_t& path);
 
   /// Set transition along which we wish to plan a path
-  /// \param id index of the edge in the constraint graph
+  /// \param id index of the transition in the constraint graph
   void setEdge(std::size_t id);
 
   /// Set transition along which we wish to plan a path
@@ -171,7 +177,7 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
  private:
   /// Check problem and forward maxIterations and timeout to inner problem.
   void checkProblemAndForwardParameters();
-  /// Get pointer to edge from an id
+  /// Get pointer to transition from an id
   graph::EdgePtr_t getEdgeOrThrow(std::size_t id) const;
   /// Pointer to the problem of the inner planner
   core::ProblemPtr_t innerProblem_;
@@ -181,6 +187,8 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   std::vector<PathOptimizerPtr_t> pathOptimizers_;
   /// Time parameterization instance
   core::PathOptimizerPtr_t timeParameterization_;
+  /// Whether method transition has been selected
+  bool transitionSelected_;
   /// weak pointer to itself
   TransitionPlannerWkPtr_t weakPtr_;
 };  // class TransitionPlanner

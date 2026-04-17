@@ -28,9 +28,13 @@
 add_definitions(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
 
 add_unit_test(test-constraintgraph test-constraintgraph.cc)
-target_link_libraries(test-constraintgraph ${PROJECT_NAME}
-                      Boost::unit_test_framework)
+target_link_libraries(
+    test-constraintgraph
+    ${PROJECT_NAME}
+    Boost::unit_test_framework
+)
 set_tests_properties(
-  test-constraintgraph
-  PROPERTIES ENVIRONMENT
-             "ROS_PACKAGE_PATH=${example-robot-data_DIR}/../../../share")
+    test-constraintgraph
+    PROPERTIES
+        ENVIRONMENT "ROS_PACKAGE_PATH=${example-robot-data_DIR}/../../../share"
+)

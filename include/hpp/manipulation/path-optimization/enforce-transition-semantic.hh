@@ -30,6 +30,7 @@
 #define HPP_MANIPULATION_PATHOPTIMIZATION_ENFORCE_TRANSITION_SEMANTIC_HH
 
 #include <hpp/core/path-optimizer.hh>
+#include <hpp/manipulation/deprecated.hh>
 #include <hpp/manipulation/problem.hh>
 
 namespace hpp {
@@ -63,6 +64,8 @@ class HPP_MANIPULATION_DLLAPI EnforceTransitionSemantic
  private:
   ProblemConstPtr_t problem_;
 };
+
+typedef EnforceTransitionSemantic ets HPP_MANIPULATION_DEPRECATED;
 
 /// \}
 }  // namespace pathOptimization

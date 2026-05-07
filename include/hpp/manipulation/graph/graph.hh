@@ -67,6 +67,14 @@ class HPP_MANIPULATION_DLLAPI Graph : public GraphComponent {
   static GraphPtr_t create(const std::string& name, DevicePtr_t robot,
                            const ProblemPtr_t& problem);
 
+  /// Return the edge that created the path at a given parameter
+  ///
+  /// \param path a \link hpp::core::pathVector PathVector instance,
+  /// \param param parameter along the path.
+  ///
+  /// The elements of the path vector should have been created by an edge.
+  static EdgePtr_t edgeAtParam(const core::PathVectorPtr_t& path, value_type param);
+
   GraphPtr_t self() const { return wkPtr_.lock(); }
 
   /// Create and insert a state selector inside the graph.

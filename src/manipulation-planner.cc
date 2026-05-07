@@ -46,8 +46,8 @@
 #include "hpp/manipulation/device.hh"
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph/edge.hh"
-#include "hpp/manipulation/graph/state.hh"
 #include "hpp/manipulation/graph/state-selector.hh"
+#include "hpp/manipulation/graph/state.hh"
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap-node.hh"
@@ -167,7 +167,8 @@ StringList_t ManipulationPlanner::errorList() {
   return ret;
 }
 
-graph::Edges_t getAllEdges(const graph::StatePtr_t& from, const graph::StatePtr_t& to) {
+graph::Edges_t getAllEdges(const graph::StatePtr_t& from,
+                           const graph::StatePtr_t& to) {
   graph::Edges_t edges;
   for (graph::Neighbors_t::const_iterator it = from->neighbors().begin();
        it != from->neighbors().end(); ++it) {
@@ -181,7 +182,8 @@ graph::Edges_t getAllEdges(const graph::StatePtr_t& from, const graph::StatePtr_
 }
 
 void recomputeTransition(const core::PathPtr_t& path) {
-    ConstraintSetPtr_t c = HPP_DYNAMIC_PTR_CAST(ConstraintSet, path->constraints());
+  ConstraintSetPtr_t c =
+      HPP_DYNAMIC_PTR_CAST(ConstraintSet, path->constraints());
   if (!c) {
     hppDout(info, "No manipulation::ConstraintSet");
     return;
@@ -200,15 +202,15 @@ void recomputeTransition(const core::PathPtr_t& path) {
   if (q0_in_src && q1_in_dst)  // Nominal case
     return;
   hppDout(warning, "Transition "
-          << i
-          << ". "
-          "\nsrc="
-          << src->name() << "\ndst=" << dst->name()
-          << "\nq0_in_src=" << q0_in_src << "\nq1_in_src="
-          << q1_in_src << "\nq0_in_dst=" << q0_in_dst
-          << "\nq1_in_dst=" << q1_in_dst << setpyformat
-          << "\nq0=" << one_line(q0) << "\nq1=" << one_line(q1)
-          << unsetpyformat << "\nTrying with state.");
+                       << i
+                       << ". "
+                          "\nsrc="
+                       << src->name() << "\ndst=" << dst->name()
+                       << "\nq0_in_src=" << q0_in_src << "\nq1_in_src="
+                       << q1_in_src << "\nq0_in_dst=" << q0_in_dst
+                       << "\nq1_in_dst=" << q1_in_dst << setpyformat
+                       << "\nq0=" << one_line(q0) << "\nq1=" << one_line(q1)
+                       << unsetpyformat << "\nTrying with state.");
 
   graph::StatePtr_t from, to;
   if (q0_in_dst && q1_in_src) {  // Reversed from nominal case
@@ -243,15 +245,15 @@ void recomputeTransition(const core::PathPtr_t& path) {
     }
   }
   hppDout(warning, "Unable to find a suitable transition for "
-          << i
-          << ". "
-          "\nsrc="
-          << src->name() << "\ndst=" << dst->name()
-          << "\nq0_in_src=" << q0_in_src << "\nq1_in_src="
-          << q1_in_src << "\nq0_in_dst=" << q0_in_dst
-          << "\nq1_in_dst=" << q1_in_dst << setpyformat
-          << "\nq0=" << one_line(q0) << "\nq1=" << one_line(q1)
-          << unsetpyformat << "\nTrying with state.");
+                       << i
+                       << ". "
+                          "\nsrc="
+                       << src->name() << "\ndst=" << dst->name()
+                       << "\nq0_in_src=" << q0_in_src << "\nq1_in_src="
+                       << q1_in_src << "\nq0_in_dst=" << q0_in_dst
+                       << "\nq1_in_dst=" << q1_in_dst << setpyformat
+                       << "\nq0=" << one_line(q0) << "\nq1=" << one_line(q1)
+                       << unsetpyformat << "\nTrying with state.");
 
   graph::StatePtr_t state = c->edge()->state();
   // Check that a path from dst to to exists.
@@ -264,7 +266,9 @@ void recomputeTransition(const core::PathPtr_t& path) {
     return;
   } else {
     std::ostringstream os;
-    os << "ManipulationPlanner::oneStep: Unable to find a suitable transition for " << *path;
+    os << "ManipulationPlanner::oneStep: Unable to find a suitable transition "
+          "for "
+       << *path;
     throw std::logic_error(os.str().c_str());
   }
 }

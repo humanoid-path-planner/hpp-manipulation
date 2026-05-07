@@ -73,7 +73,8 @@ class HPP_MANIPULATION_DLLAPI Graph : public GraphComponent {
   /// \param param parameter along the path.
   ///
   /// The elements of the path vector should have been created by an edge.
-  static EdgePtr_t edgeAtParam(const core::PathVectorPtr_t& path, value_type param);
+  static EdgePtr_t edgeAtParam(const core::PathVectorPtr_t& path,
+                               value_type param);
 
   GraphPtr_t self() const { return wkPtr_.lock(); }
 

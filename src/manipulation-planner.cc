@@ -47,6 +47,7 @@
 #include "hpp/manipulation/graph-path-validation.hh"
 #include "hpp/manipulation/graph/edge.hh"
 #include "hpp/manipulation/graph/state-selector.hh"
+#include "hpp/manipulation/graph/state.hh"
 #include "hpp/manipulation/graph/statistics.hh"
 #include "hpp/manipulation/problem.hh"
 #include "hpp/manipulation/roadmap-node.hh"
@@ -166,6 +167,112 @@ StringList_t ManipulationPlanner::errorList() {
   return ret;
 }
 
+graph::Edges_t getAllEdges(const graph::StatePtr_t& from,
+                           const graph::StatePtr_t& to) {
+  graph::Edges_t edges;
+  for (graph::Neighbors_t::const_iterator it = from->neighbors().begin();
+       it != from->neighbors().end(); ++it) {
+    if (it->second->stateTo() == to) edges.push_back(it->second);
+  }
+  for (graph::Edges_t::const_iterator it = from->hiddenNeighbors().begin();
+       it != from->hiddenNeighbors().end(); ++it) {
+    if ((*it)->stateTo() == to) edges.push_back(*it);
+  }
+  return edges;
+}
+
+void recomputeTransition(const core::PathPtr_t& path) {
+  ConstraintSetPtr_t c =
+      HPP_DYNAMIC_PTR_CAST(ConstraintSet, path->constraints());
+  if (!c) {
+    hppDout(info, "No manipulation::ConstraintSet");
+    return;
+  }
+  Configuration_t q0 = path->initial();
+  Configuration_t q1 = path->end();
+  graph::StatePtr_t src = c->edge()->stateFrom();
+  graph::StatePtr_t dst = c->edge()->stateTo();
+  if (src == dst) return;
+
+  bool q0_in_src = src->contains(q0);
+  bool q1_in_src = src->contains(q1);
+  bool q0_in_dst = dst->contains(q0);
+  bool q1_in_dst = dst->contains(q1);
+
+  if (q0_in_src && q1_in_dst)  // Nominal case
+    return;
+  hppDout(warning, "Transition "
+                       << i
+                       << ". "
+                          "\nsrc="
+                       << src->name() << "\ndst=" << dst->name()
+                       << "\nq0_in_src=" << q0_in_src << "\nq1_in_src="
+                       << q1_in_src << "\nq0_in_dst=" << q0_in_dst
+                       << "\nq1_in_dst=" << q1_in_dst << setpyformat
+                       << "\nq0=" << one_line(q0) << "\nq1=" << one_line(q1)
+                       << unsetpyformat << "\nTrying with state.");
+
+  graph::StatePtr_t from, to;
+  if (q0_in_dst && q1_in_src) {  // Reversed from nominal case
+    from = dst;
+    to = src;
+  } else if (q0_in_dst && q1_in_dst) {
+    from = dst;
+    to = dst;
+  } else if (q0_in_src && q1_in_src) {
+    from = src;
+    to = src;
+  } else if (q0_in_src) {  // Keep same transition
+    return;
+  } else if (q0_in_dst) {  // Reverse current transition
+    from = dst;
+    to = src;
+  } else if (q1_in_src) {  // Keep same transition
+    return;
+  } else if (q1_in_dst) {  // Reverse current transition
+    from = dst;
+    to = src;
+  }
+  if (from && to) {
+    // Check that a path from dst to to exists.
+    graph::Edges_t transitions = getAllEdges(from, to);
+    if (transitions.size() >= 1) {
+      if (transitions.size() > 1) {
+        hppDout(info, "More than one transition...");
+      }
+      c->edge(transitions[0]);
+      return;
+    }
+  }
+  hppDout(warning, "Unable to find a suitable transition for "
+                       << i
+                       << ". "
+                          "\nsrc="
+                       << src->name() << "\ndst=" << dst->name()
+                       << "\nq0_in_src=" << q0_in_src << "\nq1_in_src="
+                       << q1_in_src << "\nq0_in_dst=" << q0_in_dst
+                       << "\nq1_in_dst=" << q1_in_dst << setpyformat
+                       << "\nq0=" << one_line(q0) << "\nq1=" << one_line(q1)
+                       << unsetpyformat << "\nTrying with state.");
+
+  graph::StatePtr_t state = c->edge()->state();
+  // Check that a path from dst to to exists.
+  graph::Edges_t transitions = getAllEdges(state, state);
+  if (transitions.size() >= 1) {
+    if (transitions.size() > 1) {
+      hppDout(info, "More than one transition...");
+    }
+    c->edge(transitions[0]);
+    return;
+  } else {
+    std::ostringstream os;
+    os << "ManipulationPlanner::oneStep: Unable to find a suitable transition "
+          "for "
+       << *path;
+    throw std::logic_error(os.str().c_str());
+  }
+}
+
 void ManipulationPlanner::oneStep() {
   HPP_START_TIMECOUNTER(oneStep);
 
@@ -207,6 +314,7 @@ void ManipulationPlanner::oneStep() {
       HPP_DISPLAY_LAST_TIMECOUNTER(extend);
       // Insert new path to q_near in roadmap
       if (pathIsValid) {
+        recomputeTransition(path);
         value_type t_final = path->timeRange().second;
         if (t_final != path->timeRange().first) {
           bool success;

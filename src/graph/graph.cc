@@ -28,6 +28,7 @@
 
 #include "hpp/manipulation/graph/graph.hh"
 
+#include <hpp/core/path-vector.hh>
 #include <hpp/manipulation/constraint-set.hh>
 #include <hpp/util/assertion.hh>
 
@@ -59,6 +60,30 @@ void Graph::init(const GraphWkPtr_t& weak, DevicePtr_t robot) {
       graph::HistogramPtr_t(new graph::StateHistogram(wkPtr_.lock())));
   errorThreshold_ = 1e-4;
   maxIterations_ = 20;
+}
+
+EdgePtr_t Graph::edgeAtParam(const core::PathVectorPtr_t& path,
+                             value_type param) {
+  core::PathVectorPtr_t flat = core::PathVector::create(
+      path->outputSize(), path->outputDerivativeSize());
+  path->flatten(flat);
+  value_type unused;
+  std::size_t r = flat->rankAtParam(param, unused);
+  core::PathPtr_t p = flat->pathAtRank(r);
+  ConstraintSetPtr_t constraint =
+      HPP_DYNAMIC_PTR_CAST(ConstraintSet, p->constraints());
+  if (!constraint) {
+    HPP_THROW(std::runtime_error,
+              "Graph::edgeAtParam: path constraint is not of the expected type "
+              "(hpp::manipulation::ConstraintSet)"
+                  << "at param " << param << " (rank: " << r << ")");
+  }
+  if (!constraint->edge()) {
+    HPP_THROW(std::runtime_error,
+              "Path constraint does not contain edge information "
+                  << "at param " << param << " (rank: " << r << ")");
+  }
+  return constraint->edge();
 }
 
 void Graph::initialize() {

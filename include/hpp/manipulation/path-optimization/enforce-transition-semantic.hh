@@ -43,27 +43,30 @@ using hpp::core::PathVector;
 
 /// Recompute the transition relative to each element of the path vector
 ///
-/// When executing a sequence of direct paths on a real robot, it is useful to know which
-/// transition of the graph each direct path corresponds to. For example, in a manipulation
-/// motion, before grasping an object, the robot needs to open the gripper. This information
-/// is contained in the transition that leads to a pregrasp waypoint state. The direct path
-/// should therefore have access to the transition.
+/// When executing a sequence of direct paths on a real robot, it is useful to
+/// know which transition of the graph each direct path corresponds to. For
+/// example, in a manipulation motion, before grasping an object, the robot
+/// needs to open the gripper. This information is contained in the transition
+/// that leads to a pregrasp waypoint state. The direct path should therefore
+/// have access to the transition.
 ///
-/// The information is stored in the \link hpp::manipulation::ConstraintSet constraint set \endlink
-/// of the path and is accessible via method \link hpp::manipulation::ConstraintSet::edge edge
+/// The information is stored in the \link hpp::manipulation::ConstraintSet
+/// constraint set \endlink of the path and is accessible via method \link
+/// hpp::manipulation::ConstraintSet::edge edge
 /// \endlink.
 ///
-/// If the path vector is produced by a manipulation planner, each direct path has been created
-/// by a transition. However, the path may later be cut by random shortcut or due to collision and
-/// the associated transition become irrelevant. For example if a path is created by a transition
-/// that leads to a pre-grasp, and cut due to a collision, the path does not reach the target
+/// If the path vector is produced by a manipulation planner, each direct path
+/// has been created by a transition. However, the path may later be cut by
+/// random shortcut or due to collision and the associated transition become
+/// irrelevant. For example if a path is created by a transition that leads to a
+/// pre-grasp, and cut due to a collision, the path does not reach the target
 /// state and the relevant transition is not the one that built the path.
 ///
-/// This class takes a \link hpp::core::PathVector path vector \endlink as input an relabel
-/// each direct path with the correct transition.
+/// This class takes a \link hpp::core::PathVector path vector \endlink as input
+/// an relabel each direct path with the correct transition.
 ///
-/// \pre The path should have been created by a manipulation planning algorithm: in other
-/// words, the constraint set of each direct path should be of type
+/// \pre The path should have been created by a manipulation planning algorithm:
+/// in other words, the constraint set of each direct path should be of type
 /// hpp::manipulation::ConstraintSet.
 class HPP_MANIPULATION_DLLAPI EnforceTransitionSemantic
     : public core::PathOptimizer {

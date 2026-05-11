@@ -67,7 +67,7 @@ PathVectorPtr_t EnforceTransitionSemantic::optimize(
 
   ConstraintSetPtr_t c;
   for (std::size_t i = 0; i < input->numberPaths(); ++i) {
-    PathPtr_t current = input->pathAtRank(i);
+    PathPtr_t current = input->pathAtRank(i)->copy();
     output->appendPath(current);
     c = HPP_DYNAMIC_PTR_CAST(ConstraintSet, current->constraints());
     if (!c) {

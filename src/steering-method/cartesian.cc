@@ -224,11 +224,13 @@ bool Cartesian::planPath(ConfigurationIn_t q_init, PathPtr_t& result) {
   constraints_->configProjector()->rightHandSideAt(times[0]);
   // Check that initial configuration sarisfies the constraints of the
   // problem
-  if (!constraints_->isSatisfied(q_init)) {
+  vector_t error;
+  if (!constraints_->isSatisfied(q_init, error)) {
     std::ostringstream os;
     os << "Cartesian::planPath: initial configuration "
        << pinocchio::displayConfig(q_init)
-       << " does not satisfy the constraints of the problem.";
+       << " does not satisfy the constraints of the problem. Error is "
+       << pinocchio::displayConfig(error);
     throw std::logic_error(os.str().c_str());
   }
   steps.col(0) = q_init;

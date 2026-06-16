@@ -1,33 +1,28 @@
-<?xml version="1.0"?>
-<package format="3">
-  <name>hpp-manipulation</name>
+<?xml version='1.0'?>
+<package format='3'>
+  <name>hpp_manipulation</name>
   <version>8.0.0</version>
-  <description>Classes for manipulation planning. </description>
-
-  <maintainer email="guilhem.saurel@laas.fr">Guilhem Saurel</maintainer>
-
+  <description>Classes for manipulation planning</description>
   <author>Joseph Mirabel</author>
-  <author>Florent Lamiraux et al.</author>
-
-  <license>BSD-2</license>
+  <author>Florent Lamiraux</author>
+  <maintainer email='guilhem.saurel@laas.fr'>Guilhem Saurel</maintainer>
+  <license>BSD-2-Clause</license>
 
   <url type="website">https://github.com/humanoid-path-planner/hpp-manipulation</url>
   <url type="repository">https://github.com/humanoid-path-planner/hpp-manipulation</url>
   <url type="bugtracker">https://github.com/humanoid-path-planner/hpp-manipulation/issues</url>
 
-  <buildtool_depend condition="$ROS_VERSION == 1">catkin</buildtool_depend>
-  <buildtool_depend condition="$ROS_VERSION == 2">ament_cmake</buildtool_depend>
-  <buildtool_depend>cmake</buildtool_depend>
-
-  <build_depend>doxygen</build_depend>
-
   <depend>coal</depend>
   <depend>boost</depend>
   <depend>eigen</depend>
-  <depend>hpp-core</depend>
+  <depend>hpp_core</depend>
   <depend>urdfdom</depend>
 
-  <test_depend>example-robot-data</test_depend>
+  <test_depend>example_robot_data</test_depend>
+
+  <buildtool_depend>cmake</buildtool_depend>
+  <build_depend>doxygen</build_depend>
+  <build_depend>jrl_cmakemodules</build_depend>
 
   <export>
     <build_type>cmake</build_type>

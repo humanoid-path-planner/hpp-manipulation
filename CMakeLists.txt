@@ -156,6 +156,7 @@ set(${PROJECT_NAME}_SOURCES
     src/graph/validation.cc
     src/path-optimization/random-shortcut.cc
     src/path-optimization/enforce-transition-semantic.cc
+    src/path-optimization/spline-gradient-based.cc
     src/path-planner/end-effector-trajectory.cc
     src/path-planner/states-path-finder.cc
     src/path-planner/transition-planner.cc

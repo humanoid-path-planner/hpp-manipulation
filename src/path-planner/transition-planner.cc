@@ -95,10 +95,14 @@ void TransitionPlanner::startSolve() {
 
 void TransitionPlanner::oneStep() { innerPlanner_->oneStep(); }
 
-[[deprecated("Use computePath instead")]]
 core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
                                                   matrixIn_t qGoals,
                                                   bool resetRoadmap) {
+  std::cout << "hpp::manipulation::TransitionPlanner::planPath is deprecated, "
+            << "use computePath instead." << std::endl;
+  return this->computePath(qInit, qGoals.transpose().eval(), resetRoadmap);
+
+  // deprecated
   if (!transitionSelected_) {
     throw std::runtime_error(
         "hpp::manipulation::TransitionPlanner::planPath: you need to select "

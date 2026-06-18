@@ -98,6 +98,11 @@ void TransitionPlanner::oneStep() { innerPlanner_->oneStep(); }
 core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
                                                   matrixIn_t qGoals,
                                                   bool resetRoadmap) {
+  std::cout << "hpp::manipulation::TransitionPlanner::planPath is deprecated, "
+            << "use computePath instead." << std::endl;
+  return this->computePath(qInit, qGoals.transpose().eval(), resetRoadmap);
+
+  // deprecated
   if (!transitionSelected_) {
     throw std::runtime_error(
         "hpp::manipulation::TransitionPlanner::planPath: you need to select "
@@ -125,6 +130,45 @@ core::PathVectorPtr_t TransitionPlanner::planPath(const Configuration_t qInit,
       throw std::logic_error(os.str().c_str());
     }
     innerProblem_->addGoalConfig(q);
+  }
+  if (resetRoadmap) {
+    roadmap()->clear();
+  }
+  checkProblemAndForwardParameters();
+  PathVectorPtr_t path = innerPlanner_->solve();
+  path = optimizePath(path);
+  return path;
+}
+
+core::PathVectorPtr_t TransitionPlanner::computePath(
+    const Configuration_t qInit, matrixIn_t qGoals, bool resetRoadmap) {
+  if (!transitionSelected_) {
+    throw std::runtime_error(
+        "hpp::manipulation::TransitionPlanner::computePath: you need to select "
+        "the constraint graph transition first.");
+  }
+  // Initialize right hand side of transition constraint with the initial
+  // configuration
+  ConfigProjectorPtr_t configProjector(
+      innerProblem_->constraints()->configProjector());
+  if (configProjector) {
+    configProjector->rightHandSideFromConfig(qInit);
+  }
+  // Set initial and goal configurations in inner problem
+  Configuration_t q(qInit);
+  innerProblem_->initConfig(q);
+  innerProblem_->resetGoalConfigs();
+  for (size_type i = 0; i < qGoals.cols(); ++i) {
+    Configuration_t config(qGoals.col(i));
+    if ((configProjector) && (!configProjector->isSatisfied(config))) {
+      std::ostringstream os;
+      os << "hpp::manipulation::TransitionPlanner::computePath: "
+         << "goal configuration at rank " << i << ": "
+         << pinocchio::displayConfig(config)
+         << " does not satisfy the leaf constraint.";
+      throw std::logic_error(os.str().c_str());
+    }
+    innerProblem_->addGoalConfig(config);
   }
   if (resetRoadmap) {
     roadmap()->clear();

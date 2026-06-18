@@ -80,6 +80,7 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   typedef core::PathVector PathVector;
   typedef core::PathVectorPtr_t PathVectorPtr_t;
   typedef core::Parameter Parameter;
+  using core::PathPlanner::computePath;
 
   /// Create instance and return share pointer
   static TransitionPlannerPtr_t createWithRoadmap(
@@ -105,8 +106,15 @@ class HPP_MANIPULATION_DLLAPI TransitionPlanner : public core::PathPlanner {
   /// \param qInit initial configuration,
   /// \param qGoals, goal configurations,
   /// \param resetRoadmap whether to reset the roadmap
+  [[deprecated("Use computePath instead")]]
   PathVectorPtr_t planPath(const Configuration_t qInit, matrixIn_t qGoals,
                            bool resetRoadmap);
+  /// Solve the problem defined by input configurations
+  /// \param qInit initial configuration,
+  /// \param qGoals, goal configurations,
+  /// \param resetRoadmap whether to reset the roadmap
+  PathVectorPtr_t computePath(const Configuration_t qInit, matrixIn_t qGoals,
+                              bool resetRoadmap);
   /// Call the steering method between two configurations
   /// \param q1, q2 the start and end configurations,
   /// \param validate whether resulting path should be tested for collision

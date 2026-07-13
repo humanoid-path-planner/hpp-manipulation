@@ -1,0 +1,6 @@
+[hpp-core]
+url = "github:humanoid-path-planner"
+
+[hpp-manipulation]
+src_deps = ["hpp-core"]
+url = "."

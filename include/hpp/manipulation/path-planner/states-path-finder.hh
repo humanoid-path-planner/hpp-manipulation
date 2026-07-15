@@ -149,8 +149,18 @@ class HPP_MANIPULATION_DLLAPI StatesPathFinder : public core::PathPlanner {
   /// later step.
   void reset();
 
+  /// Initialize the constraint-graph search.
+  ///
+  /// Initialize the base planner, find the initial and candidate goal states
+  /// in the constraint graph, and reset the incremental search state.
   virtual void startSolve();
+
+  /// Advance planning along one constraint-graph transition.
+  ///
+  /// Build a list of waypoint configurations if needed, plan between the next
+  /// pair with a diffusing planner, and merge its roadmap into this planner.
   virtual void oneStep();
+
   /// when both initial state is one of potential goal states,
   /// try connecting them directly
   virtual void tryConnectInitAndGoals();

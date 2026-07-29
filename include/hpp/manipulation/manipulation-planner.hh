@@ -43,6 +43,7 @@ namespace manipulation {
 /// \addtogroup path_planning
 /// \{
 
+/// RRT path planner guided by a manipulation constraint graph.
 class HPP_MANIPULATION_DLLAPI ManipulationPlanner
     : public hpp::core::PathPlanner {
  public:

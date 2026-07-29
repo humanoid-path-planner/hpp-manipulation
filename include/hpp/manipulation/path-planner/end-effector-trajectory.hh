@@ -108,9 +108,11 @@ class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory : public core::PathPlanner {
       const core::ProblemConstPtr_t& problem,
       const core::RoadmapPtr_t& roadmap) HPP_MANIPULATION_DEPRECATED;
 
-  /// Initialize the problem resolution
-  ///  \li call parent implementation
-  ///  \li get number nodes in problem parameter map
+  /// Initialize the end-effector trajectory problem.
+  ///
+  /// Validate the robot and initial configuration, reset the roadmap goal
+  /// nodes, and check that the steering method provides a trajectory and a
+  /// matching trajectory constraint.
   virtual void startSolve();
 
   /// One step of the algorithm
@@ -143,6 +145,8 @@ class HPP_MANIPULATION_DLLAPI EndEffectorTrajectory : public core::PathPlanner {
     ikSolverInit_ = solver;
   }
 
+  /// Disable direct connection attempts between initial and goal
+  /// configurations.
   void tryConnectInitAndGoals();
 
  protected:

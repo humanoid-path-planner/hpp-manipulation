@@ -27,6 +27,13 @@
 # Make Boost.Test generates the main function in test cases.
 add_definitions(-DBOOST_TEST_DYN_LINK -DBOOST_TEST_MAIN)
 
+add_unit_test(test-continuous-validation test-continuous-validation.cc)
+target_link_libraries(
+    test-continuous-validation
+    ${PROJECT_NAME}
+    Boost::unit_test_framework
+)
+
 add_unit_test(test-constraintgraph test-constraintgraph.cc)
 target_link_libraries(
     test-constraintgraph

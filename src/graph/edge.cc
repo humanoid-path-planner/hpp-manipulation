@@ -29,8 +29,11 @@
 #include "hpp/manipulation/graph/edge.hh"
 
 #include <hpp/constraints/differentiable-function.hh>
+#include <hpp/constraints/explicit/relative-pose.hh>
+#include <hpp/constraints/generic-transformation.hh>
 #include <hpp/constraints/locked-joint.hh>
 #include <hpp/constraints/solver/by-substitution.hh>
+#include <hpp/core/continuous-validation.hh>
 #include <hpp/core/obstacle-user.hh>
 #include <hpp/core/path-validation.hh>
 #include <hpp/core/path-vector.hh>
@@ -306,6 +309,27 @@ ConstraintSetPtr_t Edge::buildPathConstraint() {
   // TODO this path validation will not contain obstacles added after
   // its creation.
   pathValidation_ = problem->pathValidationFactory();
+  core::ContinuousValidationPtr_t continuousValidation =
+      HPP_DYNAMIC_PTR_CAST(core::ContinuousValidation, pathValidation_);
+  if (continuousValidation) {
+    for (const auto& nc : proj->numericalConstraints()) {
+      constraints::explicit_::RelativePosePtr_t grasp =
+          HPP_DYNAMIC_PTR_CAST(constraints::explicit_::RelativePose, nc);
+      if (!grasp || !grasp->checkAllRowsActive() ||
+          grasp->parameterSize() != 0 ||
+          !proj->solver().explicitConstraintSet().contains(grasp))
+        continue;
+      const constraints::RelativeTransformationR3xSO3& function =
+          dynamic_cast<const constraints::RelativeTransformationR3xSO3&>(
+              grasp->function());
+      if (!function.joint1() || function.joint2()->parentJoint()) continue;
+      Transform3s parentMchild =
+          function.frame1InJoint1() * function.frame2InJoint2().inverse();
+      continuousValidation->setVirtualParent(function.joint2(),
+                                             function.joint1(),
+                                             parentMchild.translation().norm());
+    }
+  }
   shared_ptr<core::ObstacleUserInterface> oui =
       HPP_DYNAMIC_PTR_CAST(core::ObstacleUserInterface, pathValidation_);
   if (oui) {

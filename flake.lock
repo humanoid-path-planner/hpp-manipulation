@@ -261,6 +261,26 @@
         "type": "github"
       }
     },
+    "hpp-core": {
+      "inputs": {
+        "gepetto": [
+          "gepetto"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786116273,
+        "narHash": "sha256-WO9Xn1TYXQB6qrnluYYAYN6990YFEionBZtLsoJ6hSE=",
+        "owner": "humanoid-path-planner",
+        "repo": "hpp-core",
+        "rev": "13a5dffb644e50a71b53d0541bc99b0d65823202",
+        "type": "github"
+      },
+      "original": {
+        "owner": "humanoid-path-planner",
+        "repo": "hpp-core",
+        "type": "github"
+      }
+    },
     "nix-ros-overlay": {
       "inputs": {
         "flake-utils": "flake-utils",
@@ -366,7 +386,8 @@
     },
     "root": {
       "inputs": {
-        "gepetto": "gepetto"
+        "gepetto": "gepetto",
+        "hpp-core": "hpp-core"
       }
     },
     "rosdistro": {

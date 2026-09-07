@@ -1452,8 +1452,8 @@ bool StatesPathFinder::solveOptimizationProblem() {
     // - from previous waypoint if it's the first time we see this solver
     //   given current solvers 0 to j-1
     // - with a random configuration if the other initialization has been
-    //   tried and failed
-    if (nTriesDone[wp] == 0)
+    //   tried and failed, unless the preceding transition is short
+    if (nTriesDone[wp] == 0 || lastBuiltTransitions_[wp - 1]->isShort())
       initWPNear(wp);
     else
       initWPRandom(wp);

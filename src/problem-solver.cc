@@ -60,6 +60,7 @@
 #include "hpp/manipulation/manipulation-planner.hh"
 #include "hpp/manipulation/package-config.hh"  // HPP_MANIPULATION_HAS_WHOLEBODY_STEP
 #include "hpp/manipulation/path-optimization/enforce-transition-semantic.hh"
+#include "hpp/manipulation/path-optimization/manipulation-spline.hh"
 #include "hpp/manipulation/path-optimization/random-shortcut.hh"
 #include "hpp/manipulation/path-planner/end-effector-trajectory.hh"
 #include "hpp/manipulation/path-planner/states-path-finder.hh"
@@ -160,6 +161,8 @@ ProblemSolver::ProblemSolver() : core::ProblemSolver(), robot_(), problem_() {
       GraphOptimizer::create<core::pathOptimization::PartialShortcut>);
   pathOptimizers.add("EnforceTransitionSemantic",
                      pathOptimization::EnforceTransitionSemantic::create);
+  pathOptimizers.add("ManipulationSpline",
+                     pathOptimization::ManipulationSpline::create);
 
   pathProjectors.add("Progressive",
                      createPathProjector<core::pathProjector::Progressive>);

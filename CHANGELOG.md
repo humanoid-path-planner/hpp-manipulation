@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [9.1.0] - 2026-10-08
+
 - Added changelog
 - [pathOptimization] Add ManipulationSpline
 - ROS: example-robot-{data -> descriptions}
@@ -212,7 +214,8 @@ Changes since v4.1:
 
 From this version on, hpp now depends on pinocchio package for all computations of forward kinematics.
 
-[Unreleased]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v9.0.2...HEAD
+[Unreleased]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v9.1.0...HEAD
+[9.1.0]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v9.0.2...v9.1.0
 [9.0.2]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v9.0.0...v9.0.2
 [9.0.0]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v7.0.0...v9.0.0
 [7.0.0]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v6.1.0...v7.0.0

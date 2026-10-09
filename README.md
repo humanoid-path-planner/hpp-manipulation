@@ -38,6 +38,6 @@ $ make install
 [hpp-core]:https://github.com/humanoid-path-planner/hpp-core
 [HPP]:https://github.com/humanoid-path-planner/hpp-doc
 [hpp-constraints]:https://github.com/humanoid-path-planner/hpp-constraints
-[hpp-statistics]:https://github.com/billx09/hpp-statistics
+[hpp-statistics]:https://github.com/humanoid-path-planner/hpp-statistics
 [hpp-model]:https://github.com/humanoid-path-planner/hpp-model
 [hpp-util]:https://github.com/humanoid-path-planner/hpp-util

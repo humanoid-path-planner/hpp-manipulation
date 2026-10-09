@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- [README] Fix hpp-statistics link
+
 ## [9.1.0] - 2026-10-08
 
 - Added changelog

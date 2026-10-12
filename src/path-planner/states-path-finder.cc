@@ -1179,7 +1179,7 @@ bool StatesPathFinder::checkSolvers(
 
 core::JointConstPtr_t StatesPathFinder::maximalJoint(size_t const wp,
                                                      core::JointConstPtr_t a) {
-  const auto& current_edge = lastBuiltTransitions_[wp + 1];
+  const auto& current_edge = lastBuiltTransitions_[wp];
   core::RelativeMotion::matrix_type m = current_edge->relativeMotion();
 
   size_t ida = core::RelativeMotion::idx(a);
@@ -1266,7 +1266,7 @@ bool StatesPathFinder::saveIncompatibleRHS(ConstraintMap_t& pairMap,
       // We get all the constraints which contain j1
       auto constraints_j1 = associatedConstraints(j1);
 
-      const auto& current_edge = lastBuiltTransitions_[wp + 1];
+      const auto& current_edge = lastBuiltTransitions_[wp];
       core::RelativeMotion::matrix_type m = current_edge->relativeMotion();
 
       std::vector<short> visited(constraints_.size(), 0);

@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - [README] Fix hpp-statistics link
 - [plugin] Register the manipulation SplineGradientBased optimizers
 - [StatesPathFinder] Retry waypoints after short transitions near the previous waypoint (parameter shortTransitionStep)
+- [StatesPathFinder] Fix out-of-bounds transition access when analysing collisions
 
 ## [9.1.0] - 2026-10-08
 

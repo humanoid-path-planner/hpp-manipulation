@@ -7,6 +7,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ## [Unreleased]
 
 - [README] Fix hpp-statistics link
+- [plugin] Register the manipulation SplineGradientBased optimizers
 
 ## [9.1.0] - 2026-10-08
 

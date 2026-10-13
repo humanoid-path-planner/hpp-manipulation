@@ -40,7 +40,8 @@ namespace pathOptimization {
 ///
 /// The result contains one PathVector per consecutive group of transitions
 /// with the same containing state. These groups can be timed independently
-/// to stop at state changes.
+/// to stop at state changes. Transitions without motion, such as a release in
+/// place, keep their leaf in the group.
 ///
 /// \pre Input paths are geometric and each leaf carries a
 /// hpp::manipulation::ConstraintSet with the correct transition.

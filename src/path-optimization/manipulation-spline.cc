@@ -60,25 +60,38 @@ PathVectorPtr_t ManipulationSpline::optimize(const PathVectorPtr_t& path) {
   std::vector<graph::EdgePtr_t> edges;
   for (std::size_t i = 0; i < flat->numberPaths(); ++i) {
     PathPtr_t leaf = flat->pathAtRank(i);
-    if (leaf->length() <= 1e-9) continue;
+    bool still = leaf->length() <= 1e-9;
     ConstraintSetPtr_t c =
         HPP_DYNAMIC_PTR_CAST(ConstraintSet, leaf->constraints());
-    if (!c || !c->edge())
+    if (!c || !c->edge()) {
+      if (still) continue;
       throw std::invalid_argument("Path leaf has no manipulation transition.");
+    }
     if (edges.empty() || c->edge() != edges.back()) {
       transitions.push_back(PathVector::create(nq, nv));
       edges.push_back(c->edge());
     }
-    transitions.back()->appendPath(leaf);
+    // Keep a leaf without motion only for a transition without motion.
+    if (!still && transitions.back()->length() <= 1e-9)
+      transitions.back() = PathVector::create(nq, nv);
+    if (!still || transitions.back()->numberPaths() == 0)
+      transitions.back()->appendPath(leaf);
   }
 
-  // Smooth each transition and join those within the same state.
-  std::vector<PathVectorPtr_t> states;
+  // Smooth each transition and join those within the same state. A
+  // transition without motion, such as a release in place, keeps its leaf
+  // and splits the smoothing of the state there.
+  std::vector<std::vector<PathVectorPtr_t> > states;
   graph::StatePtr_t previous;
   core::SteeringMethodPtr_t straight =
       core::steeringMethod::Straight::create(problem());
   for (std::size_t i = 0; i < transitions.size(); ++i) {
     PathVectorPtr_t transition = transitions[i];
+    if (transition->length() <= 1e-9) {
+      if (states.empty()) states.emplace_back();
+      states.back().push_back(transition);
+      continue;
+    }
     if (transition->length() < 1e-6)
       throw std::invalid_argument(
           "Path transition is too short for spline timing");
@@ -95,15 +108,23 @@ PathVectorPtr_t ManipulationSpline::optimize(const PathVectorPtr_t& path) {
       transition->appendPath(insertion);
     }
     if (edges[i]->state() != previous) {
-      states.push_back(PathVector::create(nq, nv));
+      states.emplace_back();
       previous = edges[i]->state();
     }
-    states.back()->concatenate(Parent_t::optimize(transition));
+    std::vector<PathVectorPtr_t>& parts = states.back();
+    if (parts.empty() || parts.back()->length() <= 1e-9)
+      parts.push_back(PathVector::create(nq, nv));
+    parts.back()->concatenate(Parent_t::optimize(transition));
   }
 
   PathVectorPtr_t result = PathVector::create(nq, nv);
-  for (const PathVectorPtr_t& state : states)
-    result->appendPath(Parent_t::optimize(state));
+  for (const std::vector<PathVectorPtr_t>& parts : states) {
+    PathVectorPtr_t state = PathVector::create(nq, nv);
+    for (const PathVectorPtr_t& part : parts)
+      state->concatenate(part->length() <= 1e-9 ? part
+                                                : Parent_t::optimize(part));
+    result->appendPath(state);
+  }
   return result;
 }
 

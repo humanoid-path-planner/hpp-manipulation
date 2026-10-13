@@ -11,6 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - [StatesPathFinder] Retry waypoints after short transitions near the previous waypoint (parameter shortTransitionStep)
 - [StatesPathFinder] Fix out-of-bounds transition access when analysing collisions
 - [SplineGradientBased] Write sparse linear constraints with setBlock
+- [ManipulationSpline] Keep transitions without motion
 
 ## [9.1.0] - 2026-10-08
 

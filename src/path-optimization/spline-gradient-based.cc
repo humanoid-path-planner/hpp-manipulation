@@ -211,7 +211,7 @@ void SplineGradientBased<_PB, _SO>::constrainEndIntoState(
   lc.addRows(nOutVar);
   matrix_t I = select.rview(matrix_t::Identity(rDof, rDof));
   for (size_type k = 0; k < Spline::NbCoeffs; ++k)
-    lc.J.block(row, col + k * rDof, nOutVar, rDof) = B1(k) * I;
+    lc.setBlock(row, col + k * rDof, B1(k) * I);
   lc.b.segment(row, nOutVar) =
       select.rview(spline->parameters().transpose() * B1);
 
@@ -243,7 +243,7 @@ void SplineGradientBased<_PB, _SO>::constraintDerivativesAtEndOfSpline(
   // matrix_t I = select.rview(matrix_t::Identity(rDof, rDof));
   matrix_t I(matrix_t::Identity(rDof, rDof));
   for (size_type k = 0; k < Spline::NbCoeffs; ++k)
-    lc.J.block(row, col + k * rDof, nOutVar, rDof) = B1(k) * I;
+    lc.setBlock(row, col + k * rDof, B1(k) * I);
   lc.b.segment(row, nOutVar).setZero();
 
   if (!(lc.J.block(row, col, nOutVar, rDof * Spline::NbCoeffs) *

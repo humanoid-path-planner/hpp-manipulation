@@ -1389,6 +1389,7 @@ bool StatesPathFinder::solveOptimizationProblem() {
   matrix_t longestSolved(d.nq, d.N);
   longestSolved.setZero();
   while (wp <= d.solvers.size()) {
+    checkTimeOut();
     if (wp == 1) {
       // stop if number of tries for the first waypoint exceeds
       if (nTriesDone[1] >= nTriesMax1) {
@@ -1538,6 +1539,7 @@ core::Configurations_t StatesPathFinder::computeConfigList(
                               ? lastBuiltTransitions_
                               : getTransitionList(d, idxSol);  // const, const
     while (!transitions.empty()) {
+      checkTimeOut();
 #ifdef HPP_DEBUG
       std::ostringstream ss;
       ss << " Trying solution " << idxSol << ": \n\t";
@@ -1596,8 +1598,20 @@ void StatesPathFinder::reset() {
   nTryConfigList_ = 0;
 }
 
+void StatesPathFinder::checkTimeOut() const {
+  std::chrono::duration<double> elapsed =
+      std::chrono::steady_clock::now() - start_;
+  if (elapsed.count() > timeOut()) {
+    std::ostringstream oss;
+    oss << "time out (" << timeOut() << "s) reached after " << elapsed.count()
+        << "s";
+    throw core::path_planning_failed(oss.str().c_str());
+  }
+}
+
 void StatesPathFinder::startSolve() {
   PathPlanner::startSolve();
+  start_ = std::chrono::steady_clock::now();
   assert(problem_);
   q1_ = problem_->initConfig();
   assert(q1_.size() > 0);

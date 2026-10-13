@@ -20,6 +20,7 @@
 #ifndef HPP_MANIPULATION_PATH_PLANNER_STATES_PATH_FINDER_HH
 #define HPP_MANIPULATION_PATH_PLANNER_STATES_PATH_FINDER_HH
 
+#include <chrono>
 #include <hpp/core/config-projector.hh>
 #include <hpp/core/config-validations.hh>
 #include <hpp/core/fwd.hh>
@@ -179,6 +180,9 @@ class HPP_MANIPULATION_DLLAPI StatesPathFinder : public core::PathPlanner {
   /// Gather constraints of all edges
   void gatherGraphConstraints();
 
+  /// Throw if the time out of solve is reached inside a step
+  void checkTimeOut() const;
+
   /// Step 1 of the algorithm
   /// \return whether the max depth was reached.
   bool findTransitions(GraphSearchData& data) const;
@@ -314,6 +318,8 @@ class HPP_MANIPULATION_DLLAPI StatesPathFinder : public core::PathPlanner {
   std::size_t idxConfigList_;
   size_type nTryConfigList_;
   bool solved_, interrupt_;
+  /// Start of the current call to solve
+  std::chrono::steady_clock::time_point start_;
 
   /// Weak pointer to itself
   StatesPathFinderWkPtr_t weak_;

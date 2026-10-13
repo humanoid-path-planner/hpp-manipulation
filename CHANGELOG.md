@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - [StatesPathFinder] Fix out-of-bounds transition access when analysing collisions
 - [SplineGradientBased] Write sparse linear constraints with setBlock
 - [ManipulationSpline] Keep transitions without motion
+- [StatesPathFinder] Stop at the time out inside a step
 
 ## [9.1.0] - 2026-10-08
 

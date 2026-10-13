@@ -1179,7 +1179,7 @@ bool StatesPathFinder::checkSolvers(
 
 core::JointConstPtr_t StatesPathFinder::maximalJoint(size_t const wp,
                                                      core::JointConstPtr_t a) {
-  const auto& current_edge = lastBuiltTransitions_[wp + 1];
+  const auto& current_edge = lastBuiltTransitions_[wp];
   core::RelativeMotion::matrix_type m = current_edge->relativeMotion();
 
   size_t ida = core::RelativeMotion::idx(a);
@@ -1266,7 +1266,7 @@ bool StatesPathFinder::saveIncompatibleRHS(ConstraintMap_t& pairMap,
       // We get all the constraints which contain j1
       auto constraints_j1 = associatedConstraints(j1);
 
-      const auto& current_edge = lastBuiltTransitions_[wp + 1];
+      const auto& current_edge = lastBuiltTransitions_[wp];
       core::RelativeMotion::matrix_type m = current_edge->relativeMotion();
 
       std::vector<short> visited(constraints_.size(), 0);
@@ -1374,6 +1374,9 @@ bool StatesPathFinder::solveOptimizationProblem() {
       problem_->getParameter("StatesPathFinder/nTriesUntilBacktrack")
           .intValue();
   std::size_t nTriesMax1 = nTriesMax * 10;  // more tries for the first waypoint
+  value_type shortStep =
+      problem_->getParameter("StatesPathFinder/shortTransitionStep")
+          .floatValue();
   std::size_t nFailsMax =
       nTriesMax * 20;  // fails before reseting the whole solution
   std::size_t nBadSolvesMax =
@@ -1452,10 +1455,20 @@ bool StatesPathFinder::solveOptimizationProblem() {
     // - from previous waypoint if it's the first time we see this solver
     //   given current solvers 0 to j-1
     // - with a random configuration if the other initialization has been
-    //   tried and failed, unless the preceding transition is short
-    if (nTriesDone[wp] == 0 || lastBuiltTransitions_[wp - 1]->isShort())
+    //   tried and failed
+    // - after a short transition, between the previous waypoint and a random
+    //   configuration, up to shortStep of the way at the last try
+    if (nTriesDone[wp] == 0)
       initWPNear(wp);
-    else
+    else if (lastBuiltTransitions_[wp - 1]->isShort()) {
+      initWPNear(wp);
+      Configuration_t q(d.waypoint.col(wp - 1));
+      hpp::pinocchio::interpolate(
+          problem()->robot(), q, problem()->configurationShooter()->shoot(),
+          shortStep * value_type(nTriesDone[wp]) /
+              value_type(wp == 1 ? nTriesMax1 : nTriesMax),
+          d.waypoint.col(wp - 1));
+    } else
       initWPRandom(wp);
 
     nTriesDone[wp]++;  // Backtrack to last state when this gets too big
@@ -1819,6 +1832,12 @@ core::Problem::declareParameter(ParameterDescription(
     "Number of tries when sampling configurations before backtracking"
     "in function solveOptimizationProblem.",
     Parameter((size_type)3)));
+core::Problem::declareParameter(ParameterDescription(
+    Parameter::FLOAT, "StatesPathFinder/shortTransitionStep",
+    "Waypoints following a short transition are retried from a configuration "
+    "between the previous waypoint and a random configuration, at most this "
+    "fraction of the way, to stay on the same inverse kinematics branch.",
+    Parameter(0.1)));
 core::Problem::declareParameter(ParameterDescription(
     Parameter::INT, "StatesPathFinder/maxTriesCollisionAnalysis",
     "Number of solve tries before stopping the collision analysis,"

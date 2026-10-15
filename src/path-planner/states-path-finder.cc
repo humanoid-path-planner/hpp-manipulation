@@ -1447,6 +1447,15 @@ bool StatesPathFinder::solveOptimizationProblem() {
         wp--;  // backtrack: try a new solution for the latest waypoint
       } while (wp > 1 &&
                (d.isTargetWaypoint[wp - 1] || nTriesDone[wp] >= nTriesMax));
+      // A waypoint after a short transition is retried near the previous one
+      // and mostly gives the same solution again: after one such retry,
+      // backtrack to the waypoint after the last transition that is not short.
+      if (nTriesDone[wp] > 1) {
+        std::size_t w = wp;
+        while (w > 1 && lastBuiltTransitions_[w - 1]->isShort()) w--;
+        std::fill(nTriesDone.begin() + w + 1, nTriesDone.begin() + wp + 1, 0);
+        wp = w;
+      }
 
       continue;
     }

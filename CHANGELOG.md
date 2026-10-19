@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - [StatesPathFinder] After one local retry, backtrack past waypoints that follow short transitions
 - [EnforceTransitionSemantic] Use the containing state loop for leaves with one end outside the transition
+- [ManipulationSpline] Join leaves too short for timing with a neighbour
 
 ## [9.2.0] - 2026-10-13
 

@@ -106,6 +106,27 @@ PathVectorPtr_t ManipulationSpline::optimize(const PathVectorPtr_t& path) {
                                  edges[i]->name());
       transition = PathVector::create(nq, nv);
       transition->appendPath(insertion);
+    } else {
+      // Join each leaf too short for timing with a neighbour: shortcuts can
+      // split a short transition into such leaves.
+      std::vector<PathPtr_t> leaves;
+      for (std::size_t j = 0; j < transition->numberPaths(); ++j)
+        leaves.push_back(transition->pathAtRank(j));
+      for (std::size_t j = 0; j < leaves.size() && leaves.size() > 1;) {
+        if (leaves[j]->length() >= 1e-6) {
+          ++j;
+          continue;
+        }
+        if (j + 1 == leaves.size()) --j;
+        straight->constraints(leaves[j]->constraints());
+        leaves[j] = straight->steer(leaves[j]->initial(), leaves[j + 1]->end());
+        if (!leaves[j])
+          throw std::runtime_error(
+              "Failed to join short leaves of transition " + edges[i]->name());
+        leaves.erase(leaves.begin() + j + 1);
+      }
+      transition = PathVector::create(nq, nv);
+      for (const PathPtr_t& leaf : leaves) transition->appendPath(leaf);
     }
     if (edges[i]->state() != previous) {
       states.emplace_back();

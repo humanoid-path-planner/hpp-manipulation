@@ -108,16 +108,6 @@ PathVectorPtr_t EnforceTransitionSemantic::optimize(
     } else if (q0_in_src && q1_in_src) {
       from = src;
       to = src;
-    } else if (q0_in_src) {  // Keep same transition
-      continue;
-    } else if (q0_in_dst) {  // Reverse current transition
-      from = dst;
-      to = src;
-    } else if (q1_in_src) {  // Keep same transition
-      continue;
-    } else if (q1_in_dst) {  // Reverse current transition
-      from = dst;
-      to = src;
     }
     if (from && to) {
       // Check that a path from dst to to exists.

@@ -29,7 +29,6 @@
 #ifndef HPP_MANIPULATION_STEERING_METHOD_GRAPH_HH
 #define HPP_MANIPULATION_STEERING_METHOD_GRAPH_HH
 
-#include <hpp/core/problem-solver.hh>  // SteeringMethodBuilder_t
 #include <hpp/core/steering-method.hh>
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>

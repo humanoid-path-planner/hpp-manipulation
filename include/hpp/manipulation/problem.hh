@@ -29,7 +29,6 @@
 #ifndef HPP_MANIPULATION_PROBLEM_HH
 #define HPP_MANIPULATION_PROBLEM_HH
 
-#include <hpp/core/problem-solver.hh>  // PathValidationBuilder_t
 #include <hpp/core/problem.hh>
 #include <hpp/manipulation/device.hh>
 #include <hpp/manipulation/fwd.hh>

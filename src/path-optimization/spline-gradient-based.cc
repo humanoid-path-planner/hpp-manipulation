@@ -117,39 +117,26 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
     if (transition->length() < 1e-6)
       throw std::invalid_argument(
           "Path transition is too short for spline timing");
-    if (std::find(singleSplineTransitions.begin(),
-                  singleSplineTransitions.end(),
-                  edges[i]->name()) != singleSplineTransitions.end()) {
-      straight->constraints(transition->pathAtRank(0)->constraints());
-      PathPtr_t insertion =
-          straight->steer(transition->initial(), transition->end());
-      if (!insertion)
-        throw std::runtime_error("Failed to fit transition " +
-                                 edges[i]->name());
-      transition = PathVector::create(nq, nv);
-      transition->appendPath(insertion);
-    } else {
-      // Join each path too short for timing with a neighbour: shortcuts can
-      // split a short transition into such leaves.
-      std::vector<PathPtr_t> leaves;
-      for (std::size_t j = 0; j < transition->numberPaths(); ++j)
-        leaves.push_back(transition->pathAtRank(j));
-      for (std::size_t j = 0; j < leaves.size() && leaves.size() > 1;) {
-        if (leaves[j]->length() >= 1e-6) {
-          ++j;
-          continue;
-        }
-        if (j + 1 == leaves.size()) --j;
-        straight->constraints(leaves[j]->constraints());
-        leaves[j] = straight->steer(leaves[j]->initial(), leaves[j + 1]->end());
-        if (!leaves[j])
-          throw std::runtime_error(
-              "Failed to join short leaves of transition " + edges[i]->name());
-        leaves.erase(leaves.begin() + j + 1);
+    // Join each path too short for timing with a neighbour: shortcuts can
+    // split a short transition into such leaves.
+    std::vector<PathPtr_t> leaves;
+    for (std::size_t j = 0; j < transition->numberPaths(); ++j)
+      leaves.push_back(transition->pathAtRank(j));
+    for (std::size_t j = 0; j < leaves.size() && leaves.size() > 1;) {
+      if (leaves[j]->length() >= 1e-6) {
+        ++j;
+        continue;
       }
-      transition = PathVector::create(nq, nv);
-      for (const PathPtr_t& p : leaves) transition->appendPath(p);
+      if (j + 1 == leaves.size()) --j;
+      straight->constraints(leaves[j]->constraints());
+      leaves[j] = straight->steer(leaves[j]->initial(), leaves[j + 1]->end());
+      if (!leaves[j])
+        throw std::runtime_error(
+            "Failed to join short leaves of transition " + edges[i]->name());
+      leaves.erase(leaves.begin() + j + 1);
     }
+    transition = PathVector::create(nq, nv);
+    for (const PathPtr_t& p : leaves) transition->appendPath(p);
     if (edges[i]->state() != previous) {
       states.emplace_back();
       previous = edges[i]->state();

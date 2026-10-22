@@ -30,7 +30,6 @@
 #define HPP_MANIPULATION_GRAPHOPTIMIZER_HH
 
 #include <hpp/core/path-optimizer.hh>
-#include <hpp/core/problem-solver.hh>  // PathOptimizerBuilder_t
 #include <hpp/manipulation/config.hh>
 #include <hpp/manipulation/fwd.hh>
 #include <hpp/manipulation/graph/fwd.hh>

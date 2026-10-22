@@ -67,11 +67,6 @@ class HPP_MANIPULATION_DLLAPI SplineGradientBased
   /// Segment the input path by transition and stops at each transition change.
   virtual core::PathVectorPtr_t optimize(const core::PathVectorPtr_t& path);
 
-  /// Transitions fitted with one spline between their endpoints, using their
-  /// constraints, for example constrained insertion motions. Other transitions
-  /// keep their interpolation intervals as initial spline pieces.
-  std::vector<std::string> singleSplineTransitions;
-
  protected:
   typedef
       typename hpp::core::pathOptimization::LinearConstraint LinearConstraint;

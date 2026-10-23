@@ -66,6 +66,7 @@ class HPP_MANIPULATION_DLLAPI SplineGradientBased
   ///
   /// Segment the input path by transition and stops at each transition change.
   virtual core::PathVectorPtr_t optimize(const core::PathVectorPtr_t& path);
+
  protected:
   typedef
       typename hpp::core::pathOptimization::LinearConstraint LinearConstraint;

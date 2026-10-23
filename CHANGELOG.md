@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- [graph::Graph] Add equivalent transition map.
 - [SplineManipulation] Remove useless class and enhance SplineGradientBased instead.
 - [StatesPathFinder] After one local retry, backtrack past waypoints that follow short transitions
 - [EnforceTransitionSemantic] Use the containing state loop for leaves with one end outside the transition

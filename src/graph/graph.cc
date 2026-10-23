@@ -255,6 +255,18 @@ GraphComponents_t& Graph::components() { return components_; }
 Graph::Graph(const std::string& name, const ProblemPtr_t& problem)
     : GraphComponent(name), problem_(problem) {}
 
+EdgePtr_t Graph::equivalentEdge(EdgePtr_t edge) const {
+  std::map<EdgePtr_t, EdgePtr_t>::const_iterator it(equivalentEdge_.find(edge));
+  if (it != equivalentEdge_.end()) {
+    return it->second;
+  }
+  return edge;
+}
+
+void Graph::equivalentEdge(EdgePtr_t edge, EdgePtr_t equivalent) {
+  equivalentEdge_[edge] = equivalent;
+}
+
 std::ostream& Graph::dotPrint(std::ostream& os,
                               dot::DrawingAttributes da) const {
   da.separator = "; ";

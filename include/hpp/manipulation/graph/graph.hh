@@ -262,6 +262,24 @@ class HPP_MANIPULATION_DLLAPI Graph : public GraphComponent {
   /// Invalidate all states and edges of the graph
   virtual void invalidate();
 
+  /// Get equivalent edge
+  ///
+  /// \param edge edge
+  /// \return a weak pointer to the equivalent edge
+  ///
+  /// Edges linking a regular node to a pregrasp node are equivalent to the loop edge of the
+  /// state except for the target state. A motion leading to a pregrasp is usually composed of
+  /// a sequence of local paths belonging to the loop transition, and a last local path belonging
+  /// to the transition leading to the pregrasp state. When time parameterizing this sequence of
+  /// local paths, the last one is considered as different and the time parameterization stops
+  /// before it. This method enable to correct this issue by returning the loop edge when given
+  /// the edge of the last local path. For any other edge, it returns the input.
+  EdgePtr_t equivalentEdge(EdgePtr_t edge) const;
+
+  /// Set equivalent edge
+  ///
+  /// \sa EdgePtr_t equivalentEdge(EdgePtr_t edge) const.
+  void equivalentEdge(EdgePtr_t edge, EdgePtr_t equivalent);
  protected:
   /// Initialization of the object.
   void init(const GraphWkPtr_t& weak, DevicePtr_t robot);
@@ -309,6 +327,7 @@ class HPP_MANIPULATION_DLLAPI Graph : public GraphComponent {
   value_type errorThreshold_;
   size_type maxIterations_;
 
+  std::map<EdgePtr_t, EdgePtr_t> equivalentEdge_;
   ConstraintsAndComplements_t constraintsAndComplements_;
   friend class GraphComponent;
 };  // Class Graph

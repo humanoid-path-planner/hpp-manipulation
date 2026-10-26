@@ -30,7 +30,6 @@
 #include <hpp/manipulation/device.hh>
 #include <hpp/manipulation/graph-optimizer.hh>
 #include <hpp/manipulation/path-optimization/enforce-transition-semantic.hh>
-#include <hpp/manipulation/path-optimization/manipulation-spline.hh>
 #include <hpp/manipulation/path-optimization/random-shortcut.hh>
 #include <hpp/manipulation/path-optimization/spline-gradient-based.hh>
 #include <hpp/manipulation/problem-solver.hh>
@@ -61,8 +60,6 @@ BOOST_AUTO_TEST_CASE(problem_solver_optimizers) {
       *solver, "Graph-PartialShortcut", problem));
   BOOST_CHECK(createsType<pathOptimization::EnforceTransitionSemantic>(
       *solver, "EnforceTransitionSemantic", problem));
-  BOOST_CHECK(createsType<pathOptimization::ManipulationSpline>(
-      *solver, "ManipulationSpline", problem));
   delete solver;
 }
 
@@ -72,10 +69,10 @@ BOOST_AUTO_TEST_CASE(spline_gradient_based_plugin) {
   BOOST_REQUIRE(hpp::core::plugin::loadPlugin(SPLINE_PLUGIN, solver));
 
   BOOST_CHECK(
-      (createsType<pathOptimization::SplineGradientBased<BernsteinBasis, 1> >(
+      (createsType<pathOptimization::SplineGradientBased<BernsteinBasis, 1>>(
           *solver, "SplineGradientBased_bezier1", problem)));
   BOOST_CHECK(
-      (createsType<pathOptimization::SplineGradientBased<BernsteinBasis, 3> >(
+      (createsType<pathOptimization::SplineGradientBased<BernsteinBasis, 3>>(
           *solver, "SplineGradientBased_bezier3", problem)));
   delete solver;
 }

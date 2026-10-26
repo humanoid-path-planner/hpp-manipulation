@@ -104,6 +104,7 @@ set(${PROJECT_NAME}_HEADERS
     include/hpp/manipulation/graph/helper.hh
     include/hpp/manipulation/graph/validation.hh
     include/hpp/manipulation/path-optimization/enforce-transition-semantic.hh
+    include/hpp/manipulation/path-optimization/manipulation-spline.hh
     include/hpp/manipulation/path-optimization/random-shortcut.hh
     include/hpp/manipulation/path-optimization/spline-gradient-based.hh
     include/hpp/manipulation/path-planner/end-effector-trajectory.hh
@@ -144,6 +145,7 @@ set(${PROJECT_NAME}_SOURCES
     src/graph/validation.cc
     src/path-optimization/random-shortcut.cc
     src/path-optimization/enforce-transition-semantic.cc
+    src/path-optimization/manipulation-spline.cc
     src/path-optimization/spline-gradient-based.cc
     src/path-planner/end-effector-trajectory.cc
     src/path-planner/states-path-finder.cc

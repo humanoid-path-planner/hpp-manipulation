@@ -27,20 +27,14 @@
 // DAMAGE.
 
 #include <hpp/core/path-optimization/linear-constraint.hh>
-#include <hpp/core/steering-method/straight.hh>
 #include <hpp/manipulation/constraint-set.hh>
 #include <hpp/manipulation/graph/edge.hh>
 #include <hpp/manipulation/graph/state.hh>
 #include <hpp/manipulation/path-optimization/spline-gradient-based.hh>
-#include <hpp/manipulation/problem.hh>
 
 namespace hpp {
 namespace manipulation {
 namespace pathOptimization {
-
-using core::PathPtr_t;
-using core::PathVector;
-using core::PathVectorPtr_t;
 
 template <int _PB, int _SO>
 SplineGradientBased<_PB, _SO>::SplineGradientBased(
@@ -68,94 +62,6 @@ SplineGradientBased<_PB, _SO>::createFromCore(
   if (!HPP_DYNAMIC_PTR_CAST(const Problem, problem))
     throw std::invalid_argument("This is not a manipulation problem.");
   return create(HPP_STATIC_PTR_CAST(const Problem, problem));
-}
-
-template <int _PB, int _SO>
-PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
-    const PathVectorPtr_t& path) {
-  const size_type nq = path->outputSize(), nv = path->outputDerivativeSize();
-  PathVectorPtr_t flat = PathVector::create(nq, nv);
-  path->flatten(flat);
-
-  // Group consecutive paths by transition.
-  std::vector<PathVectorPtr_t> transitions;
-  std::vector<graph::EdgePtr_t> edges;
-  for (std::size_t i = 0; i < flat->numberPaths(); ++i) {
-    PathPtr_t p = flat->pathAtRank(i);
-    bool still = p->length() <= 1e-9;
-    ConstraintSetPtr_t c =
-        HPP_DYNAMIC_PTR_CAST(ConstraintSet, p->constraints());
-    if (!c || !c->edge()) {
-      if (still) continue;
-      throw std::invalid_argument("Path p has no manipulation transition.");
-    }
-    if (edges.empty() || c->edge() != edges.back()) {
-      transitions.push_back(PathVector::create(nq, nv));
-      edges.push_back(c->edge());
-    }
-    // Keep a path without motion only for a transition without motion.
-    if (!still && transitions.back()->length() <= 1e-9)
-      transitions.back() = PathVector::create(nq, nv);
-    if (!still || transitions.back()->numberPaths() == 0)
-      transitions.back()->appendPath(p);
-  }
-
-  // Smooth each transition and join those within the same state. A
-  // transition without motion, such as a release in place, keeps its path
-  // and splits the smoothing of the state there.
-  std::vector<std::vector<PathVectorPtr_t> > states;
-  graph::StatePtr_t previous;
-  core::SteeringMethodPtr_t straight =
-      core::steeringMethod::Straight::create(this->problem());
-  for (std::size_t i = 0; i < transitions.size(); ++i) {
-    PathVectorPtr_t transition = transitions[i];
-    if (transition->length() <= 1e-9) {
-      if (states.empty()) states.emplace_back();
-      states.back().push_back(transition);
-      continue;
-    }
-    if (transition->length() < 1e-6)
-      throw std::invalid_argument(
-          "Path transition is too short for spline timing");
-    // Join each path too short for timing with a neighbour: shortcuts can
-    // split a short transition into such leaves.
-    std::vector<PathPtr_t> leaves;
-    for (std::size_t j = 0; j < transition->numberPaths(); ++j)
-      leaves.push_back(transition->pathAtRank(j));
-    for (std::size_t j = 0; j < leaves.size() && leaves.size() > 1;) {
-      if (leaves[j]->length() >= 1e-6) {
-        ++j;
-        continue;
-      }
-      if (j + 1 == leaves.size()) --j;
-      straight->constraints(leaves[j]->constraints());
-      leaves[j] = straight->steer(leaves[j]->initial(), leaves[j + 1]->end());
-      if (!leaves[j])
-        throw std::runtime_error("Failed to join short leaves of transition " +
-                                 edges[i]->name());
-      leaves.erase(leaves.begin() + j + 1);
-    }
-    transition = PathVector::create(nq, nv);
-    for (const PathPtr_t& p : leaves) transition->appendPath(p);
-    if (edges[i]->state() != previous) {
-      states.emplace_back();
-      previous = edges[i]->state();
-    }
-    std::vector<PathVectorPtr_t>& parts = states.back();
-    if (parts.empty() || parts.back()->length() <= 1e-9)
-      parts.push_back(PathVector::create(nq, nv));
-    parts.back()->concatenate(Parent_t::optimize(transition));
-  }
-
-  PathVectorPtr_t result = PathVector::create(nq, nv);
-  for (const std::vector<PathVectorPtr_t>& parts : states) {
-    PathVectorPtr_t state = PathVector::create(nq, nv);
-    for (const PathVectorPtr_t& part : parts)
-      state->concatenate(part->length() <= 1e-9 ? part
-                                                : Parent_t::optimize(part));
-    result->appendPath(state);
-  }
-  return result;
 }
 
 template <int _PB, int _SO>
@@ -357,11 +263,14 @@ void SplineGradientBased<_PB, _SO>::constraintDerivativesAtEndOfSpline(
 
 // ----------- Instanciate -------------------------------------------- //
 
+// template class SplineGradientBased<core::path::CanonicalPolynomeBasis, 1>; //
+// equivalent to StraightPath template class
+// SplineGradientBased<core::path::CanonicalPolynomeBasis, 2>; template class
+// SplineGradientBased<core::path::CanonicalPolynomeBasis, 3>;
 template class SplineGradientBased<core::path::BernsteinBasis,
                                    1>;  // equivalent to StraightPath
+// template class SplineGradientBased<core::path::BernsteinBasis, 2>;
 template class SplineGradientBased<core::path::BernsteinBasis, 3>;
-template class SplineGradientBased<core::path::BernsteinBasis, 5>;
-template class SplineGradientBased<core::path::BernsteinBasis, 7>;
 
 using core::Parameter;
 using core::ParameterDescription;

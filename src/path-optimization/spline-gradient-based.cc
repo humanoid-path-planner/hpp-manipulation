@@ -74,7 +74,7 @@ template <int _PB, int _SO>
 PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
     const PathVectorPtr_t& path) {
   // Get the constraint graph via the problem
-  ProblemConstPtr_t mp (HPP_DYNAMIC_PTR_CAST(const Problem, this->problem()));
+  ProblemConstPtr_t mp(HPP_DYNAMIC_PTR_CAST(const Problem, this->problem()));
   assert(mp);
   graph::GraphPtr_t graph(mp->constraintGraph());
   const size_type nq = path->outputSize(), nv = path->outputDerivativeSize();
@@ -93,8 +93,8 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
       if (still) continue;
       throw std::invalid_argument("Path p has no manipulation transition.");
     }
-    if (edges.empty() ||
-        graph->equivalentEdge(c->edge()) != graph->equivalentEdge(edges.back())) {
+    if (edges.empty() || graph->equivalentEdge(c->edge()) !=
+                             graph->equivalentEdge(edges.back())) {
       transitions.push_back(PathVector::create(nq, nv));
       edges.push_back(graph->equivalentEdge(c->edge()));
     }

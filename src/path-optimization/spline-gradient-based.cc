@@ -131,8 +131,8 @@ PathVectorPtr_t SplineGradientBased<_PB, _SO>::optimize(
       straight->constraints(leaves[j]->constraints());
       leaves[j] = straight->steer(leaves[j]->initial(), leaves[j + 1]->end());
       if (!leaves[j])
-        throw std::runtime_error("Failed to join short leaves of transition " +
-                                 edges[i]->name());
+        throw std::runtime_error(
+            "Failed to join short leaves of transition " + edges[i]->name());
       leaves.erase(leaves.begin() + j + 1);
     }
     transition = PathVector::create(nq, nv);

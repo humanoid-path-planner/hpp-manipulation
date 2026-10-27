@@ -170,7 +170,6 @@ target_link_libraries(${PROJECT_NAME} hpp-core::hpp-core Boost::regex)
 
 install(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
 
-add_subdirectory(plugins)
 if(BUILD_TESTING)
     add_subdirectory(tests)
 endif()

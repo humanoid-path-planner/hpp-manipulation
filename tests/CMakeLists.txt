@@ -45,14 +45,3 @@ set_tests_properties(
     PROPERTIES
         ENVIRONMENT "ROS_PACKAGE_PATH=${example-robot-data_DIR}/../../../share"
 )
-
-add_unit_test(test-path-optimizers test-path-optimizers.cc)
-target_link_libraries(
-    test-path-optimizers
-    ${PROJECT_NAME}
-    Boost::unit_test_framework
-)
-target_compile_definitions(
-    test-path-optimizers
-    PRIVATE SPLINE_PLUGIN="$<TARGET_FILE:manipulation-spline-gradient-based>"
-)

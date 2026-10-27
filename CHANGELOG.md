@@ -6,6 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- [plugin] Remove related tests since plugin are not used anymore.
 - [pathOptimization::SplineGradientBased] Improve algorithm
 - [graph::Graph] Add equivalent transition map.
 - [SplineManipulation] Remove useless class and enhance SplineGradientBased instead.

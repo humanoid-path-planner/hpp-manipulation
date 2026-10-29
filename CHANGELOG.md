@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [9.3.0] - 2026-10-29
+
 - [plugin] Remove related tests since plugin are not used anymore.
 - [pathOptimization::SplineGradientBased] Improve algorithm
 - [graph::Graph] Add equivalent transition map.
@@ -233,7 +235,8 @@ Changes since v4.1:
 
 From this version on, hpp now depends on pinocchio package for all computations of forward kinematics.
 
-[Unreleased]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v9.2.0...HEAD
+[Unreleased]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v9.3.0...HEAD
+[9.3.0]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v9.2.0...v9.3.0
 [9.2.0]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v9.1.0...v9.2.0
 [9.1.0]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v9.0.2...v9.1.0
 [9.0.2]: https://github.com/humanoid-path-planner/hpp-manipulation/compare/v9.0.0...v9.0.2

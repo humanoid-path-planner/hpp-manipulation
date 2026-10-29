@@ -16,7 +16,6 @@
               ./doc
               ./include
               ./package.xml
-              ./plugins
               ./src
               ./tests
             ];

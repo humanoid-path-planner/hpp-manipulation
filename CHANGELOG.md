@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+- [pyproject] Add authors, maintainers and project URLs
+
 ## [9.3.0] - 2026-10-29
 
 - [plugin] Remove related tests since plugin are not used anymore.

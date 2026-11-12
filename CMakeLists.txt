@@ -168,6 +168,11 @@ target_include_directories(
 )
 target_link_libraries(${PROJECT_NAME} hpp-core::hpp-core Boost::regex)
 
+get_relative_rpath(lib ${PROJECT_NAME}_INSTALL_RPATH)
+set_target_properties(
+    ${PROJECT_NAME}
+    PROPERTIES INSTALL_RPATH "${${PROJECT_NAME}_INSTALL_RPATH}"
+)
 install(TARGETS ${PROJECT_NAME} EXPORT ${TARGETS_EXPORT_NAME} DESTINATION lib)
 
 if(BUILD_TESTING)

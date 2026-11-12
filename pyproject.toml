@@ -7,14 +7,26 @@ requires = [
 ]
 
 [project]
+authors = [
+  { name = "Florent Lamiraux" },
+  { name = "Joseph Mirabel" }
+]
 dependencies = [
   "cmeel-boost ~= 1.90.0",
   "hpp-core"
 ]
 description = "Classes for manipulation planning"
 license = "BSD-2-Clause"
+maintainers = [
+  { email = "guilhem.saurel@laas.fr", name = "Guilhem Saurel" }
+]
 name = "hpp-manipulation"
 version = "9.3.0"
+
+[project.urls]
+homepage = "https://github.com/humanoid-path-planner/hpp-manipulation"
+issues = "https://github.com/humanoid-path-planner/hpp-manipulation/issues"
+repository = "https://github.com/humanoid-path-planner/hpp-manipulation"
 
 [tool.cmeel]
 has-sitelib = false

@@ -1212,13 +1212,14 @@ bool StatesPathFinder::saveIncompatibleRHS(ConstraintMap_t& pairMap,
   auto q = optData_->waypoint.col(wp - 1);
   bool nocollision{true};
 
-  core::CollisionValidationPtr_t collisionValidations =
-      core::CollisionValidation::create(problem_->robot());
-  collisionValidations->checkParameterized(true);
-  collisionValidations->computeAllContacts(true);
+  if (!allContacts_) {
+    allContacts_ = core::CollisionValidation::create(problem_->robot());
+    allContacts_->checkParameterized(true);
+    allContacts_->computeAllContacts(true);
+  }
 
   // If there was a collision in the last configuration
-  if (!collisionValidations->validate(q, validationReport)) {
+  if (!allContacts_->validate(q, validationReport)) {
     auto allReports = HPP_DYNAMIC_PTR_CAST(core::AllCollisionsValidationReport,
                                            validationReport);
 
@@ -1624,6 +1625,7 @@ void StatesPathFinder::startSolve() {
   assert(problem_);
   q1_ = problem_->initConfig();
   assert(q1_.size() > 0);
+  allContacts_.reset();
 
   // core::PathProjectorPtr_t pathProjector
   //   (core::pathProjector::Progressive::create(inStateProblem_, 0.01));

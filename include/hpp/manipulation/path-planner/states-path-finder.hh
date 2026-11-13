@@ -284,6 +284,9 @@ class HPP_MANIPULATION_DLLAPI StatesPathFinder : public core::PathPlanner {
   ProblemConstPtr_t problem_;
   /// Path planning problem in each leaf.
   core::ProblemPtr_t inStateProblem_;
+  /// Collision validation computing all contacts, used to find the
+  /// constraints that make a waypoint collide
+  core::CollisionValidationPtr_t allContacts_;
 
   /// Vector of parameterizable edge numerical constraints
   NumericalConstraints_t constraints_;
